@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2014 - 2018 Blazebit.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.blazebit</groupId>
+        <artifactId>blaze-query-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>blaze-query-documentation</artifactId>
+    <packaging>pom</packaging>
+    
+    <name>Blazebit Query Documentation</name>
+    
+    <properties>
+        <version.asciidoctor>1.6.0-alpha.7</version.asciidoctor>
+        <stable.version>1.0.0</stable.version>
+        <series.version>1.0</series.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.6</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.wagon</groupId>
+                            <artifactId>wagon-ssh</artifactId>
+                            <version>2.10</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-asciidoc-resources-reference-manual-en_US</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/style</directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/generated-docs/reference/manual/en_US</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.7.1</version>
+                <configuration>
+                    <attributes>
+                        <preserveDirectories>true</preserveDirectories>
+                        <plantumlconfig>${basedir}/src/main/asciidoc/plantuml.config</plantumlconfig>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>reference-manual-en_US-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/src/main/asciidoc/reference/manual/en_US</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-docs/reference/manual/en_US</outputDirectory>
+                            <!-- see https://github.com/asciidoctor/asciidoctor-backends/tree/master/erb/html5 -->
+                            <templateDir>${basedir}/src/main/template</templateDir>
+                            <imagesDir>${basedir}/src/main/asciidoc/reference/manual/images</imagesDir>
+                            <doctype>book</doctype>
+                            <gemPath>${project.build.directory}/gems-provided</gemPath>
+                            <eruby>erb</eruby>
+                            <backend>html5</backend>
+                            <sourceHighlighter>prettify</sourceHighlighter>
+                            <requires>
+                                <require>asciidoctor-diagram</require>
+                            </requires>
+                            <attributes>
+                                <linkcss>true</linkcss>
+                                <stylesheet>blazebit.css</stylesheet>
+                                <imagesdir>images</imagesdir>
+                                <prettifydir>prettify</prettifydir>
+                                <iconsdir>images/icons</iconsdir>
+                                <stylesdir>css</stylesdir>
+                                <scriptsdir>js</scriptsdir>
+                                
+                                <toc>left</toc>
+                                <icons>font</icons>
+                                <sectanchors>true</sectanchors>
+                                <idprefix />
+                                <idseparator>-</idseparator>
+                                <docinfo1>true</docinfo1>
+                                <version>${project.version}</version>
+                                <stable_version>${stable.version}</stable_version>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>9.1.15.0</version>
+                    </dependency>
+                    <!-- Workaround for https://github.com/asciidoctor/asciidoctor/issues/1582 -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${version.asciidoctor}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>1.5.9</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-documentation</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <overwrite>true</overwrite>
+                            <outputDirectory>${project.build.directory}/site/documentation/${series.version}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../documentation/target/generated-docs</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+	
+	<profiles>
+        <profile>
+            <id>staging</id>
+            <properties>
+                <site.query>staging-query.blazebit.com</site.query>
+            </properties>
+            <distributionManagement>
+                <site>
+                    <id>staging-query.blazebit.com</id>
+                    <name>query.blazebit.com Staging</name>
+                    <url>scp://staging-query.blazebit.com/var/www/virtual/staging-query.blazebit.com/htdocs</url>
+                </site>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>blazebit-release</id>
+            <properties>
+                <site.query>query.blazebit.com</site.query>
+            </properties>
+            <distributionManagement>
+                <site>
+                    <id>query.blazebit.com</id>
+                    <name>query.blazebit.com</name>
+                    <url>scp://query.blazebit.com/var/www/virtual/query.blazebit.com/htdocs</url>
+                </site>
+            </distributionManagement>
+        </profile>
+	</profiles>
+</project>

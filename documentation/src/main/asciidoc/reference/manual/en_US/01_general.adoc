@@ -1,0 +1,13 @@
+:numbered!:
+
+[preface]
+== Preface
+
+// TODO: General introduction into the problem space. Make it clear what we are trying to solve here
+
+[preface]
+== System requirements
+
+{projectname} requires at least Java 11.
+
+:numbered:

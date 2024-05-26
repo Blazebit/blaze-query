@@ -1,0 +1,17 @@
+Blaze Query - Querying Tool
+==============================================
+:projectname:       Blaze Query
+:lang:              en
+:authors:           Christian Beikov, Blazebit
+:email:             christian@blazebit.com
+:revnumber:         {version}
+:copyrighttext:     Copyright (C) 2018 Blazebit
+:new:               image:images/smallnew.png[]
+:numbered:
+:linkattrs:
+
+include::01_general.adoc[]
+
+include::02_getting_started.adoc[]
+
+include::03_architecture.adoc[]

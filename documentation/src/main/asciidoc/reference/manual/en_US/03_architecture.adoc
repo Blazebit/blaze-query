@@ -1,0 +1,3 @@
+== Architecture
+
+This is just a high level view for those that are interested about how {projectname} works.
