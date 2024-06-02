@@ -30,13 +30,16 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  * @since 1.0.0
  */
 public final class AzureVirtualMachineSchemaProvider implements QuerySchemaProvider {
+    /**
+     * Creates a new schema provider.
+     */
     public AzureVirtualMachineSchemaProvider() {
     }
 
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
         return Map.<Class<?>, DataFetcher<?>>of(
-				VirtualMachine.class, VirtualMachineDataFetcher.INSTANCE
+                VirtualMachine.class, VirtualMachineDataFetcher.INSTANCE
         );
     }
 }

@@ -18,10 +18,22 @@ package com.blazebit.query.connector.base;
 
 import java.lang.reflect.Method;
 
+/**
+ * Accessor for a method based attribute of an object.
+ *
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public final class MethodAccessor implements Accessor {
     private final String attributePath;
     private final Method method;
 
+    /**
+     * Creates a method accessor.
+     *
+     * @param attributePath The attribute path for this accessor.
+     * @param method The method to obtain an attribute value.
+     */
     public MethodAccessor(String attributePath, Method method) {
         this.attributePath = attributePath;
         this.method = method;

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+import com.blazebit.query.QuerySession;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import org.apache.calcite.DataContext;
@@ -42,20 +43,34 @@ import org.apache.calcite.schema.impl.AbstractTable;
 import org.apache.calcite.sql.type.JavaToSqlTypeConversionRules;
 import org.apache.calcite.util.Pair;
 
-public class DataFetcherTable extends AbstractTable implements ScannableTable {
+/**
+ * {@link ScannableTable} implementation based on a {@link DataFetcher}.
+ *
+ * @param <T> The native data type
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
+public class DataFetcherTable<T> extends AbstractTable implements ScannableTable {
 
-    private final Class<?> tableClass;
-    private final DataFetcher<?> dataFetcher;
+    private final Class<T> tableClass;
+    private final DataFetcher<T> dataFetcher;
     private final Supplier<DataFetchContext> dataContextSupplier;
     private final Accessor[] accessors;
     private RelDataType rowType;
 
-    public DataFetcherTable(Class<?> tableClass, DataFetcher<?> dataFetcher, Supplier<DataFetchContext> dataFetchContextSupplier) {
+    /**
+     * Creates new table.
+     *
+     * @param tableClass The table class
+     * @param dataFetcher The data fetcher
+     * @param dataFetchContextSupplier The data fetch context supplier
+     */
+    public DataFetcherTable(Class<T> tableClass, DataFetcher<T> dataFetcher, Supplier<DataFetchContext> dataFetchContextSupplier) {
         this.tableClass = tableClass;
         this.dataFetcher = dataFetcher;
         this.accessors = createAccessors( null, tableClass );
-		this.dataContextSupplier = dataFetchContextSupplier;
-	}
+        this.dataContextSupplier = dataFetchContextSupplier;
+    }
 
     @Override
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
@@ -242,8 +257,13 @@ public class DataFetcherTable extends AbstractTable implements ScannableTable {
         return new AbstractEnumerable<>() {
             @Override
             public Enumerator<Object[]> enumerator() {
-                List<?> result = dataFetcher.fetch( dataFetchContext );
-                return new AccessorListEnumerator<>( result, AccessorListEnumerator.arrayConverter( accessors, null ));
+                QuerySession session = dataFetchContext.getSession();
+                List<? extends T> objects = session.get( tableClass );
+                if ( objects == null ) {
+                    objects = dataFetcher.fetch( dataFetchContext );
+                    session.put( tableClass, objects );
+                }
+                return new AccessorListEnumerator<>( objects, AccessorListEnumerator.arrayConverter( accessors, null ));
             }
         };
     }

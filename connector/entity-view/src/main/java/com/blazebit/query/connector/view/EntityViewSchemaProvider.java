@@ -17,11 +17,13 @@
 package com.blazebit.query.connector.view;
 
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.metamodel.ViewType;
 import com.blazebit.query.spi.ConfigurationProvider;
+import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.google.common.collect.ImmutableMap;
@@ -34,19 +36,35 @@ import jakarta.persistence.EntityManager;
  * @since 1.0.0
  */
 public final class EntityViewSchemaProvider implements QuerySchemaProvider {
+    /**
+     * Creates a new schema provider.
+     */
     public EntityViewSchemaProvider() {
     }
 
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        EntityViewManager entityViewManager = (EntityViewManager) configurationProvider.getPropertyProvider(
+        EntityViewManager entityViewManager = configurationProvider.<EntityViewManager>getPropertyProvider(
                 EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName() ).get();
-		//noinspection unchecked
-        Supplier<EntityManager> entityManagerProvider = (Supplier<EntityManager>) (Supplier<?>) configurationProvider.getPropertyProvider(
+        Predicate<ViewType<?>> entityViewFilter = configurationProvider.getProperty(
+                EntityViewConnectorConfig.ENTITY_VIEW_FILTER.getPropertyName() );
+        Supplier<EntityManager> entityManagerProvider = configurationProvider.getPropertyProvider(
                 EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName() );
+        //noinspection unchecked
+        Supplier<DataFetchContext> dataContextSupplier = (Supplier<DataFetchContext>) configurationProvider;
         final ImmutableMap.Builder<Class<?>, EntityViewProjectableFilterableTable<?>> builder = ImmutableMap.builder();
         for ( ViewType<?> viewType : entityViewManager.getMetamodel().getViews() ) {
-            builder.put( viewType.getJavaType(), new EntityViewProjectableFilterableTable<>( entityViewManager, entityManagerProvider, viewType ) );
+            if ( entityViewFilter == null || entityViewFilter.test( viewType ) ) {
+                builder.put(
+                        viewType.getJavaType(),
+                        new EntityViewProjectableFilterableTable<>(
+                                entityViewManager,
+                                entityManagerProvider,
+                                dataContextSupplier,
+                                viewType
+                        )
+                );
+            }
         }
         return builder.build();
     }

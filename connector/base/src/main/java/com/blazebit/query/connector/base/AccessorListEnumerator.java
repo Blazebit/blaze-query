@@ -21,11 +21,25 @@ import java.util.List;
 import org.apache.calcite.linq4j.Enumerator;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * An enumerator for producing converted objects.
+ *
+ * @param <NativeType> The original type of the result list
+ * @param <Result> The result type produced by the enumerator
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public class AccessorListEnumerator<NativeType, Result> implements Enumerator<Result> {
     private final List<? extends NativeType> list;
     private final RowConverter<NativeType, Result> converter;
-    int i = -1;
+    private int i = -1;
 
+    /**
+     * Creates a new enumerator that produces objects by applying the given converter on elements of the given list.
+     *
+     * @param list The original list
+     * @param converter The converter to apply
+     */
     public AccessorListEnumerator(List<? extends NativeType> list, RowConverter<NativeType, Result> converter) {
         this.list = list;
         this.converter = converter;
@@ -45,6 +59,14 @@ public class AccessorListEnumerator<NativeType, Result> implements Enumerator<Re
         }
     }
 
+    /**
+     * Creates a new array converter.
+     *
+     * @param accessors The accessors to produce array elements from an object.
+     * @param fields The fields to project
+     * @param <NativeType> The native object type
+     * @return A new row converter
+     */
     public static <NativeType> RowConverter<NativeType, Object[]> arrayConverter(Accessor[] accessors, @Nullable int[] fields) {
         if (fields == null) {
             return new ArrayRowConverter<>( accessors );
@@ -57,7 +79,11 @@ public class AccessorListEnumerator<NativeType, Result> implements Enumerator<Re
         }
     }
 
-    /** Returns an array of integers {0, ..., n - 1}. */
+    /**
+     * Returns an array of integers {0, ..., n - 1}.
+     * @param n The size of the list
+     * @return an array of integers {0, ..., n - 1}
+     */
     public static int[] identityList(int n) {
         int[] integers = new int[n];
         for (int i = 0; i < n; i++) {
@@ -87,18 +113,38 @@ public class AccessorListEnumerator<NativeType, Result> implements Enumerator<Re
 
     /**
      * Row converter.
+     *
+     * @param <NativeType> The native object type
+     * @param <Result>> The result object type
+     * @author Christian Beikov
+     * @since 1.0.0
      */
     public abstract static class RowConverter<NativeType, Result> {
+        /**
+         * Converts the object to the result type.
+         *
+         * @param object The object
+         * @return the result
+         */
         abstract Result convertRow(NativeType object);
     }
 
     /**
      * Array row converter.
+     *
+     * @param <NativeType> The native object type
+     * @author Christian Beikov
+     * @since 1.0.0
      */
     public static class ArrayRowConverter<NativeType> extends RowConverter<NativeType, Object[]> {
 
         private final Accessor[] accessors;
 
+        /**
+         * Creates new array converter.
+         *
+         * @param accessors The accessors to use.
+         */
         public ArrayRowConverter(Accessor[] accessors) {
             this.accessors = accessors;
         }
@@ -113,10 +159,21 @@ public class AccessorListEnumerator<NativeType, Result> implements Enumerator<Re
         }
     }
 
-    /** Single column row converter. */
+    /**
+     * Single column row converter.
+     *
+     * @param <NativeType> The native object type
+     * @author Christian Beikov
+     * @since 1.0.0
+     */
     private static class SingleColumnRowConverter<NativeType> extends RowConverter<NativeType, Object> {
         private final Accessor accessor;
 
+        /**
+         * Creates new single column converter.
+         *
+         * @param accessor The accessor to use
+         */
         public SingleColumnRowConverter(Accessor accessor) {
             this.accessor = accessor;
         }

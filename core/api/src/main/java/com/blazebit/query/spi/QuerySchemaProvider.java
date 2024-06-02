@@ -26,12 +26,12 @@ import java.util.Map;
  */
 public interface QuerySchemaProvider {
 
-	/**
-	 * Resolves the schema objects based on a configuration provider.
-	 *
-	 * @param configurationProvider A configuration provider
-	 * @return The schema objects to register
-	 */
-	Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider);
+    /**
+     * Resolves the schema objects based on a configuration provider.
+     *
+     * @param configurationProvider A configuration provider
+     * @return The schema objects to register
+     */
+    Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider);
 
 }

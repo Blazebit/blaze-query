@@ -34,53 +34,55 @@ import com.blazebit.query.metamodel.Metamodel;
  */
 public interface QueryContext extends AutoCloseable {
 
-	/**
-	 * Creates a new {@link QuerySession} with default configuration.
-	 *
-	 * @return a new {@link QuerySession}
-	 * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
-	 */
-	default QuerySession createSession() {
-		return createSession(Collections.emptyMap());
-	}
+    /**
+     * Creates a new {@link QuerySession} with default configuration.
+     *
+     * @return a new {@link QuerySession}
+     * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
+     */
+    default QuerySession createSession() {
+        return createSession(Collections.emptyMap());
+    }
 
-	/**
-	 * Creates a new {@link QuerySession}. The given configuration properties will override the default configuration
-	 * if possible.
-	 *
-	 * @param properties Additional configuration that overrides the default configuration if possible
-	 * @return a new {@link QuerySession}
-	 * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
-	 */
-	QuerySession createSession(Map<String, Object> properties);
+    /**
+     * Creates a new {@link QuerySession}. The given configuration properties will override the default configuration
+     * if possible.
+     *
+     * @param properties Additional configuration that overrides the default configuration if possible
+     * @return a new {@link QuerySession}
+     * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
+     */
+    QuerySession createSession(Map<String, Object> properties);
 
-	/**
-	 * Returns the metamodel of this {@linkplain QueryContext}.
-	 *
-	 * @return The metamodel of this {@linkplain QueryContext}
-	 */
-	Metamodel getMetamodel();
+    /**
+     * Returns the metamodel of this {@linkplain QueryContext}.
+     *
+     * @return The metamodel of this {@linkplain QueryContext}
+     */
+    Metamodel getMetamodel();
 
-	/**
-	 * Return an object of the specified type to allow access to the provider-specific API.
-	 * If the implementation does not support the specified class, the {@link IllegalArgumentException} is thrown.
-	 *
-	 * @param cls the class of the object to be returned
-	 * @throws IllegalArgumentException if the type is not supported
-	 */
-	<T> T unwrap(Class<T> cls);
+    /**
+     * Return an object of the specified type to allow access to the provider-specific API.
+     * If the implementation does not support the specified class, the {@link IllegalArgumentException} is thrown.
+     *
+     * @param cls the class of the object to be returned
+     * @param <T> The return type
+     * @return The unwrapped object
+     * @throws IllegalArgumentException if the type is not supported
+     */
+    <T> T unwrap(Class<T> cls);
 
-	/**
-	 * Returns whether the {@linkplain QueryContext} is open.
-	 *
-	 * @return Whether the {@linkplain QueryContext} is open
-	 */
-	boolean isOpen();
+    /**
+     * Returns whether the {@linkplain QueryContext} is open.
+     *
+     * @return Whether the {@linkplain QueryContext} is open
+     */
+    boolean isOpen();
 
-	/**
-	 * Closes the {@linkplain QueryContext} and all associated {@link QuerySession} to free up resources.
-	 * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
-	 */
-	@Override
-	void close();
+    /**
+     * Closes the {@linkplain QueryContext} and all associated {@link QuerySession} to free up resources.
+     * @throws IllegalStateException if the {@linkplain QueryContext} has already been closed
+     */
+    @Override
+    void close();
 }

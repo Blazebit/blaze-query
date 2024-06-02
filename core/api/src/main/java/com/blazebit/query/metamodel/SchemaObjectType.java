@@ -27,17 +27,17 @@ import com.blazebit.query.spi.DataFetcher;
  */
 public interface SchemaObjectType<T> {
 
-	/**
-	 * Returns the type of the schema object.
-	 *
-	 * @return The type of the schema object
-	 */
+    /**
+     * Returns the type of the schema object.
+     *
+     * @return The type of the schema object
+     */
     Class<T> getType();
 
-	/**
-	 * Returns the data fetcher for the schema object.
-	 *
-	 * @return The data fetcher for the schema object
-	 */
-	DataFetcher<T> getDataFetcher();
+    /**
+     * Returns the data fetcher for the schema object.
+     *
+     * @return The data fetcher for the schema object
+     */
+    DataFetcher<T> getDataFetcher();
 }

@@ -156,6 +156,9 @@
                                 <serializationLibrary>jackson</serializationLibrary>
                                 <useJakartaEe>true</useJakartaEe>
                             </configOptions>
+                            <openapiNormalizer>
+                                REFACTOR_ALLOF_WITH_PROPERTIES_ONLY=true
+                            </openapiNormalizer>
                         </configuration>
                     </execution>
                 </executions>

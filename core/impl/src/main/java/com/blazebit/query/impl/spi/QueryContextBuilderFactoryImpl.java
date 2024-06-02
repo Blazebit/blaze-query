@@ -24,8 +24,8 @@ import com.blazebit.query.spi.QueryContextBuilderFactory;
  * @since 1.0.0
  */
 public class QueryContextBuilderFactoryImpl implements QueryContextBuilderFactory {
-	@Override
-	public QueryContextBuilder creatBuilder() {
-		return new QueryContextBuilderImpl();
-	}
+    @Override
+    public QueryContextBuilder creatBuilder() {
+        return new QueryContextBuilderImpl();
+    }
 }

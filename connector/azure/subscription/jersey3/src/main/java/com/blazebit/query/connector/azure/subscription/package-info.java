@@ -15,27 +15,6 @@
  */
 
 /**
- * The Blaze-Expression enabled Blaze-Domain model for the Azure Subscription model.
- * <p/>
- * The setup involves creating an OAuth object and then an ApiClient:
- * <pre>
- * String tenantId = "...";
- * String basePath = "https://login.microsoftonline.com/" + tenantId;
- * String clientId = "...";
- * String clientSecret = "..";
- * OAuth oAuth = new OAuth( basePath, "/oauth2/v2.0/token" )
- *     .setCredentials( clientId, clientSecret, false )
- *     // Default scope
- *     .setScope( "https://management.core.windows.net//.default" );
- * ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
- * </pre>
- * <p/>
- * For data querying, create new Api objects and pass the ApiClient.
- * <pre>
- * String apiVersion = "2022-12-01";
- * String subscriptionId = "...";
- * SubscriptionsApi api = new SubscriptionsApi(apiClient);
- * SubscriptionListResult subscriptionListResult = api.subscriptionsList(apiVersion);
- * </pre>
+ * Connector for the Azure Subscriptions Endpoint.
  */
 package com.blazebit.query.connector.azure.subscription;

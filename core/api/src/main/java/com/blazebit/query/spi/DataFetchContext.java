@@ -16,7 +16,7 @@
 
 package com.blazebit.query.spi;
 
-import java.util.Map;
+import com.blazebit.query.QuerySession;
 
 /**
  * The context object for {@link DataFetcher} invocations.
@@ -37,18 +37,10 @@ public interface DataFetchContext {
     <T> T findProperty(String key);
 
     /**
-     * Creates a simple {@linkplain DataFetchContext} for the given {@link Map}.
+     * Returns the current query session.
      *
-     * @param map The map
-     * @return A new {@linkplain DataFetchContext}
+     * @return the current query session
      */
-    static DataFetchContext forMap(final Map<String, Object> map) {
-        return new DataFetchContext() {
-            @Override
-            public <T> T findProperty(String key) {
-				//noinspection unchecked
-				return (T) map.get( key );
-            }
-        };
-    }
+    QuerySession getSession();
+
 }

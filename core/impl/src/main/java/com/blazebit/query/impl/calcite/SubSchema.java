@@ -27,14 +27,14 @@ import org.apache.calcite.util.NameMap;
  * @since 1.0.0
  */
 public class SubSchema extends AbstractSchema {
-	private final NameMap<Schema> subSchemaMap = new NameMap<>();
+    private final NameMap<Schema> subSchemaMap = new NameMap<>();
 
-	public void add(String name, Schema schema) {
-		subSchemaMap.put( name, schema );
-	}
+    public void add(String name, Schema schema) {
+        subSchemaMap.put( name, schema );
+    }
 
-	@Override
-	protected Map<String, Schema> getSubSchemaMap() {
-		return subSchemaMap.map();
-	}
+    @Override
+    protected Map<String, Schema> getSubSchemaMap() {
+        return subSchemaMap.map();
+    }
 }

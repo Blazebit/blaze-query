@@ -24,25 +24,25 @@ package com.blazebit.query;
  */
 public class NonUniqueResultException extends QueryException {
 
-	/**
-	 * Creates a new {@linkplain NonUniqueResultException}.
-	 *
-	 * @param message The exception message
-	 * @param queryString The query string
-	 */
-	public NonUniqueResultException(String message, String queryString) {
-		super( message, queryString );
-	}
+    /**
+     * Creates a new {@linkplain NonUniqueResultException}.
+     *
+     * @param message The exception message
+     * @param queryString The query string
+     */
+    public NonUniqueResultException(String message, String queryString) {
+        super( message, queryString );
+    }
 
-	/**
-	 * Creates a new {@linkplain NonUniqueResultException}.
-	 *
-	 * @param message The exception message
-	 * @param cause The underlying exception cause
-	 * @param queryString The query string
-	 */
-	public NonUniqueResultException(String message, Throwable cause, String queryString) {
-		super( message, cause, queryString );
-	}
+    /**
+     * Creates a new {@linkplain NonUniqueResultException}.
+     *
+     * @param message The exception message
+     * @param cause The underlying exception cause
+     * @param queryString The query string
+     */
+    public NonUniqueResultException(String message, Throwable cause, String queryString) {
+        super( message, cause, queryString );
+    }
 
 }

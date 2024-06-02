@@ -32,48 +32,48 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  */
 public class QueryContextBuilderImpl implements QueryContextBuilder {
 
-	final Map<String, Supplier<Object>> propertyProviders = new HashMap<>();
-	final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
-	final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
-	final Map<String, String> schemaObjectNames = new HashMap<>();
+    final Map<String, Supplier<Object>> propertyProviders = new HashMap<>();
+    final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
+    final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
+    final Map<String, String> schemaObjectNames = new HashMap<>();
 
-	@Override
-	public QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier) {
-		propertyProviders.put(property, supplier);
-		return this;
-	}
+    @Override
+    public QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier) {
+        propertyProviders.put(property, supplier);
+        return this;
+    }
 
-	@Override
-	public Supplier<Object> getPropertyProvider(String property) {
-		Supplier<Object> propertyProvider = propertyProviders.get( property );
-		if (propertyProvider == null) {
-			throw new IllegalArgumentException("No property provider found for property: " + property);
-		}
-		return propertyProvider;
-	}
+    @Override
+    public Supplier<Object> getPropertyProvider(String property) {
+        Supplier<Object> propertyProvider = propertyProviders.get( property );
+        if (propertyProvider == null) {
+            throw new IllegalArgumentException("No property provider found for property: " + property);
+        }
+        return propertyProvider;
+    }
 
-	@Override
-	public QueryContextBuilder registerSchemaObjectAlias(Class<?> schemaObjectType, String alias) {
-		schemaObjectNames.put( alias, schemaObjectType.getCanonicalName() );
-		return this;
-	}
+    @Override
+    public QueryContextBuilder registerSchemaObjectAlias(Class<?> schemaObjectType, String alias) {
+        schemaObjectNames.put( alias, schemaObjectType.getCanonicalName() );
+        return this;
+    }
 
-	@Override
-	public <T> QueryContextBuilder registerSchemaObject(Class<T> clazz, DataFetcher<T> dataFetcher) {
-		schemaObjects.put( clazz.getCanonicalName(), new SchemaObjectTypeImpl<>( clazz, dataFetcher ) );
-		return this;
-	}
+    @Override
+    public <T> QueryContextBuilder registerSchemaObject(Class<T> clazz, DataFetcher<T> dataFetcher) {
+        schemaObjects.put( clazz.getCanonicalName(), new SchemaObjectTypeImpl<>( clazz, dataFetcher ) );
+        return this;
+    }
 
-	@Override
-	public QueryContextBuilder loadServices() {
-		for ( QuerySchemaProvider querySchemaProvider : ServiceLoader.load( QuerySchemaProvider.class ) ) {
-			schemaProviders.add( querySchemaProvider );
-		}
-		return this;
-	}
+    @Override
+    public QueryContextBuilder loadServices() {
+        for ( QuerySchemaProvider querySchemaProvider : ServiceLoader.load( QuerySchemaProvider.class ) ) {
+            schemaProviders.add( querySchemaProvider );
+        }
+        return this;
+    }
 
-	@Override
-	public QueryContext build() {
-		return new QueryContextImpl( this );
-	}
+    @Override
+    public QueryContext build() {
+        return new QueryContextImpl( this );
+    }
 }

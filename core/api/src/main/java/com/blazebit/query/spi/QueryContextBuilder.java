@@ -28,64 +28,65 @@ import com.blazebit.query.QueryContext;
  */
 public interface QueryContextBuilder {
 
-	/**
-	 * Constructs a property provider for the value and registers it via {@link #setPropertyProvider(String, Supplier)}.
-	 *
-	 * @param property The property name
-	 * @param value The property value
-	 * @return {@code this} object for method chaining
-	 */
-	default QueryContextBuilder setProperty(String property, Object value) {
-		return setPropertyProvider( property, () -> value );
-	}
+    /**
+     * Constructs a property provider for the value and registers it via {@link #setPropertyProvider(String, Supplier)}.
+     *
+     * @param property The property name
+     * @param value The property value
+     * @return {@code this} object for method chaining
+     */
+    default QueryContextBuilder setProperty(String property, Object value) {
+        return setPropertyProvider( property, () -> value );
+    }
 
-	/**
-	 * Sets the given supplier as value provider for the given property name.
-	 *
-	 * @param property The property name
-	 * @param supplier The property value supplier
-	 * @return {@code this} object for method chaining
-	 */
-	QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier);
+    /**
+     * Sets the given supplier as value provider for the given property name.
+     *
+     * @param property The property name
+     * @param supplier The property value supplier
+     * @return {@code this} object for method chaining
+     */
+    QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier);
 
-	/**
-	 * Returns the property provider for the property name.
-	 *
-	 * @return the property provider for the property name
-	 * @throws IllegalArgumentException If no property provider exists
-	 */
-	Supplier<Object> getPropertyProvider(String property);
+    /**
+     * Returns the property provider for the property name.
+     *
+     * @param property The property name
+     * @return the property provider for the property name
+     * @throws IllegalArgumentException If no property provider exists
+     */
+    Supplier<Object> getPropertyProvider(String property);
 
-	/**
-	 * Registers a fully qualified alias for a schema object type.
-	 *
-	 * @param schemaObjectType The schema object type
-	 * @param alias The qualified alias name
-	 * @return {@code this} object for method chaining
-	 */
-	QueryContextBuilder registerSchemaObjectAlias(Class<?> schemaObjectType, String alias);
+    /**
+     * Registers a fully qualified alias for a schema object type.
+     *
+     * @param schemaObjectType The schema object type
+     * @param alias The qualified alias name
+     * @return {@code this} object for method chaining
+     */
+    QueryContextBuilder registerSchemaObjectAlias(Class<?> schemaObjectType, String alias);
 
-	/**
-	 * Registers the data fetcher for a schema object type.
-	 *
-	 * @param schemaObjectType The schema object type
-	 * @param dataFetcher The data fetcher
-	 * @return {@code this} object for method chaining
-	 * @param <T> The schema object type
-	 */
-	<T> QueryContextBuilder registerSchemaObject(Class<T> schemaObjectType, DataFetcher<T> dataFetcher);
+    /**
+     * Registers the data fetcher for a schema object type.
+     *
+     * @param schemaObjectType The schema object type
+     * @param dataFetcher The data fetcher
+     * @return {@code this} object for method chaining
+     * @param <T> The schema object type
+     */
+    <T> QueryContextBuilder registerSchemaObject(Class<T> schemaObjectType, DataFetcher<T> dataFetcher);
 
-	/**
-	 * Loads the available services through the Java {@link java.util.ServiceLoader} API.
-	 *
-	 * @return {@code this} object for method chaining
-	 */
-	QueryContextBuilder loadServices();
+    /**
+     * Loads the available services through the Java {@link java.util.ServiceLoader} API.
+     *
+     * @return {@code this} object for method chaining
+     */
+    QueryContextBuilder loadServices();
 
-	/**
-	 * Builds a new {@link QueryContext} object based on the configuration provided by this builder.
-	 *
-	 * @return A new {@link QueryContext}
-	 */
-	QueryContext build();
+    /**
+     * Builds a new {@link QueryContext} object based on the configuration provided by this builder.
+     *
+     * @return A new {@link QueryContext}
+     */
+    QueryContext build();
 }

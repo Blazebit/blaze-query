@@ -26,14 +26,24 @@ import java.util.function.Supplier;
  */
 public interface ConfigurationProvider {
 
-	/**
-	 * Returns a property provider for the property name.
-	 * The property provider will be resolved lazily against the currently executing query,
-	 * or if no query is currently executing, will default to the values configured for a {@link com.blazebit.query.QueryContext}.
-	 *
-	 * @param property The property name
-	 * @return the property provider for the property name
-	 */
-	Supplier<Object> getPropertyProvider(String property);
+    /**
+     * Returns a property value set for the property name, or {@code null} if no value was set.
+     *
+     * @param property The property name
+     * @param <X> The property type
+     * @return the property value or {@code null}
+     */
+    <X> X getProperty(String property);
+
+    /**
+     * Returns a property provider for the property name.
+     * The property provider will be resolved lazily against the currently executing query,
+     * or if no query is currently executing, will default to the values configured for a {@link com.blazebit.query.QueryContext}.
+     *
+     * @param property The property name
+     * @param <X> The property type
+     * @return the property provider for the property name
+     */
+    <X> Supplier<X> getPropertyProvider(String property);
 
 }

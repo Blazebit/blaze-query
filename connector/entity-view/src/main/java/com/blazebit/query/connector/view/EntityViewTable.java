@@ -48,16 +48,37 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.schema.impl.AbstractTable;
 import org.apache.calcite.util.Pair;
 
+/**
+ * A table implementation for entity views.
+ *
+ * @param <EntityView> The entity view type
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public abstract class EntityViewTable<EntityView> extends AbstractTable implements SchemaObjectType<EntityView>, DataFetcher<EntityView> {
     protected final EntityViewManager evm;
     protected final Supplier<EntityManager> entityManagerSupplier;
+    protected final Supplier<DataFetchContext> dataContextSupplier;
     protected final ViewType<EntityView> viewType;
     protected final Accessor[] accessors;
     private RelDataType rowType;
 
-    public EntityViewTable(EntityViewManager evm, Supplier<EntityManager> entityManagerSupplier, ViewType<EntityView> viewType) {
+    /**
+     * Creates a table.
+     *
+     * @param evm The entity view manager
+     * @param entityManagerSupplier The entity manager supplier
+     * @param dataContextSupplier The data context supplier
+     * @param viewType The view type
+     */
+    public EntityViewTable(
+            EntityViewManager evm,
+            Supplier<EntityManager> entityManagerSupplier,
+            Supplier<DataFetchContext> dataContextSupplier,
+            ViewType<EntityView> viewType) {
         this.evm = evm;
         this.entityManagerSupplier = entityManagerSupplier;
+        this.dataContextSupplier = dataContextSupplier;
         this.viewType = viewType;
         this.accessors = createAccessors( null, viewType );
     }
@@ -81,8 +102,8 @@ public abstract class EntityViewTable<EntityView> extends AbstractTable implemen
     }
 
     private RelDataType deduceRowType(JavaTypeFactory typeFactory, ManagedViewType<?> viewType) {
-		//noinspection unchecked
-		Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
+        //noinspection unchecked
+        Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
         final List<RelDataType> types = new ArrayList<>(attributes.size());
         final List<String> names = new ArrayList<>(attributes.size());
         for ( MethodAttribute<?, ?> attribute : attributes ) {
@@ -127,8 +148,8 @@ public abstract class EntityViewTable<EntityView> extends AbstractTable implemen
     }
 
     private static Accessor[] createAccessors(String basePath, ManagedViewType<?> viewType) {
-		//noinspection unchecked
-		Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
+        //noinspection unchecked
+        Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
         Accessor[] accessors = new Accessor[attributes.size()];
         int i = 0;
         for ( MethodAttribute<?, ?> attribute : attributes ) {

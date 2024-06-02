@@ -31,6 +31,9 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  * @since 1.0.0
  */
 public final class AzureSubscriptionSchemaProvider implements QuerySchemaProvider {
+    /**
+     * Creates a new schema provider.
+     */
     public AzureSubscriptionSchemaProvider() {
     }
 

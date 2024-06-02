@@ -22,19 +22,39 @@ import java.util.List;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * Accessor for a collection attribute of an object.
+ *
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public class CollectionAccessor implements Accessor {
     private final Accessor baseAccessor;
     private final @Nullable Accessor elementAccessor;
 
+    /**
+     * Creates a new collection accessor.
+     *
+     * @param baseAccessor Accessor to obtain a collection.
+     * @param elementAccessor Accessor to obtain an element.
+     */
     public CollectionAccessor(Accessor baseAccessor, @Nullable Accessor elementAccessor) {
         this.baseAccessor = baseAccessor;
         this.elementAccessor = elementAccessor;
     }
 
+    /**
+     * Returns the base accessor to obtain the collection.
+     * @return the base accessor to obtain the collection
+     */
     public Accessor getBaseAccessor() {
         return baseAccessor;
     }
 
+    /**
+     * Returns the element accessor to obtain the element object.
+     * @return the element accessor to obtain the element object
+     */
     public @Nullable Accessor getElementAccessor() {
         return elementAccessor;
     }

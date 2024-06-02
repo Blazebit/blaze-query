@@ -49,268 +49,261 @@ import static java.util.Spliterators.spliteratorUnknownSize;
  */
 public class QueryContextImpl implements QueryContext {
 
-	private final ConfigurationProviderImpl configurationProvider;
-	private final MetamodelImpl metamodel;
-	private final CalciteDataSource calciteDataSource;
-	private volatile boolean closed;
+    private final ConfigurationProviderImpl configurationProvider;
+    private final MetamodelImpl metamodel;
+    private final CalciteDataSource calciteDataSource;
+    private volatile boolean closed;
 
-	public QueryContextImpl(QueryContextBuilderImpl builder) {
-		this.configurationProvider = new ConfigurationProviderImpl( ImmutableMap.copyOf( builder.propertyProviders ) );
-		this.calciteDataSource = new CalciteDataSource();
-		this.metamodel = new MetamodelImpl(resolveSchemaObjects( builder, configurationProvider, calciteDataSource ));
-	}
+    public QueryContextImpl(QueryContextBuilderImpl builder) {
+        this.configurationProvider = new ConfigurationProviderImpl( ImmutableMap.copyOf( builder.propertyProviders ) );
+        this.calciteDataSource = new CalciteDataSource();
+        this.metamodel = new MetamodelImpl(resolveSchemaObjects( builder, configurationProvider, calciteDataSource ));
+    }
 
-	@Override
-	public QuerySession createSession(Map<String, Object> properties) {
-		checkClosed();
-		return new QuerySessionImpl( this, properties );
-	}
+    @Override
+    public QuerySession createSession(Map<String, Object> properties) {
+        checkClosed();
+        return new QuerySessionImpl( this, properties );
+    }
 
-	public Connection createConnection() {
-		try {
-			return calciteDataSource.getConnection();
-		}
-		catch (SQLException e) {
-			throw new RuntimeException( "Couldn't acquire connection", e );
-		}
-	}
+    public Connection createConnection() {
+        try {
+            return calciteDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException( "Couldn't acquire connection", e );
+        }
+    }
 
-	public List<Object[]> getResultList(QueryImpl query, PreparedStatement preparedStatement) {
-		configurationProvider.setQuery(query);
-		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			ArrayList<Object[]> resultList = new ArrayList<>();
-			while (resultSet.next()) {
-				resultList.add( extractTuple(resultSet) );
-			}
-			return resultList;
-		}
-		catch (SQLException e) {
-			throw new QueryException( "Error while executing query", e, query.getQueryString() );
-		}
-		finally {
-			configurationProvider.unsetQuery();
-		}
-	}
+    public List<Object[]> getResultList(QueryImpl query, PreparedStatement preparedStatement) {
+        configurationProvider.setQuery(query);
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            ArrayList<Object[]> resultList = new ArrayList<>();
+            while (resultSet.next()) {
+                resultList.add( extractTuple(resultSet) );
+            }
+            return resultList;
+        } catch (SQLException e) {
+            throw new QueryException( "Error while executing query", e, query.getQueryString() );
+        } finally {
+            configurationProvider.unsetQuery();
+        }
+    }
 
-	public Stream<Object[]> getResultStream(QueryImpl query, PreparedStatement preparedStatement) {
-		configurationProvider.setQuery(query);
-		try {
-			ResultSetIterator iterator = new ResultSetIterator(query , preparedStatement.executeQuery() );
-			Spliterator<Object[]> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
-			Stream<Object[]> stream = StreamSupport.stream( spliterator, false );
-			return stream.onClose( iterator::close );
-		}
-		catch (SQLException e) {
-			throw new QueryException( "Error while executing query", e, query.getQueryString() );
-		}
-		finally {
-			configurationProvider.unsetQuery();
-		}
-	}
+    public Stream<Object[]> getResultStream(QueryImpl query, PreparedStatement preparedStatement) {
+        configurationProvider.setQuery(query);
+        try {
+            ResultSetIterator iterator = new ResultSetIterator(query , preparedStatement.executeQuery() );
+            Spliterator<Object[]> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
+            Stream<Object[]> stream = StreamSupport.stream( spliterator, false );
+            return stream.onClose( iterator::close );
+        } catch (SQLException e) {
+            throw new QueryException( "Error while executing query", e, query.getQueryString() );
+        } finally {
+            configurationProvider.unsetQuery();
+        }
+    }
 
-	private static class ResultSetIterator implements Iterator<Object[]> {
-		private final QueryImpl query;
-		private final ResultSet resultSet;
-		private boolean hasNext;
+    private static class ResultSetIterator implements Iterator<Object[]> {
+        private final QueryImpl query;
+        private final ResultSet resultSet;
+        private boolean hasNext;
 
-		public ResultSetIterator(QueryImpl query, ResultSet resultSet) {
-			this.query = query;
-			this.resultSet = resultSet;
-			advance();
-		}
+        public ResultSetIterator(QueryImpl query, ResultSet resultSet) {
+            this.query = query;
+            this.resultSet = resultSet;
+            advance();
+        }
 
-		private void advance() {
-			try {
-				hasNext = resultSet.next();
-			}
-			catch (SQLException e) {
-				throw new QueryException( "Couldn't advance to next row", e, query.getQueryString() );
-			}
-		}
+        private void advance() {
+            try {
+                hasNext = resultSet.next();
+            } catch (SQLException e) {
+                throw new QueryException( "Couldn't advance to next row", e, query.getQueryString() );
+            }
+        }
 
-		@Override
-		public boolean hasNext() {
-			return hasNext;
-		}
+        @Override
+        public boolean hasNext() {
+            return hasNext;
+        }
 
-		@Override
-		public Object[] next() {
-			Object[] tuple;
-			try {
-				tuple = extractTuple( resultSet );
-			} catch (SQLException e) {
-				throw new QueryException( "Couldn't extract tuple", e, query.getQueryString() );
-			}
-			advance();
-			return tuple;
-		}
+        @Override
+        public Object[] next() {
+            Object[] tuple;
+            try {
+                tuple = extractTuple( resultSet );
+            } catch (SQLException e) {
+                throw new QueryException( "Couldn't extract tuple", e, query.getQueryString() );
+            }
+            advance();
+            return tuple;
+        }
 
-		public void close() {
-			try {
-				resultSet.close();
-			}
-			catch (SQLException e) {
-				throw new QueryException( "Error during result set closing", e, query.getQueryString() );
-			}
-		}
-	}
+        public void close() {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                throw new QueryException( "Error during result set closing", e, query.getQueryString() );
+            }
+        }
+    }
 
-	private static Object[] extractTuple(ResultSet resultSet) throws SQLException {
-		int columnCount = resultSet.getMetaData().getColumnCount();
-		Object[] tuple = new Object[columnCount];
-		for ( int i = 0; i < tuple.length; i++ ) {
-			tuple[i] = resultSet.getObject( i + 1 );
-		}
-		return tuple;
-	}
+    private static Object[] extractTuple(ResultSet resultSet) throws SQLException {
+        int columnCount = resultSet.getMetaData().getColumnCount();
+        Object[] tuple = new Object[columnCount];
+        for ( int i = 0; i < tuple.length; i++ ) {
+            tuple[i] = resultSet.getObject( i + 1 );
+        }
+        return tuple;
+    }
 
-	@Override
-	public <T> T unwrap(Class<T> cls) {
-		checkClosed();
-		if (cls == CalciteDataSource.class) {
-			return (T) calciteDataSource;
-		} else if (SchemaPlus.class.isAssignableFrom( cls ) ) {
-			return (T) calciteDataSource.getRootSchema();
-		}
-		throw new IllegalArgumentException("Can't unwrap to: " + cls.getName() );
-	}
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        checkClosed();
+        if (cls == CalciteDataSource.class) {
+            return (T) calciteDataSource;
+        } else if (SchemaPlus.class.isAssignableFrom( cls ) ) {
+            return (T) calciteDataSource.getRootSchema();
+        }
+        throw new IllegalArgumentException("Can't unwrap to: " + cls.getName() );
+    }
 
-	@Override
-	public MetamodelImpl getMetamodel() {
-		checkClosed();
-		return metamodel;
-	}
+    @Override
+    public MetamodelImpl getMetamodel() {
+        checkClosed();
+        return metamodel;
+    }
 
-	@Override
-	public boolean isOpen() {
-		return closed;
-	}
+    @Override
+    public boolean isOpen() {
+        return closed;
+    }
 
-	public void checkClosed() {
-		if (closed) {
-			throw new IllegalStateException("QueryContext already closed");
-		}
-	}
+    public void checkClosed() {
+        if (closed) {
+            throw new IllegalStateException("QueryContext already closed");
+        }
+    }
 
-	@Override
-	public void close() {
-		checkClosed();
-		closed = true;
-	}
+    @Override
+    public void close() {
+        checkClosed();
+        closed = true;
+    }
 
-	private static ImmutableMap<String, SchemaObjectTypeImpl<?>> resolveSchemaObjects(
-			QueryContextBuilderImpl builder,
-			ConfigurationProviderImpl configurationProvider,
-			CalciteDataSource calciteDataSource) {
-		HashMap<String, SchemaProviderEntry> schemaProviderEntries = new HashMap<>();
-		for ( QuerySchemaProvider schemaProvider : builder.schemaProviders ) {
-			Map<Class<?>, ? extends DataFetcher<?>> schemaObjects = schemaProvider.resolveSchemaObjects( configurationProvider );
-			for ( Map.Entry<Class<?>, ? extends DataFetcher<?>> entry : schemaObjects.entrySet() ) {
-				SchemaProviderEntry providerEntry = schemaProviderEntries.put(
-						entry.getKey().getCanonicalName(),
-						new SchemaProviderEntry( entry.getKey(), entry.getValue(), schemaProvider )
-				);
-				if ( providerEntry != null ) {
-					throw new IllegalArgumentException( "Schema provider " + schemaProvider + " overwrites entry provided by " + providerEntry.provider + " for type: " + providerEntry.schemaObjectType.getCanonicalName() );
-				}
-			}
-		}
-		HashMap<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>(
-				schemaProviderEntries.size() + builder.schemaObjects.size() + builder.schemaObjectNames.size()
-		);
-		SchemaPlus rootSchema = calciteDataSource.getRootSchema();
-		for ( SchemaProviderEntry entry : schemaProviderEntries.values() ) {
-			if ( !builder.schemaObjects.containsKey( entry.schemaObjectType.getCanonicalName() ) ) {
-				//noinspection rawtypes,unchecked
-				SchemaObjectTypeImpl<?> schemaObjectType = new SchemaObjectTypeImpl(
-						schemaObjects.size(),
-						entry.schemaObjectType,
-						entry.dataFetcher
-				);
-				schemaObjects.put( entry.schemaObjectType.getCanonicalName(), schemaObjectType );
-				addTable(
-						rootSchema,
-						entry.schemaObjectType,
-						entry.dataFetcher,
-						configurationProvider
-				);
-			}
-		}
-		for ( SchemaObjectTypeImpl<?> schemaObject : builder.schemaObjects.values() ) {
-			//noinspection rawtypes,unchecked
-			SchemaObjectTypeImpl<?> schemaObjectType = new SchemaObjectTypeImpl(
-					schemaObjects.size(),
-					schemaObject.getType(),
-					schemaObject.getDataFetcher()
-			);
-			schemaObjects.put( schemaObject.getType().getCanonicalName(), schemaObjectType );
-			addTable(
-					rootSchema,
-					schemaObject.getType(),
-					schemaObject.getDataFetcher(),
-					configurationProvider
-			);
-		}
-		for ( Map.Entry<String, String> entry : builder.schemaObjectNames.entrySet() ) {
-			SchemaObjectTypeImpl<?> schemaObjectType = schemaObjects.get( entry.getValue() );
-			if ( schemaObjectType == null ) {
-				throw new IllegalArgumentException("Schema object alias [" + entry.getKey() + "] refers to an unknown schema object name: " + entry.getValue());
-			}
-			schemaObjects.put( entry.getKey(), schemaObjectType );
-			addTable( rootSchema, entry.getKey(), getTable(rootSchema, entry.getValue()) );
-		}
-		return ImmutableMap.copyOf( schemaObjects );
-	}
+    private static ImmutableMap<String, SchemaObjectTypeImpl<?>> resolveSchemaObjects(
+            QueryContextBuilderImpl builder,
+            ConfigurationProviderImpl configurationProvider,
+            CalciteDataSource calciteDataSource) {
+        HashMap<String, SchemaProviderEntry> schemaProviderEntries = new HashMap<>();
+        for ( QuerySchemaProvider schemaProvider : builder.schemaProviders ) {
+            Map<Class<?>, ? extends DataFetcher<?>> schemaObjects = schemaProvider.resolveSchemaObjects( configurationProvider );
+            for ( Map.Entry<Class<?>, ? extends DataFetcher<?>> entry : schemaObjects.entrySet() ) {
+                SchemaProviderEntry providerEntry = schemaProviderEntries.put(
+                        entry.getKey().getCanonicalName(),
+                        new SchemaProviderEntry( entry.getKey(), entry.getValue(), schemaProvider )
+                );
+                if ( providerEntry != null ) {
+                    throw new IllegalArgumentException( "Schema provider " + schemaProvider + " overwrites entry provided by " + providerEntry.provider + " for type: " + providerEntry.schemaObjectType.getCanonicalName() );
+                }
+            }
+        }
+        HashMap<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>(
+                schemaProviderEntries.size() + builder.schemaObjects.size() + builder.schemaObjectNames.size()
+        );
+        SchemaPlus rootSchema = calciteDataSource.getRootSchema();
+        for ( SchemaProviderEntry entry : schemaProviderEntries.values() ) {
+            if ( !builder.schemaObjects.containsKey( entry.schemaObjectType.getCanonicalName() ) ) {
+                //noinspection rawtypes,unchecked
+                SchemaObjectTypeImpl<?> schemaObjectType = new SchemaObjectTypeImpl(
+                        schemaObjects.size(),
+                        entry.schemaObjectType,
+                        entry.dataFetcher
+                );
+                schemaObjects.put( entry.schemaObjectType.getCanonicalName(), schemaObjectType );
+                addTable(
+                        rootSchema,
+                        entry.schemaObjectType,
+                        entry.dataFetcher,
+                        configurationProvider
+                );
+            }
+        }
+        for ( SchemaObjectTypeImpl<?> schemaObject : builder.schemaObjects.values() ) {
+            //noinspection rawtypes,unchecked
+            SchemaObjectTypeImpl<?> schemaObjectType = new SchemaObjectTypeImpl(
+                    schemaObjects.size(),
+                    schemaObject.getType(),
+                    schemaObject.getDataFetcher()
+            );
+            schemaObjects.put( schemaObject.getType().getCanonicalName(), schemaObjectType );
+            addTable(
+                    rootSchema,
+                    schemaObject.getType(),
+                    schemaObject.getDataFetcher(),
+                    configurationProvider
+            );
+        }
+        for ( Map.Entry<String, String> entry : builder.schemaObjectNames.entrySet() ) {
+            SchemaObjectTypeImpl<?> schemaObjectType = schemaObjects.get( entry.getValue() );
+            if ( schemaObjectType == null ) {
+                throw new IllegalArgumentException("Schema object alias [" + entry.getKey() + "] refers to an unknown schema object name: " + entry.getValue());
+            }
+            schemaObjects.put( entry.getKey(), schemaObjectType );
+            addTable( rootSchema, entry.getKey(), getTable(rootSchema, entry.getValue()) );
+        }
+        return ImmutableMap.copyOf( schemaObjects );
+    }
 
-	private static void addTable(
-			SchemaPlus rootSchema,
-			Class<?> schemaObjectType,
-			DataFetcher<?> dataFetcher,
-			ConfigurationProviderImpl configurationProvider) {
-		Table table;
-		if ( dataFetcher instanceof Table) {
-			table = (Table) dataFetcher;
-		} else {
-			table = new DataFetcherTable( schemaObjectType, dataFetcher, configurationProvider );
-		}
-		addTable( rootSchema, schemaObjectType.getCanonicalName(), table );
-	}
+    private static void addTable(
+            SchemaPlus rootSchema,
+            Class<?> schemaObjectType,
+            DataFetcher<?> dataFetcher,
+            ConfigurationProviderImpl configurationProvider) {
+        Table table;
+        if ( dataFetcher instanceof Table) {
+            table = (Table) dataFetcher;
+        } else {
+            table = new DataFetcherTable( schemaObjectType, dataFetcher, configurationProvider );
+        }
+        addTable( rootSchema, schemaObjectType.getCanonicalName(), table );
+    }
 
-	private static void addTable(SchemaPlus rootSchema, String qualifiedName, Table table) {
-		SchemaPlus schema = rootSchema;
-		String[] nameParts = qualifiedName.split( "\\." );
-		for ( int i = 0; i < nameParts.length - 1; i++ ) {
-			SchemaPlus subSchema = schema.getSubSchema( nameParts[i] );
-			if (subSchema == null) {
-				schema = schema.add( nameParts[i], new SubSchema() );
-			} else {
-				schema = subSchema;
-			}
-		}
-		schema.add( nameParts[nameParts.length - 1], table);
-	}
+    private static void addTable(SchemaPlus rootSchema, String qualifiedName, Table table) {
+        SchemaPlus schema = rootSchema;
+        String[] nameParts = qualifiedName.split( "\\." );
+        for ( int i = 0; i < nameParts.length - 1; i++ ) {
+            SchemaPlus subSchema = schema.getSubSchema( nameParts[i] );
+            if (subSchema == null) {
+                schema = schema.add( nameParts[i], new SubSchema() );
+            } else {
+                schema = subSchema;
+            }
+        }
+        schema.add( nameParts[nameParts.length - 1], table);
+    }
 
-	private static Table getTable(SchemaPlus rootSchema, String qualifiedName) {
-		SchemaPlus schema = rootSchema;
-		String[] nameParts = qualifiedName.split( "\\." );
-		for ( int i = 0; i < nameParts.length - 1; i++ ) {
-			schema = schema.getSubSchema( nameParts[i] );
-		}
-		return schema.getTable( nameParts[nameParts.length - 1] );
-	}
+    private static Table getTable(SchemaPlus rootSchema, String qualifiedName) {
+        SchemaPlus schema = rootSchema;
+        String[] nameParts = qualifiedName.split( "\\." );
+        for ( int i = 0; i < nameParts.length - 1; i++ ) {
+            schema = schema.getSubSchema( nameParts[i] );
+        }
+        return schema.getTable( nameParts[nameParts.length - 1] );
+    }
 
-	private static class SchemaProviderEntry {
-		final Class<?> schemaObjectType;
-		final DataFetcher<?> dataFetcher;
-		final QuerySchemaProvider provider;
+    private static class SchemaProviderEntry {
+        final Class<?> schemaObjectType;
+        final DataFetcher<?> dataFetcher;
+        final QuerySchemaProvider provider;
 
-		public SchemaProviderEntry(
-				Class<?> schemaObjectType,
-				DataFetcher<?> dataFetcher,
-				QuerySchemaProvider provider) {
-			this.schemaObjectType = schemaObjectType;
-			this.dataFetcher = dataFetcher;
-			this.provider = provider;
-		}
-	}
+        public SchemaProviderEntry(
+                Class<?> schemaObjectType,
+                DataFetcher<?> dataFetcher,
+                QuerySchemaProvider provider) {
+            this.schemaObjectType = schemaObjectType;
+            this.dataFetcher = dataFetcher;
+            this.provider = provider;
+        }
+    }
 }

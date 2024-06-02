@@ -15,33 +15,6 @@
  */
 
 /**
- * The Blaze-Expression enabled Blaze-Domain model for the Azure VirtualMachine model.
- * <p/>
- * The setup involves creating an OAuth object and then an ApiClient:
- * <pre>
- * String tenantId = "...";
- * String basePath = "https://login.microsoftonline.com/" + tenantId;
- * String clientId = "...";
- * String clientSecret = "..";
- * OAuth oAuth = new OAuth( basePath, "/oauth2/v2.0/token" )
- *     .setCredentials( clientId, clientSecret, false )
- *     // Default scope
- *     .setScope( "https://management.core.windows.net//.default" );
- * ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
- * </pre>
- * <p/>
- * For data querying, create new Api objects and pass the ApiClient.
- * <pre>
- * String apiVersion = "2024-03-01";
- * String subscriptionId = "...";
- * VirtualMachinesApi api = new VirtualMachinesApi(apiClient);
- * VirtualMachineListResult virtualMachineListResult = api.virtualMachinesListAll(
- *     apiVersion,
- *     subscriptionId,
- *     null,
- *     null,
- *     null
- * );
- * </pre>
+ * Connector for the Azure Virtual Machines Endpoint.
  */
 package com.blazebit.query.connector.azure.vm;

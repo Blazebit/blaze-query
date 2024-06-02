@@ -16,7 +16,23 @@
 
 package com.blazebit.query.connector.base;
 
+/**
+ * Accessor for an attribute of an object.
+ *
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public interface Accessor {
+    /**
+     * Returns the attribute path for this accessor.
+     * @return the attribute path for this accessor
+     */
     String getAttributePath();
+
+    /**
+     * Returns the attribute value for the attribute accessed by this accessor of the given object.
+     * @param o The object
+     * @return The attribute value
+     */
     Object getValue(Object o);
 }

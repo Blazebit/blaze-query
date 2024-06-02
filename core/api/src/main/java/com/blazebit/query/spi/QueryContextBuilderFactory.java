@@ -26,10 +26,10 @@ package com.blazebit.query.spi;
  */
 public interface QueryContextBuilderFactory {
 
-	/**
-	 * Returns a new {@link QueryContextBuilder}.
-	 *
-	 * @return a new {@link QueryContextBuilder}
-	 */
-	QueryContextBuilder creatBuilder();
+    /**
+     * Returns a new {@link QueryContextBuilder}.
+     *
+     * @return a new {@link QueryContextBuilder}
+     */
+    QueryContextBuilder creatBuilder();
 }

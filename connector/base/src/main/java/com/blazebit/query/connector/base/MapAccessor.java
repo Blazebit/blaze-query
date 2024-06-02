@@ -21,25 +21,50 @@ import java.util.Map;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * Accessor for a map attribute of an object.
+ *
+ * @author Christian Beikov
+ * @since 1.0.0
+ */
 public class MapAccessor implements Accessor {
     private final Accessor baseAccessor;
     private final @Nullable Accessor keyAccessor;
     private final @Nullable Accessor elementAccessor;
 
+    /**
+     * Creates a new collection accessor.
+     *
+     * @param baseAccessor Accessor to obtain a collection.
+     * @param keyAccessor Accessor to obtain a key.
+     * @param elementAccessor Accessor to obtain an element.
+     */
     public MapAccessor(Accessor baseAccessor, @Nullable Accessor keyAccessor, @Nullable Accessor elementAccessor) {
         this.baseAccessor = baseAccessor;
         this.keyAccessor = keyAccessor;
         this.elementAccessor = elementAccessor;
     }
 
+    /**
+     * Returns the base accessor to obtain the collection.
+     * @return the base accessor to obtain the collection
+     */
     public Accessor getBaseAccessor() {
         return baseAccessor;
     }
 
+    /**
+     * Returns the key accessor to obtain the key object.
+     * @return the key accessor to obtain the key object
+     */
     public @Nullable Accessor getKeyAccessor() {
         return keyAccessor;
     }
 
+    /**
+     * Returns the element accessor to obtain the element object.
+     * @return the element accessor to obtain the element object
+     */
     public @Nullable Accessor getElementAccessor() {
         return elementAccessor;
     }

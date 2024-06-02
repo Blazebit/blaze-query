@@ -16,7 +16,10 @@
 
 package com.blazebit.query.connector.view;
 
+import java.util.function.Predicate;
+
 import com.blazebit.persistence.view.EntityViewManager;
+import com.blazebit.persistence.view.metamodel.ViewType;
 import com.blazebit.query.spi.DataFetcherConfig;
 import jakarta.persistence.EntityManager;
 
@@ -37,6 +40,18 @@ public final class EntityViewConnectorConfig {
      * Specifies the {@link com.blazebit.persistence.view.EntityViewManager} to use for querying data.
      */
     public static final DataFetcherConfig<EntityViewManager> ENTITY_VIEW_MANAGER = DataFetcherConfig.forPropertyName( "entityViewManager" );
+
+    /**
+     * A predicate that is used for filtering the entity view types which should be queryable.
+     */
+    public static final DataFetcherConfig<Predicate<ViewType<?>>> ENTITY_VIEW_FILTER = DataFetcherConfig.forPropertyName( "entityViewFilter" );
+
+    /**
+     * Whether dynamic fetching should be used for entity views via {@link com.blazebit.persistence.view.EntityViewSetting#fetch(String)}.
+     * When enabled, will disable caching of data in {@link com.blazebit.query.QuerySession}.
+     * Enabled by default.
+     */
+    public static final DataFetcherConfig<Predicate<ViewType<?>>> DYNAMIC_FETCH = DataFetcherConfig.forPropertyName( "dynamicFetch" );
 
     private EntityViewConnectorConfig() {
     }
