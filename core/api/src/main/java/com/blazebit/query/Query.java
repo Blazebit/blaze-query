@@ -16,9 +16,7 @@
 
 package com.blazebit.query;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * An executable query to query data stored in the associated {@link QuerySession}.
@@ -45,65 +43,6 @@ public interface Query {
      * @throws IllegalArgumentException If the position is invalid or the given value has the wrong type
      */
     Query setParameter(int position, Object value);
-
-    /**
-     * Executes this query and returns a single result or {@code null} if no results were found.
-     * Throws a {@link NonUniqueResultException} if the query returns more than one result.
-     *
-     * @return the single result or {@code null} if no results were found
-     * @throws NonUniqueResultException if the query returns more than one result
-     * @throws QueryException if the query execution fails
-     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
-     */
-    default Object[] findSingleResult() {
-        List<Object[]> resultList = getResultList();
-        if (resultList.isEmpty()) {
-            return null;
-        }
-        if (resultList.size() > 1) {
-            throw new NonUniqueResultException( "Found " + resultList.size() + " results, but expected single result.", getQueryString() );
-        }
-        return resultList.get( 0 );
-    }
-
-    /**
-     * Executes this query and returns the query results.
-     *
-     * @return the single result
-     * @throws NoResultException if the query returns no results
-     * @throws NonUniqueResultException if the query returns more than one result
-     * @throws QueryException if the query execution fails
-     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
-     */
-    default Object[] getSingleResult() {
-        List<Object[]> resultList = getResultList();
-        if (resultList.isEmpty()) {
-            throw new NoResultException( "No results found", getQueryString() );
-        }
-        if (resultList.size() > 1) {
-            throw new NonUniqueResultException( "Found " + resultList.size() + " results, but expected single result.", getQueryString() );
-        }
-        return resultList.get( 0 );
-    }
-
-    /**
-     * Executes this query and returns the query results.
-     *
-     * @return the list of the results
-     * @throws QueryException if the query execution fails
-     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
-     */
-    List<Object[]> getResultList();
-
-    /**
-     * Executes this query and returns the query results as stream.
-     * It is vital to invoke {@link Stream#close()} to prevent resource leaks.
-     *
-     * @return the stream of the results
-     * @throws QueryException if the query execution fails
-     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
-     */
-    Stream<Object[]> getResultStream();
 
     /**
      * Returns the query string of this query.

@@ -22,24 +22,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.blazebit.query.Query;
 import com.blazebit.query.QuerySession;
+import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class QueryImpl implements Query, DataFetchContext {
+public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 
     private final QuerySessionImpl querySession;
     private final String queryString;
+    private final Class<T> resultClass;
     private final PreparedStatement preparedStatement;
     private Map<String, Object> properties;
 
-    public QueryImpl(QuerySessionImpl querySession, String queryString, Map<String, Object> properties) {
+    public TypedQueryImpl(QuerySessionImpl querySession, String queryString, Class<T> resultClass, Map<String, Object> properties) {
         this.querySession = querySession;
         this.queryString = queryString;
+        this.resultClass = resultClass;
         try {
             this.preparedStatement = querySession.connection().prepareStatement(queryString);
         } catch (SQLException ex) {
@@ -55,8 +57,12 @@ public class QueryImpl implements Query, DataFetchContext {
         return querySession;
     }
 
+    public Class<T> getResultClass() {
+        return resultClass;
+    }
+
     @Override
-    public Query setParameter(int position, Object value) {
+    public TypedQueryImpl<T> setParameter(int position, Object value) {
         checkClosed();
         try {
             preparedStatement.setObject( position, value );
@@ -67,13 +73,13 @@ public class QueryImpl implements Query, DataFetchContext {
     }
 
     @Override
-    public List<Object[]> getResultList() {
+    public List<T> getResultList() {
         checkClosed();
         return querySession.getContext().getResultList(this, preparedStatement);
     }
 
     @Override
-    public Stream<Object[]> getResultStream() {
+    public Stream<T> getResultStream() {
         checkClosed();
         return querySession.getContext().getResultStream(this, preparedStatement);
     }
@@ -84,7 +90,7 @@ public class QueryImpl implements Query, DataFetchContext {
     }
 
     @Override
-    public <T> T findProperty(String key) {
+    public <P> P findProperty(String key) {
         Object value = null;
         if (properties != null) {
             value = properties.get(key);
@@ -93,7 +99,7 @@ public class QueryImpl implements Query, DataFetchContext {
             value = querySession.findLocalProperty(key);
         }
         //noinspection unchecked
-        return (T) value;
+        return (P) value;
     }
 
     @Override
@@ -126,11 +132,11 @@ public class QueryImpl implements Query, DataFetchContext {
     }
 
     @Override
-    public <T> T unwrap(Class<T> cls) {
+    public <C> C unwrap(Class<C> cls) {
         checkClosed();
         if (PreparedStatement.class.isAssignableFrom( cls )) {
             //noinspection unchecked
-            return (T) preparedStatement;
+            return (C) preparedStatement;
         }
         throw new IllegalArgumentException("Can't unwrap to: " + cls.getName() );
     }

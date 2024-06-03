@@ -32,7 +32,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 
     private final ImmutableMap<String, Supplier<Object>> propertyProviders;
     private final Map<String, Supplier<Object>> lazyPropertyProviders;
-    private final ThreadLocal<QueryImpl> currentQuery = new ThreadLocal<>();
+    private final ThreadLocal<TypedQueryImpl> currentQuery = new ThreadLocal<>();
 
     public ConfigurationProviderImpl(ImmutableMap<String, Supplier<Object>> propertyProviders) {
         this.propertyProviders = propertyProviders;
@@ -59,7 +59,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 
     @Override
     public <T> T findProperty(String propertyName) {
-        QueryImpl query = currentQuery.get();
+        TypedQueryImpl query = currentQuery.get();
         Object value = null;
         if (query != null) {
             value = query.findProperty(propertyName);
@@ -76,14 +76,14 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 
     @Override
     public QuerySession getSession() {
-        QueryImpl query = currentQuery.get();
+        TypedQueryImpl query = currentQuery.get();
         if (query == null) {
             throw new IllegalStateException("No current query");
         }
         return query.getSession();
     }
 
-    public void setQuery(QueryImpl query) {
+    public void setQuery(TypedQueryImpl query) {
         currentQuery.set( query );
     }
 
@@ -105,7 +105,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 
         @Override
         public Object get() {
-            QueryImpl query = currentQuery.get();
+            TypedQueryImpl query = currentQuery.get();
             if (query != null) {
                 return query.findProperty(propertyName);
             }

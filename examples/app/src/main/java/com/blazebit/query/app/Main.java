@@ -15,7 +15,6 @@
  */
 package com.blazebit.query.app;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +25,9 @@ import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViews;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
-import com.blazebit.query.Query;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
+import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
 import com.blazebit.query.connector.azure.base.invoker.ApiClient;
 import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
@@ -70,26 +69,25 @@ public class Main {
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-
-                    Query entityViewQuery = session.createQuery(
+                    TypedQuery<Object[]> entityViewQuery = session.createQuery(
                             "select t.id, e.text1 from " + name(TestEntityView.class) + " t, unnest(t.elements) e" );
                     List<Object[]> entityViewResult = entityViewQuery.getResultList();
                     print(entityViewResult, "id", "text1");
 
-                    Query vmQuery = session.createQuery(
-                            "select vm.* from VirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
-                    List<Object[]> vmResult = vmQuery.getResultList();
-                    System.out.println("VMs");
-                    for ( Object[] tuple : vmResult ) {
-                        System.out.println( Arrays.toString( tuple ) );
+                    TypedQuery<String> vmQuery = session.createQuery(
+                            "select vm.id from VirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false", String.class );
+                    List<String> vmResult = vmQuery.getResultList();
+                    System.out.println("VM ids");
+                    for ( String vmId : vmResult ) {
+                        System.out.println( vmId );
                     }
 
-                    Query storageAccountsQuery = session.createQuery(
-                            "select sa.* from StorageAccount sa where exists (select 1 from BlobService bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)" );
-                    List<Object[]> storageAccountsResult = storageAccountsQuery.getResultList();
-                    System.out.println("StorageAccounts");
-                    for ( Object[] tuple : storageAccountsResult ) {
-                        System.out.println( Arrays.toString( tuple ) );
+                    TypedQuery<String> storageAccountsQuery = session.createQuery(
+                            "select sa.id from StorageAccount sa where exists (select 1 from BlobService bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", String.class );
+                    List<String> storageAccountsResult = storageAccountsQuery.getResultList();
+                    System.out.println("StorageAccount ids");
+                    for ( String id : storageAccountsResult ) {
+                        System.out.println( id );
                     }
                 }
             }

@@ -52,7 +52,7 @@ public interface QuerySession extends AutoCloseable {
      * @throws IllegalArgumentException If the query string is invalid
      * @throws IllegalStateException if the {@linkplain QuerySession} is closed
      */
-    default Query createQuery(String queryString) {
+    default TypedQuery<Object[]> createQuery(String queryString) {
         return createQuery( queryString, Collections.emptyMap() );
     }
 
@@ -65,7 +65,36 @@ public interface QuerySession extends AutoCloseable {
      * @throws IllegalArgumentException If the query string is invalid
      * @throws IllegalStateException if the {@linkplain QuerySession} is closed
      */
-    Query createQuery(String queryString, Map<String, Object> properties);
+    default TypedQuery<Object[]> createQuery(String queryString, Map<String, Object> properties) {
+        return createQuery( queryString, Object[].class, properties );
+    }
+
+    /**
+     * Creates an executable query associated to this {@linkplain QuerySession}.
+     *
+     * @param queryString A Blaze-Query query string
+     * @param resultClass The result class
+     * @param <T> The result type
+     * @return a new query instance
+     * @throws IllegalArgumentException If the query string is invalid
+     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+     */
+    default <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass) {
+        return createQuery( queryString, resultClass, Collections.emptyMap() );
+    }
+
+    /**
+     * Creates an executable query associated to this {@linkplain QuerySession}.
+     *
+     * @param queryString A Blaze-Query query string
+     * @param resultClass The result class
+     * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
+     * @param <T> The result type
+     * @return a new query instance
+     * @throws IllegalArgumentException If the query string is invalid
+     * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+     */
+    <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass, Map<String, Object> properties);
 
     /**
      * Returns the schema object data for the given schema object type stored in this {@linkplain QuerySession},

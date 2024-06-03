@@ -78,12 +78,13 @@ public class QueryContextImpl implements QueryContext {
         }
     }
 
-    public List<Object[]> getResultList(QueryImpl query, PreparedStatement preparedStatement) {
+    public <T> List<T> getResultList(TypedQueryImpl<T> query, PreparedStatement preparedStatement) {
         configurationProvider.setQuery(query);
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            ArrayList<Object[]> resultList = new ArrayList<>();
+            ResultExtractor<T> extractor = getResultExtractor( resultSet, query );
+            ArrayList<T> resultList = new ArrayList<>();
             while (resultSet.next()) {
-                resultList.add( extractTuple(resultSet) );
+                resultList.add( extractor.extract( resultSet ) );
             }
             return resultList;
         } catch (SQLException e) {
@@ -93,12 +94,12 @@ public class QueryContextImpl implements QueryContext {
         }
     }
 
-    public Stream<Object[]> getResultStream(QueryImpl query, PreparedStatement preparedStatement) {
+    public <T> Stream<T> getResultStream(TypedQueryImpl<T> query, PreparedStatement preparedStatement) {
         configurationProvider.setQuery(query);
         try {
-            ResultSetIterator iterator = new ResultSetIterator(query , preparedStatement.executeQuery() );
-            Spliterator<Object[]> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
-            Stream<Object[]> stream = StreamSupport.stream( spliterator, false );
+            ResultSetIterator<T> iterator = new ResultSetIterator<>(query , preparedStatement.executeQuery() );
+            Spliterator<T> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
+            Stream<T> stream = StreamSupport.stream( spliterator, false );
             return stream.onClose( iterator::close );
         } catch (SQLException e) {
             throw new QueryException( "Error while executing query", e, query.getQueryString() );
@@ -107,14 +108,16 @@ public class QueryContextImpl implements QueryContext {
         }
     }
 
-    private static class ResultSetIterator implements Iterator<Object[]> {
-        private final QueryImpl query;
+    private static class ResultSetIterator<T> implements Iterator<T> {
+        private final TypedQueryImpl<T> query;
         private final ResultSet resultSet;
+        private final ResultExtractor<T> extractor;
         private boolean hasNext;
 
-        public ResultSetIterator(QueryImpl query, ResultSet resultSet) {
+        public ResultSetIterator(TypedQueryImpl<T> query, ResultSet resultSet) {
             this.query = query;
             this.resultSet = resultSet;
+            this.extractor = getResultExtractor( resultSet, query );
             advance();
         }
 
@@ -132,15 +135,15 @@ public class QueryContextImpl implements QueryContext {
         }
 
         @Override
-        public Object[] next() {
-            Object[] tuple;
+        public T next() {
+            T object;
             try {
-                tuple = extractTuple( resultSet );
+                object = extractor.extract( resultSet );
             } catch (SQLException e) {
                 throw new QueryException( "Couldn't extract tuple", e, query.getQueryString() );
             }
             advance();
-            return tuple;
+            return object;
         }
 
         public void close() {
@@ -149,6 +152,48 @@ public class QueryContextImpl implements QueryContext {
             } catch (SQLException e) {
                 throw new QueryException( "Error during result set closing", e, query.getQueryString() );
             }
+        }
+    }
+
+    private static <T> ResultExtractor<T> getResultExtractor(ResultSet resultSet, TypedQueryImpl<T> query) {
+        if (query.getResultClass() == Object[].class) {
+            try {
+                return (ResultExtractor<T>) new ObjectArrayExtractor( resultSet.getMetaData().getColumnCount());
+            } catch (SQLException e) {
+                throw new QueryException( "Couldn't access result set metadata", e, query.getQueryString() );
+            }
+        } else {
+            return SingleObjectExtractor.INSTANCE;
+        }
+    }
+
+    private static interface ResultExtractor<T> {
+        T extract(ResultSet resultSet) throws SQLException;
+    }
+
+    private static class ObjectArrayExtractor implements ResultExtractor<Object[]> {
+        private final int columnCount;
+
+        public ObjectArrayExtractor(int columnCount) {
+            this.columnCount = columnCount;
+        }
+
+        @Override
+        public Object[] extract(ResultSet resultSet) throws SQLException {
+            Object[] tuple = new Object[columnCount];
+            for ( int i = 0; i < tuple.length; i++ ) {
+                tuple[i] = resultSet.getObject( i + 1 );
+            }
+            return tuple;
+        }
+    }
+
+    private static class SingleObjectExtractor<T> implements ResultExtractor<T> {
+        private static final SingleObjectExtractor INSTANCE = new SingleObjectExtractor();
+
+        @Override
+        public T extract(ResultSet resultSet) throws SQLException {
+            return (T) resultSet.getObject( 1 );
         }
     }
 
