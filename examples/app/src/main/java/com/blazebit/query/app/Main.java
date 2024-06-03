@@ -29,12 +29,12 @@ import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.blazebit.query.Query;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
-import com.blazebit.query.connector.azure.blob.services.model.BlobServiceProperties;
-import com.blazebit.query.connector.azure.invoker.ApiClient;
-import com.blazebit.query.connector.azure.invoker.auth.OAuth;
-import com.blazebit.query.connector.azure.storage.accounts.model.StorageAccount;
-import com.blazebit.query.connector.azure.subscription.AzureConnectorConfig;
-import com.blazebit.query.connector.azure.vm.model.VirtualMachine;
+import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
+import com.blazebit.query.connector.azure.base.invoker.ApiClient;
+import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
+import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
+import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
+import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
@@ -63,6 +63,10 @@ public class Main {
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
             queryContextBuilder.setProperty( AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient() );
             queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
+            queryContextBuilder.registerSchemaObjectAlias( VirtualMachine.class, "VirtualMachine" );
+            queryContextBuilder.registerSchemaObjectAlias( StorageAccount.class, "StorageAccount" );
+            queryContextBuilder.registerSchemaObjectAlias( BlobServiceProperties.class, "BlobService" );
+
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
@@ -73,7 +77,7 @@ public class Main {
                     print(entityViewResult, "id", "text1");
 
                     Query vmQuery = session.createQuery(
-                            "select vm.* from " + name(VirtualMachine.class) + " vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
+                            "select vm.* from VirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
                     List<Object[]> vmResult = vmQuery.getResultList();
                     System.out.println("VMs");
                     for ( Object[] tuple : vmResult ) {
@@ -81,7 +85,7 @@ public class Main {
                     }
 
                     Query storageAccountsQuery = session.createQuery(
-                            "select sa.* from " + name(StorageAccount.class) + " sa where exists (select 1 from " + name(BlobServiceProperties.class) + " bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)" );
+                            "select sa.* from StorageAccount sa where exists (select 1 from BlobService bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)" );
                     List<Object[]> storageAccountsResult = storageAccountsQuery.getResultList();
                     System.out.println("StorageAccounts");
                     for ( Object[] tuple : storageAccountsResult ) {

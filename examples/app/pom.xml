@@ -51,12 +51,12 @@
         <!-- Azure connectors -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-vm-jersey3</artifactId>
+            <artifactId>blaze-query-connector-azure-vitrual-machine-v20240301-jersey3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-blob-services-jersey3</artifactId>
+            <artifactId>blaze-query-connector-azure-blob-services-v20230501-jersey3</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

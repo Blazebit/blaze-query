@@ -12,8 +12,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>base</module>
         <module>subscription</module>
-        <module>vm</module>
+        <module>virtual-machine</module>
         <module>storage-accounts</module>
         <module>blob-services</module>
     </modules>

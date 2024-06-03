@@ -90,19 +90,7 @@ public class QueryImpl implements Query, DataFetchContext {
             value = properties.get(key);
         }
         if (value == null) {
-            value = querySession.findProperty( key );
-        }
-        if (value == null) {
-            switch ( key ) {
-                case "query":
-                    value = this;
-                    break;
-                case "session":
-                    value = querySession;
-                    break;
-                default:
-                    break;
-            }
+            value = querySession.findLocalProperty(key);
         }
         //noinspection unchecked
         return (T) value;

@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jersey3</module>
+        <module>v20230501</module>
     </modules>
 
 </project>

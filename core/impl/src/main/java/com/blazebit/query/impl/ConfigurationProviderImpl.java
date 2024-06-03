@@ -91,6 +91,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
         currentQuery.remove();
     }
 
+    public boolean hasCurrentQuery() {
+        return currentQuery.get() != null;
+    }
+
     private class LazyPropertyProvider implements Supplier<Object> {
 
         private final String propertyName;

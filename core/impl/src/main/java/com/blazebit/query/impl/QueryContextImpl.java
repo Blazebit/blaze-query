@@ -66,6 +66,10 @@ public class QueryContextImpl implements QueryContext {
         return new QuerySessionImpl( this, properties );
     }
 
+    public ConfigurationProviderImpl getConfigurationProvider() {
+        return configurationProvider;
+    }
+
     public Connection createConnection() {
         try {
             return calciteDataSource.getConnection();

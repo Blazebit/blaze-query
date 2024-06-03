@@ -117,11 +117,18 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
         data.clear();
     }
 
+    public Object findLocalProperty(String key) {
+        return properties == null ? null : properties.get(key);
+    }
+
     @Override
     public <T> T findProperty(String key) {
-        checkClosed();
+        ConfigurationProviderImpl configurationProvider = queryContext.getConfigurationProvider();
+        Object value = configurationProvider.hasCurrentQuery()
+                ? configurationProvider.findProperty(key)
+                : findLocalProperty(key);
         //noinspection unchecked
-        return properties == null ? null : (T) properties.get( key );
+        return (T) value;
     }
 
     @Override
