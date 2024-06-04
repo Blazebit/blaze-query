@@ -23,7 +23,7 @@
         <version.weld>2.4.5.Final</version.weld>
         <version.junit>4.12</version.junit>
         <version.bnd>6.4.1</version.bnd>
-        <version.calcite>1.38.0-SNAPSHOT</version.calcite>
+        <version.calcite>1.37.0</version.calcite>
 
         <asmVersion>9.5</asmVersion>
 

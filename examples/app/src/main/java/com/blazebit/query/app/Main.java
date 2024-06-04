@@ -15,6 +15,7 @@
  */
 package com.blazebit.query.app;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -74,12 +75,12 @@ public class Main {
                     List<Object[]> entityViewResult = entityViewQuery.getResultList();
                     print(entityViewResult, "id", "text1");
 
-                    TypedQuery<String> vmQuery = session.createQuery(
-                            "select vm.id from VirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false", String.class );
-                    List<String> vmResult = vmQuery.getResultList();
-                    System.out.println("VM ids");
-                    for ( String vmId : vmResult ) {
-                        System.out.println( vmId );
+                    TypedQuery<Object[]> vmQuery = session.createQuery(
+                            "select vm.* from VirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
+                    List<Object[]> vmResult = vmQuery.getResultList();
+                    System.out.println("VMs");
+                    for ( Object[] vmId : vmResult ) {
+                        System.out.println( Arrays.toString( vmId ) );
                     }
 
                     TypedQuery<String> storageAccountsQuery = session.createQuery(

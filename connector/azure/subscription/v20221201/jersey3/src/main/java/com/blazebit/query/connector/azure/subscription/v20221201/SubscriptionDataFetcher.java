@@ -23,8 +23,10 @@ import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
 import com.blazebit.query.connector.azure.base.invoker.ApiException;
 import com.blazebit.query.connector.azure.subscription.v20221201.api.SubscriptionsApi;
 import com.blazebit.query.connector.azure.subscription.v20221201.model.Subscription;
+import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetchContext;
+import com.blazebit.query.spi.DataFormat;
 
 /**
  * @author Christian Beikov
@@ -45,5 +47,10 @@ public class SubscriptionDataFetcher implements DataFetcher<Subscription>, Seria
         } catch (ApiException e) {
             throw new RuntimeException( "Could not fetch subscription list", e );
         }
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormats.beansConvention( Subscription.class );
     }
 }

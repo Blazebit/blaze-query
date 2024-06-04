@@ -16,42 +16,36 @@
 
 package com.blazebit.query.connector.base;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
+
+import com.blazebit.query.spi.DataFormatFieldAccessor;
 
 /**
- * Accessor for a method based attribute of an object.
+ * Accessor for a field based attribute of an object.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class MethodAccessor implements Accessor {
-    private final String attributePath;
-    private final Method method;
+public final class FieldFieldAccessor implements DataFormatFieldAccessor {
+    private final Field field;
 
     /**
-     * Creates a method accessor.
+     * Creates a field accessor.
      *
-     * @param attributePath The attribute path for this accessor.
-     * @param method The method to obtain an attribute value.
+     * @param field The field to obtain an attribute value.
      */
-    public MethodAccessor(String attributePath, Method method) {
-        this.attributePath = attributePath;
-        this.method = method;
+    public FieldFieldAccessor(Field field) {
+        this.field = field;
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    @Override
-    public String getAttributePath() {
-        return attributePath;
+    public Field getField() {
+        return field;
     }
 
     @Override
-    public Object getValue(Object o) {
+    public Object get(Object o) {
         try {
-            return method.invoke( o );
+            return field.get( o );
         } catch (Exception e) {
             throw new RuntimeException( e );
         }

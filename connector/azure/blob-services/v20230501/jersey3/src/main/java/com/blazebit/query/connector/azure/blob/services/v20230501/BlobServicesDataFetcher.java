@@ -27,8 +27,10 @@ import com.blazebit.query.connector.azure.blob.services.v20230501.api.BlobServic
 import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceItems;
 import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
+import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
+import com.blazebit.query.spi.DataFormat;
 
 /**
  * @author Christian Beikov
@@ -66,5 +68,10 @@ public class BlobServicesDataFetcher implements DataFetcher<BlobServicePropertie
         } catch (ApiException e) {
             throw new RuntimeException( "Could not fetch virtual machine list", e );
         }
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormats.beansConvention( BlobServiceProperties.class );
     }
 }

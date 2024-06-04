@@ -27,8 +27,10 @@ import com.blazebit.query.connector.azure.storage.accounts.v20230501.api.Storage
 import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccountListResult;
 import com.blazebit.query.connector.azure.subscription.v20221201.model.Subscription;
+import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetchContext;
+import com.blazebit.query.spi.DataFormat;
 
 /**
  * @author Christian Beikov
@@ -58,5 +60,10 @@ public class StorageAccountsDataFetcher implements DataFetcher<StorageAccount>, 
         } catch (ApiException e) {
             throw new RuntimeException( "Could not fetch virtual machine list", e );
         }
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormats.beansConvention( StorageAccount.class );
     }
 }

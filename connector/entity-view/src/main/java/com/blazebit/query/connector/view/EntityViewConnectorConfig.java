@@ -46,13 +46,6 @@ public final class EntityViewConnectorConfig {
      */
     public static final DataFetcherConfig<Predicate<ViewType<?>>> ENTITY_VIEW_FILTER = DataFetcherConfig.forPropertyName( "entityViewFilter" );
 
-    /**
-     * Whether dynamic fetching should be used for entity views via {@link com.blazebit.persistence.view.EntityViewSetting#fetch(String)}.
-     * When enabled, will disable caching of data in {@link com.blazebit.query.QuerySession}.
-     * Enabled by default.
-     */
-    public static final DataFetcherConfig<Predicate<ViewType<?>>> DYNAMIC_FETCH = DataFetcherConfig.forPropertyName( "dynamicFetch" );
-
     private EntityViewConnectorConfig() {
     }
 }

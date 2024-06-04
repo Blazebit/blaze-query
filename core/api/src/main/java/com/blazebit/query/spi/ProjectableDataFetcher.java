@@ -25,20 +25,14 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public interface DataFetcher<T> {
-
-    /**
-     * Returns the data format of the fetched data.
-     *
-     * @return  the data format of the fetched data
-     */
-    DataFormat getDataFormat();
+public interface ProjectableDataFetcher<T> extends DataFetcher<T> {
 
     /**
      * Returns freshly fetched data for a schema object.
      *
      * @param context The data fetching context
+     * @param projection The fields that should be projected
      * @return the fetched data
      */
-    List<T> fetch(DataFetchContext context);
+    List<T> fetch(DataFetchContext context, int[][] projection);
 }

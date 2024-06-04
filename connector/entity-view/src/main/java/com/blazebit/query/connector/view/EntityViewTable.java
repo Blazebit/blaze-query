@@ -17,6 +17,7 @@
 package com.blazebit.query.connector.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -25,7 +26,7 @@ import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
-import com.blazebit.persistence.view.metamodel.BasicType;
+import com.blazebit.persistence.view.SubGraph;
 import com.blazebit.persistence.view.metamodel.ManagedViewType;
 import com.blazebit.persistence.view.metamodel.MethodAttribute;
 import com.blazebit.persistence.view.metamodel.MethodMapAttribute;
@@ -33,20 +34,14 @@ import com.blazebit.persistence.view.metamodel.MethodPluralAttribute;
 import com.blazebit.persistence.view.metamodel.MethodSingularAttribute;
 import com.blazebit.persistence.view.metamodel.Type;
 import com.blazebit.persistence.view.metamodel.ViewType;
-import com.blazebit.query.connector.base.Accessor;
-import com.blazebit.query.connector.base.CollectionAccessor;
-import com.blazebit.query.connector.base.MapAccessor;
-import com.blazebit.query.connector.base.MethodAccessor;
-import com.blazebit.query.connector.base.ObjectArrayAccessor;
-import com.blazebit.query.metamodel.SchemaObjectType;
+import com.blazebit.query.connector.base.MethodFieldAccessor;
+import com.blazebit.query.spi.CollectionDataFormat;
 import com.blazebit.query.spi.DataFetchContext;
-import com.blazebit.query.spi.DataFetcher;
+import com.blazebit.query.spi.DataFormat;
+import com.blazebit.query.spi.DataFormatField;
+import com.blazebit.query.spi.MapDataFormat;
+import com.blazebit.query.spi.ProjectableDataFetcher;
 import jakarta.persistence.EntityManager;
-import org.apache.calcite.adapter.java.JavaTypeFactory;
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.rel.type.RelDataTypeFactory;
-import org.apache.calcite.schema.impl.AbstractTable;
-import org.apache.calcite.util.Pair;
 
 /**
  * A table implementation for entity views.
@@ -55,13 +50,12 @@ import org.apache.calcite.util.Pair;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public abstract class EntityViewTable<EntityView> extends AbstractTable implements SchemaObjectType<EntityView>, DataFetcher<EntityView> {
+public class EntityViewTable<EntityView> implements ProjectableDataFetcher<EntityView> {
     protected final EntityViewManager evm;
     protected final Supplier<EntityManager> entityManagerSupplier;
     protected final Supplier<DataFetchContext> dataContextSupplier;
     protected final ViewType<EntityView> viewType;
-    protected final Accessor[] accessors;
-    private RelDataType rowType;
+    private final DataFormat dataFormat;
 
     /**
      * Creates a table.
@@ -80,128 +74,60 @@ public abstract class EntityViewTable<EntityView> extends AbstractTable implemen
         this.entityManagerSupplier = entityManagerSupplier;
         this.dataContextSupplier = dataContextSupplier;
         this.viewType = viewType;
-        this.accessors = createAccessors( null, viewType );
+        this.dataFormat = createFormat( viewType );
     }
 
     @Override
-    public RelDataType getRowType(RelDataTypeFactory typeFactory) {
-        if (rowType == null) {
-            rowType = deduceRowType( (JavaTypeFactory) typeFactory, viewType);
-        }
-        return rowType;
+    public DataFormat getDataFormat() {
+        return dataFormat;
     }
 
-    @Override
-    public Class<EntityView> getType() {
-        return viewType.getJavaType();
-    }
-
-    @Override
-    public DataFetcher<EntityView> getDataFetcher() {
-        return this;
-    }
-
-    private RelDataType deduceRowType(JavaTypeFactory typeFactory, ManagedViewType<?> viewType) {
+    private static DataFormat createFormat(ManagedViewType<?> viewType) {
         //noinspection unchecked
         Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
-        final List<RelDataType> types = new ArrayList<>(attributes.size());
-        final List<String> names = new ArrayList<>(attributes.size());
+        List<DataFormatField> fields = new ArrayList<>( attributes.size() );
         for ( MethodAttribute<?, ?> attribute : attributes ) {
-            final String name = attribute.getName();
-            final RelDataType fieldType = deduceType(typeFactory, attribute);
-            names.add(name);
-            types.add(fieldType);
+            fields.add( createField( attribute ) );
         }
-        return typeFactory.createStructType( Pair.zip( names, types));
-
-//        final List<RelDataTypeField> list = new ArrayList<>(attributes.size());
-//        for ( MethodAttribute<?, ?> attribute : attributes ) {
-//            final RelDataType fieldType = deduceType(typeFactory, attribute);
-//            list.add( new RelDataTypeFieldImpl( attribute.getName(), list.size(), fieldType));
-//        }
-//        return new JavaRecordType(list, viewType.getJavaType());
+        return DataFormat.of( viewType.getJavaType(), fields );
     }
 
-    private RelDataType deduceType(JavaTypeFactory typeFactory, MethodAttribute<?, ?> attribute) {
+    private static DataFormatField createField(MethodAttribute<?, ?> attribute) {
+        DataFormat format;
         if ( attribute.isCollection() ) {
             MethodPluralAttribute<?, ?, ?> pluralAttribute = (MethodPluralAttribute<?, ?, ?>) attribute;
-            RelDataType elementRelDataType = deduceType( typeFactory, pluralAttribute.getElementType() );
+            Class<?> javaType = pluralAttribute.getJavaType();
+            DataFormat elementFormat = createFormat( pluralAttribute.getElementType() );
             if (pluralAttribute instanceof MethodMapAttribute<?, ?, ?> ) {
                 MethodMapAttribute<?, ?, ?> mapAttribute = (MethodMapAttribute<?, ?, ?>) pluralAttribute;
-                RelDataType keyRelDataType = deduceType( typeFactory, mapAttribute.getKeyType() );
-                return typeFactory.createTypeWithNullability( typeFactory.createMapType( keyRelDataType, elementRelDataType ), true );
+                format = MapDataFormat.of( javaType, createFormat( mapAttribute.getKeyType() ), elementFormat );
+            } else {
+                format = CollectionDataFormat.of( javaType, elementFormat );
             }
-            return typeFactory.createTypeWithNullability( typeFactory.createArrayType( elementRelDataType, -1L ), true );
         } else {
             MethodSingularAttribute<?, ?> singularAttribute = (MethodSingularAttribute<?, ?>) attribute;
-            return deduceType( typeFactory, singularAttribute.getType() );
+            format = createFormat( singularAttribute.getType() );
         }
+        return DataFormatField.of(
+                attribute.getName(),
+                new MethodFieldAccessor(attribute.getJavaMethod()),
+                format
+        );
     }
 
-    private RelDataType deduceType(JavaTypeFactory typeFactory, Type<?> type) {
-        if ( type.getMappingType() != Type.MappingType.BASIC) {
-//            return deduceRowType( typeFactory, (ManagedViewType<?>) type );
-            return typeFactory.createTypeWithNullability( deduceRowType( typeFactory, (ManagedViewType<?>) type ), true );
-        }
-        BasicType<?> basicType = (BasicType<?>) type;
-        return typeFactory.createType( basicType.getJavaType() );
-    }
-
-    private static Accessor[] createAccessors(String basePath, ManagedViewType<?> viewType) {
-        //noinspection unchecked
-        Set<MethodAttribute<?, ?>> attributes = (Set<MethodAttribute<?, ?>>) viewType.getAttributes();
-        Accessor[] accessors = new Accessor[attributes.size()];
-        int i = 0;
-        for ( MethodAttribute<?, ?> attribute : attributes ) {
-            accessors[i++] = createAccessor( basePath, attribute );
-        }
-        return accessors;
-    }
-
-    private static Accessor createAccessor(String basePath, MethodAttribute<?, ?> attribute) {
-        if ( attribute.isCollection() ) {
-            MethodPluralAttribute<?, ?, ?> pluralAttribute = (MethodPluralAttribute<?, ?, ?>) attribute;
-            MethodAccessor baseAccessor = createMethodAccessor( basePath, attribute );
-            Accessor elementAccessor = createAccessor( basePath, pluralAttribute.getElementType() );
-            if (pluralAttribute instanceof MethodMapAttribute<?, ?, ?> ) {
-                MethodMapAttribute<?, ?, ?> mapAttribute = (MethodMapAttribute<?, ?, ?>) pluralAttribute;
-                Accessor keyAccessor = createAccessor( basePath, mapAttribute.getKeyType() );
-                return new MapAccessor( baseAccessor, keyAccessor, elementAccessor );
-            }
-            return new CollectionAccessor( baseAccessor, elementAccessor );
-        } else {
-            return createAccessor( basePath, (MethodSingularAttribute<?, ?>) attribute );
-        }
-    }
-
-    private static Accessor createAccessor(String basePath, MethodSingularAttribute<?, ?> singularAttribute) {
-        MethodAccessor baseAccessor = createMethodAccessor( basePath, singularAttribute );
-        Type<?> type = singularAttribute.getType();
-        if ( type.getMappingType() != Type.MappingType.BASIC) {
-            return new ObjectArrayAccessor( baseAccessor, createAccessors( basePath, (ManagedViewType<?>) type ) );
-        }
-        return baseAccessor;
-    }
-
-    private static Accessor createAccessor(String basePath, Type<?> type) {
-        if ( type.getMappingType() != Type.MappingType.BASIC) {
-            return new ObjectArrayAccessor( null, createAccessors( basePath, (ManagedViewType<?>) type ) );
-        }
-        return null;
-    }
-
-    private static MethodAccessor createMethodAccessor(String basePath, MethodAttribute<?, ?> methodAttribute) {
-        String attributePath;
-        if ( basePath == null ) {
-            attributePath = methodAttribute.getName();
-        } else {
-            attributePath = basePath + "." + methodAttribute.getName();
-        }
-        return new MethodAccessor( attributePath, methodAttribute.getJavaMethod() );
+    private static DataFormat createFormat(Type<?> type) {
+        return type.getMappingType() == Type.MappingType.BASIC
+                ? DataFormat.of( type.getJavaType(), Collections.emptyList() )
+                : createFormat( (ManagedViewType<?>) type );
     }
 
     @Override
     public List<EntityView> fetch(DataFetchContext context) {
+        return fetch( context, null );
+    }
+
+    @Override
+    public List<EntityView> fetch(DataFetchContext context, int[][] projects) {
         EntityManager entityManager = EntityViewConnectorConfig.ENTITY_MANAGER.find( context );
         if (entityManager == null) {
             entityManager = entityManagerSupplier.get();
@@ -209,6 +135,22 @@ public abstract class EntityViewTable<EntityView> extends AbstractTable implemen
         CriteriaBuilder<Object> cb = evm.getService( CriteriaBuilderFactory.class ).create( entityManager, Object.class );
         cb.from( viewType.getEntityClass(), "e" );
         EntityViewSetting<EntityView, CriteriaBuilder<EntityView>> setting = EntityViewSetting.create( viewType.getJavaType() );
+        if ( projects != null ) {
+            for ( int[] fields : projects ) {
+                SubGraph<?> subGraph = setting;
+                DataFormat format = dataFormat;
+                for ( int field : fields ) {
+                    if ( format instanceof CollectionDataFormat) {
+                        format = ( (CollectionDataFormat) format ).getElementFormat();
+                    } else if ( format instanceof MapDataFormat) {
+                        format = ( (MapDataFormat) format ).getElementFormat();
+                    }
+                    DataFormatField dataFormatField = format.getFields().get( field );
+                    subGraph = subGraph.fetch( dataFormatField.getName() );
+                    format = dataFormatField.getFormat();
+                }
+            }
+        }
         return evm.applySetting( setting, cb ).getResultList();
     }
 

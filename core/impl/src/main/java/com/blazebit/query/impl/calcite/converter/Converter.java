@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.base;
+package com.blazebit.query.impl.calcite.converter;
 
 /**
  * Accessor for an attribute of an object.
@@ -22,17 +22,12 @@ package com.blazebit.query.connector.base;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public interface Accessor {
-    /**
-     * Returns the attribute path for this accessor.
-     * @return the attribute path for this accessor
-     */
-    String getAttributePath();
+public interface Converter<Source, Target> {
 
     /**
      * Returns the attribute value for the attribute accessed by this accessor of the given object.
      * @param o The object
      * @return The attribute value
      */
-    Object getValue(Object o);
+    Target convert(Source o);
 }

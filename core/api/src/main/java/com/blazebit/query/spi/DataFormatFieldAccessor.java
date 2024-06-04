@@ -16,29 +16,18 @@
 
 package com.blazebit.query.spi;
 
-import java.util.List;
-
 /**
- * An object to fetch schema object data.
+ * An accessor for a {@link DataFormatField} to access data.
  *
- * @param <T> The schema object type
  * @author Christian Beikov
  * @since 1.0.0
  */
-public interface DataFetcher<T> {
-
+public interface DataFormatFieldAccessor {
     /**
-     * Returns the data format of the fetched data.
+     * Returns the value for a field as accessed by this accessor.
      *
-     * @return  the data format of the fetched data
+     * @param obj The object on which to access the field
+     * @return The value of a field of the given object
      */
-    DataFormat getDataFormat();
-
-    /**
-     * Returns freshly fetched data for a schema object.
-     *
-     * @param context The data fetching context
-     * @return the fetched data
-     */
-    List<T> fetch(DataFetchContext context);
+    Object get(Object obj);
 }

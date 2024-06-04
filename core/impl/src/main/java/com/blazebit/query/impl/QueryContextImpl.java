@@ -31,7 +31,7 @@ import java.util.stream.StreamSupport;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QueryException;
 import com.blazebit.query.QuerySession;
-import com.blazebit.query.connector.base.DataFetcherTable;
+import com.blazebit.query.impl.calcite.DataFetcherTable;
 import com.blazebit.query.impl.calcite.CalciteDataSource;
 import com.blazebit.query.impl.calcite.SubSchema;
 import com.blazebit.query.impl.metamodel.MetamodelImpl;

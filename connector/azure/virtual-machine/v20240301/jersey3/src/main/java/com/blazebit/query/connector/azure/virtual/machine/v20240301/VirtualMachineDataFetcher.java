@@ -27,8 +27,10 @@ import com.blazebit.query.connector.azure.subscription.v20221201.model.Subscript
 import com.blazebit.query.connector.azure.virtual.machine.v20240301.api.VirtualMachinesApi;
 import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
 import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachineListResult;
+import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetchContext;
+import com.blazebit.query.spi.DataFormat;
 
 /**
  * @author Christian Beikov
@@ -61,5 +63,10 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachine>, S
         } catch (ApiException e) {
             throw new RuntimeException( "Could not fetch virtual machine list", e );
         }
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormats.beansConvention( VirtualMachine.class );
     }
 }

@@ -52,12 +52,12 @@ public final class EntityViewSchemaProvider implements QuerySchemaProvider {
                 EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName() );
         //noinspection unchecked
         Supplier<DataFetchContext> dataContextSupplier = (Supplier<DataFetchContext>) configurationProvider;
-        final ImmutableMap.Builder<Class<?>, EntityViewProjectableFilterableTable<?>> builder = ImmutableMap.builder();
+        final ImmutableMap.Builder<Class<?>, EntityViewTable<?>> builder = ImmutableMap.builder();
         for ( ViewType<?> viewType : entityViewManager.getMetamodel().getViews() ) {
             if ( entityViewFilter == null || entityViewFilter.test( viewType ) ) {
                 builder.put(
                         viewType.getJavaType(),
-                        new EntityViewProjectableFilterableTable<>(
+                        new EntityViewTable<>(
                                 entityViewManager,
                                 entityManagerProvider,
                                 dataContextSupplier,

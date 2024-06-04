@@ -8,7 +8,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>blaze-query-connector-azure-vitrual-machine-v20240301-jersey3</artifactId>
+    <artifactId>blaze-query-connector-azure-virtual-machine-v20240301-jersey3</artifactId>
 
     <properties>
         <module.name>com.blazebit.query.connector.azure.virtual.machine.v20240301</module.name>
