@@ -16,8 +16,6 @@
 
 package com.blazebit.query.spi;
 
-import java.util.function.Supplier;
-
 import com.blazebit.query.QueryContext;
 
 /**
@@ -29,24 +27,24 @@ import com.blazebit.query.QueryContext;
 public interface QueryContextBuilder {
 
     /**
-     * Constructs a property provider for the value and registers it via {@link #setPropertyProvider(String, Supplier)}.
+     * Constructs a property provider for the value and registers it via {@link #setPropertyProvider(String, PropertyProvider)}.
      *
      * @param property The property name
-     * @param value The property value
+     * @param value    The property value
      * @return {@code this} object for method chaining
      */
     default QueryContextBuilder setProperty(String property, Object value) {
-        return setPropertyProvider( property, () -> value );
+        return setPropertyProvider(property, (context) -> value);
     }
 
     /**
      * Sets the given supplier as value provider for the given property name.
      *
      * @param property The property name
-     * @param supplier The property value supplier
+     * @param provider The property value provider
      * @return {@code this} object for method chaining
      */
-    QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier);
+    QueryContextBuilder setPropertyProvider(String property, PropertyProvider provider);
 
     /**
      * Returns the property provider for the property name.
@@ -55,13 +53,13 @@ public interface QueryContextBuilder {
      * @return the property provider for the property name
      * @throws IllegalArgumentException If no property provider exists
      */
-    Supplier<Object> getPropertyProvider(String property);
+    PropertyProvider getPropertyProvider(String property);
 
     /**
      * Registers a fully qualified alias for a schema object type.
      *
      * @param schemaObjectType The schema object type
-     * @param alias The qualified alias name
+     * @param alias            The qualified alias name
      * @return {@code this} object for method chaining
      */
     QueryContextBuilder registerSchemaObjectAlias(Class<?> schemaObjectType, String alias);
