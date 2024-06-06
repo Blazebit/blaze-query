@@ -15,16 +15,16 @@
  */
 package com.blazebit.query.impl;
 
+import com.blazebit.query.QueryContext;
+import com.blazebit.query.spi.DataFetcher;
+import com.blazebit.query.spi.PropertyProvider;
+import com.blazebit.query.spi.QueryContextBuilder;
+import com.blazebit.query.spi.QuerySchemaProvider;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.function.Supplier;
-
-import com.blazebit.query.QueryContext;
-import com.blazebit.query.spi.DataFetcher;
-import com.blazebit.query.spi.QueryContextBuilder;
-import com.blazebit.query.spi.QuerySchemaProvider;
 
 /**
  * @author Christian Beikov
@@ -32,20 +32,20 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  */
 public class QueryContextBuilderImpl implements QueryContextBuilder {
 
-    final Map<String, Supplier<Object>> propertyProviders = new HashMap<>();
+    final Map<String, PropertyProvider> propertyProviders = new HashMap<>();
     final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
     final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
     final Map<String, String> schemaObjectNames = new HashMap<>();
 
     @Override
-    public QueryContextBuilder setPropertyProvider(String property, Supplier<Object> supplier) {
-        propertyProviders.put(property, supplier);
+    public QueryContextBuilder setPropertyProvider(String property, PropertyProvider provider) {
+        propertyProviders.put(property, provider);
         return this;
     }
 
     @Override
-    public Supplier<Object> getPropertyProvider(String property) {
-        Supplier<Object> propertyProvider = propertyProviders.get( property );
+    public PropertyProvider getPropertyProvider(String property) {
+        PropertyProvider propertyProvider = propertyProviders.get(property);
         if (propertyProvider == null) {
             throw new IllegalArgumentException("No property provider found for property: " + property);
         }
