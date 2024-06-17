@@ -16,6 +16,7 @@
 
 package com.blazebit.query;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +118,7 @@ public interface QuerySession extends AutoCloseable {
      * @param <T> The schema object type
      * @throws IllegalArgumentException If the schema object type is not known
      * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+     * @throws DataFetcherException when an exception occurs during data fetching
      */
     <T> List<? extends T> getOrFetch(Class<T> schemaObjectType);
 
@@ -154,6 +156,7 @@ public interface QuerySession extends AutoCloseable {
      * @return the refreshed schema object data
      * @throws IllegalArgumentException If the schema object type is not known
      * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+     * @throws DataFetcherException when an exception occurs during data fetching
      */
     default <T> List<? extends T> refresh(Class<T> schemaObjectType) {
         remove( schemaObjectType );

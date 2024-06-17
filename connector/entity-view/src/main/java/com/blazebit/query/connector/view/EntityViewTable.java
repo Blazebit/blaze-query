@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.view;
 
+import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.PropertyProvider;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,30 +129,34 @@ public class EntityViewTable<EntityView> implements ProjectableDataFetcher<Entit
 
     @Override
     public List<EntityView> fetch(DataFetchContext context, int[][] projects) {
-        EntityManager entityManager = EntityViewConnectorConfig.ENTITY_MANAGER.find( context );
-        if (entityManager == null) {
-            entityManager = entityManagerSupplier.provide(context);
-        }
-        CriteriaBuilder<Object> cb = evm.getService( CriteriaBuilderFactory.class ).create( entityManager, Object.class );
-        cb.from( viewType.getEntityClass(), "e" );
-        EntityViewSetting<EntityView, CriteriaBuilder<EntityView>> setting = EntityViewSetting.create( viewType.getJavaType() );
-        if ( projects != null ) {
-            for ( int[] fields : projects ) {
-                SubGraph<?> subGraph = setting;
-                DataFormat format = dataFormat;
-                for ( int field : fields ) {
-                    if ( format instanceof CollectionDataFormat) {
-                        format = ( (CollectionDataFormat) format ).getElementFormat();
-                    } else if ( format instanceof MapDataFormat) {
-                        format = ( (MapDataFormat) format ).getElementFormat();
+        try {
+            EntityManager entityManager = EntityViewConnectorConfig.ENTITY_MANAGER.find( context );
+            if (entityManager == null) {
+                entityManager = entityManagerSupplier.provide(context);
+            }
+            CriteriaBuilder<Object> cb = evm.getService( CriteriaBuilderFactory.class ).create( entityManager, Object.class );
+            cb.from( viewType.getEntityClass(), "e" );
+            EntityViewSetting<EntityView, CriteriaBuilder<EntityView>> setting = EntityViewSetting.create( viewType.getJavaType() );
+            if ( projects != null ) {
+                for ( int[] fields : projects ) {
+                    SubGraph<?> subGraph = setting;
+                    DataFormat format = dataFormat;
+                    for ( int field : fields ) {
+                        if ( format instanceof CollectionDataFormat) {
+                            format = ( (CollectionDataFormat) format ).getElementFormat();
+                        } else if ( format instanceof MapDataFormat) {
+                            format = ( (MapDataFormat) format ).getElementFormat();
+                        }
+                        DataFormatField dataFormatField = format.getFields().get( field );
+                        subGraph = subGraph.fetch( dataFormatField.getName() );
+                        format = dataFormatField.getFormat();
                     }
-                    DataFormatField dataFormatField = format.getFields().get( field );
-                    subGraph = subGraph.fetch( dataFormatField.getName() );
-                    format = dataFormatField.getFormat();
                 }
             }
+            return evm.applySetting( setting, cb ).getResultList();
+        } catch (Exception e) {
+            throw new DataFetcherException(e);
         }
-        return evm.applySetting( setting, cb ).getResultList();
     }
 
 }

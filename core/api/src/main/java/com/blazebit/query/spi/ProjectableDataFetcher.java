@@ -33,6 +33,7 @@ public interface ProjectableDataFetcher<T> extends DataFetcher<T> {
      * @param context The data fetching context
      * @param projection The fields that should be projected
      * @return the fetched data
+     * @throws DataFetcherException when an exception occurs during data fetching
      */
     List<T> fetch(DataFetchContext context, int[][] projection);
 }

@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.subscription.v20221201;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class SubscriptionDataFetcher implements DataFetcher<Subscription>, Seria
             return new SubscriptionsApi( AzureConnectorConfig.API_CLIENT.get( context ) )
                     .subscriptionsList( "2022-12-01" ).getValue();
         } catch (ApiException e) {
-            throw new RuntimeException( "Could not fetch subscription list", e );
+            throw new DataFetcherException( "Could not fetch subscription list", e );
         }
     }
 

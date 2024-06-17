@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.blob.services.v20230501;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class BlobServicesDataFetcher implements DataFetcher<BlobServicePropertie
             }
             return list;
         } catch (ApiException e) {
-            throw new RuntimeException( "Could not fetch virtual machine list", e );
+            throw new DataFetcherException( "Could not fetch virtual machine list", e );
         }
     }
 
