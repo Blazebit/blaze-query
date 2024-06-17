@@ -16,11 +16,11 @@
 
 package com.blazebit.query.connector.view;
 
+import com.blazebit.query.spi.PropertyProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
@@ -52,8 +52,8 @@ import jakarta.persistence.EntityManager;
  */
 public class EntityViewTable<EntityView> implements ProjectableDataFetcher<EntityView> {
     protected final EntityViewManager evm;
-    protected final Supplier<EntityManager> entityManagerSupplier;
-    protected final Supplier<DataFetchContext> dataContextSupplier;
+    protected final PropertyProvider<EntityManager> entityManagerSupplier;
+    protected final PropertyProvider<DataFetchContext> dataContextSupplier;
     protected final ViewType<EntityView> viewType;
     private final DataFormat dataFormat;
 
@@ -67,8 +67,8 @@ public class EntityViewTable<EntityView> implements ProjectableDataFetcher<Entit
      */
     public EntityViewTable(
             EntityViewManager evm,
-            Supplier<EntityManager> entityManagerSupplier,
-            Supplier<DataFetchContext> dataContextSupplier,
+            PropertyProvider<EntityManager> entityManagerSupplier,
+            PropertyProvider<DataFetchContext> dataContextSupplier,
             ViewType<EntityView> viewType) {
         this.evm = evm;
         this.entityManagerSupplier = entityManagerSupplier;
@@ -130,7 +130,7 @@ public class EntityViewTable<EntityView> implements ProjectableDataFetcher<Entit
     public List<EntityView> fetch(DataFetchContext context, int[][] projects) {
         EntityManager entityManager = EntityViewConnectorConfig.ENTITY_MANAGER.find( context );
         if (entityManager == null) {
-            entityManager = entityManagerSupplier.get();
+            entityManager = entityManagerSupplier.provide(context);
         }
         CriteriaBuilder<Object> cb = evm.getService( CriteriaBuilderFactory.class ).create( entityManager, Object.class );
         cb.from( viewType.getEntityClass(), "e" );
