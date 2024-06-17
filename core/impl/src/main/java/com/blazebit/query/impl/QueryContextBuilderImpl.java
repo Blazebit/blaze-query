@@ -32,7 +32,7 @@ import java.util.ServiceLoader;
  */
 public class QueryContextBuilderImpl implements QueryContextBuilder {
 
-    final Map<String, PropertyProvider> propertyProviders = new HashMap<>();
+    final Map<String, PropertyProvider<?>> propertyProviders = new HashMap<>();
     final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
     final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
     final Map<String, String> schemaObjectNames = new HashMap<>();

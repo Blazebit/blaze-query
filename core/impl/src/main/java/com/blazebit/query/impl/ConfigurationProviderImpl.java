@@ -31,26 +31,25 @@ import com.google.common.collect.ImmutableMap;
  */
 public class ConfigurationProviderImpl implements ConfigurationProvider, Supplier<DataFetchContext>, DataFetchContext {
 
-    private final ImmutableMap<String, PropertyProvider> propertyProviders;
-    private final Map<String, PropertyProvider> lazyPropertyProviders;
+    private final ImmutableMap<String, PropertyProvider<?>> propertyProviders;
+    private final Map<String, PropertyProvider<?>> lazyPropertyProviders;
     private final ThreadLocal<TypedQueryImpl> currentQuery = new ThreadLocal<>();
 
-    public ConfigurationProviderImpl(ImmutableMap<String, PropertyProvider> propertyProviders) {
+    public ConfigurationProviderImpl(ImmutableMap<String, PropertyProvider<?>> propertyProviders) {
         this.propertyProviders = propertyProviders;
         this.lazyPropertyProviders = new HashMap<>();
     }
 
     @Override
     public <X> X getProperty(String property) {
-        PropertyProvider supplier = propertyProviders.get( property );
-        //noinspection unchecked
-        return supplier == null ? null : (X) supplier.provide(this);
+        PropertyProvider propertyProvider = propertyProviders.get( property );
+        return propertyProvider == null ? null : (X) propertyProvider.provide(this);
     }
 
     @Override
-    public <X> Supplier<X> getPropertyProvider(String property) {
+    public <X> PropertyProvider<X> getPropertyProvider(String property) {
         //noinspection unchecked
-        return (Supplier<X>) lazyPropertyProviders.computeIfAbsent( property, LazyPropertyProvider::new );
+        return (PropertyProvider<X>) lazyPropertyProviders.computeIfAbsent( property, LazyPropertyProvider::new );
     }
 
     @Override
@@ -94,6 +93,11 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 
     public boolean hasCurrentQuery() {
         return currentQuery.get() != null;
+    }
+
+    @Override
+    public DataFetchContext provide(DataFetchContext context) {
+        return context;
     }
 
     private class LazyPropertyProvider implements PropertyProvider {
