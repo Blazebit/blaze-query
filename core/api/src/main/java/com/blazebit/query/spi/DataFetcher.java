@@ -39,6 +39,7 @@ public interface DataFetcher<T> {
      *
      * @param context The data fetching context
      * @return the fetched data
+     * @throws DataFetcherException when an exception occurs during data fetching
      */
-    List<T> fetch(DataFetchContext context);
+    List<T> fetch(DataFetchContext context) throws DataFetcherException;
 }

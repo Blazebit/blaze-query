@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.virtual.machine.v20240301;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachine>, S
     }
 
     @Override
-    public List<VirtualMachine> fetch(DataFetchContext context) {
+    public List<VirtualMachine> fetch(DataFetchContext context) throws DataFetcherException {
         try {
             ApiClient apiClient = AzureConnectorConfig.API_CLIENT.get( context );
             VirtualMachinesApi virtualMachinesApi = new VirtualMachinesApi( apiClient );
@@ -61,7 +62,7 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachine>, S
             }
             return list;
         } catch (ApiException e) {
-            throw new RuntimeException( "Could not fetch virtual machine list", e );
+            throw new DataFetcherException( "Could not fetch virtual machine list", e );
         }
     }
 
