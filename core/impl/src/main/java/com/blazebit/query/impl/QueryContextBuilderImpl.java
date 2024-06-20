@@ -65,9 +65,15 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
     }
 
     @Override
+    public QueryContextBuilder registerSchemaProvider(QuerySchemaProvider querySchemaProvider) {
+        schemaProviders.add(querySchemaProvider);
+        return this;
+    }
+
+    @Override
     public QueryContextBuilder loadServices() {
         for ( QuerySchemaProvider querySchemaProvider : ServiceLoader.load( QuerySchemaProvider.class ) ) {
-            schemaProviders.add( querySchemaProvider );
+            registerSchemaProvider(querySchemaProvider);
         }
         return this;
     }
