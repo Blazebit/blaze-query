@@ -75,6 +75,14 @@ public interface QueryContextBuilder {
     <T> QueryContextBuilder registerSchemaObject(Class<T> schemaObjectType, DataFetcher<T> dataFetcher);
 
     /**
+     * Registers a {@link QuerySchemaProvider} to provide schema objects.
+     *
+     * @param querySchemaProvider The {@link QuerySchemaProvider} to register
+     * @return The updated {@link QueryContextBuilder} object
+     */
+    QueryContextBuilder registerSchemaProvider(QuerySchemaProvider querySchemaProvider);
+
+    /**
      * Loads the available services through the Java {@link java.util.ServiceLoader} API.
      *
      * @return {@code this} object for method chaining
