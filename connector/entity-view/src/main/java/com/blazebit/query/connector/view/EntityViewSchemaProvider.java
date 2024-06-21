@@ -16,9 +16,9 @@
 
 package com.blazebit.query.connector.view;
 
+import com.blazebit.query.spi.PropertyProvider;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.metamodel.ViewType;
@@ -44,15 +44,16 @@ public final class EntityViewSchemaProvider implements QuerySchemaProvider {
 
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        EntityViewManager entityViewManager = configurationProvider.<EntityViewManager>getPropertyProvider(
-                EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName() ).get();
+        EntityViewManager entityViewManager = configurationProvider.getProperty(
+                EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName() );
         Predicate<ViewType<?>> entityViewFilter = configurationProvider.getProperty(
                 EntityViewConnectorConfig.ENTITY_VIEW_FILTER.getPropertyName() );
-        Supplier<EntityManager> entityManagerProvider = configurationProvider.getPropertyProvider(
-                EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName() );
-        //noinspection unchecked
-        Supplier<DataFetchContext> dataContextSupplier = (Supplier<DataFetchContext>) configurationProvider;
+        PropertyProvider<EntityManager> entityManagerProvider = configurationProvider.getPropertyProvider(
+            EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName() );
+        PropertyProvider<DataFetchContext> dataContextSupplier = configurationProvider;
+
         final ImmutableMap.Builder<Class<?>, EntityViewTable<?>> builder = ImmutableMap.builder();
+
         for ( ViewType<?> viewType : entityViewManager.getMetamodel().getViews() ) {
             if ( entityViewFilter == null || entityViewFilter.test( viewType ) ) {
                 builder.put(

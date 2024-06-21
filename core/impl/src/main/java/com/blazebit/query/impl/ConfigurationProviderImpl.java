@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetchContext;
+import com.blazebit.query.spi.PropertyProvider;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -30,26 +31,25 @@ import com.google.common.collect.ImmutableMap;
  */
 public class ConfigurationProviderImpl implements ConfigurationProvider, Supplier<DataFetchContext>, DataFetchContext {
 
-    private final ImmutableMap<String, Supplier<Object>> propertyProviders;
-    private final Map<String, Supplier<Object>> lazyPropertyProviders;
+    private final ImmutableMap<String, PropertyProvider<?>> propertyProviders;
+    private final Map<String, PropertyProvider<?>> lazyPropertyProviders;
     private final ThreadLocal<TypedQueryImpl> currentQuery = new ThreadLocal<>();
 
-    public ConfigurationProviderImpl(ImmutableMap<String, Supplier<Object>> propertyProviders) {
+    public ConfigurationProviderImpl(ImmutableMap<String, PropertyProvider<?>> propertyProviders) {
         this.propertyProviders = propertyProviders;
         this.lazyPropertyProviders = new HashMap<>();
     }
 
     @Override
     public <X> X getProperty(String property) {
-        Supplier<Object> supplier = propertyProviders.get( property );
-        //noinspection unchecked
-        return supplier == null ? null : (X) supplier.get();
+        PropertyProvider propertyProvider = propertyProviders.get( property );
+        return propertyProvider == null ? null : (X) propertyProvider.provide(this);
     }
 
     @Override
-    public <X> Supplier<X> getPropertyProvider(String property) {
+    public <X> PropertyProvider<X> getPropertyProvider(String property) {
         //noinspection unchecked
-        return (Supplier<X>) lazyPropertyProviders.computeIfAbsent( property, LazyPropertyProvider::new );
+        return (PropertyProvider<X>) lazyPropertyProviders.computeIfAbsent( property, LazyPropertyProvider::new );
     }
 
     @Override
@@ -65,9 +65,9 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
             value = query.findProperty(propertyName);
         }
         if (value == null) {
-            Supplier<Object> supplier = propertyProviders.get( propertyName );
+            PropertyProvider supplier = propertyProviders.get( propertyName );
             if ( supplier != null ) {
-                value = supplier.get();
+                value = supplier.provide(this);
             }
         }
         //noinspection unchecked
@@ -95,7 +95,12 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
         return currentQuery.get() != null;
     }
 
-    private class LazyPropertyProvider implements Supplier<Object> {
+    @Override
+    public DataFetchContext provide(DataFetchContext context) {
+        return context;
+    }
+
+    private class LazyPropertyProvider implements PropertyProvider {
 
         private final String propertyName;
 
@@ -104,16 +109,16 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
         }
 
         @Override
-        public Object get() {
+        public Object provide(DataFetchContext context) {
             TypedQueryImpl query = currentQuery.get();
             if (query != null) {
                 return query.findProperty(propertyName);
             }
-            Supplier<Object> supplier = propertyProviders.get( propertyName );
+            PropertyProvider supplier = propertyProviders.get( propertyName );
             if (supplier == null) {
                 throw new IllegalArgumentException("Could not resolve property " + propertyName);
             }
-            return supplier.get();
+            return supplier.provide(context);
         }
     }
 }

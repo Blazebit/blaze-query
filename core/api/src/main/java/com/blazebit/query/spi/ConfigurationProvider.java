@@ -16,15 +16,13 @@
 
 package com.blazebit.query.spi;
 
-import java.util.function.Supplier;
-
 /**
  * Provides access to configuration values in a lazy fashion.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public interface ConfigurationProvider {
+public interface ConfigurationProvider extends PropertyProvider<DataFetchContext> {
 
     /**
      * Returns a property value set for the property name, or {@code null} if no value was set.
@@ -41,9 +39,9 @@ public interface ConfigurationProvider {
      * or if no query is currently executing, will default to the values configured for a {@link com.blazebit.query.QueryContext}.
      *
      * @param property The property name
-     * @param <X> The property type
+     * @param <X> The type of the property that is provided
      * @return the property provider for the property name
      */
-    <X> Supplier<X> getPropertyProvider(String property);
+    <X> PropertyProvider<X> getPropertyProvider(String property);
 
 }
