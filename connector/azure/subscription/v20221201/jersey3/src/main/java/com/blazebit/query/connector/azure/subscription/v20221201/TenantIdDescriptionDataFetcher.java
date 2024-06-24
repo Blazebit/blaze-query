@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.subscription.v20221201;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -40,12 +41,12 @@ public class TenantIdDescriptionDataFetcher implements DataFetcher<TenantIdDescr
     }
 
     @Override
-    public List<TenantIdDescription> fetch(DataFetchContext context) {
+    public List<TenantIdDescription> fetch(DataFetchContext context) throws DataFetcherException {
         try {
             return new TenantsApi( AzureConnectorConfig.API_CLIENT.get( context ) )
                     .tenantsList( "2022-12-01" ).getValue();
         } catch (ApiException e) {
-            throw new RuntimeException( "Could not fetch tenant list", e );
+            throw new DataFetcherException( "Could not fetch tenant list", e );
         }
     }
 

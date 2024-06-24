@@ -15,6 +15,7 @@
  */
 package com.blazebit.query.impl;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
     }
 
     @Override
-    public <T> List<? extends T> getOrFetch(Class<T> schemaObjectTypeClass) {
+    public <T> List<? extends T> getOrFetch(Class<T> schemaObjectTypeClass) throws DataFetcherException {
         checkClosed();
         SchemaObjectTypeImpl<T> schemaObjectType = queryContext.getMetamodel().get( schemaObjectTypeClass );
         List<?> objects = data.get( schemaObjectType );

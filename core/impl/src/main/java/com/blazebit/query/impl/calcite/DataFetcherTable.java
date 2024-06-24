@@ -16,7 +16,9 @@
 
 package com.blazebit.query.impl.calcite;
 
+import com.blazebit.query.spi.DataFetcherException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -174,7 +176,11 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         QuerySession session = dataFetchContext.getSession();
         List<? extends T> objects = session.get( tableClass );
         if ( objects == null ) {
-            objects = dataFetcher.fetch( dataFetchContext );
+            try {
+                objects = dataFetcher.fetch( dataFetchContext );
+            } catch (DataFetcherException e) {
+                objects = Collections.emptyList();
+            }
             session.put( tableClass, objects );
         }
         return objects;
@@ -189,7 +195,11 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
                 QuerySession session = dataFetchContext.getSession();
                 List<? extends T> objects = session.get( tableClass );
                 if ( objects == null ) {
-                    objects = dataFetcher.fetch( dataFetchContext );
+                    try {
+                        objects = dataFetcher.fetch( dataFetchContext );
+                    } catch (DataFetcherException e) {
+                        objects = Collections.emptyList();
+                    }
                     session.put( tableClass, objects );
                 }
                 return new ConverterListEnumerator( objects, converter);
