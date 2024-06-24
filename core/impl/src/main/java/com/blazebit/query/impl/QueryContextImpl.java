@@ -15,18 +15,7 @@
  */
 package com.blazebit.query.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Spliterator;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import static java.util.Spliterators.spliteratorUnknownSize;
 
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QueryException;
@@ -38,10 +27,22 @@ import com.blazebit.query.impl.metamodel.MetamodelImpl;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.google.common.collect.ImmutableMap;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Table;
-
-import static java.util.Spliterators.spliteratorUnknownSize;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 /**
  * @author Christian Beikov
@@ -81,12 +82,8 @@ public class QueryContextImpl implements QueryContext {
     public <T> List<T> getResultList(TypedQueryImpl<T> query, PreparedStatement preparedStatement) {
         configurationProvider.setQuery(query);
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            ResultExtractor<T> extractor = getResultExtractor( resultSet, query );
-            ArrayList<T> resultList = new ArrayList<>();
-            while (resultSet.next()) {
-                resultList.add( extractor.extract( resultSet ) );
-            }
-            return resultList;
+            var resultSetHandler = new BeanListHandler<>(query.getResultClass());
+            return resultSetHandler.handle(resultSet);
         } catch (SQLException e) {
             throw new QueryException( "Error while executing query", e, query.getQueryString() );
         } finally {
@@ -111,13 +108,13 @@ public class QueryContextImpl implements QueryContext {
     private static class ResultSetIterator<T> implements Iterator<T> {
         private final TypedQueryImpl<T> query;
         private final ResultSet resultSet;
-        private final ResultExtractor<T> extractor;
+        private final ResultSetHandler<T> extractor;
         private boolean hasNext;
 
         public ResultSetIterator(TypedQueryImpl<T> query, ResultSet resultSet) {
             this.query = query;
             this.resultSet = resultSet;
-            this.extractor = getResultExtractor( resultSet, query );
+            this.extractor = new BeanHandler<>(query.getResultClass());
             advance();
         }
 
@@ -138,7 +135,7 @@ public class QueryContextImpl implements QueryContext {
         public T next() {
             T object;
             try {
-                object = extractor.extract( resultSet );
+                object = extractor.handle(resultSet);
             } catch (SQLException e) {
                 throw new QueryException( "Couldn't extract tuple", e, query.getQueryString() );
             }
@@ -153,57 +150,6 @@ public class QueryContextImpl implements QueryContext {
                 throw new QueryException( "Error during result set closing", e, query.getQueryString() );
             }
         }
-    }
-
-    private static <T> ResultExtractor<T> getResultExtractor(ResultSet resultSet, TypedQueryImpl<T> query) {
-        if (query.getResultClass() == Object[].class) {
-            try {
-                return (ResultExtractor<T>) new ObjectArrayExtractor( resultSet.getMetaData().getColumnCount());
-            } catch (SQLException e) {
-                throw new QueryException( "Couldn't access result set metadata", e, query.getQueryString() );
-            }
-        } else {
-            return SingleObjectExtractor.INSTANCE;
-        }
-    }
-
-    private static interface ResultExtractor<T> {
-        T extract(ResultSet resultSet) throws SQLException;
-    }
-
-    private static class ObjectArrayExtractor implements ResultExtractor<Object[]> {
-        private final int columnCount;
-
-        public ObjectArrayExtractor(int columnCount) {
-            this.columnCount = columnCount;
-        }
-
-        @Override
-        public Object[] extract(ResultSet resultSet) throws SQLException {
-            Object[] tuple = new Object[columnCount];
-            for ( int i = 0; i < tuple.length; i++ ) {
-                tuple[i] = resultSet.getObject( i + 1 );
-            }
-            return tuple;
-        }
-    }
-
-    private static class SingleObjectExtractor<T> implements ResultExtractor<T> {
-        private static final SingleObjectExtractor INSTANCE = new SingleObjectExtractor();
-
-        @Override
-        public T extract(ResultSet resultSet) throws SQLException {
-            return (T) resultSet.getObject( 1 );
-        }
-    }
-
-    private static Object[] extractTuple(ResultSet resultSet) throws SQLException {
-        int columnCount = resultSet.getMetaData().getColumnCount();
-        Object[] tuple = new Object[columnCount];
-        for ( int i = 0; i < tuple.length; i++ ) {
-            tuple[i] = resultSet.getObject( i + 1 );
-        }
-        return tuple;
     }
 
     @Override

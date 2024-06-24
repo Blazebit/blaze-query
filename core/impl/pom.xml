@@ -12,6 +12,7 @@
 
     <properties>
         <module.name>com.blazebit.query.core.impl</module.name>
+        <version.commons-dbutils>1.8.1</version.commons-dbutils>
     </properties>
 
     <dependencies>
@@ -24,6 +25,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>blaze-query-connector-base</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>${version.commons-dbutils}</version>
         </dependency>
 
 
