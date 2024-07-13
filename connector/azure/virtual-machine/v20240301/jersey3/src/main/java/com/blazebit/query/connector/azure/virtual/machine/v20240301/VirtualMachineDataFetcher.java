@@ -47,27 +47,29 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachine>, S
     @Override
     public List<VirtualMachine> fetch(DataFetchContext context) {
         try {
-            ApiClient apiClient = AzureConnectorConfig.API_CLIENT.get( context );
-            VirtualMachinesApi virtualMachinesApi = new VirtualMachinesApi( apiClient );
+            List<ApiClient> apiClients = AzureConnectorConfig.API_CLIENT.getAll(context);
             List<VirtualMachine> list = new ArrayList<>();
-            for ( Subscription subscription : context.getSession().getOrFetch( Subscription.class ) ) {
-                VirtualMachineListResult virtualMachineListResult = virtualMachinesApi.virtualMachinesListAll(
-                        "2024-03-01",
-                        subscription.getSubscriptionId(),
-                        null,
-                        null,
-                        null
-                );
-                list.addAll(virtualMachineListResult.getValue());
+            for (ApiClient apiClient : apiClients) {
+                VirtualMachinesApi virtualMachinesApi = new VirtualMachinesApi(apiClient);
+                for (Subscription subscription : context.getSession().getOrFetch(Subscription.class)) {
+                    VirtualMachineListResult virtualMachineListResult = virtualMachinesApi.virtualMachinesListAll(
+                            "2024-03-01",
+                            subscription.getSubscriptionId(),
+                            null,
+                            null,
+                            null
+                    );
+                    list.addAll(virtualMachineListResult.getValue());
+                }
             }
             return list;
         } catch (ApiException e) {
-            throw new DataFetcherException( "Could not fetch virtual machine list", e );
+            throw new DataFetcherException("Could not fetch virtual machine list", e);
         }
     }
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention( VirtualMachine.class );
+        return DataFormats.beansConvention(VirtualMachine.class);
     }
 }

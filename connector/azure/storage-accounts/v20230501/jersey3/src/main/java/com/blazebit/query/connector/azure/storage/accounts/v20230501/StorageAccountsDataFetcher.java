@@ -47,24 +47,26 @@ public class StorageAccountsDataFetcher implements DataFetcher<StorageAccount>, 
     @Override
     public List<StorageAccount> fetch(DataFetchContext context) {
         try {
-            ApiClient apiClient = AzureConnectorConfig.API_CLIENT.get( context );
-            StorageAccountsApi storageAccountsApi = new StorageAccountsApi( apiClient );
+            List<ApiClient> apiClients = AzureConnectorConfig.API_CLIENT.getAll(context);
             List<StorageAccount> list = new ArrayList<>();
-            for ( Subscription subscription : context.getSession().getOrFetch( Subscription.class ) ) {
-                StorageAccountListResult storageAccountListResult = storageAccountsApi.storageAccountsList(
-                        "2023-05-01",
-                        subscription.getSubscriptionId()
-                );
-                list.addAll(storageAccountListResult.getValue());
+            for (ApiClient apiClient : apiClients) {
+                StorageAccountsApi storageAccountsApi = new StorageAccountsApi(apiClient);
+                for (Subscription subscription : context.getSession().getOrFetch(Subscription.class)) {
+                    StorageAccountListResult storageAccountListResult = storageAccountsApi.storageAccountsList(
+                            "2023-05-01",
+                            subscription.getSubscriptionId()
+                    );
+                    list.addAll(storageAccountListResult.getValue());
+                }
             }
             return list;
         } catch (ApiException e) {
-            throw new DataFetcherException( "Could not fetch virtual machine list", e );
+            throw new DataFetcherException("Could not fetch virtual machine list", e);
         }
     }
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention( StorageAccount.class );
+        return DataFormats.beansConvention(StorageAccount.class);
     }
 }

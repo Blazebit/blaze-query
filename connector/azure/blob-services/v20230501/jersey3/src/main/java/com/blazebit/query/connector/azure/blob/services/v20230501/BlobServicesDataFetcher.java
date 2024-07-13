@@ -47,32 +47,34 @@ public class BlobServicesDataFetcher implements DataFetcher<BlobServicePropertie
     @Override
     public List<BlobServiceProperties> fetch(DataFetchContext context) {
         try {
-            ApiClient apiClient = AzureConnectorConfig.API_CLIENT.get( context );
-            BlobServiceApi blobServiceApi = new BlobServiceApi( apiClient );
+            List<ApiClient> apiClients = AzureConnectorConfig.API_CLIENT.getAll(context);
             List<BlobServiceProperties> list = new ArrayList<>();
-            for ( StorageAccount storageAccount : context.getSession().getOrFetch(StorageAccount.class) ) {
-                // Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-                String[] splitParts = storageAccount.getId().split( "/" );
-                assert splitParts.length == 8;
-                String subscriptionId = splitParts[1];
-                String resourceGroupName = splitParts[3];
-                String storageAccountName = splitParts[7];
-                BlobServiceItems blobServiceItems = blobServiceApi.blobServicesList(
-                        resourceGroupName,
-                        storageAccountName,
-                        "2023-05-01",
-                        subscriptionId
-                );
-                list.addAll(blobServiceItems.getValue());
+            for (ApiClient apiClient : apiClients) {
+                BlobServiceApi blobServiceApi = new BlobServiceApi(apiClient);
+                for (StorageAccount storageAccount : context.getSession().getOrFetch(StorageAccount.class)) {
+                    // Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                    String[] splitParts = storageAccount.getId().split("/");
+                    assert splitParts.length == 8;
+                    String subscriptionId = splitParts[1];
+                    String resourceGroupName = splitParts[3];
+                    String storageAccountName = splitParts[7];
+                    BlobServiceItems blobServiceItems = blobServiceApi.blobServicesList(
+                            resourceGroupName,
+                            storageAccountName,
+                            "2023-05-01",
+                            subscriptionId
+                    );
+                    list.addAll(blobServiceItems.getValue());
+                }
             }
             return list;
         } catch (ApiException e) {
-            throw new DataFetcherException( "Could not fetch virtual machine list", e );
+            throw new DataFetcherException("Could not fetch virtual machine list", e);
         }
     }
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention( BlobServiceProperties.class );
+        return DataFormats.beansConvention(BlobServiceProperties.class);
     }
 }
