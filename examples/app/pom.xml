@@ -12,6 +12,8 @@
 
     <properties>
         <module.name>com.blazebit.query.examples.app</module.name>
+        <jackson-version>2.13.5</jackson-version>
+        <jackson-databind-version>2.13.5</jackson-databind-version>
     </properties>
 
     <dependencies>
@@ -48,6 +50,28 @@
             <version>2.2.224</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind-version}</version>
+        </dependency>
+        <!-- For some reason, the azure-core dependency has a conflict and must be fixed here -->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core</artifactId>
+            <version>1.49.1</version>
+        </dependency>
+
         <!-- Azure connectors -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -58,6 +82,22 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>blaze-query-connector-azure-blob-services-v20230501-jersey3</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>blaze-query-connector-azure-resourcemanager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>blaze-query-connector-azure-graph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-identity</artifactId>
+            <version>1.11.0</version>
         </dependency>
     </dependencies>
 

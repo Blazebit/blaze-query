@@ -103,27 +103,27 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
     public static EnumerableTableScan create(
             RelOptCluster cluster,
             RelOptTable relOptTable) {
-        final DataFetcherTable<?> table = relOptTable.unwrap( DataFetcherTable.class );
+        final DataFetcherTable<?> table = relOptTable.unwrap(DataFetcherTable.class);
         final RelTraitSet traitSet =
-                cluster.traitSetOf( EnumerableConvention.INSTANCE )
-                        .replaceIfs( RelCollationTraitDef.INSTANCE, () -> {
-                            if ( table != null ) {
+                cluster.traitSetOf(EnumerableConvention.INSTANCE)
+                        .replaceIfs(RelCollationTraitDef.INSTANCE, () -> {
+                            if (table != null) {
                                 return table.getStatistic().getCollations();
                             }
                             return ImmutableList.of();
                         } );
-        return new EnumerableTableScan( cluster, traitSet, relOptTable, table.getDataFetcher().getDataFormat() );
+        return new EnumerableTableScan(cluster, traitSet, relOptTable, table.getDataFetcher().getDataFormat());
     }
 
     private Expression toRow(DataFormat dataFormat, PhysType physType, Expression expression, SimpleBlockBuilder blockBuilder) {
         int fieldCount = physType.getRowType().getFieldCount();
         List<RelDataTypeField> fieldList = physType.getRowType().getFieldList();
         List<DataFormatField> fields = dataFormat.getFields();
-        List<Expression> expressionList = new ArrayList<>( fieldCount );
-        for ( int i = 0; i < fieldCount; i++ ) {
-            expressionList.add( fieldExpression( expression, fieldList.get( i ).getType(), fields.get( i ), blockBuilder ) );
+        List<Expression> expressionList = new ArrayList<>(fieldCount);
+        for (int i = 0; i < fieldCount; i++) {
+            expressionList.add(fieldExpression(expression, fieldList.get(i).getType(), fields.get(i), blockBuilder));
         }
-        return physType.record( expressionList );
+        return physType.record(expressionList);
     }
 
     private Expression fieldExpression(
@@ -133,42 +133,42 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
             SimpleBlockBuilder blockBuilder) {
         DataFormatFieldAccessor accessor = dataFormatField.getAccessor();
         final Expression e;
-        if ( accessor instanceof MethodFieldAccessor ) {
+        if (accessor instanceof MethodFieldAccessor) {
             MethodFieldAccessor methodAccessor = (MethodFieldAccessor) accessor;
-            e = Expressions.call( row, methodAccessor.getMethod() );
-        } else if ( accessor instanceof FieldFieldAccessor ) {
+            e = Expressions.call(row, methodAccessor.getMethod());
+        } else if (accessor instanceof FieldFieldAccessor) {
             FieldFieldAccessor fieldAccessor = (FieldFieldAccessor) accessor;
-            e = Expressions.field( row, fieldAccessor.getField() );
+            e = Expressions.field(row, fieldAccessor.getField());
         } else {
-            throw new IllegalArgumentException( "Unsupported field accessor: " + accessor );
+            throw new IllegalArgumentException("Unsupported field accessor: " + accessor);
         }
-        switch ( relFieldType.getSqlTypeName() ) {
+        switch (relFieldType.getSqlTypeName()) {
             case ARRAY:
             case MULTISET:
-                final RelDataType fieldType = requireNonNull( relFieldType.getComponentType(), () -> "relFieldType.getComponentType() for " + relFieldType );
-                if ( fieldType.isStruct() ) {
+                final RelDataType fieldType = requireNonNull(relFieldType.getComponentType(), () -> "relFieldType.getComponentType() for " + relFieldType);
+                if (fieldType.isStruct()) {
                     // We can't represent a multiset or array as a List<Employee>, because
                     // the consumer does not know the element type.
                     // The standard element type is List.
                     // We need to convert to a List<List>.
                     final JavaTypeFactory typeFactory = (JavaTypeFactory) getCluster().getTypeFactory();
                     // Don't optimize the type since the JDBC driver expects to find Object[]
-                    final PhysType elementPhysType = PhysTypeImpl.of( typeFactory, fieldType, JavaRowFormat.ARRAY, false );
+                    final PhysType elementPhysType = PhysTypeImpl.of(typeFactory, fieldType, JavaRowFormat.ARRAY, false);
                     ParameterExpression localVar = blockBuilder.createLocalVariable(dataFormatField.getFormat().getType());
-                    blockBuilder.add( Expressions.declare(0, localVar, e));
+                    blockBuilder.add(Expressions.declare(0, localVar, e));
 
                     ParameterExpression resultVar = blockBuilder.createLocalVariable(List.class);
-                    blockBuilder.add( Expressions.declare(0, resultVar, null));
+                    blockBuilder.add(Expressions.declare(0, resultVar, null));
 
-                    Expression e1 = Expressions.convert_( localVar, Iterable.class );
-                    MethodCallExpression e2 = Expressions.call( BuiltInMethod.AS_ENUMERABLE2.method, e1 );
+                    Expression e1 = Expressions.convert_(localVar, Iterable.class);
+                    MethodCallExpression e2 = Expressions.call(BuiltInMethod.AS_ENUMERABLE2.method, e1);
                     SimpleBlockBuilder subBlockBuilder = new SimpleBlockBuilder(blockBuilder);
-                    Expression e3 = toList( (CollectionDataFormat) dataFormatField.getFormat(), elementPhysType, e2, subBlockBuilder );
-                    subBlockBuilder.add( Expressions.statement(Expressions.assign(resultVar, e3)) );
+                    Expression e3 = toList((CollectionDataFormat) dataFormatField.getFormat(), elementPhysType, e2, subBlockBuilder);
+                    subBlockBuilder.add(Expressions.statement(Expressions.assign(resultVar, e3)));
 
                     blockBuilder.add( Expressions.ifThenElse(
-                            Expressions.equal( localVar, ConstantUntypedNull.INSTANCE ),
-                            Expressions.statement(Expressions.assign(resultVar, Expressions.constant( null ))),
+                            Expressions.equal(localVar, ConstantUntypedNull.INSTANCE),
+                            Expressions.statement(Expressions.assign(resultVar, Expressions.constant(null))),
                             subBlockBuilder.toBlock()
                     ));
                     return resultVar;
@@ -176,22 +176,22 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
                     return e;
                 }
             default:
-                if ( relFieldType.isStruct() ) {
+                if (relFieldType.isStruct()) {
                     final JavaTypeFactory typeFactory = (JavaTypeFactory) getCluster().getTypeFactory();
                     // Don't optimize the type since the JDBC driver expects to find Object[]
-                    final PhysType elementPhysType = PhysTypeImpl.of( typeFactory, relFieldType, JavaRowFormat.ARRAY, false );
+                    final PhysType elementPhysType = PhysTypeImpl.of(typeFactory, relFieldType, JavaRowFormat.ARRAY, false);
                     ParameterExpression localVar = blockBuilder.createLocalVariable(dataFormatField.getFormat().getType());
-                    blockBuilder.add( Expressions.declare(0, localVar, e));
+                    blockBuilder.add(Expressions.declare(0, localVar, e));
 
                     SimpleBlockBuilder subBlockBuilder = new SimpleBlockBuilder(blockBuilder);
-                    Expression e1 = toRow( dataFormatField.getFormat(), elementPhysType, localVar, subBlockBuilder );
+                    Expression e1 = toRow(dataFormatField.getFormat(), elementPhysType, localVar, subBlockBuilder);
                     ParameterExpression resultVar = blockBuilder.createLocalVariable(e1.getType());
-                    blockBuilder.add( Expressions.declare(0, resultVar, null));
+                    blockBuilder.add(Expressions.declare(0, resultVar, null));
                     subBlockBuilder.add(Expressions.statement(Expressions.assign(resultVar, e1)));
 
                     blockBuilder.add( Expressions.ifThenElse(
-                            Expressions.equal( localVar, ConstantUntypedNull.INSTANCE ),
-                            Expressions.statement(Expressions.assign(resultVar, Expressions.constant( null ))),
+                            Expressions.equal(localVar, ConstantUntypedNull.INSTANCE),
+                            Expressions.statement(Expressions.assign(resultVar, Expressions.constant(null))),
                             subBlockBuilder.toBlock()
                     ));
                     return resultVar;
@@ -208,17 +208,17 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
         final DataFormat elementFormat = dataFormat.getElementFormat();
         final ParameterExpression o = Expressions.parameter(elementFormat.getType(), "o");
         SimpleBlockBuilder subBlockBuilder = new SimpleBlockBuilder(blockBuilder);
-        subBlockBuilder.add( toRow( elementFormat, elementPhysType, o, subBlockBuilder ) );
-        final Expression selector = Expressions.lambda( Function1.class, subBlockBuilder.toBlock(), List.of( o ) );
+        subBlockBuilder.add(toRow(elementFormat, elementPhysType, o, subBlockBuilder));
+        final Expression selector = Expressions.lambda(Function1.class, subBlockBuilder.toBlock(), List.of(o));
         return Expressions.call(
-                Expressions.call( expression, BuiltInMethod.SELECT.method, selector ),
+                Expressions.call(expression, BuiltInMethod.SELECT.method, selector),
                 BuiltInMethod.ENUMERABLE_TO_LIST.method
         );
     }
 
     @Override
     public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-        return new EnumerableTableScan( getCluster(), traitSet, table, elementType );
+        return new EnumerableTableScan(getCluster(), traitSet, table, elementType);
     }
 
     @Override
@@ -235,35 +235,35 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
                         JavaRowFormat.ARRAY
                 );
 
-        final Expression expression = table.getExpression( Queryable.class );
-        if ( expression == null ) {
+        final Expression expression = table.getExpression(Queryable.class);
+        if (expression == null) {
             throw new IllegalStateException(
-                    "Unable to implement " + RelOptUtil.toString( this, SqlExplainLevel.ALL_ATTRIBUTES )
+                    "Unable to implement " + RelOptUtil.toString(this, SqlExplainLevel.ALL_ATTRIBUTES)
                             + ": " + table + ".getExpression(Queryable.class) returned null" );
         }
         MethodCallExpression enumerableCall = (MethodCallExpression) expression;
-        Expression tableExpression = ( (UnaryExpression) enumerableCall.expressions.get( 0 ) ).expression;
-        Expression dataFetcherTableExpression = Expressions.convert_( tableExpression, DataFetcherTable.class );
+        Expression tableExpression = ((UnaryExpression) enumerableCall.expressions.get(0)).expression;
+        Expression dataFetcherTableExpression = Expressions.convert_(tableExpression, DataFetcherTable.class);
         MethodCallExpression dataExpression = Expressions.call(
                 dataFetcherTableExpression,
                 GET_DATA,
-                enumerableCall.expressions.get( 1 )
+                enumerableCall.expressions.get(1)
         );
-        Expression enumerableExpression = Expressions.call( BuiltInMethod.AS_ENUMERABLE2.method, dataExpression );
-        assert Types.isAssignableFrom( Enumerable.class, enumerableExpression.getType() );
-        final ParameterExpression row = Expressions.parameter( elementType.getType(), "row" );
+        Expression enumerableExpression = Expressions.call(BuiltInMethod.AS_ENUMERABLE2.method, dataExpression);
+        assert Types.isAssignableFrom(Enumerable.class, enumerableExpression.getType());
+        final ParameterExpression row = Expressions.parameter(elementType.getType(), "row");
 
         SimpleBlockBuilder simpleBlockBuilder = new SimpleBlockBuilder();
-        Expression result = toRow( elementType, physType, row, simpleBlockBuilder );
-        simpleBlockBuilder.add( result );
+        Expression result = toRow(elementType, physType, row, simpleBlockBuilder);
+        simpleBlockBuilder.add(result);
 
         BlockBuilder blockBuilder = new BlockBuilder();
-        blockBuilder.add( Expressions.call(
+        blockBuilder.add(Expressions.call(
                 enumerableExpression,
                 BuiltInMethod.SELECT.method,
-                Expressions.lambda( Function1.class, simpleBlockBuilder.toBlock(), row )
+                Expressions.lambda(Function1.class, simpleBlockBuilder.toBlock(), row)
         ) );
-        return implementor.result( physType, blockBuilder.toBlock() );
+        return implementor.result(physType, blockBuilder.toBlock());
     }
 
     private static final class SimpleBlockBuilder {
@@ -288,11 +288,11 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
         }
 
         public void add(Expression expression) {
-            blockBuilder.add( expression );
+            blockBuilder.add(expression);
         }
 
         public void add(Statement statement) {
-            blockBuilder.add( statement );
+            blockBuilder.add(statement);
         }
 
         public BlockStatement toBlock() {

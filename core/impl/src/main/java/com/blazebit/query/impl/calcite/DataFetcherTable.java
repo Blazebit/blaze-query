@@ -72,7 +72,7 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         this.tableClass = tableClass;
         this.dataFetcher = dataFetcher;
         this.dataContextSupplier = dataFetchContextSupplier;
-        this.converter = new ObjectArrayConverter<>( createConverters( dataFetcher.getDataFormat() ) );
+        this.converter = new ObjectArrayConverter<>(createConverters(dataFetcher.getDataFormat()));
     }
 
     private static <Source> Converter<Source, ?>[] createConverters(DataFormat dataFormat) {
@@ -82,21 +82,21 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
             DataFormatField field = fields.get(i);
             DataFormat fieldFormat = field.getFormat();
             Converter<?, ?> converter;
-            if ( fieldFormat instanceof MapDataFormat ) {
+            if (fieldFormat instanceof MapDataFormat) {
                 MapDataFormat mapFormat = (MapDataFormat) fieldFormat;
                 converter = new MapConverter<>(
                         field.getAccessor(),
-                        createConverter( mapFormat.getKeyFormat() ),
-                        createConverter( mapFormat.getElementFormat() )
+                        createConverter(mapFormat.getKeyFormat()),
+                        createConverter(mapFormat.getElementFormat())
                 );
-            } else if ( fieldFormat instanceof CollectionDataFormat ) {
+            } else if (fieldFormat instanceof CollectionDataFormat) {
                 CollectionDataFormat collectionFormat = (CollectionDataFormat) fieldFormat;
                 converter = new CollectionConverter<>(
                         field.getAccessor(),
-                        createConverter( collectionFormat.getElementFormat() )
+                        createConverter(collectionFormat.getElementFormat())
                 );
             } else {
-                converter = new AccessorConverter<>( field.getAccessor() );
+                converter = new AccessorConverter<>(field.getAccessor());
             }
             //noinspection unchecked
             converters[i] = (Converter<Source, ?>) converter;
@@ -109,7 +109,7 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         //noinspection unchecked
         return fields.isEmpty()
                 ? null
-                : (Converter<SourceType, TargetType>) new ObjectArrayConverter<>( createConverters( dataFormat ) );
+                : (Converter<SourceType, TargetType>) new ObjectArrayConverter<>(createConverters(dataFormat));
     }
 
 //    private static <SourceType> Converter<SourceType, Object[]> arrayConverter(Converter[] converters, @Nullable int[] fields) {
@@ -131,51 +131,52 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
     @Override
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (rowType == null) {
-            rowType = deduceRowType( (JavaTypeFactory) typeFactory, dataFetcher.getDataFormat());
+            rowType = deduceRowType((JavaTypeFactory) typeFactory, dataFetcher.getDataFormat());
         }
         return rowType;
     }
 
     @Override
     public RelNode toRel(RelOptTable.ToRelContext context, RelOptTable table) {
-        return EnumerableTableScan.create( context.getCluster(), table );
+        return EnumerableTableScan.create(context.getCluster(), table);
     }
 
     private static RelDataType deduceRowType(JavaTypeFactory typeFactory, DataFormat format) {
         final List<DataFormatField> fields = format.getFields();
         final List<RelDataType> types = new ArrayList<>(fields.size());
         final List<String> names = new ArrayList<>(fields.size());
-        for ( DataFormatField field : fields ) {
+        for (DataFormatField field : fields) {
             names.add(field.getName());
-            types.add(deduceType( typeFactory, field.getFormat()));
+            types.add(deduceType(typeFactory, field.getFormat()));
         }
-        return typeFactory.createStructType(Pair.zip( names, types));
+        return typeFactory.createStructType(Pair.zip(names, types));
     }
 
     private static RelDataType deduceType(JavaTypeFactory typeFactory, DataFormat format) {
-        if ( format instanceof MapDataFormat ) {
+        if (format instanceof MapDataFormat) {
             MapDataFormat mapFormat = (MapDataFormat) format;
-            RelDataType keyRelDataType = deduceType( typeFactory, mapFormat.getKeyFormat() );
-            RelDataType elementRelDataType = deduceType( typeFactory, mapFormat.getElementFormat() );
-            return typeFactory.createTypeWithNullability( typeFactory.createMapType( keyRelDataType, elementRelDataType ), true );
-        } else if (format instanceof CollectionDataFormat ) {
+            RelDataType keyRelDataType = deduceType(typeFactory, mapFormat.getKeyFormat());
+            RelDataType elementRelDataType = deduceType(typeFactory, mapFormat.getElementFormat());
+            return typeFactory.createTypeWithNullability(typeFactory.createMapType(keyRelDataType, elementRelDataType), true);
+        } else if (format instanceof CollectionDataFormat) {
             CollectionDataFormat collectionFormat = (CollectionDataFormat) format;
-            RelDataType elementRelDataType = deduceType( typeFactory, collectionFormat.getElementFormat() );
-            return typeFactory.createTypeWithNullability( typeFactory.createArrayType( elementRelDataType, -1L ), true );
+            RelDataType elementRelDataType = deduceType(typeFactory, collectionFormat.getElementFormat());
+            return typeFactory.createTypeWithNullability(typeFactory.createArrayType(elementRelDataType, -1L), true);
         } else if (!format.getFields().isEmpty()) {
-            return typeFactory.createTypeWithNullability( deduceRowType( typeFactory, format ), true );
+            return typeFactory.createTypeWithNullability(deduceRowType(typeFactory, format), true);
         } else {
-            return typeFactory.createJavaType( (Class<?>) format.getType() );
+            Class<?> type = (Class<?>) format.getType();
+            return type.isEnum() && type.getDeclaredFields().length != 0 ? typeFactory.createJavaType(Enum.class) : typeFactory.createJavaType(type);
         }
     }
 
     public List<? extends T> getData(DataContext dataContext) {
         final DataFetchContext dataFetchContext = dataContextSupplier.get();
         QuerySession session = dataFetchContext.getSession();
-        List<? extends T> objects = session.get( tableClass );
-        if ( objects == null ) {
-            objects = dataFetcher.fetch( dataFetchContext );
-            session.put( tableClass, objects );
+        List<? extends T> objects = session.get(tableClass);
+        if (objects == null) {
+            objects = dataFetcher.fetch(dataFetchContext);
+            session.put(tableClass, objects);
         }
         return objects;
     }
@@ -187,12 +188,12 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
             @Override
             public Enumerator<Object[]> enumerator() {
                 QuerySession session = dataFetchContext.getSession();
-                List<? extends T> objects = session.get( tableClass );
-                if ( objects == null ) {
-                    objects = dataFetcher.fetch( dataFetchContext );
-                    session.put( tableClass, objects );
+                List<? extends T> objects = session.get(tableClass);
+                if (objects == null) {
+                    objects = dataFetcher.fetch(dataFetchContext);
+                    session.put(tableClass, objects);
                 }
-                return new ConverterListEnumerator( objects, converter);
+                return new ConverterListEnumerator(objects, converter);
             }
         };
     }

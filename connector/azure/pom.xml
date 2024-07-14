@@ -17,6 +17,9 @@
         <module>virtual-machine</module>
         <module>storage-accounts</module>
         <module>blob-services</module>
+
+        <module>graph</module>
+        <module>resourcemanager</module>
     </modules>
 
 </project>

@@ -54,10 +54,10 @@ public class BlobServicesDataFetcher implements DataFetcher<BlobServicePropertie
                 for (StorageAccount storageAccount : context.getSession().getOrFetch(StorageAccount.class)) {
                     // Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
                     String[] splitParts = storageAccount.getId().split("/");
-                    assert splitParts.length == 8;
-                    String subscriptionId = splitParts[1];
-                    String resourceGroupName = splitParts[3];
-                    String storageAccountName = splitParts[7];
+                    assert splitParts.length == 9;
+                    String subscriptionId = splitParts[2];
+                    String resourceGroupName = splitParts[4];
+                    String storageAccountName = splitParts[8];
                     BlobServiceItems blobServiceItems = blobServiceApi.blobServicesList(
                             resourceGroupName,
                             storageAccountName,
@@ -69,7 +69,7 @@ public class BlobServicesDataFetcher implements DataFetcher<BlobServicePropertie
             }
             return list;
         } catch (ApiException e) {
-            throw new DataFetcherException("Could not fetch virtual machine list", e);
+            throw new DataFetcherException("Could not fetch blob service properties list", e);
         }
     }
 
