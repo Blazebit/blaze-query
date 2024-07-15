@@ -73,16 +73,16 @@
         </dependency>
 
         <!-- Azure connectors -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-virtual-machine-v20240301-jersey3</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-blob-services-v20230501-jersey3</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>blaze-query-connector-azure-virtual-machine-v20240301-jersey3</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>blaze-query-connector-azure-blob-services-v20230501-jersey3</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>${project.groupId}</groupId>

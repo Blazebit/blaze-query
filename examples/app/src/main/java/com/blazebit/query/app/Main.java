@@ -15,19 +15,15 @@
  */
 package com.blazebit.query.app;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
-import com.azure.core.credential.TokenCredential;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
-import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
@@ -40,18 +36,18 @@ import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
-import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
-import com.blazebit.query.connector.azure.base.invoker.ApiClient;
-import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
-import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
+//import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
+//import com.blazebit.query.connector.azure.base.invoker.ApiClient;
+//import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
+//import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
-import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
-import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
+//import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
+//import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+//import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.User;
@@ -83,13 +79,13 @@ public class Main {
             EntityViewManager evm = defaultConfiguration.createEntityViewManager(cbf);
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
+//            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
             queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
             queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
-            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
-            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
-            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
+//            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
+//            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
+//            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
 
             queryContextBuilder.registerSchemaObjectAlias(VirtualMachineInner.class, "AzureVirtualMachine");
             queryContextBuilder.registerSchemaObjectAlias(StorageAccountInner.class, "AzureStorageAccount");
@@ -125,11 +121,11 @@ public class Main {
                     System.out.println("Applications");
                     print(applicationResult);
 
-                    TypedQuery<Object[]> vmQuery1 = session.createQuery(
-                            "select vm.* from OpenAPIVirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
-                    List<Object[]> vmResult1 = vmQuery1.getResultList();
-                    System.out.println("VMs");
-                    print(vmResult1);
+//                    TypedQuery<Object[]> vmQuery1 = session.createQuery(
+//                            "select vm.* from OpenAPIVirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
+//                    List<Object[]> vmResult1 = vmQuery1.getResultList();
+//                    System.out.println("VMs");
+//                    print(vmResult1);
 
                     TypedQuery<Object[]> vmQuery2 = session.createQuery(
                             "select vm.* from AzureVirtualMachine vm where vm.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
@@ -137,11 +133,11 @@ public class Main {
                     System.out.println("VMs");
                     print(vmResult2);
 
-                    TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
-                            "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
-                    List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
-                    System.out.println("StorageAccounts");
-                    print(storageAccountsResult1);
+//                    TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
+//                            "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
+//                    List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
+//                    System.out.println("StorageAccounts");
+//                    print(storageAccountsResult1);
 
                     TypedQuery<Object[]> storageAccountsQuery2 = session.createQuery(
                             "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", Object[].class );
@@ -200,16 +196,16 @@ public class Main {
         }
     }
 
-    private static ApiClient createApiClient() {
-        String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
-        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
-                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
-                // Default scope
-                .setScope("https://management.core.windows.net//.default");
-        ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
-        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return apiClient;
-    }
+//    private static ApiClient createApiClient() {
+//        String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
+//        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
+//                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
+//                // Default scope
+//                .setScope("https://management.core.windows.net//.default");
+//        ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        return apiClient;
+//    }
 
     private static AzureResourceManager createResourceManager() {
         AzureProfile profile = new AzureProfile(TENANT_ID, null, AzureEnvironment.AZURE);

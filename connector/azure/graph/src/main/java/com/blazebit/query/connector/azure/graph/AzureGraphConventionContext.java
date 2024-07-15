@@ -38,7 +38,6 @@ import com.microsoft.graph.beta.models.ListItem;
 import com.microsoft.graph.beta.models.MailFolder;
 import com.microsoft.graph.beta.models.OnenotePage;
 import com.microsoft.graph.beta.models.ParentLabelDetails;
-import com.microsoft.graph.beta.models.Person;
 import com.microsoft.graph.beta.models.PlannerTeamsPublicationInfo;
 import com.microsoft.graph.beta.models.Post;
 import com.microsoft.graph.beta.models.PrintTaskDefinition;
