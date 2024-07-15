@@ -17,7 +17,7 @@
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.spi.DataFetcherConfig;
-import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 /**
  * Configuration properties for the Azure {@link com.blazebit.query.spi.DataFetcher} instances.

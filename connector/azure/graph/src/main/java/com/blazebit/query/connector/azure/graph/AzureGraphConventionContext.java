@@ -19,35 +19,46 @@ package com.blazebit.query.connector.azure.graph;
 import java.lang.reflect.Method;
 
 import com.blazebit.query.connector.base.ConventionContext;
-import com.microsoft.graph.models.ActivityHistoryItem;
-import com.microsoft.graph.models.BaseItem;
-import com.microsoft.graph.models.ChatMessage;
-import com.microsoft.graph.models.ColumnDefinition;
-import com.microsoft.graph.models.ContactFolder;
-import com.microsoft.graph.models.ContentType;
-import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.models.Event;
-import com.microsoft.graph.models.ItemActivity;
-import com.microsoft.graph.models.List;
-import com.microsoft.graph.models.ListItem;
-import com.microsoft.graph.models.MailFolder;
-import com.microsoft.graph.models.OnenotePage;
-import com.microsoft.graph.models.Post;
-import com.microsoft.graph.models.PrintTaskDefinition;
-import com.microsoft.graph.models.PrinterShare;
-import com.microsoft.graph.models.SectionGroup;
-import com.microsoft.graph.models.Site;
-import com.microsoft.graph.models.StringKeyAttributeMappingSourceValuePair;
-import com.microsoft.graph.models.TeamInfo;
-import com.microsoft.graph.models.WorkbookChart;
-import com.microsoft.graph.models.WorkbookNamedItem;
-import com.microsoft.graph.models.WorkbookOperationError;
-import com.microsoft.graph.models.WorkbookPivotTable;
-import com.microsoft.graph.models.WorkbookTable;
-import com.microsoft.graph.models.termstore.Group;
-import com.microsoft.graph.models.termstore.Relation;
-import com.microsoft.graph.models.termstore.Set;
-import com.microsoft.graph.models.termstore.Term;
+import com.microsoft.graph.beta.models.AccessReviewInstanceDecisionItem;
+import com.microsoft.graph.beta.models.ActivityHistoryItem;
+import com.microsoft.graph.beta.models.BaseItem;
+import com.microsoft.graph.beta.models.ChatMessage;
+import com.microsoft.graph.beta.models.ColumnDefinition;
+import com.microsoft.graph.beta.models.Connector;
+import com.microsoft.graph.beta.models.ConnectorGroup;
+import com.microsoft.graph.beta.models.ContactFolder;
+import com.microsoft.graph.beta.models.ContentType;
+import com.microsoft.graph.beta.models.DetectedApp;
+import com.microsoft.graph.beta.models.DriveItem;
+import com.microsoft.graph.beta.models.Event;
+import com.microsoft.graph.beta.models.ItemActivity;
+import com.microsoft.graph.beta.models.ItemActivityOLD;
+import com.microsoft.graph.beta.models.List;
+import com.microsoft.graph.beta.models.ListItem;
+import com.microsoft.graph.beta.models.MailFolder;
+import com.microsoft.graph.beta.models.OnenotePage;
+import com.microsoft.graph.beta.models.ParentLabelDetails;
+import com.microsoft.graph.beta.models.Person;
+import com.microsoft.graph.beta.models.PlannerTeamsPublicationInfo;
+import com.microsoft.graph.beta.models.Post;
+import com.microsoft.graph.beta.models.PrintTaskDefinition;
+import com.microsoft.graph.beta.models.PrinterShare;
+import com.microsoft.graph.beta.models.SectionGroup;
+import com.microsoft.graph.beta.models.SensitivityLabel;
+import com.microsoft.graph.beta.models.Site;
+import com.microsoft.graph.beta.models.StringKeyAttributeMappingSourceValuePair;
+import com.microsoft.graph.beta.models.Team;
+import com.microsoft.graph.beta.models.TeamInfo;
+import com.microsoft.graph.beta.models.VirtualEventPresenter;
+import com.microsoft.graph.beta.models.WorkbookChart;
+import com.microsoft.graph.beta.models.WorkbookNamedItem;
+import com.microsoft.graph.beta.models.WorkbookOperationError;
+import com.microsoft.graph.beta.models.WorkbookPivotTable;
+import com.microsoft.graph.beta.models.WorkbookTable;
+import com.microsoft.graph.beta.models.termstore.Group;
+import com.microsoft.graph.beta.models.termstore.Relation;
+import com.microsoft.graph.beta.models.termstore.Set;
+import com.microsoft.graph.beta.models.termstore.Term;
 
 /**
  * A method filter to exclude internal and cyclic methods from the Azure Graph models.
@@ -71,10 +82,17 @@ public class AzureGraphConventionContext implements ConventionContext {
             // There are cycles in the model
             case "getActivity":
                 return method.getDeclaringClass() != ActivityHistoryItem.class ? this : NestedUserActivityConventionContext.INSTANCE;
+            case "getApplications":
+                return method.getDeclaringClass() != ConnectorGroup.class ? this : NestedApplicationConventionContext.INSTANCE;
+            case "getMemberOf":
+                return method.getDeclaringClass() != Connector.class ? this : NestedConnectorConventionContext.INSTANCE;
             case "getCalendar":
                 return method.getDeclaringClass() != Event.class ? this : NestedCalendarConventionContext.INSTANCE;
+            case "getExceptionOccurrences":
             case "getInstances":
                 return method.getDeclaringClass() != Event.class ? this : NestedEventConventionContext.INSTANCE;
+            case "getInstance":
+                return method.getDeclaringClass() != AccessReviewInstanceDecisionItem.class ? this : NestedAccessReviewInstanceConventionContext.INSTANCE;
             case "getReplies":
                 return method.getDeclaringClass() != ChatMessage.class ? this : NestedChatMessageConventionContext.INSTANCE;
             case "getValue":
@@ -87,10 +105,20 @@ public class AzureGraphConventionContext implements ConventionContext {
                     return NestedMailFolderConventionContext.INSTANCE;
                 }
                 return this;
+            case "getSessions":
+                return method.getDeclaringClass() != VirtualEventPresenter.class ? this : NestedVirtualEventSessionConventionContext.INSTANCE;
             case "getPrinter":
                 return method.getDeclaringClass() != PrinterShare.class ? this : NestedPrinterConventionContext.INSTANCE;
             case "getTasks":
                 return method.getDeclaringClass() != PrintTaskDefinition.class ? this : NestedPrintTaskConventionContext.INSTANCE;
+            case "getParent":
+                if (method.getDeclaringClass() == ParentLabelDetails.class) {
+                    return NestedParentLabelDetailsConventionContext.INSTANCE;
+                }
+                if (method.getDeclaringClass() == com.microsoft.graph.beta.models.security.SensitivityLabel.class) {
+                    return NestedSecuritySensitivityLabelConventionContext.INSTANCE;
+                }
+                return this;
             case "getParentNotebook":
                 return method.getDeclaringClass() != SectionGroup.class ? this : NestedNotebookConventionContext.INSTANCE;
             case "getParentSectionGroup":
@@ -105,6 +133,14 @@ public class AzureGraphConventionContext implements ConventionContext {
                     return NestedTermConventionContext.INSTANCE;
                 }
                 return this;
+            case "getSublabels":
+                return method.getDeclaringClass() != SensitivityLabel.class ? this : NestedSensitivityLabelConventionContext.INSTANCE;
+            case "getTeamsPublicationInfo":
+                return concreteClass != PlannerTeamsPublicationInfo.class ? this : NestedPlannerTeamsPublicationInfoConventionContext.INSTANCE;
+            case "getManagedDevices":
+                return concreteClass != DetectedApp.class ? this : NestedManagedDeviceConventionContext.INSTANCE;
+            case "getGroup":
+                return method.getDeclaringClass() != Team.class ? this : NestedGroupConventionContext.INSTANCE;
             case "getTeam":
                 return method.getDeclaringClass() != TeamInfo.class ? this : NestedTeamConventionContext.INSTANCE;
             case "getInReplyTo":
@@ -120,7 +156,11 @@ public class AzureGraphConventionContext implements ConventionContext {
             case "getDrive":
                 return method.getDeclaringClass() != List.class ? this : NestedDriveConventionContext.INSTANCE;
             case "getDriveItem":
-                return method.getDeclaringClass() != ItemActivity.class && method.getDeclaringClass() != ListItem.class ? this : NestedDriveItemConventionContext.INSTANCE;
+                return method.getDeclaringClass() != ItemActivity.class
+                        && method.getDeclaringClass() != ItemActivityOLD.class
+                        && method.getDeclaringClass() != ListItem.class ? this : NestedDriveItemConventionContext.INSTANCE;
+            case "getActivities":
+                return method.getDeclaringClass() != ListItem.class ? this : NestedItemActivityConventionContext.INSTANCE;
             case "getWorksheet":
                 return method.getDeclaringClass() != WorkbookChart.class
                         && method.getDeclaringClass() != WorkbookNamedItem.class
@@ -564,9 +604,180 @@ public class AzureGraphConventionContext implements ConventionContext {
         }
     }
 
-    private static final class NestedPublicIpAddressConventionContext implements ConventionContext {
+    private static final class NestedApplicationConventionContext implements ConventionContext {
 
-        private static final NestedPublicIpAddressConventionContext INSTANCE = new NestedPublicIpAddressConventionContext();
+        private static final NestedApplicationConventionContext INSTANCE = new NestedApplicationConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedConnectorConventionContext implements ConventionContext {
+
+        private static final NestedConnectorConventionContext INSTANCE = new NestedConnectorConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedItemActivityConventionContext implements ConventionContext {
+
+        private static final NestedItemActivityConventionContext INSTANCE = new NestedItemActivityConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedParentLabelDetailsConventionContext implements ConventionContext {
+
+        private static final NestedParentLabelDetailsConventionContext INSTANCE = new NestedParentLabelDetailsConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedSensitivityLabelConventionContext implements ConventionContext {
+
+        private static final NestedSensitivityLabelConventionContext INSTANCE = new NestedSensitivityLabelConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedPlannerTeamsPublicationInfoConventionContext implements ConventionContext {
+
+        private static final NestedPlannerTeamsPublicationInfoConventionContext INSTANCE = new NestedPlannerTeamsPublicationInfoConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedManagedDeviceConventionContext implements ConventionContext {
+
+        private static final NestedManagedDeviceConventionContext INSTANCE = new NestedManagedDeviceConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedAccessReviewInstanceConventionContext implements ConventionContext {
+
+        private static final NestedAccessReviewInstanceConventionContext INSTANCE = new NestedAccessReviewInstanceConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedSecuritySensitivityLabelConventionContext implements ConventionContext {
+
+        private static final NestedSecuritySensitivityLabelConventionContext INSTANCE = new NestedSecuritySensitivityLabelConventionContext();
+
+        @Override
+        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+            switch ( method.getName() ) {
+                case "getFieldDeserializers":
+                case "getBackingStore":
+                    return null;
+                // Filter out cycles in the model
+                case "getId":
+                    return this;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private static final class NestedVirtualEventSessionConventionContext implements ConventionContext {
+
+        private static final NestedVirtualEventSessionConventionContext INSTANCE = new NestedVirtualEventSessionConventionContext();
 
         @Override
         public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {

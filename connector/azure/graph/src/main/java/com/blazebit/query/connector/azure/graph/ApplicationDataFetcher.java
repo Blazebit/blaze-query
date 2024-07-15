@@ -25,8 +25,8 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import com.microsoft.graph.models.Application;
-import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.beta.models.Application;
+import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 /**
  * @author Christian Beikov

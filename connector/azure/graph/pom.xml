@@ -31,7 +31,7 @@
 
         <dependency>
             <groupId>com.microsoft.graph</groupId>
-            <artifactId>microsoft-graph</artifactId>
+            <artifactId>microsoft-graph-beta</artifactId>
             <version>${version.azure-graph-sdk}</version>
         </dependency>
 

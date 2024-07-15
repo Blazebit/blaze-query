@@ -25,8 +25,8 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.beta.models.User;
+import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 /**
  * @author Christian Beikov
@@ -42,10 +42,10 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
     @Override
     public List<User> fetch(DataFetchContext context) {
         try {
-            List<GraphServiceClient> resourceManagers = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
+            List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
             List<User> list = new ArrayList<>();
-            for (GraphServiceClient resourceManager : resourceManagers) {
-                list.addAll(resourceManager.users().get().getValue());
+            for (GraphServiceClient graphServiceClient : graphServiceClients) {
+                list.addAll(graphServiceClient.users().get().getValue());
             }
             return list;
         } catch (RuntimeException e) {

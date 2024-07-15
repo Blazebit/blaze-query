@@ -16,6 +16,7 @@
 package com.blazebit.query.app;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ import org.hibernate.SessionFactory;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
@@ -49,8 +52,10 @@ import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.beta.models.Application;
+import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
+import com.microsoft.graph.beta.models.User;
+import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -65,32 +70,34 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        try (EntityManagerFactory emf = Persistence.createEntityManagerFactory( "default" )) {
-            SessionFactory sf = emf.unwrap( SessionFactory.class );
+        try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("default")) {
+            SessionFactory sf = emf.unwrap(SessionFactory.class);
             sf.inTransaction( s -> {
-                s.persist( new TestEntity( 1L, "Test", new TestEmbeddable( "text1", "text2" ) ) );
+                s.persist(new TestEntity(1L, "Test", new TestEmbeddable("text1", "text2")));
             } );
 
-            CriteriaBuilderFactory cbf = Criteria.getDefault().createCriteriaBuilderFactory( emf );
+            CriteriaBuilderFactory cbf = Criteria.getDefault().createCriteriaBuilderFactory(emf);
             EntityViewConfiguration defaultConfiguration = EntityViews.createDefaultConfiguration();
-            defaultConfiguration.addEntityView( TestEntityView.class );
-            defaultConfiguration.addEntityView( TestEmbeddableView.class );
-            EntityViewManager evm = defaultConfiguration.createEntityViewManager( cbf );
+            defaultConfiguration.addEntityView(TestEntityView.class);
+            defaultConfiguration.addEntityView(TestEmbeddableView.class);
+            EntityViewManager evm = defaultConfiguration.createEntityViewManager(cbf);
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-            queryContextBuilder.setProperty( AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient() );
-            queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager() );
-            queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient() );
-            queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-            queryContextBuilder.registerSchemaObjectAlias( VirtualMachine.class, "OpenAPIVirtualMachine" );
-            queryContextBuilder.registerSchemaObjectAlias( StorageAccount.class, "OpenAPIStorageAccount" );
-            queryContextBuilder.registerSchemaObjectAlias( BlobServiceProperties.class, "OpenAPIBlobServiceProperties" );
+            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
+            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
+            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
+            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
+            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
 
-            queryContextBuilder.registerSchemaObjectAlias( VirtualMachineInner.class, "AzureVirtualMachine" );
-            queryContextBuilder.registerSchemaObjectAlias( StorageAccountInner.class, "AzureStorageAccount" );
-            queryContextBuilder.registerSchemaObjectAlias( BlobServicePropertiesInner.class, "AzureBlobServiceProperties" );
+            queryContextBuilder.registerSchemaObjectAlias(VirtualMachineInner.class, "AzureVirtualMachine");
+            queryContextBuilder.registerSchemaObjectAlias(StorageAccountInner.class, "AzureStorageAccount");
+            queryContextBuilder.registerSchemaObjectAlias(BlobServicePropertiesInner.class, "AzureBlobServiceProperties");
 
-            queryContextBuilder.registerSchemaObjectAlias( User.class, "AzureUser" );
+            queryContextBuilder.registerSchemaObjectAlias(User.class, "AzureUser");
+            queryContextBuilder.registerSchemaObjectAlias(ConditionalAccessPolicy.class, "AzureConditionalAccessPolicy");
+            queryContextBuilder.registerSchemaObjectAlias(Application.class, "AzureApplication");
 
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
@@ -100,45 +107,47 @@ public class Main {
                     List<Object[]> entityViewResult = entityViewQuery.getResultList();
                     print(entityViewResult, "id", "text1");
 
-//                    TypedQuery<String> userQuery = session.createQuery(
-//                            "select u.id from AzureUser u where cardinality(u.authentication.methods) < 1", String.class );
-//                    List<String> userResult = userQuery.getResultList();
-//                    System.out.println("User ids");
-//                    for ( String id : userResult ) {
-//                        System.out.println( id );
-//                    }
+                    TypedQuery<Object[]> userQuery = session.createQuery(
+                            "select u.* from AzureUser u", Object[].class );
+                    List<Object[]> userResult = userQuery.getResultList();
+                    System.out.println("User");
+                    print(userResult);
+
+                    TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+                            "select c.* from AzureConditionalAccessPolicy c", Object[].class );
+                    List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+                    System.out.println("Conditional access policies");
+                    print(conditionalAccessPolicyResult);
+
+                    TypedQuery<Object[]> applicationQuery = session.createQuery(
+                            "select a.* from AzureApplication a", Object[].class );
+                    List<Object[]> applicationResult = applicationQuery.getResultList();
+                    System.out.println("Applications");
+                    print(applicationResult);
 
                     TypedQuery<Object[]> vmQuery1 = session.createQuery(
                             "select vm.* from OpenAPIVirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
                     List<Object[]> vmResult1 = vmQuery1.getResultList();
                     System.out.println("VMs");
-                    for ( Object[] vmId : vmResult1 ) {
-                        System.out.println( Arrays.toString( vmId ) );
-                    }
+                    print(vmResult1);
 
                     TypedQuery<Object[]> vmQuery2 = session.createQuery(
                             "select vm.* from AzureVirtualMachine vm where vm.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
                     List<Object[]> vmResult2 = vmQuery2.getResultList();
                     System.out.println("VMs");
-                    for ( Object[] vmId : vmResult2 ) {
-                        System.out.println( Arrays.toString( vmId ) );
-                    }
+                    print(vmResult2);
 
-                    TypedQuery<String> storageAccountsQuery1 = session.createQuery(
-                            "select sa.id from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", String.class );
-                    List<String> storageAccountsResult1 = storageAccountsQuery1.getResultList();
-                    System.out.println("StorageAccount ids");
-                    for ( String id : storageAccountsResult1 ) {
-                        System.out.println( id );
-                    }
+                    TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
+                            "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
+                    List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
+                    System.out.println("StorageAccounts");
+                    print(storageAccountsResult1);
 
-                    TypedQuery<String> storageAccountsQuery2 = session.createQuery(
-                            "select sa.id from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", String.class );
-                    List<String> storageAccountsResult2 = storageAccountsQuery2.getResultList();
-                    System.out.println("StorageAccount ids");
-                    for ( String id : storageAccountsResult2 ) {
-                        System.out.println( id );
-                    }
+                    TypedQuery<Object[]> storageAccountsQuery2 = session.createQuery(
+                            "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", Object[].class );
+                    List<Object[]> storageAccountsResult2 = storageAccountsQuery2.getResultList();
+                    System.out.println("StorageAccounts");
+                    print(storageAccountsResult2);
                 }
             }
         }
@@ -163,23 +172,25 @@ public class Main {
     }
 
     private static void print(List<Object[]> tuples, String... columnHeaders) {
-        System.out.print("Row");
-        System.out.print("\t");
-        for ( String columnHeader : columnHeaders ) {
-            System.out.print("| ");
-            System.out.print( columnHeader);
-            System.out.print("\t");
-            System.out.print("\t");
-        }
-        System.out.println();
-        for ( int i = 0; i < tuples.size(); i++ ) {
-            Object[] tuple = tuples.get( i );
-            if ( tuple.length != columnHeaders.length ) {
-                throw new IllegalArgumentException( "Inconsistent column header. Tuple length is " + tuple.length + " but only " + columnHeaders.length + " column header given" );
-            }
-            System.out.print( i + 1 );
+        if (columnHeaders.length > 0) {
+            System.out.print( "Row" );
             System.out.print( "\t" );
-            for ( Object o : tuple ) {
+            for ( String columnHeader : columnHeaders ) {
+                System.out.print( "| " );
+                System.out.print( columnHeader );
+                System.out.print( "\t" );
+                System.out.print( "\t" );
+            }
+            System.out.println();
+        }
+        for (int i = 0; i < tuples.size(); i++) {
+            Object[] tuple = tuples.get(i);
+            if (columnHeaders.length != 0 && tuple.length != columnHeaders.length) {
+                throw new IllegalArgumentException("Inconsistent column header. Tuple length is " + tuple.length + " but only " + columnHeaders.length + " column header given");
+            }
+            System.out.print(i + 1);
+            System.out.print("\t");
+            for (Object o : tuple) {
                 System.out.print("| ");
                 System.out.print( o );
                 System.out.print("\t");
@@ -191,30 +202,33 @@ public class Main {
 
     private static ApiClient createApiClient() {
         String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
-        OAuth oAuth = new OAuth( basePath, "/oauth2/v2.0/token" )
-                .setCredentials( CLIENT_ID, CLIENT_SECRET, false )
+        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
+                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
                 // Default scope
-                .setScope( "https://management.core.windows.net//.default" );
-        ApiClient apiClient = new ApiClient( Map.of( "azure_auth", oAuth ) );
-        apiClient.getJSON().getMapper().configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
+                .setScope("https://management.core.windows.net//.default");
+        ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
+        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return apiClient;
     }
 
     private static AzureResourceManager createResourceManager() {
         AzureProfile profile = new AzureProfile(TENANT_ID, null, AzureEnvironment.AZURE);
-        TokenCredential credential = new DefaultAzureCredentialBuilder()
-                .authorityHost(profile.getEnvironment().getActiveDirectoryEndpoint())
+        ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
+                .tenantId(TENANT_ID)
                 .build();
-        return AzureResourceManager.authenticate(credential, profile).withDefaultSubscription();
+        return AzureResourceManager.authenticate(credentials, profile).withDefaultSubscription();
     }
 
     private static GraphServiceClient createGraphServiceClient() {
-        AzureProfile profile = new AzureProfile(TENANT_ID, null, AzureEnvironment.AZURE);
-        TokenCredential credential = new DefaultAzureCredentialBuilder()
-                .authorityHost(profile.getEnvironment().getActiveDirectoryEndpoint())
+        ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
+                .tenantId(TENANT_ID)
                 .build();
         // Default scope
-        return new GraphServiceClient(credential, "https://management.core.windows.net//.default");
+        return new GraphServiceClient(credentials, "https://graph.microsoft.com/.default");
     }
 
 }

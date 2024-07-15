@@ -21,9 +21,9 @@ import java.util.Map;
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
-import com.microsoft.graph.models.Application;
-import com.microsoft.graph.models.ConditionalAccessPolicy;
-import com.microsoft.graph.models.User;
+import com.microsoft.graph.beta.models.Application;
+import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
+import com.microsoft.graph.beta.models.User;
 
 /**
  * The schema provider for the Azure Subscription connector.
