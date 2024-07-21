@@ -17,4 +17,4 @@
 /**
  * Connector for the Azure Subscriptions Endpoint version 2022-12-01.
  */
-package com.blazebit.query.connector.azure.resourcemanager;
+package com.blazebit.query.connector.azure.graph;

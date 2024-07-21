@@ -303,7 +303,7 @@ public final class DataFormats {
     }
 
     private static List<DataFormatField> componentMethodConventionFields(Class<?> clazz, ConventionContext conventionContext, Map<Class<?>, ConventionContext> visitedTypes, Map<Class<?>, DataFormat> registry) {
-        TreeMap<String, Method> attributes = getAttributesComponentMethodConvention(clazz );
+        TreeMap<String, Method> attributes = getAttributesComponentMethodConvention(clazz);
         List<DataFormatField> fields = new ArrayList<>(attributes.size());
         for (Map.Entry<String, Method> entry : attributes.entrySet()) {
             ConventionContext subFilter = conventionContext.getSubFilter(clazz , entry.getValue());
@@ -417,7 +417,7 @@ public final class DataFormats {
         TreeMap<String, Method> attributeMap = new TreeMap<>();
         do {
             for (Method method : clazz.getDeclaredMethods()) {
-                if (!method.isSynthetic() && !method.isBridge() && Modifier.isPublic(method.getModifiers()) && method.getReturnType() != void.class && method.getParameterCount() == 0) {
+                if ( isAccessor( method ) ) {
                     String attributeName = getAttributeName(method);
                     if (attributeName != null) {
                         attributeMap.putIfAbsent(attributeName, method);
@@ -429,6 +429,15 @@ public final class DataFormats {
             clazz = clazz.getSuperclass();
         } while (clazz != null && clazz != Object.class);
         return attributeMap;
+    }
+
+    private static boolean isAccessor(Method method) {
+        return !method.isSynthetic()
+                && !method.isBridge()
+                && Modifier.isPublic(method.getModifiers())
+                && !Modifier.isStatic(method.getModifiers())
+                && method.getReturnType() != void.class
+                && method.getParameterCount() == 0;
     }
 
     private static void visitAttributes(TreeMap<String, Method> attributeMap, Class<?> clazz) {
@@ -458,7 +467,7 @@ public final class DataFormats {
     private static void visitDeclaredAttributes(TreeMap<String, Method> attributeMap, Class<?> clazz) {
         Method[] declaredMethods = clazz.getDeclaredMethods();
         for (Method method : declaredMethods) {
-            if (!method.isSynthetic() && !method.isBridge() && Modifier.isPublic(method.getModifiers())) {
+            if (isAccessor(method)) {
                 String attributeName = getAttributeName(method);
                 if (attributeName != null) {
                     attributeMap.putIfAbsent(attributeName, method);

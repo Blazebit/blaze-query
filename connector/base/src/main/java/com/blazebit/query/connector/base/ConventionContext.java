@@ -18,6 +18,7 @@ package com.blazebit.query.connector.base;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -66,6 +67,7 @@ public interface ConventionContext {
         return typeClass.isEnum()
                 || JavaToSqlTypeConversionRules.instance().lookup(typeClass) != null
                 || typeClass == Object.class
+                || typeClass == Instant.class
                 || typeClass == ZonedDateTime.class
                 || typeClass == OffsetDateTime.class
                 || typeClass == OffsetTime.class

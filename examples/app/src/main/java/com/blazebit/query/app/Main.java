@@ -40,6 +40,7 @@ import com.blazebit.query.TypedQuery;
 //import com.blazebit.query.connector.azure.base.invoker.ApiClient;
 //import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
 //import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
+import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
@@ -55,12 +56,29 @@ import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.SecurityGroup;
+import software.amazon.awssdk.services.ec2.model.Volume;
+import software.amazon.awssdk.services.ec2.model.Vpc;
+import software.amazon.awssdk.services.ecs.model.Cluster;
+import software.amazon.awssdk.services.efs.model.FileSystemDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.route53.model.HealthCheck;
+import software.amazon.awssdk.services.s3.model.Bucket;
 
 public class Main {
 
-    private static final String TENANT_ID = "";
-    private static final String CLIENT_ID = "";
-    private static final String CLIENT_SECRET = "";
+    private static final String AZURE_TENANT_ID = "";
+    private static final String AZURE_CLIENT_ID = "";
+    private static final String AZURE_CLIENT_SECRET = "";
+    private static final String AWS_REGION = "";
+    private static final String AWS_ACCESS_KEY_ID = "";
+    private static final String AWS_SECRET_ACCESS_KEY = "";
 
     private Main() {
     }
@@ -82,71 +100,196 @@ public class Main {
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
             queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
             queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
 
+            // Azure Resource manager
             queryContextBuilder.registerSchemaObjectAlias(VirtualMachineInner.class, "AzureVirtualMachine");
             queryContextBuilder.registerSchemaObjectAlias(StorageAccountInner.class, "AzureStorageAccount");
             queryContextBuilder.registerSchemaObjectAlias(BlobServicePropertiesInner.class, "AzureBlobServiceProperties");
 
+            // Azure Graph
             queryContextBuilder.registerSchemaObjectAlias(User.class, "AzureUser");
             queryContextBuilder.registerSchemaObjectAlias(ConditionalAccessPolicy.class, "AzureConditionalAccessPolicy");
             queryContextBuilder.registerSchemaObjectAlias(Application.class, "AzureApplication");
 
+            // IAM
+            queryContextBuilder.registerSchemaObjectAlias(software.amazon.awssdk.services.iam.model.User.class, "AwsUser");
+            // EC2
+            queryContextBuilder.registerSchemaObjectAlias(Instance.class, "AwsInstance");
+            queryContextBuilder.registerSchemaObjectAlias(Volume.class, "AwsVolume");
+            queryContextBuilder.registerSchemaObjectAlias(Vpc.class, "AwsVpc");
+            queryContextBuilder.registerSchemaObjectAlias(SecurityGroup.class, "AwsSecurityGroup");
+            // RDS
+            queryContextBuilder.registerSchemaObjectAlias(DBInstance.class, "AwsDBInstance");
+            // EFS
+            queryContextBuilder.registerSchemaObjectAlias(FileSystemDescription.class, "AwsFileSystem");
+            // ECS
+            queryContextBuilder.registerSchemaObjectAlias(Cluster.class, "AwsCluster");
+            // ELB
+            queryContextBuilder.registerSchemaObjectAlias(LoadBalancer.class, "AwsLoadBalancer");
+            // Lambda
+            queryContextBuilder.registerSchemaObjectAlias(FunctionConfiguration.class, "AwsFunction");
+            // Route53
+            queryContextBuilder.registerSchemaObjectAlias(HealthCheck.class, "AwsHealthCheck");
+            // S3
+            queryContextBuilder.registerSchemaObjectAlias(Bucket.class, "AwsBucket");
+
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-                    TypedQuery<Object[]> entityViewQuery = session.createQuery(
-                            "select t.id, e.text1 from " + name(TestEntityView.class) + " t, unnest(t.elements) e" );
-                    List<Object[]> entityViewResult = entityViewQuery.getResultList();
-                    print(entityViewResult, "id", "text1");
-
-                    TypedQuery<Object[]> userQuery = session.createQuery(
-                            "select u.* from AzureUser u", Object[].class );
-                    List<Object[]> userResult = userQuery.getResultList();
-                    System.out.println("User");
-                    print(userResult);
-
-                    TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-                            "select c.* from AzureConditionalAccessPolicy c", Object[].class );
-                    List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
-                    System.out.println("Conditional access policies");
-                    print(conditionalAccessPolicyResult);
-
-                    TypedQuery<Object[]> applicationQuery = session.createQuery(
-                            "select a.* from AzureApplication a", Object[].class );
-                    List<Object[]> applicationResult = applicationQuery.getResultList();
-                    System.out.println("Applications");
-                    print(applicationResult);
-
-//                    TypedQuery<Object[]> vmQuery1 = session.createQuery(
-//                            "select vm.* from OpenAPIVirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
-//                    List<Object[]> vmResult1 = vmQuery1.getResultList();
-//                    System.out.println("VMs");
-//                    print(vmResult1);
-
-                    TypedQuery<Object[]> vmQuery2 = session.createQuery(
-                            "select vm.* from AzureVirtualMachine vm where vm.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
-                    List<Object[]> vmResult2 = vmQuery2.getResultList();
-                    System.out.println("VMs");
-                    print(vmResult2);
-
-//                    TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
-//                            "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
-//                    List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
-//                    System.out.println("StorageAccounts");
-//                    print(storageAccountsResult1);
-
-                    TypedQuery<Object[]> storageAccountsQuery2 = session.createQuery(
-                            "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", Object[].class );
-                    List<Object[]> storageAccountsResult2 = storageAccountsQuery2.getResultList();
-                    System.out.println("StorageAccounts");
-                    print(storageAccountsResult2);
+                    testAws( session );
+//                    testEntityView( session );
+//                    testAzureGraph( session );
+//                    testAzureResourceManager( session );
+//                    testAzureOpenAPI( session );
                 }
             }
         }
+    }
+
+    private static void testAws(QuerySession session) {
+        // IAM
+        TypedQuery<Object[]> awsUserQuery = session.createQuery(
+                "select u.* from AwsUser u", Object[].class );
+        List<Object[]> awsUserResult = awsUserQuery.getResultList();
+        System.out.println("AwsUsers");
+        print(awsUserResult);
+
+        // EC2
+        TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
+                "select i.* from AwsInstance i", Object[].class );
+        List<Object[]> awsInstanceResult = awsInstanceQuery.getResultList();
+        System.out.println("AwsInstances");
+        print(awsInstanceResult);
+
+        TypedQuery<Object[]> awsVolumeQuery = session.createQuery(
+                "select v.* from AwsVolume v", Object[].class );
+        List<Object[]> awsVolumeResult = awsVolumeQuery.getResultList();
+        System.out.println("AwsVolumes");
+        print(awsVolumeResult);
+
+        TypedQuery<Object[]> awsVpcQuery = session.createQuery(
+                "select v.* from AwsVpc v", Object[].class );
+        List<Object[]> awsVpcResult = awsVpcQuery.getResultList();
+        System.out.println("AwsVpcs");
+        print(awsVpcResult);
+
+        TypedQuery<Object[]> awsSecurityGroupQuery = session.createQuery(
+                "select g.* from AwsSecurityGroup g", Object[].class );
+        List<Object[]> awsSecurityGroupResult = awsSecurityGroupQuery.getResultList();
+        System.out.println("AwsSecurityGroups");
+        print(awsSecurityGroupResult);
+
+        // RDS
+        TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
+                "select i.* from AwsDBInstance i", Object[].class );
+        List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
+        System.out.println("AwsDbInstances");
+        print(awsDbInstanceResult);
+
+        // EFS
+        TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
+                "select f.* from AwsFileSystem f", Object[].class );
+        List<Object[]> awsFileSystemResult = awsFileSystemQuery.getResultList();
+        System.out.println("AwsFileSystems");
+        print(awsFileSystemResult);
+
+        // ECS
+        TypedQuery<Object[]> awsClusterQuery = session.createQuery(
+                "select f.* from AwsCluster f", Object[].class );
+        List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
+        System.out.println("AwsClusters");
+        print(awsClusterResult);
+        // ELB
+        TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
+                "select f.* from AwsLoadBalancer f", Object[].class );
+        List<Object[]> awsLoadBalancerResult = awsLoadBalancerQuery.getResultList();
+        System.out.println("AwsLoadBalancers");
+        print(awsLoadBalancerResult);
+        // Lambda
+        TypedQuery<Object[]> awsFunctionsQuery = session.createQuery(
+                "select f.* from AwsFunction f", Object[].class );
+        List<Object[]> awsFunctionsResult = awsFunctionsQuery.getResultList();
+        System.out.println("AwsFunctions");
+        print(awsFunctionsResult);
+        // Route53
+        TypedQuery<Object[]> awsHealthCheckQuery = session.createQuery(
+                "select f.* from AwsHealthCheck f", Object[].class );
+        List<Object[]> awsHealthCheckResult = awsHealthCheckQuery.getResultList();
+        System.out.println("AwsHealthChecks");
+        print(awsHealthCheckResult);
+        // S3
+        TypedQuery<Object[]> awsBucketQuery = session.createQuery(
+                "select f.* from AwsBucket f", Object[].class );
+        List<Object[]> awsBucketResult = awsBucketQuery.getResultList();
+        System.out.println("AwsBuckets");
+        print(awsBucketResult);
+    }
+
+    private static void testEntityView(QuerySession session) {
+        TypedQuery<Object[]> entityViewQuery = session.createQuery(
+                "select t.id, e.text1 from " + name(TestEntityView.class) + " t, unnest(t.elements) e" );
+        List<Object[]> entityViewResult = entityViewQuery.getResultList();
+        print(entityViewResult, "id", "text1");
+    }
+
+    private static void testAzureGraph(QuerySession session) {
+        TypedQuery<Object[]> userQuery = session.createQuery(
+                "select u.* from AzureUser u", Object[].class );
+        List<Object[]> userResult = userQuery.getResultList();
+        System.out.println("User");
+        print(userResult);
+
+        TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+                "select c.* from AzureConditionalAccessPolicy c", Object[].class );
+        List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+        System.out.println("Conditional access policies");
+        print(conditionalAccessPolicyResult);
+
+        TypedQuery<Object[]> applicationQuery = session.createQuery(
+                "select a.* from AzureApplication a", Object[].class );
+        List<Object[]> applicationResult = applicationQuery.getResultList();
+        System.out.println("Applications");
+        print(applicationResult);
+    }
+
+    private static void testAzureResourceManager(QuerySession session) {
+        TypedQuery<Object[]> vmQuery2 = session.createQuery(
+                "select vm.* from AzureVirtualMachine vm where vm.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
+        List<Object[]> vmResult2 = vmQuery2.getResultList();
+        System.out.println("VMs");
+        print(vmResult2);
+
+        TypedQuery<Object[]> storageAccountsQuery2 = session.createQuery(
+                "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", Object[].class );
+        List<Object[]> storageAccountsResult2 = storageAccountsQuery2.getResultList();
+        System.out.println("StorageAccounts");
+        print(storageAccountsResult2);
+    }
+
+    private static void testAzureOpenAPI(QuerySession session) {
+        TypedQuery<Object[]> vmQuery1 = session.createQuery(
+                "select vm.* from OpenAPIVirtualMachine vm where vm.properties.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
+        List<Object[]> vmResult1 = vmQuery1.getResultList();
+        System.out.println("VMs");
+        print(vmResult1);
+
+        TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
+                "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
+        List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
+        System.out.println("StorageAccounts");
+        print(storageAccountsResult1);
+    }
+
+    private static AwsConnectorConfig.Account createAwsAccount() {
+        return new AwsConnectorConfig.Account(
+                Region.of(AWS_REGION),
+                StaticCredentialsProvider.create(AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY))
+        );
     }
 
     private static String name(Class<?> clazz) {
@@ -208,20 +351,20 @@ public class Main {
 //    }
 
     private static AzureResourceManager createResourceManager() {
-        AzureProfile profile = new AzureProfile(TENANT_ID, null, AzureEnvironment.AZURE);
+        AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, null, AzureEnvironment.AZURE);
         ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .tenantId(TENANT_ID)
+                .clientId( AZURE_CLIENT_ID )
+                .clientSecret( AZURE_CLIENT_SECRET )
+                .tenantId( AZURE_TENANT_ID )
                 .build();
         return AzureResourceManager.authenticate(credentials, profile).withDefaultSubscription();
     }
 
     private static GraphServiceClient createGraphServiceClient() {
         ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .tenantId(TENANT_ID)
+                .clientId( AZURE_CLIENT_ID )
+                .clientSecret( AZURE_CLIENT_SECRET )
+                .tenantId( AZURE_TENANT_ID )
                 .build();
         // Default scope
         return new GraphServiceClient(credentials, "https://graph.microsoft.com/.default");
