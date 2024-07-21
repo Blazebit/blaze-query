@@ -16,6 +16,7 @@
         <module>azure</module>
         <module>aws</module>
         <module>entity-view</module>
+        <module>gitlab</module>
     </modules>
 
 </project>

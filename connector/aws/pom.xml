@@ -22,6 +22,7 @@
         <module>iam</module>
         <module>elb</module>
         <module>efs</module>
+        <module>ecr</module>
         <module>ecs</module>
         <module>lambda</module>
         <module>route53</module>

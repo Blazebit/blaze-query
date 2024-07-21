@@ -22,6 +22,7 @@ import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import software.amazon.awssdk.services.route53.model.HealthCheck;
+import software.amazon.awssdk.services.route53.model.HostedZone;
 
 /**
  * The schema provider for the AWS Route53 connector.
@@ -39,7 +40,8 @@ public final class AwsRoute53SchemaProvider implements QuerySchemaProvider {
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
         return Map.<Class<?>, DataFetcher<?>>of(
-                HealthCheck.class, HealthCheckDataFetcher.INSTANCE
+                HealthCheck.class, HealthCheckDataFetcher.INSTANCE,
+                HostedZone.class, HostedZoneDataFetcher.INSTANCE
         );
     }
 }

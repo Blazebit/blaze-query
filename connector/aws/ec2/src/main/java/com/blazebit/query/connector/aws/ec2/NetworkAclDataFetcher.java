@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.aws.ecs;
+package com.blazebit.query.connector.aws.ec2;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
@@ -30,51 +28,47 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
-import software.amazon.awssdk.services.ecs.EcsClient;
-import software.amazon.awssdk.services.ecs.EcsClientBuilder;
-import software.amazon.awssdk.services.ecs.model.Cluster;
-import software.amazon.awssdk.services.ecs.model.DescribeClustersRequest;
-import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
+import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.Vpc;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ClusterDataFetcher implements DataFetcher<Cluster>, Serializable {
+public class NetworkAclDataFetcher implements DataFetcher<NetworkAcl>, Serializable {
 
-    public static final ClusterDataFetcher INSTANCE = new ClusterDataFetcher();
+    public static final NetworkAclDataFetcher INSTANCE = new NetworkAclDataFetcher();
 
-    private ClusterDataFetcher() {
+    private NetworkAclDataFetcher() {
     }
 
     @Override
-    public List<Cluster> fetch(DataFetchContext context) {
+    public List<NetworkAcl> fetch(DataFetchContext context) {
         try {
             List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
             SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-            List<Cluster> list = new ArrayList<>();
+            List<NetworkAcl> list = new ArrayList<>();
             for ( AwsConnectorConfig.Account account : accounts) {
-                EcsClientBuilder ec2ClientBuilder = EcsClient.builder()
+                Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
                         .region( account.getRegion() )
                         .credentialsProvider( account.getCredentialsProvider() );
                 if ( sdkHttpClient != null ) {
                     ec2ClientBuilder.httpClient( sdkHttpClient );
                 }
-                try (EcsClient client = ec2ClientBuilder.build()) {
-                    List<String> clusters = client.listClusters().clusterArns();
-                    DescribeClustersRequest request = DescribeClustersRequest.builder().clusters(clusters).build();
-                    DescribeClustersResponse describeClustersResponse = client.describeClusters(request);
-                    list.addAll( describeClustersResponse.clusters() );
+                try (Ec2Client client = ec2ClientBuilder.build()) {
+                    list.addAll( client.describeNetworkAcls().networkAcls() );
                 }
             }
             return list;
         } catch (RuntimeException e) {
-            throw new DataFetcherException("Could not fetch instance list", e);
+            throw new DataFetcherException("Could not fetch vpc list", e);
         }
     }
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.componentMethodConvention(Cluster.class, AwsConventionContext.INSTANCE);
+        return DataFormats.componentMethodConvention(NetworkAcl.class, AwsConventionContext.INSTANCE);
     }
 }

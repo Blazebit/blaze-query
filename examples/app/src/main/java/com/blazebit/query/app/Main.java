@@ -45,6 +45,7 @@ import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
+//import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
@@ -56,19 +57,23 @@ import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+//import org.gitlab4j.api.GitLabApi;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.Vpc;
+import software.amazon.awssdk.services.ecr.model.Repository;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.route53.model.HealthCheck;
+import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.s3.model.Bucket;
 
 public class Main {
@@ -98,10 +103,11 @@ public class Main {
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
-            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
             queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
+//            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
@@ -123,10 +129,13 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(Volume.class, "AwsVolume");
             queryContextBuilder.registerSchemaObjectAlias(Vpc.class, "AwsVpc");
             queryContextBuilder.registerSchemaObjectAlias(SecurityGroup.class, "AwsSecurityGroup");
+            queryContextBuilder.registerSchemaObjectAlias(NetworkAcl.class, "AwsNetworkAcl");
             // RDS
             queryContextBuilder.registerSchemaObjectAlias(DBInstance.class, "AwsDBInstance");
             // EFS
             queryContextBuilder.registerSchemaObjectAlias(FileSystemDescription.class, "AwsFileSystem");
+            // ECR
+            queryContextBuilder.registerSchemaObjectAlias(Repository.class, "AwsRepository");
             // ECS
             queryContextBuilder.registerSchemaObjectAlias(Cluster.class, "AwsCluster");
             // ELB
@@ -134,6 +143,7 @@ public class Main {
             // Lambda
             queryContextBuilder.registerSchemaObjectAlias(FunctionConfiguration.class, "AwsFunction");
             // Route53
+            queryContextBuilder.registerSchemaObjectAlias(HostedZone.class, "AwsHostedZone");
             queryContextBuilder.registerSchemaObjectAlias(HealthCheck.class, "AwsHealthCheck");
             // S3
             queryContextBuilder.registerSchemaObjectAlias(Bucket.class, "AwsBucket");
@@ -184,6 +194,12 @@ public class Main {
         System.out.println("AwsSecurityGroups");
         print(awsSecurityGroupResult);
 
+        TypedQuery<Object[]> awsNetworkAclQuery = session.createQuery(
+                "select g.* from AwsNetworkAcl g", Object[].class );
+        List<Object[]> awsNetworkAclResult = awsNetworkAclQuery.getResultList();
+        System.out.println("AwsNetworkAcls");
+        print(awsNetworkAclResult);
+
         // RDS
         TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
                 "select i.* from AwsDBInstance i", Object[].class );
@@ -198,30 +214,46 @@ public class Main {
         System.out.println("AwsFileSystems");
         print(awsFileSystemResult);
 
+        // ECR
+        TypedQuery<Object[]> awsRepositoryQuery = session.createQuery(
+                "select f.* from AwsRepository f", Object[].class );
+        List<Object[]> awsRepositoryResult = awsRepositoryQuery.getResultList();
+        System.out.println("AwsRepositories");
+        print(awsRepositoryResult);
+
         // ECS
         TypedQuery<Object[]> awsClusterQuery = session.createQuery(
                 "select f.* from AwsCluster f", Object[].class );
         List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
         System.out.println("AwsClusters");
         print(awsClusterResult);
+
         // ELB
         TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
                 "select f.* from AwsLoadBalancer f", Object[].class );
         List<Object[]> awsLoadBalancerResult = awsLoadBalancerQuery.getResultList();
         System.out.println("AwsLoadBalancers");
         print(awsLoadBalancerResult);
+
         // Lambda
         TypedQuery<Object[]> awsFunctionsQuery = session.createQuery(
                 "select f.* from AwsFunction f", Object[].class );
         List<Object[]> awsFunctionsResult = awsFunctionsQuery.getResultList();
         System.out.println("AwsFunctions");
         print(awsFunctionsResult);
+
         // Route53
+        TypedQuery<Object[]> awsHostedZoneQuery = session.createQuery(
+                "select f.* from AwsHostedZone f", Object[].class );
+        List<Object[]> awsHostedZoneResult = awsHostedZoneQuery.getResultList();
+        System.out.println("AwsHostedZones");
+        print(awsHostedZoneResult);
         TypedQuery<Object[]> awsHealthCheckQuery = session.createQuery(
                 "select f.* from AwsHealthCheck f", Object[].class );
         List<Object[]> awsHealthCheckResult = awsHealthCheckQuery.getResultList();
         System.out.println("AwsHealthChecks");
         print(awsHealthCheckResult);
+
         // S3
         TypedQuery<Object[]> awsBucketQuery = session.createQuery(
                 "select f.* from AwsBucket f", Object[].class );
@@ -291,6 +323,10 @@ public class Main {
                 StaticCredentialsProvider.create(AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY))
         );
     }
+
+//    private static GitLabApi createGitlabApi() {
+//        return new GitLabApi();
+//    }
 
     private static String name(Class<?> clazz) {
         String name = clazz.getName();

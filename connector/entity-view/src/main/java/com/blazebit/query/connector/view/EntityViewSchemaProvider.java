@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import jakarta.persistence.EntityManager;
 
 /**
- * The configuration properties for the Entity-View connector.
+ * The schema provider for the Entity-View connector.
  *
  * @author Christian Beikov
  * @since 1.0.0
