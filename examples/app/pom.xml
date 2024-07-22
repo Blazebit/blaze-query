@@ -12,8 +12,7 @@
 
     <properties>
         <module.name>com.blazebit.query.examples.app</module.name>
-        <jackson-version>2.13.5</jackson-version>
-        <jackson-databind-version>2.13.5</jackson-databind-version>
+        <jackson.version>2.14.1</jackson.version>
     </properties>
 
     <dependencies>
@@ -53,17 +52,17 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson-version}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson-version}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind-version}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <!-- For some reason, the azure-core dependency has a conflict and must be fixed here -->
         <dependency>
@@ -156,11 +155,11 @@
             <version>${project.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>${project.groupId}</groupId>-->
-<!--            <artifactId>blaze-query-connector-gitlab</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>blaze-query-connector-gitlab</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

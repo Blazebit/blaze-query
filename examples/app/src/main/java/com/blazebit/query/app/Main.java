@@ -45,7 +45,9 @@ import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
-//import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
+import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
+import com.blazebit.query.connector.gitlab.GroupMember;
+import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
@@ -57,7 +59,10 @@ import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-//import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.models.Group;
+import org.gitlab4j.api.models.Project;
+import org.gitlab4j.api.models.ProtectedBranch;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -84,6 +89,7 @@ public class Main {
     private static final String AWS_REGION = "";
     private static final String AWS_ACCESS_KEY_ID = "";
     private static final String AWS_SECRET_ACCESS_KEY = "";
+    private static final String GITLAB_KEY = "";
 
     private Main() {
     }
@@ -103,11 +109,11 @@ public class Main {
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
-//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-//            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
             queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
-//            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
@@ -148,10 +154,19 @@ public class Main {
             // S3
             queryContextBuilder.registerSchemaObjectAlias(Bucket.class, "AwsBucket");
 
+            // Gitlab
+            queryContextBuilder.registerSchemaObjectAlias(Project.class, "GitlabProject");
+            queryContextBuilder.registerSchemaObjectAlias(Group.class, "GitlabGroup");
+            queryContextBuilder.registerSchemaObjectAlias(ProjectMember.class, "GitlabProjectMember");
+            queryContextBuilder.registerSchemaObjectAlias(GroupMember.class, "GitlabGroupMember");
+            queryContextBuilder.registerSchemaObjectAlias(org.gitlab4j.api.models.User.class, "GitlabUser");
+            queryContextBuilder.registerSchemaObjectAlias(ProtectedBranch.class, "GitlabProtectedBranch");
+
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-                    testAws( session );
+//                    testAws( session );
+                    testGitlab( session );
 //                    testEntityView( session );
 //                    testAzureGraph( session );
 //                    testAzureResourceManager( session );
@@ -262,6 +277,39 @@ public class Main {
         print(awsBucketResult);
     }
 
+    private static void testGitlab(QuerySession session) {
+        TypedQuery<Object[]> gitlabProjectQuery = session.createQuery(
+                "select p.* from GitlabProject p" );
+        List<Object[]> gitlabProjectResult = gitlabProjectQuery.getResultList();
+        System.out.println("GitlabProjects");
+        print(gitlabProjectResult);
+        TypedQuery<Object[]> gitlabGroupQuery = session.createQuery(
+                "select p.* from GitlabGroup p" );
+        List<Object[]> gitlabGroupResult = gitlabGroupQuery.getResultList();
+        System.out.println("GitlabGroups");
+        print(gitlabGroupResult);
+        TypedQuery<Object[]> gitlabProjectMemberQuery = session.createQuery(
+                "select p.* from GitlabProjectMember p" );
+        List<Object[]> gitlabProjectMemberResult = gitlabProjectMemberQuery.getResultList();
+        System.out.println("GitlabProjectMembers");
+        print(gitlabProjectMemberResult);
+        TypedQuery<Object[]> gitlabGroupMemberQuery = session.createQuery(
+                "select p.* from GitlabGroupMember p" );
+        List<Object[]> gitlabGroupMemberResult = gitlabGroupMemberQuery.getResultList();
+        System.out.println("GitlabGroupMembers");
+        print(gitlabGroupMemberResult);
+        TypedQuery<Object[]> gitlabUserQuery = session.createQuery(
+                "select p.* from GitlabUser p" );
+        List<Object[]> gitlabUserResult = gitlabUserQuery.getResultList();
+        System.out.println("GitlabUsers");
+        print(gitlabUserResult);
+        TypedQuery<Object[]> gitlabProtectedBranchQuery = session.createQuery(
+                "select p.* from GitlabProtectedBranch p" );
+        List<Object[]> gitlabProtectedBranchResult = gitlabProtectedBranchQuery.getResultList();
+        System.out.println("GitlabProtectedBranches");
+        print(gitlabProtectedBranchResult);
+    }
+
     private static void testEntityView(QuerySession session) {
         TypedQuery<Object[]> entityViewQuery = session.createQuery(
                 "select t.id, e.text1 from " + name(TestEntityView.class) + " t, unnest(t.elements) e" );
@@ -324,9 +372,9 @@ public class Main {
         );
     }
 
-//    private static GitLabApi createGitlabApi() {
-//        return new GitLabApi();
-//    }
+    private static GitLabApi createGitlabApi() {
+        return new GitLabApi("https://gitlab.com/", GITLAB_KEY);
+    }
 
     private static String name(Class<?> clazz) {
         String name = clazz.getName();

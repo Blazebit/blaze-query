@@ -31,7 +31,6 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
-import software.amazon.awssdk.services.ec2.model.Vpc;
 
 /**
  * @author Christian Beikov
