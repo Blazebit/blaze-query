@@ -29,10 +29,10 @@ public class CalciteDataSourceBuilderImpl implements CalciteDataSourceBuilder {
     final Properties properties = new Properties();
 
     /**
-     * Returns a new instance of {@link CalciteDataSourceBuilderImpl} with default properties set.
+     * Returns a new instance of {@link CalciteDataSourceBuilder} with default properties set.
      * The default property is "lex" with value "JAVA".
      *
-     * @return A new instance of {@link CalciteDataSourceBuilderImpl} with default properties set
+     * @return A new instance of {@link CalciteDataSourceBuilder} with default properties set
      */
     public static CalciteDataSourceBuilder withDefaults() {
         CalciteDataSourceBuilderImpl calciteDataSourceBuilder = new CalciteDataSourceBuilderImpl();
