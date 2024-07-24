@@ -15,6 +15,7 @@
  */
 package com.blazebit.query.impl;
 
+import com.blazebit.query.calcite.CalciteDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +33,6 @@ import com.blazebit.query.QueryContext;
 import com.blazebit.query.QueryException;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.impl.calcite.DataFetcherTable;
-import com.blazebit.query.impl.calcite.CalciteDataSource;
 import com.blazebit.query.impl.calcite.SubSchema;
 import com.blazebit.query.impl.metamodel.MetamodelImpl;
 import com.blazebit.query.spi.DataFetcher;
@@ -56,7 +56,7 @@ public class QueryContextImpl implements QueryContext {
 
     public QueryContextImpl(QueryContextBuilderImpl builder) {
         this.configurationProvider = new ConfigurationProviderImpl( ImmutableMap.copyOf( builder.propertyProviders ) );
-        this.calciteDataSource = new CalciteDataSource();
+        this.calciteDataSource = builder.calciteDataSourceBuilder.build();
         this.metamodel = new MetamodelImpl(resolveSchemaObjects( builder, configurationProvider, calciteDataSource ));
     }
 

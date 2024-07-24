@@ -16,6 +16,8 @@
 package com.blazebit.query.impl;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.calcite.CalciteDataSourceBuilder;
+import com.blazebit.query.impl.calcite.CalciteDataSourceBuilderImpl;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.PropertyProvider;
 import com.blazebit.query.spi.QueryContextBuilder;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 /**
  * @author Christian Beikov
@@ -36,6 +39,7 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
     final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
     final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
     final Map<String, String> schemaObjectNames = new HashMap<>();
+    final CalciteDataSourceBuilder calciteDataSourceBuilder = CalciteDataSourceBuilderImpl.withDefaults();
 
     @Override
     public QueryContextBuilder setPropertyProvider(String property, PropertyProvider provider) {
@@ -75,6 +79,13 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
         for ( QuerySchemaProvider querySchemaProvider : ServiceLoader.load( QuerySchemaProvider.class ) ) {
             registerSchemaProvider(querySchemaProvider);
         }
+        return this;
+    }
+
+    @Override
+    public QueryContextBuilder customize(
+        Consumer<CalciteDataSourceBuilder> calciteDataSourceBuilderCustomizer) {
+        calciteDataSourceBuilderCustomizer.accept(calciteDataSourceBuilder);
         return this;
     }
 

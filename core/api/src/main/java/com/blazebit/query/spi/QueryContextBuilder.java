@@ -17,6 +17,8 @@
 package com.blazebit.query.spi;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.calcite.CalciteDataSourceBuilder;
+import java.util.function.Consumer;
 
 /**
  * Builder for the Blaze-Query {@link QueryContext}.
@@ -88,6 +90,14 @@ public interface QueryContextBuilder {
      * @return {@code this} object for method chaining
      */
     QueryContextBuilder loadServices();
+
+    /**
+     * Customize the {@link CalciteDataSourceBuilder} with the provided customizer function and return the updated {@link QueryContextBuilder}.
+     *
+     * @param calciteDataSourceBuilderCustomizer The customizer function that modifies the {@link CalciteDataSourceBuilder}
+     * @return The updated {@link QueryContextBuilder}
+     */
+    QueryContextBuilder customize(Consumer<CalciteDataSourceBuilder> calciteDataSourceBuilderCustomizer);
 
     /**
      * Builds a new {@link QueryContext} object based on the configuration provided by this builder.
