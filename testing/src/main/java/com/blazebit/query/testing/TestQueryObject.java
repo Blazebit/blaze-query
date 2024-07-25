@@ -50,11 +50,15 @@ public final class TestQueryObject {
      * @param clazz    the class of the object to create
      * @param jsonFile the path to the JSON file
      * @return an instance of the specified class deserialized from the JSON file
-     * @throws IOException if an I/O error occurs while reading the JSON file
+     * @throws RuntimeException if an I/O error occurs while reading the JSON file
      * @see Serialization
      */
-    public static <T> T fromJson(Class<T> clazz, File jsonFile) throws IOException {
-        return Serialization.getObjectMapper().readValue(jsonFile, clazz);
+    public static <T> T fromJson(Class<T> clazz, File jsonFile) {
+        try {
+            return Serialization.getObjectMapper().readValue(jsonFile, clazz);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -65,11 +69,15 @@ public final class TestQueryObject {
      * @param clazz the class of the object to create
      * @param json  the JSON string to deserialize
      * @return an instance of the specified class deserialized from the JSON string
-     * @throws JsonProcessingException if an error occurs while parsing the JSON string
+     * @throws RuntimeException if an error occurs while parsing the JSON string
      * @see Serialization
      */
-    public static <T> T fromJson(Class<T> clazz, String json) throws JsonProcessingException {
-        return Serialization.getObjectMapper().readValue(json, clazz);
+    public static <T> T fromJson(Class<T> clazz, String json) {
+        try {
+            return Serialization.getObjectMapper().readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
