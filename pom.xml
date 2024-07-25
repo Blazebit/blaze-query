@@ -15,6 +15,7 @@
         <module>connector</module>
         <module>documentation</module>
         <module>examples</module>
+        <module>testing</module>
     </modules>
 
     <artifactId>blaze-query</artifactId>
