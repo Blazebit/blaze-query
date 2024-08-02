@@ -57,8 +57,8 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
         if (propertyProvider == null) {
             throw new IllegalArgumentException("No property provider found for property: " + property);
         }
-		//noinspection unchecked
-		return (PropertyProvider<X>) propertyProvider;
+        //noinspection unchecked
+        return (PropertyProvider<X>) propertyProvider;
     }
 
     @Override

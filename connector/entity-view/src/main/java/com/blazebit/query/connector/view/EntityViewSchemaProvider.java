@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.metamodel.ViewType;
 import com.blazebit.query.spi.ConfigurationProvider;
-import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.google.common.collect.ImmutableMap;
