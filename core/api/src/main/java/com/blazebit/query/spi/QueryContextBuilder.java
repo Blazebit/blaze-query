@@ -33,9 +33,7 @@ public interface QueryContextBuilder {
      * @param value    The property value
      * @return {@code this} object for method chaining
      */
-    default QueryContextBuilder setProperty(String property, Object value) {
-        return setPropertyProvider(property, (context) -> value);
-    }
+    QueryContextBuilder setProperty(String property, Object value);
 
     /**
      * Sets the given supplier as value provider for the given property name.
@@ -44,16 +42,17 @@ public interface QueryContextBuilder {
      * @param provider The property value provider
      * @return {@code this} object for method chaining
      */
-    QueryContextBuilder setPropertyProvider(String property, PropertyProvider provider);
+    QueryContextBuilder setPropertyProvider(String property, PropertyProvider<?> provider);
 
     /**
      * Returns the property provider for the property name.
      *
      * @param property The property name
+     * @param <X> The expected value type
      * @return the property provider for the property name
      * @throws IllegalArgumentException If no property provider exists
      */
-    PropertyProvider getPropertyProvider(String property);
+    <X> PropertyProvider<X> getPropertyProvider(String property);
 
     /**
      * Registers a fully qualified alias for a schema object type.

@@ -94,9 +94,9 @@ public class CalciteDataSource extends Driver implements DataSource {
     private final JavaTypeFactory typeFactory;
     private final CalciteSchema rootSchema;
 
-    public CalciteDataSource() {
-        properties = new Properties();
+    public CalciteDataSource(Properties properties) {
         properties.setProperty( "lex", "JAVA" );
+        this.properties = properties;
 
         CalciteConnectionConfig cfg = new CalciteConnectionConfigImpl( properties );
         RelDataTypeSystem typeSystem = cfg.typeSystem( RelDataTypeSystem.class, RelDataTypeSystem.DEFAULT );

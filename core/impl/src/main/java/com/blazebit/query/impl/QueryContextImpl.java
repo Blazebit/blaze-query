@@ -56,7 +56,7 @@ public class QueryContextImpl implements QueryContext {
 
     public QueryContextImpl(QueryContextBuilderImpl builder) {
         this.configurationProvider = new ConfigurationProviderImpl( ImmutableMap.copyOf( builder.propertyProviders ) );
-        this.calciteDataSource = new CalciteDataSource();
+        this.calciteDataSource = new CalciteDataSource(builder.getProperties());
         this.metamodel = new MetamodelImpl(resolveSchemaObjects( builder, configurationProvider, calciteDataSource ));
     }
 

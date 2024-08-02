@@ -50,7 +50,6 @@ public final class EntityViewSchemaProvider implements QuerySchemaProvider {
                 EntityViewConnectorConfig.ENTITY_VIEW_FILTER.getPropertyName() );
         PropertyProvider<EntityManager> entityManagerProvider = configurationProvider.getPropertyProvider(
             EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName() );
-        PropertyProvider<DataFetchContext> dataContextSupplier = configurationProvider;
 
         final ImmutableMap.Builder<Class<?>, EntityViewTable<?>> builder = ImmutableMap.builder();
 
@@ -61,7 +60,7 @@ public final class EntityViewSchemaProvider implements QuerySchemaProvider {
                         new EntityViewTable<>(
                                 entityViewManager,
                                 entityManagerProvider,
-                                dataContextSupplier,
+                                configurationProvider,
                                 viewType
                         )
                 );
