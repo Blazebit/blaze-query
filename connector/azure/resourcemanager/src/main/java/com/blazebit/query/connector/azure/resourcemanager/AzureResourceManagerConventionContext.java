@@ -16,7 +16,7 @@
 
 package com.blazebit.query.connector.azure.resourcemanager;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 import com.azure.core.management.exception.ManagementError;
 import com.azure.core.util.ExpandableStringEnum;
@@ -36,8 +36,8 @@ public class AzureResourceManagerConventionContext implements ConventionContext 
     }
 
     @Override
-    public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-        switch (method.getName()) {
+    public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+        switch (member.getName()) {
             case "getDetails":
                 return concreteClass != ManagementError.class ? this : NestedManagementErrorContext.INSTANCE;
             default:
@@ -46,8 +46,8 @@ public class AzureResourceManagerConventionContext implements ConventionContext 
     }
 
     @Override
-    public boolean isBaseType(Class<?> typeClass) {
-        return ConventionContext.super.isBaseType( typeClass )
+    public boolean isEnumType(Class<?> typeClass) {
+        return ConventionContext.super.isEnumType(typeClass)
                 || ExpandableStringEnum.class.isAssignableFrom(typeClass);
     }
 
@@ -56,8 +56,8 @@ public class AzureResourceManagerConventionContext implements ConventionContext 
         private static final NestedManagementErrorContext INSTANCE = new NestedManagementErrorContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch (member.getName()) {
                 // Filter out cycles in the model
                 case "getDetails":
                     return concreteClass != ManagementError.class ? this : null;

@@ -16,12 +16,36 @@
 package com.blazebit.query.impl.calcite;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.blazebit.query.connector.base.FieldFieldAccessor;
 import com.blazebit.query.connector.base.MethodFieldAccessor;
+import com.blazebit.query.impl.calcite.converter.Converter;
+import com.blazebit.query.impl.calcite.converter.DurationConverter;
+import com.blazebit.query.impl.calcite.converter.EnumConverter;
+import com.blazebit.query.impl.calcite.converter.EnumToStringConverter;
+import com.blazebit.query.impl.calcite.converter.InstantConverter;
+import com.blazebit.query.impl.calcite.converter.LocalDateConverter;
+import com.blazebit.query.impl.calcite.converter.LocalDateTimeConverter;
+import com.blazebit.query.impl.calcite.converter.LocalTimeConverter;
+import com.blazebit.query.impl.calcite.converter.OffsetDateTimeConverter;
+import com.blazebit.query.impl.calcite.converter.OffsetTimeConverter;
+import com.blazebit.query.impl.calcite.converter.PeriodConverter;
+import com.blazebit.query.impl.calcite.converter.ZonedDateTimeConverter;
 import com.blazebit.query.spi.CollectionDataFormat;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFormat;
@@ -73,6 +97,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class EnumerableTableScan extends TableScan implements EnumerableRel {
     private static final Method GET_DATA;
+    private static final Map<Class<?>, Class<? extends Converter<?, ?>>> CONVERTERS;
 
     static {
         try {
@@ -80,6 +105,17 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException( e );
         }
+        Map<Class<?>, Class<? extends Converter<?, ?>>> converters = new HashMap<>();
+        converters.put(Instant.class, InstantConverter.class);
+        converters.put(ZonedDateTime.class, ZonedDateTimeConverter.class);
+        converters.put(OffsetDateTime.class, OffsetDateTimeConverter.class);
+        converters.put(OffsetTime.class, OffsetTimeConverter.class);
+        converters.put(LocalDate.class, LocalDateConverter.class);
+        converters.put(LocalDateTime.class, LocalDateTimeConverter.class);
+        converters.put(LocalTime.class, LocalTimeConverter.class);
+        converters.put(Duration.class, DurationConverter.class);
+        converters.put(Period.class, PeriodConverter.class);
+        CONVERTERS = converters;
     }
 
     private final DataFormat elementType;
@@ -142,6 +178,23 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
         } else {
             throw new IllegalArgumentException("Unsupported field accessor: " + accessor);
         }
+        Class<?> converter;
+        if (dataFormatField.getFormat().isEnum()) {
+            final Type type = dataFormatField.getFormat().getType();
+            converter = type instanceof Class<?> && ( (Class<?>) type ).isEnum() ? EnumConverter.class : EnumToStringConverter.class;
+        } else {
+            converter = CONVERTERS.get(rawClass(dataFormatField.getFormat().getType()));
+        }
+        final Expression e0;
+        if (converter == null) {
+            e0 = e;
+        } else if (converter == EnumConverter.class) {
+            e0 = Expressions.call(Expressions.field( null, converter, "INSTANCE" ), "convert", Expressions.convert_(e, Enum.class));
+        } else if (converter == EnumToStringConverter.class) {
+            e0 = Expressions.call(Expressions.field( null, converter, "INSTANCE" ), "convert", Expressions.convert_(e, Object.class));
+        } else {
+            e0 = Expressions.call(Expressions.field( null, converter, "INSTANCE" ), "convert", e);
+        }
         switch (relFieldType.getSqlTypeName()) {
             case ARRAY:
             case MULTISET:
@@ -173,7 +226,7 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
                     ));
                     return resultVar;
                 } else {
-                    return e;
+                    return e0;
                 }
             default:
                 if (relFieldType.isStruct()) {
@@ -196,7 +249,7 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
                     ));
                     return resultVar;
                 }
-                return e;
+                return e0;
         }
     }
 
@@ -264,6 +317,16 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
                 Expressions.lambda(Function1.class, simpleBlockBuilder.toBlock(), row)
         ) );
         return implementor.result(physType, blockBuilder.toBlock());
+    }
+
+    private static Class<?> rawClass(Type type) {
+        if (type instanceof ParameterizedType ) {
+            type = ( (ParameterizedType) type ).getRawType();
+        }
+        if (!(type instanceof Class<?>)) {
+            throw new IllegalArgumentException("Field type unsupported: " + type);
+        }
+        return (Class<?>) type;
     }
 
     private static final class SimpleBlockBuilder {

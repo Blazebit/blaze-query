@@ -17,6 +17,7 @@
 package com.blazebit.query.spi;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +43,15 @@ public interface DataFormat {
     List<DataFormatField> getFields();
 
     /**
+     * Returns whether this data format represents an enum.
+     *
+     * @return whether this data format represents an enum.
+     */
+    default boolean isEnum() {
+        return false;
+    }
+
+    /**
      * Returns a new data format for the given type and fields.
      *
      * @param type The type
@@ -58,6 +68,31 @@ public interface DataFormat {
             @Override
             public List<DataFormatField> getFields() {
                 return fields;
+            }
+        };
+    }
+
+    /**
+     * Returns a new enum data format for the given type.
+     *
+     * @param type The enum type
+     * @return the data format
+     */
+    static DataFormat enumType(Type type) {
+        return new DataFormat() {
+            @Override
+            public Type getType() {
+                return type;
+            }
+
+            @Override
+            public List<DataFormatField> getFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public boolean isEnum() {
+                return true;
             }
         };
     }

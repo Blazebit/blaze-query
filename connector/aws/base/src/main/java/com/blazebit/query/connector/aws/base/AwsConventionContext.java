@@ -16,7 +16,7 @@
 
 package com.blazebit.query.connector.aws.base;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 import com.blazebit.query.connector.base.ConventionContext;
 
@@ -34,8 +34,8 @@ public class AwsConventionContext implements ConventionContext {
     }
 
     @Override
-    public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-        switch (method.getName()) {
+    public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+        switch (member.getName()) {
             case "sdkFields":
             case "toBuilder":
             case "serializableBuilderClass":

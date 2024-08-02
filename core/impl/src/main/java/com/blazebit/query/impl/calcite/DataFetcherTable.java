@@ -16,16 +16,25 @@
 
 package com.blazebit.query.impl.calcite;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.blazebit.query.QuerySession;
-import com.blazebit.query.impl.calcite.converter.AccessorConverter;
-import com.blazebit.query.impl.calcite.converter.CollectionConverter;
-import com.blazebit.query.impl.calcite.converter.Converter;
-import com.blazebit.query.impl.calcite.converter.MapConverter;
-import com.blazebit.query.impl.calcite.converter.ObjectArrayConverter;
 import com.blazebit.query.spi.CollectionDataFormat;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -34,9 +43,8 @@ import com.blazebit.query.spi.DataFormatField;
 import com.blazebit.query.spi.MapDataFormat;
 import org.apache.calcite.DataContext;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
-import org.apache.calcite.linq4j.AbstractEnumerable;
+import org.apache.calcite.avatica.util.TimeUnit;
 import org.apache.calcite.linq4j.Enumerable;
-import org.apache.calcite.linq4j.Enumerator;
 import org.apache.calcite.plan.RelOptTable;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.type.RelDataType;
@@ -44,6 +52,9 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.schema.ScannableTable;
 import org.apache.calcite.schema.TranslatableTable;
 import org.apache.calcite.schema.impl.AbstractTable;
+import org.apache.calcite.sql.SqlIntervalQualifier;
+import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.Pair;
 
 /**
@@ -55,10 +66,27 @@ import org.apache.calcite.util.Pair;
  */
 public class DataFetcherTable<T> extends AbstractTable implements ScannableTable, TranslatableTable {
 
+    private static final Map<Class<?>, SqlTypeName> JAVA_TYPE_MAPPINGS;
+
+    static {
+        Map<Class<?>, SqlTypeName> javaTypeMappings = new HashMap<>();
+        // Timestamp with time zone support in Apache Calcite is very messy and doesn't really work, so we use TIMESTAMP
+        javaTypeMappings.put(Instant.class, SqlTypeName.TIMESTAMP);
+        javaTypeMappings.put(ZonedDateTime.class, SqlTypeName.TIMESTAMP);
+        javaTypeMappings.put(OffsetDateTime.class, SqlTypeName.TIMESTAMP);
+        javaTypeMappings.put(LocalDateTime.class, SqlTypeName.TIMESTAMP);
+        javaTypeMappings.put(LocalDate.class, SqlTypeName.DATE);
+        javaTypeMappings.put(OffsetTime.class, SqlTypeName.TIME);
+        javaTypeMappings.put(LocalTime.class, SqlTypeName.TIME);
+        javaTypeMappings.put(UUID.class, SqlTypeName.VARCHAR);
+        javaTypeMappings.put(Duration.class, SqlTypeName.INTERVAL_DAY_SECOND);
+        javaTypeMappings.put(Period.class, SqlTypeName.INTERVAL_YEAR_MONTH);
+        JAVA_TYPE_MAPPINGS = javaTypeMappings;
+    }
+
     private final Class<T> tableClass;
     private final DataFetcher<T> dataFetcher;
     private final Supplier<DataFetchContext> dataContextSupplier;
-    private final Converter<T, Object[]> converter;
     private RelDataType rowType;
 
     /**
@@ -72,57 +100,7 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         this.tableClass = tableClass;
         this.dataFetcher = dataFetcher;
         this.dataContextSupplier = dataFetchContextSupplier;
-        this.converter = new ObjectArrayConverter<>(createConverters(dataFetcher.getDataFormat()));
     }
-
-    private static <Source> Converter<Source, ?>[] createConverters(DataFormat dataFormat) {
-        List<DataFormatField> fields = dataFormat.getFields();
-        Converter<Source, ?>[] converters = new Converter[fields.size()];
-        for (int i = 0; i < fields.size(); i++) {
-            DataFormatField field = fields.get(i);
-            DataFormat fieldFormat = field.getFormat();
-            Converter<?, ?> converter;
-            if (fieldFormat instanceof MapDataFormat) {
-                MapDataFormat mapFormat = (MapDataFormat) fieldFormat;
-                converter = new MapConverter<>(
-                        field.getAccessor(),
-                        createConverter(mapFormat.getKeyFormat()),
-                        createConverter(mapFormat.getElementFormat())
-                );
-            } else if (fieldFormat instanceof CollectionDataFormat) {
-                CollectionDataFormat collectionFormat = (CollectionDataFormat) fieldFormat;
-                converter = new CollectionConverter<>(
-                        field.getAccessor(),
-                        createConverter(collectionFormat.getElementFormat())
-                );
-            } else {
-                converter = new AccessorConverter<>(field.getAccessor());
-            }
-            //noinspection unchecked
-            converters[i] = (Converter<Source, ?>) converter;
-        }
-        return converters;
-    }
-
-    private static <SourceType, TargetType> Converter<SourceType, TargetType> createConverter(DataFormat dataFormat) {
-        List<DataFormatField> fields = dataFormat.getFields();
-        //noinspection unchecked
-        return fields.isEmpty()
-                ? null
-                : (Converter<SourceType, TargetType>) new ObjectArrayConverter<>(createConverters(dataFormat));
-    }
-
-//    private static <SourceType> Converter<SourceType, Object[]> arrayConverter(Converter[] converters, @Nullable int[] fields) {
-//        if (fields == null) {
-//            return new ObjectArrayConverter<>( null, converters );
-//        } else {
-//            Converter[] fieldConverters = new Converter[fields.length];
-//            for ( int i = 0; i < fields.length; i++ ) {
-//                fieldConverters[i] = converters[fields[i]];
-//            }
-//            return new ObjectArrayConverter<>( null, fieldConverters );
-//        }
-//    }
 
     public DataFetcher<T> getDataFetcher() {
         return dataFetcher;
@@ -164,10 +142,31 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
             return typeFactory.createTypeWithNullability(typeFactory.createArrayType(elementRelDataType, -1L), true);
         } else if (!format.getFields().isEmpty()) {
             return typeFactory.createTypeWithNullability(deduceRowType(typeFactory, format), true);
+        } else if (format.isEnum()) {
+            return typeFactory.createJavaType(String.class);
         } else {
-            Class<?> type = (Class<?>) format.getType();
-            return type.isEnum() && type.getDeclaredFields().length != 0 ? typeFactory.createJavaType(Enum.class) : typeFactory.createJavaType(type);
+            Class<?> clazz = rawClass(format.getType());
+            SqlTypeName sqlTypeName = JAVA_TYPE_MAPPINGS.get(clazz);
+            if (sqlTypeName == null) {
+                return typeFactory.createJavaType(clazz);
+            } else if (sqlTypeName == SqlTypeName.INTERVAL_DAY_SECOND) {
+                return typeFactory.createTypeWithNullability(typeFactory.createSqlIntervalType(new SqlIntervalQualifier(TimeUnit.DAY, TimeUnit.SECOND, SqlParserPos.ZERO)), true);
+            } else if (sqlTypeName == SqlTypeName.INTERVAL_YEAR_MONTH) {
+                return typeFactory.createTypeWithNullability(typeFactory.createSqlIntervalType(new SqlIntervalQualifier(TimeUnit.YEAR, TimeUnit.MONTH, SqlParserPos.ZERO)), true);
+            } else {
+                return typeFactory.createTypeWithNullability(typeFactory.createSqlType(sqlTypeName), true);
+            }
         }
+    }
+
+    private static Class<?> rawClass(Type type) {
+        if (type instanceof ParameterizedType) {
+            type = ( (ParameterizedType) type ).getRawType();
+        }
+        if (!(type instanceof Class<?>)) {
+            throw new IllegalArgumentException("Field type unsupported: " + type);
+        }
+        return (Class<?>) type;
     }
 
     public List<? extends T> getData(DataContext dataContext) {
@@ -183,18 +182,6 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
 
     @Override
     public Enumerable<Object[]> scan(DataContext root) {
-        final DataFetchContext dataFetchContext = dataContextSupplier.get();
-        return new AbstractEnumerable<>() {
-            @Override
-            public Enumerator<Object[]> enumerator() {
-                QuerySession session = dataFetchContext.getSession();
-                List<? extends T> objects = session.get(tableClass);
-                if (objects == null) {
-                    objects = dataFetcher.fetch(dataFetchContext);
-                    session.put(tableClass, objects);
-                }
-                return new ConverterListEnumerator(objects, converter);
-            }
-        };
+        throw new UnsupportedOperationException("This should be handled in EnumerableTableScan#implement");
     }
 }

@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.gitlab;
+package com.blazebit.query.impl.calcite.converter;
 
-import com.blazebit.query.spi.DataFetcherConfig;
-import org.gitlab4j.api.GitLabApi;
+import java.time.OffsetDateTime;
 
 /**
- * The configuration properties for the Gitlab connector.
+ * Converter for an {@link OffsetDateTime} value.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GitlabConnectorConfig {
-
+public class OffsetDateTimeConverter implements Converter<OffsetDateTime, Long> {
     /**
-     * Specifies the {@link GitLabApi} to use for querying data.
+     * The {@link OffsetDateTime} converter.
      */
-    public static final DataFetcherConfig<GitLabApi> GITLAB_API = DataFetcherConfig.forPropertyName( "gitlabApi" );
+    public static final OffsetDateTimeConverter INSTANCE = new OffsetDateTimeConverter();
 
-    private GitlabConnectorConfig() {
+    private OffsetDateTimeConverter() {
+    }
+
+    @Override
+    public Long convert(OffsetDateTime o) {
+        if (o == null) {
+            return null;
+        }
+        return o.toInstant().toEpochMilli();
     }
 }

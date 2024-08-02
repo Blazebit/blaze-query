@@ -16,7 +16,7 @@
 
 package com.blazebit.query.connector.azure.graph;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 import com.blazebit.query.connector.base.ConventionContext;
 import com.microsoft.graph.beta.models.AccessReviewInstanceDecisionItem;
@@ -73,113 +73,113 @@ public class AzureGraphConventionContext implements ConventionContext {
     }
 
     @Override
-    public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-        switch (method.getName()) {
+    public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+        switch (member.getName()) {
             case "getFieldDeserializers":
             case "getBackingStore":
                 return null;
             // There are cycles in the model
             case "getActivity":
-                return method.getDeclaringClass() != ActivityHistoryItem.class ? this : NestedUserActivityConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ActivityHistoryItem.class ? this : NestedUserActivityConventionContext.INSTANCE;
             case "getApplications":
-                return method.getDeclaringClass() != ConnectorGroup.class ? this : NestedApplicationConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ConnectorGroup.class ? this : NestedApplicationConventionContext.INSTANCE;
             case "getMemberOf":
-                return method.getDeclaringClass() != Connector.class ? this : NestedConnectorConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Connector.class ? this : NestedConnectorConventionContext.INSTANCE;
             case "getCalendar":
-                return method.getDeclaringClass() != Event.class ? this : NestedCalendarConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Event.class ? this : NestedCalendarConventionContext.INSTANCE;
             case "getExceptionOccurrences":
             case "getInstances":
-                return method.getDeclaringClass() != Event.class ? this : NestedEventConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Event.class ? this : NestedEventConventionContext.INSTANCE;
             case "getInstance":
-                return method.getDeclaringClass() != AccessReviewInstanceDecisionItem.class ? this : NestedAccessReviewInstanceConventionContext.INSTANCE;
+                return member.getDeclaringClass() != AccessReviewInstanceDecisionItem.class ? this : NestedAccessReviewInstanceConventionContext.INSTANCE;
             case "getReplies":
-                return method.getDeclaringClass() != ChatMessage.class ? this : NestedChatMessageConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ChatMessage.class ? this : NestedChatMessageConventionContext.INSTANCE;
             case "getValue":
-                return method.getDeclaringClass() != StringKeyAttributeMappingSourceValuePair.class ? this : null;
+                return member.getDeclaringClass() != StringKeyAttributeMappingSourceValuePair.class ? this : null;
             case "getChildFolders":
-                if (method.getDeclaringClass() == ContactFolder.class) {
+                if (member.getDeclaringClass() == ContactFolder.class) {
                     return NestedContactFolderConventionContext.INSTANCE;
                 }
-                if (method.getDeclaringClass() == MailFolder.class) {
+                if (member.getDeclaringClass() == MailFolder.class) {
                     return NestedMailFolderConventionContext.INSTANCE;
                 }
                 return this;
             case "getSessions":
-                return method.getDeclaringClass() != VirtualEventPresenter.class ? this : NestedVirtualEventSessionConventionContext.INSTANCE;
+                return member.getDeclaringClass() != VirtualEventPresenter.class ? this : NestedVirtualEventSessionConventionContext.INSTANCE;
             case "getPrinter":
-                return method.getDeclaringClass() != PrinterShare.class ? this : NestedPrinterConventionContext.INSTANCE;
+                return member.getDeclaringClass() != PrinterShare.class ? this : NestedPrinterConventionContext.INSTANCE;
             case "getTasks":
-                return method.getDeclaringClass() != PrintTaskDefinition.class ? this : NestedPrintTaskConventionContext.INSTANCE;
+                return member.getDeclaringClass() != PrintTaskDefinition.class ? this : NestedPrintTaskConventionContext.INSTANCE;
             case "getParent":
-                if (method.getDeclaringClass() == ParentLabelDetails.class) {
+                if (member.getDeclaringClass() == ParentLabelDetails.class) {
                     return NestedParentLabelDetailsConventionContext.INSTANCE;
                 }
-                if (method.getDeclaringClass() == com.microsoft.graph.beta.models.security.SensitivityLabel.class) {
+                if (member.getDeclaringClass() == com.microsoft.graph.beta.models.security.SensitivityLabel.class) {
                     return NestedSecuritySensitivityLabelConventionContext.INSTANCE;
                 }
                 return this;
             case "getParentNotebook":
-                return method.getDeclaringClass() != SectionGroup.class ? this : NestedNotebookConventionContext.INSTANCE;
+                return member.getDeclaringClass() != SectionGroup.class ? this : NestedNotebookConventionContext.INSTANCE;
             case "getParentSectionGroup":
-                return method.getDeclaringClass() != SectionGroup.class ? this : NestedSectionGroupConventionContext.INSTANCE;
+                return member.getDeclaringClass() != SectionGroup.class ? this : NestedSectionGroupConventionContext.INSTANCE;
             case "getParentSection":
-                return method.getDeclaringClass() != OnenotePage.class ? this : NestedOnenoteSectionConventionContext.INSTANCE;
+                return member.getDeclaringClass() != OnenotePage.class ? this : NestedOnenoteSectionConventionContext.INSTANCE;
             case "getChildren":
-                if (method.getDeclaringClass() == DriveItem.class) {
+                if (member.getDeclaringClass() == DriveItem.class) {
                     return NestedDriveItemConventionContext.INSTANCE;
                 }
-                if (method.getDeclaringClass() == Term.class || method.getDeclaringClass() == Set.class) {
+                if (member.getDeclaringClass() == Term.class || member.getDeclaringClass() == Set.class) {
                     return NestedTermConventionContext.INSTANCE;
                 }
                 return this;
             case "getSublabels":
-                return method.getDeclaringClass() != SensitivityLabel.class ? this : NestedSensitivityLabelConventionContext.INSTANCE;
+                return member.getDeclaringClass() != SensitivityLabel.class ? this : NestedSensitivityLabelConventionContext.INSTANCE;
             case "getTeamsPublicationInfo":
                 return concreteClass != PlannerTeamsPublicationInfo.class ? this : NestedPlannerTeamsPublicationInfoConventionContext.INSTANCE;
             case "getManagedDevices":
                 return concreteClass != DetectedApp.class ? this : NestedManagedDeviceConventionContext.INSTANCE;
             case "getGroup":
-                return method.getDeclaringClass() != Team.class ? this : NestedGroupConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Team.class ? this : NestedGroupConventionContext.INSTANCE;
             case "getTeam":
-                return method.getDeclaringClass() != TeamInfo.class ? this : NestedTeamConventionContext.INSTANCE;
+                return member.getDeclaringClass() != TeamInfo.class ? this : NestedTeamConventionContext.INSTANCE;
             case "getInReplyTo":
-                return method.getDeclaringClass() != Post.class ? this : NestedPostConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Post.class ? this : NestedPostConventionContext.INSTANCE;
             case "getSites":
-                return method.getDeclaringClass() != Site.class ? this : NestedSiteConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Site.class ? this : NestedSiteConventionContext.INSTANCE;
             case "getSet":
-                return method.getDeclaringClass() != Relation.class ? this : NestedSetConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Relation.class ? this : NestedSetConventionContext.INSTANCE;
             case "getSets":
-                return method.getDeclaringClass() != Group.class ? this : NestedSetConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Group.class ? this : NestedSetConventionContext.INSTANCE;
             case "getParentGroup":
-                return method.getDeclaringClass() != Group.class ? this : NestedGroupConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Group.class ? this : NestedGroupConventionContext.INSTANCE;
             case "getDrive":
-                return method.getDeclaringClass() != List.class ? this : NestedDriveConventionContext.INSTANCE;
+                return member.getDeclaringClass() != List.class ? this : NestedDriveConventionContext.INSTANCE;
             case "getDriveItem":
-                return method.getDeclaringClass() != ItemActivity.class
-                        && method.getDeclaringClass() != ItemActivityOLD.class
-                        && method.getDeclaringClass() != ListItem.class ? this : NestedDriveItemConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ItemActivity.class
+                        && member.getDeclaringClass() != ItemActivityOLD.class
+                        && member.getDeclaringClass() != ListItem.class ? this : NestedDriveItemConventionContext.INSTANCE;
             case "getActivities":
-                return method.getDeclaringClass() != ListItem.class ? this : NestedItemActivityConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ListItem.class ? this : NestedItemActivityConventionContext.INSTANCE;
             case "getWorksheet":
-                return method.getDeclaringClass() != WorkbookChart.class
-                        && method.getDeclaringClass() != WorkbookNamedItem.class
-                        && method.getDeclaringClass() != WorkbookTable.class
-                        && method.getDeclaringClass() != WorkbookPivotTable.class ? this : NestedWorksheetConventionContext.INSTANCE;
+                return member.getDeclaringClass() != WorkbookChart.class
+                        && member.getDeclaringClass() != WorkbookNamedItem.class
+                        && member.getDeclaringClass() != WorkbookTable.class
+                        && member.getDeclaringClass() != WorkbookPivotTable.class ? this : NestedWorksheetConventionContext.INSTANCE;
             case "getSourceColumn":
-                return method.getDeclaringClass() != ColumnDefinition.class ? this : null;
+                return member.getDeclaringClass() != ColumnDefinition.class ? this : null;
             case "getInnerError":
-                return method.getDeclaringClass() != WorkbookOperationError.class ? this : null;
+                return member.getDeclaringClass() != WorkbookOperationError.class ? this : null;
             case "getBase":
             case "getBaseTypes":
-                return method.getDeclaringClass() != ContentType.class ? this : NestedContentTypeConventionContext.INSTANCE;
+                return member.getDeclaringClass() != ContentType.class ? this : NestedContentTypeConventionContext.INSTANCE;
             case "getTerms":
-                return method.getDeclaringClass() != Set.class ? this : NestedTermConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Set.class ? this : NestedTermConventionContext.INSTANCE;
             case "getFromTerm":
             case "getToTerm":
-                return method.getDeclaringClass() != Relation.class ? this : NestedTermConventionContext.INSTANCE;
+                return member.getDeclaringClass() != Relation.class ? this : NestedTermConventionContext.INSTANCE;
             case "getCreatedByUser":
             case "getLastModifiedByUser":
-                return method.getDeclaringClass() != BaseItem.class ? this : NestedUserConventionContext.INSTANCE;
+                return member.getDeclaringClass() != BaseItem.class ? this : NestedUserConventionContext.INSTANCE;
             default:
                 return this;
         }
@@ -190,8 +190,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedUserConventionContext INSTANCE = new NestedUserConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -209,8 +209,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedTermConventionContext INSTANCE = new NestedTermConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -228,8 +228,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedDriveItemConventionContext INSTANCE = new NestedDriveItemConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -247,8 +247,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedContactFolderConventionContext INSTANCE = new NestedContactFolderConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -266,8 +266,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedUserActivityConventionContext INSTANCE = new NestedUserActivityConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -285,8 +285,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedCalendarConventionContext INSTANCE = new NestedCalendarConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -304,8 +304,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedEventConventionContext INSTANCE = new NestedEventConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -323,8 +323,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedChatMessageConventionContext INSTANCE = new NestedChatMessageConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -342,8 +342,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedWorksheetConventionContext INSTANCE = new NestedWorksheetConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -361,8 +361,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedSetConventionContext INSTANCE = new NestedSetConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -380,8 +380,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedGroupConventionContext INSTANCE = new NestedGroupConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -399,8 +399,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedContentTypeConventionContext INSTANCE = new NestedContentTypeConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -418,8 +418,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedDriveConventionContext INSTANCE = new NestedDriveConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -437,8 +437,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedNotebookConventionContext INSTANCE = new NestedNotebookConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -456,8 +456,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedSectionGroupConventionContext INSTANCE = new NestedSectionGroupConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -475,8 +475,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedOnenoteSectionConventionContext INSTANCE = new NestedOnenoteSectionConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -494,8 +494,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedSiteConventionContext INSTANCE = new NestedSiteConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -513,8 +513,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedTeamConventionContext INSTANCE = new NestedTeamConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -532,8 +532,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedPostConventionContext INSTANCE = new NestedPostConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -551,8 +551,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedMailFolderConventionContext INSTANCE = new NestedMailFolderConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -570,8 +570,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedPrinterConventionContext INSTANCE = new NestedPrinterConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -589,8 +589,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedPrintTaskConventionContext INSTANCE = new NestedPrintTaskConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -608,8 +608,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedApplicationConventionContext INSTANCE = new NestedApplicationConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -627,8 +627,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedConnectorConventionContext INSTANCE = new NestedConnectorConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -646,8 +646,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedItemActivityConventionContext INSTANCE = new NestedItemActivityConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -665,8 +665,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedParentLabelDetailsConventionContext INSTANCE = new NestedParentLabelDetailsConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -684,8 +684,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedSensitivityLabelConventionContext INSTANCE = new NestedSensitivityLabelConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -703,8 +703,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedPlannerTeamsPublicationInfoConventionContext INSTANCE = new NestedPlannerTeamsPublicationInfoConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -722,8 +722,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedManagedDeviceConventionContext INSTANCE = new NestedManagedDeviceConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -741,8 +741,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedAccessReviewInstanceConventionContext INSTANCE = new NestedAccessReviewInstanceConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -760,8 +760,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedSecuritySensitivityLabelConventionContext INSTANCE = new NestedSecuritySensitivityLabelConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;
@@ -779,8 +779,8 @@ public class AzureGraphConventionContext implements ConventionContext {
         private static final NestedVirtualEventSessionConventionContext INSTANCE = new NestedVirtualEventSessionConventionContext();
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch ( method.getName() ) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch ( member.getName() ) {
                 case "getFieldDeserializers":
                 case "getBackingStore":
                     return null;

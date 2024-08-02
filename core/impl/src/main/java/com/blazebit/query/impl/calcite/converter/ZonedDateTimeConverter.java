@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.gitlab;
+package com.blazebit.query.impl.calcite.converter;
 
-import com.blazebit.query.spi.DataFetcherConfig;
-import org.gitlab4j.api.GitLabApi;
+import java.time.ZonedDateTime;
 
 /**
- * The configuration properties for the Gitlab connector.
+ * Converter for an {@link ZonedDateTime} value.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GitlabConnectorConfig {
-
+public class ZonedDateTimeConverter implements Converter<ZonedDateTime, Long> {
     /**
-     * Specifies the {@link GitLabApi} to use for querying data.
+     * The {@link ZonedDateTime} converter.
      */
-    public static final DataFetcherConfig<GitLabApi> GITLAB_API = DataFetcherConfig.forPropertyName( "gitlabApi" );
+    public static final ZonedDateTimeConverter INSTANCE = new ZonedDateTimeConverter();
 
-    private GitlabConnectorConfig() {
+    private ZonedDateTimeConverter() {
+    }
+
+    @Override
+    public Long convert(ZonedDateTime o) {
+        if (o == null) {
+            return null;
+        }
+        return o.toInstant().toEpochMilli();
     }
 }

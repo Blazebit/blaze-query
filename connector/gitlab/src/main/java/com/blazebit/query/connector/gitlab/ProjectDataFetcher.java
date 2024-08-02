@@ -45,8 +45,12 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
         try {
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
             List<Project> list = new ArrayList<>();
-            for ( GitLabApi gitLabApi : gitlabApis) {
-                list.addAll(gitLabApi.getProjectApi().getMemberProjects());
+            for (GitLabApi gitLabApi : gitlabApis) {
+                if (gitLabApi.getGitLabServerUrl().startsWith(GitlabConventionContext.GITLAB_HOST)) {
+                    list.addAll(gitLabApi.getProjectApi().getMemberProjects());
+                } else {
+                    list.addAll(gitLabApi.getProjectApi().getProjects());
+                }
             }
             return list;
         } catch (GitLabApiException | RuntimeException e) {

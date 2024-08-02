@@ -48,6 +48,7 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerCo
 import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
+import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
@@ -62,7 +63,6 @@ import jakarta.persistence.Persistence;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Group;
 import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.ProtectedBranch;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -89,6 +89,7 @@ public class Main {
     private static final String AWS_REGION = "";
     private static final String AWS_ACCESS_KEY_ID = "";
     private static final String AWS_SECRET_ACCESS_KEY = "";
+    private static final String GITLAB_HOST = "";
     private static final String GITLAB_KEY = "";
 
     private Main() {
@@ -111,7 +112,7 @@ public class Main {
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
             queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
             queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
+//            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
             queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
@@ -160,16 +161,16 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(ProjectMember.class, "GitlabProjectMember");
             queryContextBuilder.registerSchemaObjectAlias(GroupMember.class, "GitlabGroupMember");
             queryContextBuilder.registerSchemaObjectAlias(org.gitlab4j.api.models.User.class, "GitlabUser");
-            queryContextBuilder.registerSchemaObjectAlias(ProtectedBranch.class, "GitlabProtectedBranch");
+            queryContextBuilder.registerSchemaObjectAlias(ProjectProtectedBranch.class, "GitlabProjectProtectedBranch");
 
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
 //                    testAws( session );
-                    testGitlab( session );
+//                    testGitlab( session );
 //                    testEntityView( session );
-//                    testAzureGraph( session );
-//                    testAzureResourceManager( session );
+                    testAzureGraph( session );
+                    testAzureResourceManager( session );
 //                    testAzureOpenAPI( session );
                 }
             }
@@ -179,99 +180,99 @@ public class Main {
     private static void testAws(QuerySession session) {
         // IAM
         TypedQuery<Object[]> awsUserQuery = session.createQuery(
-                "select u.* from AwsUser u", Object[].class );
+                "select u.* from AwsUser u" );
         List<Object[]> awsUserResult = awsUserQuery.getResultList();
         System.out.println("AwsUsers");
         print(awsUserResult);
 
         // EC2
         TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
-                "select i.* from AwsInstance i", Object[].class );
+                "select i.* from AwsInstance i" );
         List<Object[]> awsInstanceResult = awsInstanceQuery.getResultList();
         System.out.println("AwsInstances");
         print(awsInstanceResult);
 
         TypedQuery<Object[]> awsVolumeQuery = session.createQuery(
-                "select v.* from AwsVolume v", Object[].class );
+                "select v.* from AwsVolume v" );
         List<Object[]> awsVolumeResult = awsVolumeQuery.getResultList();
         System.out.println("AwsVolumes");
         print(awsVolumeResult);
 
         TypedQuery<Object[]> awsVpcQuery = session.createQuery(
-                "select v.* from AwsVpc v", Object[].class );
+                "select v.* from AwsVpc v" );
         List<Object[]> awsVpcResult = awsVpcQuery.getResultList();
         System.out.println("AwsVpcs");
         print(awsVpcResult);
 
         TypedQuery<Object[]> awsSecurityGroupQuery = session.createQuery(
-                "select g.* from AwsSecurityGroup g", Object[].class );
+                "select g.* from AwsSecurityGroup g" );
         List<Object[]> awsSecurityGroupResult = awsSecurityGroupQuery.getResultList();
         System.out.println("AwsSecurityGroups");
         print(awsSecurityGroupResult);
 
         TypedQuery<Object[]> awsNetworkAclQuery = session.createQuery(
-                "select g.* from AwsNetworkAcl g", Object[].class );
+                "select g.* from AwsNetworkAcl g" );
         List<Object[]> awsNetworkAclResult = awsNetworkAclQuery.getResultList();
         System.out.println("AwsNetworkAcls");
         print(awsNetworkAclResult);
 
         // RDS
         TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
-                "select i.* from AwsDBInstance i", Object[].class );
+                "select i.* from AwsDBInstance i" );
         List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
         System.out.println("AwsDbInstances");
         print(awsDbInstanceResult);
 
         // EFS
         TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
-                "select f.* from AwsFileSystem f", Object[].class );
+                "select f.* from AwsFileSystem f" );
         List<Object[]> awsFileSystemResult = awsFileSystemQuery.getResultList();
         System.out.println("AwsFileSystems");
         print(awsFileSystemResult);
 
         // ECR
         TypedQuery<Object[]> awsRepositoryQuery = session.createQuery(
-                "select f.* from AwsRepository f", Object[].class );
+                "select f.* from AwsRepository f" );
         List<Object[]> awsRepositoryResult = awsRepositoryQuery.getResultList();
         System.out.println("AwsRepositories");
         print(awsRepositoryResult);
 
         // ECS
         TypedQuery<Object[]> awsClusterQuery = session.createQuery(
-                "select f.* from AwsCluster f", Object[].class );
+                "select f.* from AwsCluster f" );
         List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
         System.out.println("AwsClusters");
         print(awsClusterResult);
 
         // ELB
         TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
-                "select f.* from AwsLoadBalancer f", Object[].class );
+                "select f.* from AwsLoadBalancer f" );
         List<Object[]> awsLoadBalancerResult = awsLoadBalancerQuery.getResultList();
         System.out.println("AwsLoadBalancers");
         print(awsLoadBalancerResult);
 
         // Lambda
         TypedQuery<Object[]> awsFunctionsQuery = session.createQuery(
-                "select f.* from AwsFunction f", Object[].class );
+                "select f.* from AwsFunction f" );
         List<Object[]> awsFunctionsResult = awsFunctionsQuery.getResultList();
         System.out.println("AwsFunctions");
         print(awsFunctionsResult);
 
         // Route53
         TypedQuery<Object[]> awsHostedZoneQuery = session.createQuery(
-                "select f.* from AwsHostedZone f", Object[].class );
+                "select f.* from AwsHostedZone f" );
         List<Object[]> awsHostedZoneResult = awsHostedZoneQuery.getResultList();
         System.out.println("AwsHostedZones");
         print(awsHostedZoneResult);
         TypedQuery<Object[]> awsHealthCheckQuery = session.createQuery(
-                "select f.* from AwsHealthCheck f", Object[].class );
+                "select f.* from AwsHealthCheck f" );
         List<Object[]> awsHealthCheckResult = awsHealthCheckQuery.getResultList();
         System.out.println("AwsHealthChecks");
         print(awsHealthCheckResult);
 
         // S3
         TypedQuery<Object[]> awsBucketQuery = session.createQuery(
-                "select f.* from AwsBucket f", Object[].class );
+                "select f.* from AwsBucket f" );
         List<Object[]> awsBucketResult = awsBucketQuery.getResultList();
         System.out.println("AwsBuckets");
         print(awsBucketResult);
@@ -304,7 +305,7 @@ public class Main {
         System.out.println("GitlabUsers");
         print(gitlabUserResult);
         TypedQuery<Object[]> gitlabProtectedBranchQuery = session.createQuery(
-                "select p.* from GitlabProtectedBranch p" );
+                "select p.* from GitlabProjectProtectedBranch p" );
         List<Object[]> gitlabProtectedBranchResult = gitlabProtectedBranchQuery.getResultList();
         System.out.println("GitlabProtectedBranches");
         print(gitlabProtectedBranchResult);
@@ -319,25 +320,31 @@ public class Main {
 
     private static void testAzureGraph(QuerySession session) {
         TypedQuery<Object[]> userQuery = session.createQuery(
-                "select u.* from AzureUser u", Object[].class );
+                "select u.* from AzureUser u" );
         List<Object[]> userResult = userQuery.getResultList();
         System.out.println("User");
         print(userResult);
 
         TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-                "select c.* from AzureConditionalAccessPolicy c", Object[].class );
+                "select c.* from AzureConditionalAccessPolicy c" );
         List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
         System.out.println("Conditional access policies");
         print(conditionalAccessPolicyResult);
 
         TypedQuery<Object[]> applicationQuery = session.createQuery(
-                "select a.* from AzureApplication a", Object[].class );
+                "select a.* from AzureApplication a" );
         List<Object[]> applicationResult = applicationQuery.getResultList();
         System.out.println("Applications");
         print(applicationResult);
     }
 
     private static void testAzureResourceManager(QuerySession session) {
+        TypedQuery<Object[]> vmQuery1 = session.createQuery(
+                "select vm.* from AzureVirtualMachine vm where vm.storageProfile.osDisk.osType <> 'Linux'" );
+        List<Object[]> vmResult1 = vmQuery1.getResultList();
+        System.out.println("Non Linux VMs");
+        print(vmResult1);
+
         TypedQuery<Object[]> vmQuery2 = session.createQuery(
                 "select vm.* from AzureVirtualMachine vm where vm.osProfile.linuxConfiguration.disablePasswordAuthentication = false" );
         List<Object[]> vmResult2 = vmQuery2.getResultList();
@@ -345,7 +352,7 @@ public class Main {
         print(vmResult2);
 
         TypedQuery<Object[]> storageAccountsQuery2 = session.createQuery(
-                "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)", Object[].class );
+                "select sa.* from AzureStorageAccount sa where exists (select 1 from AzureBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.versioningEnabled)" );
         List<Object[]> storageAccountsResult2 = storageAccountsQuery2.getResultList();
         System.out.println("StorageAccounts");
         print(storageAccountsResult2);
@@ -359,7 +366,7 @@ public class Main {
         print(vmResult1);
 
         TypedQuery<Object[]> storageAccountsQuery1 = session.createQuery(
-                "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)", Object[].class );
+                "select sa.* from OpenAPIStorageAccount sa where exists (select 1 from OpenAPIBlobServiceProperties bs where bs.id like sa.id || '/%' and bs.properties.isVersioningEnabled)" );
         List<Object[]> storageAccountsResult1 = storageAccountsQuery1.getResultList();
         System.out.println("StorageAccounts");
         print(storageAccountsResult1);
@@ -373,7 +380,11 @@ public class Main {
     }
 
     private static GitLabApi createGitlabApi() {
-        return new GitLabApi("https://gitlab.com/", GITLAB_KEY);
+        final GitLabApi gitLabApi = new GitLabApi( GITLAB_HOST, GITLAB_KEY );
+        if ( !GITLAB_HOST.startsWith( "https://gitlab.com" )) {
+            gitLabApi.setIgnoreCertificateErrors( true );
+        }
+        return gitLabApi;
     }
 
     private static String name(Class<?> clazz) {

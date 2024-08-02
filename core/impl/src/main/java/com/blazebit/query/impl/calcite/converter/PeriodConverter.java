@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.gitlab;
+package com.blazebit.query.impl.calcite.converter;
 
-import com.blazebit.query.spi.DataFetcherConfig;
-import org.gitlab4j.api.GitLabApi;
+import java.time.Period;
 
 /**
- * The configuration properties for the Gitlab connector.
+ * Converter for an {@link Period} value.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GitlabConnectorConfig {
-
+public class PeriodConverter implements Converter<Period, Integer> {
     /**
-     * Specifies the {@link GitLabApi} to use for querying data.
+     * The {@link Period} converter.
      */
-    public static final DataFetcherConfig<GitLabApi> GITLAB_API = DataFetcherConfig.forPropertyName( "gitlabApi" );
+    public static final PeriodConverter INSTANCE = new PeriodConverter();
 
-    private GitlabConnectorConfig() {
+    private PeriodConverter() {
+    }
+
+    @Override
+    public Integer convert(Period o) {
+        if (o == null) {
+            return null;
+        }
+
+        return (int) o.toTotalMonths();
     }
 }

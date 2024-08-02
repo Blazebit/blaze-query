@@ -16,7 +16,7 @@
 
 package com.blazebit.query.connector.gitlab;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 import com.blazebit.query.connector.base.ConventionContext;
 import org.gitlab4j.api.models.Project;
@@ -30,13 +30,14 @@ import org.gitlab4j.api.models.Project;
 public class GitlabConventionContext implements ConventionContext {
 
     public static final ConventionContext INSTANCE = new GitlabConventionContext();
+    public static final String GITLAB_HOST = "https://gitlab.com";
 
     private GitlabConventionContext() {
     }
 
     @Override
-    public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-        switch (method.getName()) {
+    public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+        switch (member.getName()) {
             case "getForkedFromProject":
                 return concreteClass == Project.class ? NestedProjectConventionContext.INSTANCE : this;
             default:
@@ -52,8 +53,8 @@ public class GitlabConventionContext implements ConventionContext {
         }
 
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
-            switch (method.getName()) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+            switch (member.getName()) {
                 case "getId":
                     return this;
                 default:

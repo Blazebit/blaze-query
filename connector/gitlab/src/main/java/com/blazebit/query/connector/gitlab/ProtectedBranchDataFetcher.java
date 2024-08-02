@@ -34,7 +34,7 @@ import org.gitlab4j.api.models.ProtectedBranch;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ProtectedBranchDataFetcher implements DataFetcher<ProtectedBranch>, Serializable {
+public class ProtectedBranchDataFetcher implements DataFetcher<ProjectProtectedBranch>, Serializable {
 
     public static final ProtectedBranchDataFetcher INSTANCE = new ProtectedBranchDataFetcher();
 
@@ -42,13 +42,15 @@ public class ProtectedBranchDataFetcher implements DataFetcher<ProtectedBranch>,
     }
 
     @Override
-    public List<ProtectedBranch> fetch(DataFetchContext context) {
+    public List<ProjectProtectedBranch> fetch(DataFetchContext context) {
         try {
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
-            List<ProtectedBranch> list = new ArrayList<>();
-            for ( GitLabApi gitLabApi : gitlabApis) {
-                for ( Project project : context.getSession().get( Project.class ) ) {
-                    list.addAll(gitLabApi.getProtectedBranchesApi().getProtectedBranches(project.getId()));
+            List<ProjectProtectedBranch> list = new ArrayList<>();
+            for (GitLabApi gitLabApi : gitlabApis) {
+                for (Project project : context.getSession().get(Project.class)) {
+                    for (ProtectedBranch protectedBranch : gitLabApi.getProtectedBranchesApi().getProtectedBranches(project.getId())) {
+                        list.add(new ProjectProtectedBranch(protectedBranch, project));
+                    }
                 }
             }
             return list;
@@ -59,6 +61,6 @@ public class ProtectedBranchDataFetcher implements DataFetcher<ProtectedBranch>,
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(ProtectedBranch.class, GitlabConventionContext.INSTANCE);
+        return DataFormats.beansConvention(ProjectProtectedBranch.class, GitlabConventionContext.INSTANCE);
     }
 }

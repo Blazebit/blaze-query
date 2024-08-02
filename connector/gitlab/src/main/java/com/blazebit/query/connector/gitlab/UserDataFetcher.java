@@ -18,7 +18,9 @@ package com.blazebit.query.connector.gitlab;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -43,16 +45,23 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
     @Override
     public List<User> fetch(DataFetchContext context) {
         try {
-            Boolean fetchAll = GitlabConnectorConfig.FETCH_ALL_USERS.find(context);
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll(context);
             List<User> list = new ArrayList<>();
             for (GitLabApi gitLabApi : gitlabApis) {
-                if (fetchAll == Boolean.TRUE) {
-                    list.addAll(gitLabApi.getUserApi().getUsers());
-                } else {
+                if (gitLabApi.getGitLabServerUrl().startsWith(GitlabConventionContext.GITLAB_HOST)) {
+                    Set<Long> memberIds = new HashSet<>();
                     for (ProjectMember member : context.getSession().get(ProjectMember.class)) {
-                        list.add(gitLabApi.getUserApi().getUser(member.getId()));
+                        if (memberIds.add(member.getId())) {
+                            list.add(gitLabApi.getUserApi().getUser(member.getId()));
+                        }
                     }
+                    for (GroupMember member : context.getSession().get(GroupMember.class)) {
+                        if (memberIds.add(member.getId())) {
+                            list.add(gitLabApi.getUserApi().getUser(member.getId()));
+                        }
+                    }
+                } else {
+                    list.addAll(gitLabApi.getUserApi().getUsers());
                 }
             }
             return list;

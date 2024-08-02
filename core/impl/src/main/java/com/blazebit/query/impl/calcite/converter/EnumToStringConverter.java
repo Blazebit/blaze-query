@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.gitlab;
-
-import com.blazebit.query.spi.DataFetcherConfig;
-import org.gitlab4j.api.GitLabApi;
+package com.blazebit.query.impl.calcite.converter;
 
 /**
- * The configuration properties for the Gitlab connector.
+ * Converter for a custom {@code enum} that uses {@code toString()} for conversion.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GitlabConnectorConfig {
-
+public class EnumToStringConverter implements Converter<Object, String> {
     /**
-     * Specifies the {@link GitLabApi} to use for querying data.
+     * Creates a new {@code enum} converter.
      */
-    public static final DataFetcherConfig<GitLabApi> GITLAB_API = DataFetcherConfig.forPropertyName( "gitlabApi" );
+    public static final EnumToStringConverter INSTANCE = new EnumToStringConverter();
 
-    private GitlabConnectorConfig() {
+    private EnumToStringConverter() {
+    }
+
+    @Override
+    public String convert(Object o) {
+        if (o == null) {
+            return null;
+        }
+        return o.toString();
     }
 }

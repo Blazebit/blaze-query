@@ -16,7 +16,7 @@
 
 package com.blazebit.query.connector.base;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,7 +41,7 @@ public interface ConventionContext {
      */
     ConventionContext NO_FILTER = new ConventionContext() {
         @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Method method) {
+        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
             return this;
         }
     };
@@ -51,11 +51,11 @@ public interface ConventionContext {
      * A {@code null} return means that the attribute identified by the given method should be filtered.
      *
      * @param concreteClass The concrete class for which this method should be checked
-     * @param method The method for an attribute that should be checked
+     * @param member The member for an attribute that should be checked
      *
      * @return The sub-filter to use or {@code null} if the attribute for this method should be filtered.
      */
-    ConventionContext getSubFilter(Class<?> concreteClass, Method method);
+    ConventionContext getSubFilter(Class<?> concreteClass, Member member);
 
     /**
      * Returns whether the given class is a basic type.
@@ -64,7 +64,7 @@ public interface ConventionContext {
      * @return whether the given class is a basic type
      */
     default boolean isBaseType(Class<?> typeClass) {
-        return typeClass.isEnum()
+        return isEnumType(typeClass)
                 || JavaToSqlTypeConversionRules.instance().lookup(typeClass) != null
                 || typeClass == Object.class
                 || typeClass == Instant.class
@@ -78,6 +78,16 @@ public interface ConventionContext {
                 || typeClass == Period.class
                 || typeClass == UUID.class
                 ;
+    }
+
+    /**
+     * Returns whether the given class is an enum type.
+     *
+     * @param typeClass The class to check
+     * @return whether the given class is an enum type
+     */
+    default boolean isEnumType(Class<?> typeClass) {
+        return typeClass.isEnum();
     }
 
 }

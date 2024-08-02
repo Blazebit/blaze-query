@@ -23,7 +23,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import org.gitlab4j.api.models.Group;
 import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.ProtectedBranch;
 import org.gitlab4j.api.models.User;
 
 /**
@@ -47,7 +46,7 @@ public final class GitlabSchemaProvider implements QuerySchemaProvider {
                 Group.class, GroupDataFetcher.INSTANCE,
                 ProjectMember.class, ProjectMemberDataFetcher.INSTANCE,
                 GroupMember.class, GroupMemberDataFetcher.INSTANCE,
-                ProtectedBranch.class, ProtectedBranchDataFetcher.INSTANCE
+                ProjectProtectedBranch.class, ProtectedBranchDataFetcher.INSTANCE
         );
     }
 }

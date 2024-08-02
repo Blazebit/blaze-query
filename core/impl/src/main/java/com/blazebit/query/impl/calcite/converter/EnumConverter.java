@@ -16,41 +16,26 @@
 
 package com.blazebit.query.impl.calcite.converter;
 
-import com.blazebit.query.spi.DataFormatFieldAccessor;
-
 /**
- * Accessor for obtaining a field value from a source object.
+ * Converter for an {@link Enum} value.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AccessorConverter<Source, Target> implements Converter<Source, Target> {
-    private final DataFormatFieldAccessor accessor;
-
+public class EnumConverter implements Converter<Enum<?>, String> {
     /**
-     * Creates a converter based on an accessor.
-     *
-     * @param accessor The accessor to obtain the object for field
+     * Creates a new {@link Enum} converter.
      */
-    public AccessorConverter(DataFormatFieldAccessor accessor) {
-        this.accessor = accessor;
-    }
+    public static final EnumConverter INSTANCE = new EnumConverter();
 
-    /**
-     * Returns the field accessor.
-     *
-     * @return the field accessor
-     */
-    public DataFormatFieldAccessor getAccessor() {
-        return accessor;
+    private EnumConverter() {
     }
 
     @Override
-    public Target convert(Source o) {
+    public String convert(Enum<?> o) {
         if (o == null) {
             return null;
         }
-        //noinspection unchecked
-        return (Target) accessor.get( o );
+        return o.name();
     }
 }
