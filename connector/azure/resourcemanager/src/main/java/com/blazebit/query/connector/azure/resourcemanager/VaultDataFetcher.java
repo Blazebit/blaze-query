@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.resourcemanager;
 
+import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.List;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
 import com.azure.resourcemanager.keyvault.models.Vault;
-import com.azure.resourcemanager.resources.models.ResourceGroup;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -47,7 +47,8 @@ public class VaultDataFetcher implements DataFetcher<VaultInner>, Serializable {
             List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll( context);
             List<VaultInner> list = new ArrayList<>();
             for (AzureResourceManager resourceManager : resourceManagers) {
-                for (ResourceGroup resourceGroup : context.getSession().getOrFetch(ResourceGroup.class)) {
+                for (ResourceGroupInner resourceGroup : context.getSession().getOrFetch(
+                    ResourceGroupInner.class)) {
                     for (Vault vault : resourceManager.vaults().listByResourceGroup(resourceGroup.name())) {
                         list.add(vault.innerModel());
                     }
