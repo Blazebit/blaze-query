@@ -117,9 +117,16 @@ public class EntityViewTable<EntityView> implements ProjectableDataFetcher<Entit
     }
 
     private static DataFormat createFormat(Type<?> type) {
-        return type.getMappingType() == Type.MappingType.BASIC
-                ? DataFormat.of( type.getJavaType(), Collections.emptyList() )
-                : createFormat( (ManagedViewType<?>) type );
+        if ( type.getMappingType() == Type.MappingType.BASIC ) {
+            if ( type.getJavaType().isEnum() ) {
+                return DataFormat.enumType(type.getJavaType());
+            }
+            return DataFormat.of(
+                    type.getJavaType(),
+                    Collections.emptyList()
+            );
+        }
+        return createFormat( (ManagedViewType<?>) type );
     }
 
     @Override
