@@ -225,15 +225,6 @@ public class QueryContextImpl implements QueryContext {
         }
     }
 
-    private static Object[] extractTuple(ResultSet resultSet) throws SQLException {
-        int columnCount = resultSet.getMetaData().getColumnCount();
-        Object[] tuple = new Object[columnCount];
-        for ( int i = 0; i < tuple.length; i++ ) {
-            tuple[i] = resultSet.getObject( i + 1 );
-        }
-        return tuple;
-    }
-
     @Override
     public <T> T unwrap(Class<T> cls) {
         checkClosed();
