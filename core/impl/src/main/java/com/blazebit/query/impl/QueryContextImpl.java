@@ -162,12 +162,22 @@ public class QueryContextImpl implements QueryContext {
             } catch (SQLException e) {
                 throw new QueryException( "Couldn't access result set metadata", e, query.getQueryString() );
             }
-        } else {
+
+            if (query.getResultClass() == Map.class) {
+                try {
+                    return (ResultExtractor<T>) new MapExtractor(
+                        resultSet.getMetaData().getColumnCount());
+                } catch (SQLException e) {
+                    throw new QueryException("Couldn't access result set metadata", e,
+                        query.getQueryString());
+                }
+            }
+
             return SingleObjectExtractor.INSTANCE;
         }
     }
 
-    private static interface ResultExtractor<T> {
+    private interface ResultExtractor<T> {
         T extract(ResultSet resultSet) throws SQLException;
     }
 
@@ -185,6 +195,24 @@ public class QueryContextImpl implements QueryContext {
                 tuple[i] = resultSet.getObject( i + 1 );
             }
             return tuple;
+        }
+    }
+
+    private static class MapExtractor implements ResultExtractor<Map> {
+
+        private final int columnCount;
+
+        public MapExtractor(int columnCount) {
+            this.columnCount = columnCount;
+        }
+
+        @Override
+        public Map<String, Object> extract(ResultSet resultSet) throws SQLException {
+            Map<String, Object> map = new HashMap<>();
+            for (int i = 0; i < columnCount; i++) {
+                map.put(resultSet.getMetaData().getColumnLabel(i + 1), resultSet.getObject(i + 1));
+            }
+            return map;
         }
     }
 
