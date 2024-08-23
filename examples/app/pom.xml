@@ -160,6 +160,11 @@
             <artifactId>blaze-query-connector-gitlab</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>blaze-query-connector-github</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
