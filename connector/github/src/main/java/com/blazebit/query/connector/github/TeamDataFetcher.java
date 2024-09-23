@@ -44,7 +44,7 @@ public class TeamDataFetcher implements DataFetcher<GHTeam>, Serializable {
     public List<GHTeam> fetch(DataFetchContext context) {
         try {
             List<GHTeam> list = new ArrayList<>();
-            for (GHOrganization organization : context.getSession().get(GHOrganization.class)) {
+            for (GHOrganization organization : context.getSession().getOrFetch(GHOrganization.class)) {
                 list.addAll(organization.listTeams().toList());
             }
             return list;

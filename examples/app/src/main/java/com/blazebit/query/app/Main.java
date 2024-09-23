@@ -16,7 +16,16 @@
 package com.blazebit.query.app;
 
 import java.io.IOException;
+
+import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
+import com.blazebit.query.connector.github.v0314.model.ShortBranch;
+import com.blazebit.query.connector.github.v0314.model.Team;
+import com.blazebit.query.connector.kandji.DeviceParameter;
+import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
+import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
+import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.microsoft.graph.beta.models.ManagedDevice;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +52,8 @@ import com.blazebit.query.TypedQuery;
 //import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
 //import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
-import com.blazebit.query.connector.github.GithubConnectorConfig;
-import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
@@ -102,6 +107,8 @@ public class Main {
     private static final String GITLAB_HOST = "";
     private static final String GITLAB_KEY = "";
     private static final String GITHUB_KEY = "";
+    private static final String KANDJI_BASE_PATH = "";
+    private static final String KANDJI_KEY = "";
 
     private Main() {
     }
@@ -126,7 +133,9 @@ public class Main {
 //            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
 //            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
+//            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
+//            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
+//            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
@@ -183,12 +192,26 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(GHProject.class, "GitHubProject");
             queryContextBuilder.registerSchemaObjectAlias(GHTeam.class, "GitHubTeam");
 
+            // GitHub OpenAPI
+            queryContextBuilder.registerSchemaObjectAlias(OrganizationSimple.class, "OpenAPIGitHubOrganization");
+            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Repository.class, "OpenAPIGitHubRepository");
+            queryContextBuilder.registerSchemaObjectAlias(ShortBranch.class, "OpenAPIGitHubBranch");
+            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Project.class, "OpenAPIGitHubProject");
+            queryContextBuilder.registerSchemaObjectAlias(Team.class, "OpenAPIGitHubTeam");
+
+            // Kandji
+            queryContextBuilder.registerSchemaObjectAlias(ListDevices200ResponseInner.class, "KandjiDevice");
+            queryContextBuilder.registerSchemaObjectAlias(DeviceParameter.class, "KandjiDeviceParameter");
+            queryContextBuilder.registerSchemaObjectAlias(GetDeviceDetails200Response.class, "KandjiDeviceDetail");
+
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
 //                    testAws( session );
 //                    testGitlab( session );
-                    testGitHub( session );
+//                    testGitHub( session );
+//                    testGitHubOpenAPI( session );
+                    testKandji( session );
 //                    testEntityView( session );
 //                    testAzureGraph( session );
 //                    testAzureResourceManager( session );
@@ -360,6 +383,52 @@ public class Main {
         print(gitHubTeamResult);
     }
 
+    private static void testGitHubOpenAPI(QuerySession session) {
+        TypedQuery<Object[]> gitHubOrganizationQuery = session.createQuery(
+                "select p.* from OpenAPIGitHubOrganization p" );
+        List<Object[]> gitHubOrganizationResult = gitHubOrganizationQuery.getResultList();
+        System.out.println("OpenAPIGitHubOrganizations");
+        print(gitHubOrganizationResult);
+        TypedQuery<Object[]> gitHubRepositoryQuery = session.createQuery(
+                "select p.* from OpenAPIGitHubRepository p" );
+        List<Object[]> gitHubRepositoryResult = gitHubRepositoryQuery.getResultList();
+        System.out.println("OpenAPIGitHubRepositories");
+        print(gitHubRepositoryResult);
+        TypedQuery<Object[]> gitHubBranchQuery = session.createQuery(
+                "select p.* from OpenAPIGitHubBranch p" );
+        List<Object[]> gitHubBranchResult = gitHubBranchQuery.getResultList();
+        System.out.println("OpenAPIGitHubBranches");
+        print(gitHubBranchResult);
+        TypedQuery<Object[]> gitHubProjectQuery = session.createQuery(
+                "select p.* from OpenAPIGitHubProject p" );
+        List<Object[]> gitHubProjectResult = gitHubProjectQuery.getResultList();
+        System.out.println("OpenAPIGitHubProjects");
+        print(gitHubProjectResult);
+        TypedQuery<Object[]> gitHubTeamQuery = session.createQuery(
+                "select p.* from OpenAPIGitHubTeam p" );
+        List<Object[]> gitHubTeamResult = gitHubTeamQuery.getResultList();
+        System.out.println("OpenAPIGitHubTeams");
+        print(gitHubTeamResult);
+    }
+
+    private static void testKandji(QuerySession session) {
+        TypedQuery<Object[]> kandjiDeviceQuery = session.createQuery(
+                "select p.* from KandjiDevice p" );
+        List<Object[]> kandjiDeviceResult = kandjiDeviceQuery.getResultList();
+        System.out.println("KandjiDevice");
+        print(kandjiDeviceResult);
+        TypedQuery<Object[]> kandjiDeviceParameterQuery = session.createQuery(
+                "select p.* from KandjiDeviceParameter p" );
+        List<Object[]> kandjiDeviceParameterResult = kandjiDeviceParameterQuery.getResultList();
+        System.out.println("KandjiDeviceParameter");
+        print(kandjiDeviceParameterResult);
+        TypedQuery<Object[]> kandjiDeviceDetailQuery = session.createQuery(
+                "select p.* from KandjiDeviceDetail p" );
+        List<Object[]> kandjiDeviceDetailResult = kandjiDeviceDetailQuery.getResultList();
+        System.out.println("KandjiDeviceDetail");
+        print(kandjiDeviceDetailResult);
+    }
+
     private static void testEntityView(QuerySession session) {
         TypedQuery<Object[]> entityViewQuery = session.createQuery(
                 "select t.id, e.text1 from " + name(TestEntityView.class) + " t, unnest(t.elements) e" );
@@ -443,13 +512,31 @@ public class Main {
     }
 
     private static GitHub createGithub() {
-		try {
-			return new GitHubBuilder().withOAuthToken( GITHUB_KEY ).build();
-		}
-		catch (IOException e) {
-			throw new RuntimeException( e );
-		}
-	}
+        try {
+            return new GitHubBuilder().withOAuthToken( GITHUB_KEY ).build();
+        } catch (IOException e) {
+            throw new RuntimeException( e );
+        }
+    }
+
+    private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
+        com.blazebit.query.connector.github.v0314.invoker.ApiClient apiClient = new com.blazebit.query.connector.github.v0314.invoker.ApiClient();
+        apiClient.addDefaultHeader( "Authorization", "Bearer " + GITHUB_KEY );
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return apiClient;
+    }
+
+    private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
+        com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth( "Bearer" );
+        auth.setBearerToken( KANDJI_KEY );
+        com.blazebit.query.connector.kandji.invoker.ApiClient apiClient = new com.blazebit.query.connector.kandji.invoker.ApiClient(
+                Map.of("bearerAuth", auth )
+        );
+        apiClient.setBasePath( KANDJI_BASE_PATH );
+        apiClient.getJSON().getMapper().registerModule(new KandjiJavaTimeModule());
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return apiClient;
+    }
 
     private static String name(Class<?> clazz) {
         String name = clazz.getName();
@@ -498,13 +585,13 @@ public class Main {
         }
     }
 
-//    private static ApiClient createApiClient() {
+//    private static import com.blazebit.query.connector.azure.base.invoker.ApiClient createApiClient() {
 //        String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
 //        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
 //                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
 //                // Default scope
 //                .setScope("https://management.core.windows.net//.default");
-//        ApiClient apiClient = new ApiClient(Map.of("azure_auth", oAuth));
+//        import com.blazebit.query.connector.azure.base.invoker.ApiClient apiClient = new import com.blazebit.query.connector.azure.base.invoker.ApiClient(Map.of("azure_auth", oAuth));
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 //        return apiClient;
 //    }

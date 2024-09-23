@@ -26,7 +26,6 @@ import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.github.v0314.api.ProjectsApi;
 import com.blazebit.query.connector.github.v0314.invoker.ApiClient;
 import com.blazebit.query.connector.github.v0314.invoker.ApiException;
-import com.blazebit.query.connector.github.v0314.model.Organization;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.Project;
 import com.blazebit.query.spi.DataFetchContext;
@@ -51,7 +50,7 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
             List<ApiClient> apiClients = GithubConnectorConfig.API_CLIENT.getAll(context);
             List<Project> list = new ArrayList<>();
             Set<Integer> seenProjects = new HashSet<>();
-            List<? extends OrganizationSimple> organizations = context.getSession().get( OrganizationSimple.class);
+            List<? extends OrganizationSimple> organizations = context.getSession().getOrFetch(OrganizationSimple.class);
             for (ApiClient apiClient : apiClients) {
                 ProjectsApi projectsApi = new ProjectsApi(apiClient);
                 for (OrganizationSimple organization : organizations) {
@@ -82,6 +81,6 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(Project.class);
+        return DataFormats.beansConvention(Project.class, GithubConventionContext.INSTANCE);
     }
 }

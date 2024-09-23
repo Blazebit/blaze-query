@@ -47,7 +47,7 @@ public class GroupMemberDataFetcher implements DataFetcher<GroupMember>, Seriali
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
             List<GroupMember> list = new ArrayList<>();
             for (GitLabApi gitLabApi : gitlabApis) {
-                for (Group group : context.getSession().get(Group.class)) {
+                for (Group group : context.getSession().getOrFetch(Group.class)) {
                     for (Member member : gitLabApi.getGroupApi().getMembers(group.getId())) {
                         list.add(new GroupMember(member, group));
                     }

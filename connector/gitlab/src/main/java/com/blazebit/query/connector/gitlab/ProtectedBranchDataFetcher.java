@@ -47,7 +47,7 @@ public class ProtectedBranchDataFetcher implements DataFetcher<ProjectProtectedB
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
             List<ProjectProtectedBranch> list = new ArrayList<>();
             for (GitLabApi gitLabApi : gitlabApis) {
-                for (Project project : context.getSession().get(Project.class)) {
+                for (Project project : context.getSession().getOrFetch(Project.class)) {
                     for (ProtectedBranch protectedBranch : gitLabApi.getProtectedBranchesApi().getProtectedBranches(project.getId())) {
                         list.add(new ProjectProtectedBranch(protectedBranch, project));
                     }

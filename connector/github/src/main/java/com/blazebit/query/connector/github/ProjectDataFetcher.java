@@ -44,7 +44,7 @@ public class ProjectDataFetcher implements DataFetcher<GHProject>, Serializable 
     public List<GHProject> fetch(DataFetchContext context) {
         try {
             List<GHProject> list = new ArrayList<>();
-            for (GHOrganization organization : context.getSession().get(GHOrganization.class)) {
+            for (GHOrganization organization : context.getSession().getOrFetch(GHOrganization.class)) {
                 list.addAll(organization.listProjects().toList());
             }
             return list;

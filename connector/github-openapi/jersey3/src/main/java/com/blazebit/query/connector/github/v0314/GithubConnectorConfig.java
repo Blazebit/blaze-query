@@ -30,7 +30,7 @@ public final class GithubConnectorConfig {
     /**
      * Specified the {@link ApiClient} to use for querying data.
      */
-    public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "apiClient" );
+    public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "githubApiClient" );
 
     private GithubConnectorConfig() {
     }

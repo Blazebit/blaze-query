@@ -74,6 +74,6 @@ public class RepositoryDataFetcher implements DataFetcher<Repository>, Serializa
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(Repository.class);
+        return DataFormats.beansConvention(Repository.class, GithubConventionContext.INSTANCE);
     }
 }

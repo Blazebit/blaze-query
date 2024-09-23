@@ -67,6 +67,6 @@ public class OrganizationDataFetcher implements DataFetcher<OrganizationSimple>,
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(OrganizationSimple.class);
+        return DataFormats.beansConvention(OrganizationSimple.class, GithubConventionContext.INSTANCE);
     }
 }

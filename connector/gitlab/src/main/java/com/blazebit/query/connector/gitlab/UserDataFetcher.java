@@ -50,12 +50,12 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
             for (GitLabApi gitLabApi : gitlabApis) {
                 if (gitLabApi.getGitLabServerUrl().startsWith(GitlabConventionContext.GITLAB_HOST)) {
                     Set<Long> memberIds = new HashSet<>();
-                    for (ProjectMember member : context.getSession().get(ProjectMember.class)) {
+                    for (ProjectMember member : context.getSession().getOrFetch(ProjectMember.class)) {
                         if (memberIds.add(member.getId())) {
                             list.add(gitLabApi.getUserApi().getUser(member.getId()));
                         }
                     }
-                    for (GroupMember member : context.getSession().get(GroupMember.class)) {
+                    for (GroupMember member : context.getSession().getOrFetch(GroupMember.class)) {
                         if (memberIds.add(member.getId())) {
                             list.add(gitLabApi.getUserApi().getUser(member.getId()));
                         }

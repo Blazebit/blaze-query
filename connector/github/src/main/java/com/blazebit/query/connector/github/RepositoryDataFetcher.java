@@ -44,7 +44,7 @@ public class RepositoryDataFetcher implements DataFetcher<GHRepository>, Seriali
     public List<GHRepository> fetch(DataFetchContext context) {
         try {
             List<GHRepository> list = new ArrayList<>();
-            for (GHOrganization organization : context.getSession().get(GHOrganization.class)) {
+            for (GHOrganization organization : context.getSession().getOrFetch(GHOrganization.class)) {
                 list.addAll(organization.listRepositories().toList());
             }
             return list;

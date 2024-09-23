@@ -47,14 +47,14 @@ public class BranchDataFetcher implements DataFetcher<ShortBranch>, Serializable
         try {
             List<ApiClient> apiClients = GithubConnectorConfig.API_CLIENT.getAll( context);
             List<ShortBranch> list = new ArrayList<>();
-            List<? extends Repository> repositories = context.getSession().get(Repository.class);
+            List<? extends Repository> repositories = context.getSession().getOrFetch(Repository.class);
             for (ApiClient apiClient : apiClients) {
                 ReposApi reposApi = new ReposApi(apiClient);
                 for (Repository repository : repositories) {
                     for (int page = 1; ; page++) {
                         List<ShortBranch> branches = reposApi.reposListBranches(
                                 repository.getOwner().getLogin(),
-                                repository.getFullName(),
+                                repository.getName(),
                                 null,
                                 100,
                                 page
@@ -74,6 +74,6 @@ public class BranchDataFetcher implements DataFetcher<ShortBranch>, Serializable
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(ShortBranch.class);
+        return DataFormats.beansConvention(ShortBranch.class, GithubConventionContext.INSTANCE);
     }
 }

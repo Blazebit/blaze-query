@@ -44,7 +44,7 @@ public class BranchDataFetcher implements DataFetcher<GHBranch>, Serializable {
     public List<GHBranch> fetch(DataFetchContext context) {
         try {
             List<GHBranch> list = new ArrayList<>();
-            for (GHRepository repository : context.getSession().get(GHRepository.class)) {
+            for (GHRepository repository : context.getSession().getOrFetch(GHRepository.class)) {
                 list.addAll(repository.getBranches().values());
             }
             return list;

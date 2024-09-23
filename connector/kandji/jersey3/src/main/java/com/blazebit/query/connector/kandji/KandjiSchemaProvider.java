@@ -14,40 +14,35 @@
  * limitations under the License.
  */
 
-package com.blazebit.query.connector.github.v0314;
+package com.blazebit.query.connector.kandji;
 
 import java.util.Map;
 
-import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
-import com.blazebit.query.connector.github.v0314.model.Project;
-import com.blazebit.query.connector.github.v0314.model.Repository;
-import com.blazebit.query.connector.github.v0314.model.ShortBranch;
-import com.blazebit.query.connector.github.v0314.model.Team;
+import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
+import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 
 /**
- * The schema provider for the GitHub connector.
+ * The schema provider for the Kandji connector.
  *
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GithubSchemaProvider implements QuerySchemaProvider {
+public final class KandjiSchemaProvider implements QuerySchemaProvider {
     /**
      * Creates a new schema provider.
      */
-    public GithubSchemaProvider() {
+    public KandjiSchemaProvider() {
     }
 
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
         return Map.<Class<?>, DataFetcher<?>>of(
-                OrganizationSimple.class, OrganizationDataFetcher.INSTANCE,
-                Team.class, TeamDataFetcher.INSTANCE,
-                Repository.class, RepositoryDataFetcher.INSTANCE,
-                ShortBranch.class, BranchDataFetcher.INSTANCE,
-                Project.class, ProjectDataFetcher.INSTANCE
+                ListDevices200ResponseInner.class, DeviceDataFetcher.INSTANCE,
+                DeviceParameter.class, DeviceParameterDataFetcher.INSTANCE,
+                GetDeviceDetails200Response.class, DeviceDetailDataFetcher.INSTANCE
         );
     }
 }

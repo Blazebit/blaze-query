@@ -24,7 +24,6 @@ import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.github.v0314.api.TeamsApi;
 import com.blazebit.query.connector.github.v0314.invoker.ApiClient;
 import com.blazebit.query.connector.github.v0314.invoker.ApiException;
-import com.blazebit.query.connector.github.v0314.model.Organization;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.Team;
 import com.blazebit.query.spi.DataFetchContext;
@@ -47,7 +46,7 @@ public class TeamDataFetcher implements DataFetcher<Team>, Serializable {
     public List<Team> fetch(DataFetchContext context) {
         try {
             List<ApiClient> apiClients = GithubConnectorConfig.API_CLIENT.getAll(context);
-            List<? extends OrganizationSimple> organizations = context.getSession().get(OrganizationSimple.class);
+            List<? extends OrganizationSimple> organizations = context.getSession().getOrFetch(OrganizationSimple.class);
             List<Team> list = new ArrayList<>();
             for (ApiClient apiClient : apiClients) {
                 TeamsApi reposApi = new TeamsApi(apiClient);
@@ -73,6 +72,6 @@ public class TeamDataFetcher implements DataFetcher<Team>, Serializable {
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(Team.class);
+        return DataFormats.beansConvention(Team.class, GithubConventionContext.INSTANCE);
     }
 }

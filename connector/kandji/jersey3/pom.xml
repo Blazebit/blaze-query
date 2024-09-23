@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.blazebit</groupId>
-        <artifactId>blaze-query-connector-azure-blob-services-v20230501</artifactId>
+        <artifactId>blaze-query-connector-kandji</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>blaze-query-connector-azure-blob-services-v20230501-jersey3</artifactId>
+    <artifactId>blaze-query-connector-kandji-jersey3</artifactId>
 
     <properties>
-        <module.name>com.blazebit.query.connector.azure.blob.services.v20230501</module.name>
+        <module.name>com.blazebit.query.connector.kandji</module.name>
         <java.version>11</java.version>
 
         <!-- For generated code -->
@@ -34,17 +34,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>blaze-query-connector-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-subscription-v20221201-jersey3</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>blaze-query-connector-azure-storage-accounts-v20230501-jersey3</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -133,6 +122,22 @@
         </dependency>
     </dependencies>
 
+    <!-- Until 7.9.0 is released -->
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <plugins>
             <plugin>
@@ -144,11 +149,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>https://github.com/Azure/azure-rest-api-specs/raw/main/specification/storage/resource-manager/Microsoft.Storage/stable/2023-05-01/blob.json</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/kandji-openapi.yml</inputSpec>
+                            <skipValidateSpec>true</skipValidateSpec>
                             <generatorName>java</generatorName>
-                            <modelPackage>com.blazebit.query.connector.azure.blob.services.v20230501.model</modelPackage>
-                            <apiPackage>com.blazebit.query.connector.azure.blob.services.v20230501.api</apiPackage>
-                            <invokerPackage>com.blazebit.query.connector.azure.base.invoker</invokerPackage>
+                            <modelPackage>com.blazebit.query.connector.kandji.model</modelPackage>
+                            <apiPackage>com.blazebit.query.connector.kandji.api</apiPackage>
+                            <invokerPackage>com.blazebit.query.connector.kandji.invoker</invokerPackage>
                             <library>jersey3</library>
                             <generateModelTests>false</generateModelTests>
                             <generateModelDocumentation>false</generateModelDocumentation>
@@ -167,11 +173,6 @@
                     </execution>
                 </executions>
                 <dependencies>
-                    <dependency>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-parser</artifactId>
-                        <version>1.0.71</version>
-                    </dependency>
                     <dependency>
                         <groupId>com.fasterxml.jackson.core</groupId>
                         <artifactId>jackson-databind</artifactId>
