@@ -15,6 +15,7 @@
  */
 package com.blazebit.query.app;
 
+import com.microsoft.graph.beta.models.ManagedDevice;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +129,7 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(User.class, "AzureUser");
             queryContextBuilder.registerSchemaObjectAlias(ConditionalAccessPolicy.class, "AzureConditionalAccessPolicy");
             queryContextBuilder.registerSchemaObjectAlias(Application.class, "AzureApplication");
+            queryContextBuilder.registerSchemaObjectAlias(ManagedDevice.class, "AzureManagedDevice");
 
             // IAM
             queryContextBuilder.registerSchemaObjectAlias(software.amazon.awssdk.services.iam.model.User.class, "AwsUser");
@@ -336,6 +338,12 @@ public class Main {
         List<Object[]> applicationResult = applicationQuery.getResultList();
         System.out.println("Applications");
         print(applicationResult);
+
+        TypedQuery<Object[]> managedDevices = session.createQuery(
+        "select a.* from AzureManagedDevice a" );
+        List<Object[]> managedDevicesResult = managedDevices.getResultList();
+        System.out.println("Managed Devices");
+        print(managedDevicesResult);
     }
 
     private static void testAzureResourceManager(QuerySession session) {
