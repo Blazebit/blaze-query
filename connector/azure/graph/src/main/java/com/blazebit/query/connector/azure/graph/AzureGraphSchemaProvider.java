@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.azure.graph;
 
+import com.microsoft.graph.beta.models.ManagedDevice;
 import java.util.Map;
 
 import com.blazebit.query.spi.ConfigurationProvider;
@@ -41,9 +42,10 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
     @Override
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
         return Map.<Class<?>, DataFetcher<?>>of(
-                User.class, UserDataFetcher.INSTANCE,
+                Application.class, ApplicationDataFetcher.INSTANCE,
                 ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
-                Application.class, ApplicationDataFetcher.INSTANCE
+                ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
+                User.class, UserDataFetcher.INSTANCE
         );
     }
 }
