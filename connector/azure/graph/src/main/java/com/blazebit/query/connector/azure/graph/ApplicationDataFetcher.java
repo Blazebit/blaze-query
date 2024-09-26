@@ -49,7 +49,7 @@ public class ApplicationDataFetcher implements DataFetcher<Application>, Seriali
             }
             return list;
         } catch (RuntimeException e) {
-            throw new DataFetcherException("Could not fetch conditional access policy list", e);
+            throw new DataFetcherException("Could not fetch application list", e);
         }
     }
 
