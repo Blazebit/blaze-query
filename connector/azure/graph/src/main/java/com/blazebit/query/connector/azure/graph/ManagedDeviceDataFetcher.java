@@ -38,6 +38,11 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
     private ManagedDeviceDataFetcher() {
     }
 
+    /**
+     * @param context The data fetching context
+     * @return A list of ManagedDevices
+     * @throws com.microsoft.graph.beta.models.odataerrors.ODataError with message "AADSTS500014: The service principal for resource '0000000a-0000-0000-c000-000000000000' is disabled. etc....`" when Microsoft Intune is not activated on the tenant
+     */
     @Override
     public List<ManagedDevice> fetch(DataFetchContext context) {
         try {
