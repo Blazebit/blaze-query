@@ -95,7 +95,7 @@ public class CalciteDataSource extends Driver implements DataSource {
     private final CalciteSchema rootSchema;
 
     public CalciteDataSource(Properties properties) {
-        properties.setProperty( "lex", "JAVA" );
+        properties.setProperty( "lex", "MYSQL" );
         this.properties = properties;
 
         CalciteConnectionConfig cfg = new CalciteConnectionConfigImpl( properties );

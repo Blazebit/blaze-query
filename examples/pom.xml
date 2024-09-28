@@ -13,6 +13,7 @@
 
     <modules>
         <module>app</module>
+        <module>server</module>
     </modules>
 
 </project>

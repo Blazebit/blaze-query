@@ -28,8 +28,10 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -81,6 +83,23 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         javaTypeMappings.put(UUID.class, SqlTypeName.VARCHAR);
         javaTypeMappings.put(Duration.class, SqlTypeName.INTERVAL_DAY_SECOND);
         javaTypeMappings.put(Period.class, SqlTypeName.INTERVAL_YEAR_MONTH);
+        javaTypeMappings.put(String.class, SqlTypeName.VARCHAR);
+        javaTypeMappings.put(boolean.class, SqlTypeName.BOOLEAN);
+        javaTypeMappings.put(Boolean.class, SqlTypeName.BOOLEAN);
+        javaTypeMappings.put(byte.class, SqlTypeName.TINYINT);
+        javaTypeMappings.put(Byte.class, SqlTypeName.TINYINT);
+        javaTypeMappings.put(short.class, SqlTypeName.SMALLINT);
+        javaTypeMappings.put(Short.class, SqlTypeName.SMALLINT);
+        javaTypeMappings.put(int.class, SqlTypeName.INTEGER);
+        javaTypeMappings.put(Integer.class, SqlTypeName.INTEGER);
+        javaTypeMappings.put(long.class, SqlTypeName.BIGINT);
+        javaTypeMappings.put(Long.class, SqlTypeName.BIGINT);
+        javaTypeMappings.put(float.class, SqlTypeName.REAL);
+        javaTypeMappings.put(Float.class, SqlTypeName.REAL);
+        javaTypeMappings.put(double.class, SqlTypeName.DOUBLE);
+        javaTypeMappings.put(Double.class, SqlTypeName.DOUBLE);
+        javaTypeMappings.put(Date.class, SqlTypeName.TIMESTAMP);
+        javaTypeMappings.put(byte[].class, SqlTypeName.VARBINARY);
         JAVA_TYPE_MAPPINGS = javaTypeMappings;
     }
 
@@ -124,7 +143,7 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
         final List<RelDataType> types = new ArrayList<>(fields.size());
         final List<String> names = new ArrayList<>(fields.size());
         for (DataFormatField field : fields) {
-            names.add(field.getName());
+            names.add(field.getName().toUpperCase( Locale.ROOT ));
             types.add(deduceType(typeFactory, field.getFormat()));
         }
         return typeFactory.createStructType(Pair.zip(names, types));
@@ -142,10 +161,13 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
             return typeFactory.createTypeWithNullability(typeFactory.createArrayType(elementRelDataType, -1L), true);
         } else if (!format.getFields().isEmpty()) {
             return typeFactory.createTypeWithNullability(deduceRowType(typeFactory, format), true);
-        } else if (format.isEnum()) {
-            return typeFactory.createJavaType(String.class);
         } else {
-            Class<?> clazz = rawClass(format.getType());
+            Class<?> clazz;
+            if (format.isEnum()) {
+                clazz = String.class;
+            } else {
+                clazz = rawClass(format.getType());
+            }
             SqlTypeName sqlTypeName = JAVA_TYPE_MAPPINGS.get(clazz);
             if (sqlTypeName == null) {
                 return typeFactory.createJavaType(clazz);

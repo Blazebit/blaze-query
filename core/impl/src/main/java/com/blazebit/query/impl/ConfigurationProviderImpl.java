@@ -40,6 +40,14 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
         this.lazyPropertyProviders = new HashMap<>();
     }
 
+    public Supplier<DataFetchContext> getDataFetchContextSupplier() {
+        PropertyProvider supplier = propertyProviders.get( "dataFetchContextSupplier" );
+        if ( supplier != null ) {
+            return (Supplier<DataFetchContext>) supplier.provide( this);
+        }
+        return this;
+    }
+
     @Override
     public <X> X getProperty(String property) {
         PropertyProvider propertyProvider = propertyProviders.get( property );

@@ -24,6 +24,7 @@ import com.blazebit.query.impl.calcite.CalciteDataSource;
 import com.blazebit.query.impl.calcite.DataFetcherTable;
 import com.blazebit.query.impl.calcite.SubSchema;
 import com.blazebit.query.impl.metamodel.MetamodelImpl;
+import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.calcite.schema.SchemaPlus;
@@ -91,6 +93,7 @@ public class QueryContextImpl implements QueryContext {
         QueryContextBuilderImpl builder,
         ConfigurationProviderImpl configurationProvider,
         CalciteDataSource calciteDataSource) {
+        Supplier<DataFetchContext> dataFetchContextSupplier = configurationProvider.getDataFetchContextSupplier();
         HashMap<String, SchemaProviderEntry> schemaProviderEntries = new HashMap<>();
         for (QuerySchemaProvider schemaProvider : builder.schemaProviders) {
             Map<Class<?>, ? extends DataFetcher<?>> schemaObjects = schemaProvider.resolveSchemaObjects(
@@ -126,7 +129,7 @@ public class QueryContextImpl implements QueryContext {
                     rootSchema,
                     entry.schemaObjectType,
                     entry.dataFetcher,
-                    configurationProvider
+                    dataFetchContextSupplier
                 );
             }
         }
@@ -142,7 +145,7 @@ public class QueryContextImpl implements QueryContext {
                 rootSchema,
                 schemaObject.getType(),
                 schemaObject.getDataFetcher(),
-                configurationProvider
+                dataFetchContextSupplier
             );
         }
         for (Map.Entry<String, String> entry : builder.schemaObjectNames.entrySet()) {
@@ -161,12 +164,12 @@ public class QueryContextImpl implements QueryContext {
         SchemaPlus rootSchema,
         Class<?> schemaObjectType,
         DataFetcher<?> dataFetcher,
-        ConfigurationProviderImpl configurationProvider) {
+        Supplier<DataFetchContext> dataFetchContextSupplier) {
         Table table;
         if (dataFetcher instanceof Table) {
             table = (Table) dataFetcher;
         } else {
-            table = new DataFetcherTable(schemaObjectType, dataFetcher, configurationProvider);
+            table = new DataFetcherTable(schemaObjectType, dataFetcher, dataFetchContextSupplier);
         }
         addTable(rootSchema, schemaObjectType.getCanonicalName(), table);
     }

@@ -52,17 +52,19 @@ public final class EntityViewSchemaProvider implements QuerySchemaProvider {
 
         final ImmutableMap.Builder<Class<?>, EntityViewTable<?>> builder = ImmutableMap.builder();
 
-        for ( ViewType<?> viewType : entityViewManager.getMetamodel().getViews() ) {
-            if ( entityViewFilter == null || entityViewFilter.test( viewType ) ) {
-                builder.put(
-                        viewType.getJavaType(),
-                        new EntityViewTable<>(
-                                entityViewManager,
-                                entityManagerProvider,
-                                configurationProvider,
-                                viewType
-                        )
-                );
+        if ( entityViewManager != null ) {
+            for ( ViewType<?> viewType : entityViewManager.getMetamodel().getViews() ) {
+                if ( entityViewFilter == null || entityViewFilter.test( viewType ) ) {
+                    builder.put(
+                            viewType.getJavaType(),
+                            new EntityViewTable<>(
+                                    entityViewManager,
+                                    entityManagerProvider,
+                                    configurationProvider,
+                                    viewType
+                            )
+                    );
+                }
             }
         }
         return builder.build();
