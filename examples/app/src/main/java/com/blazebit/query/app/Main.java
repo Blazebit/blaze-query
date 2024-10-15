@@ -90,6 +90,7 @@ import software.amazon.awssdk.services.ecr.model.Repository;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.route53.model.HealthCheck;
@@ -153,6 +154,7 @@ public class Main {
 
             // IAM
             queryContextBuilder.registerSchemaObjectAlias(software.amazon.awssdk.services.iam.model.User.class, "AwsUser");
+            queryContextBuilder.registerSchemaObjectAlias(PasswordPolicy.class, "AwsIamPasswordPolicy");
             // EC2
             queryContextBuilder.registerSchemaObjectAlias(Instance.class, "AwsInstance");
             queryContextBuilder.registerSchemaObjectAlias(Volume.class, "AwsVolume");
@@ -228,6 +230,12 @@ public class Main {
         List<Object[]> awsUserResult = awsUserQuery.getResultList();
         System.out.println("AwsUsers");
         print(awsUserResult);
+
+        TypedQuery<Object[]> awsPasswordPolicyQuery = session.createQuery(
+                "select p.* from AwsIamPasswordPolicy p" );
+        List<Object[]> awsPasswordPolicyResult = awsPasswordPolicyQuery.getResultList();
+        System.out.println("AwsPasswordPolicy");
+        print(awsPasswordPolicyResult);
 
         // EC2
         TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
