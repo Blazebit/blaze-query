@@ -42,11 +42,11 @@ import com.blazebit.query.TypedQuery;
 //import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
 //import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+//import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+//import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
-import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
+//import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
@@ -76,6 +76,7 @@ import software.amazon.awssdk.services.ecr.model.Repository;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.route53.model.HealthCheck;
@@ -111,11 +112,11 @@ public class Main {
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
-            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-//            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
+//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
-            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+//            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
@@ -133,6 +134,7 @@ public class Main {
 
             // IAM
             queryContextBuilder.registerSchemaObjectAlias(software.amazon.awssdk.services.iam.model.User.class, "AwsUser");
+            queryContextBuilder.registerSchemaObjectAlias(PasswordPolicy.class, "AwsIamPasswordPolicy");
             // EC2
             queryContextBuilder.registerSchemaObjectAlias(Instance.class, "AwsInstance");
             queryContextBuilder.registerSchemaObjectAlias(Volume.class, "AwsVolume");
@@ -168,11 +170,11 @@ public class Main {
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-//                    testAws( session );
+                    testAws( session );
 //                    testGitlab( session );
 //                    testEntityView( session );
-                    testAzureGraph( session );
-                    testAzureResourceManager( session );
+//                    testAzureGraph( session );
+//                    testAzureResourceManager( session );
 //                    testAzureOpenAPI( session );
                 }
             }
@@ -186,6 +188,12 @@ public class Main {
         List<Object[]> awsUserResult = awsUserQuery.getResultList();
         System.out.println("AwsUsers");
         print(awsUserResult);
+
+        TypedQuery<Object[]> awsPasswordPolicyQuery = session.createQuery(
+                "select p.* from AwsIamPasswordPolicy p" );
+        List<Object[]> awsPasswordPolicyResult = awsPasswordPolicyQuery.getResultList();
+        System.out.println("AwsPasswordPolicy");
+        print(awsPasswordPolicyResult);
 
         // EC2
         TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
