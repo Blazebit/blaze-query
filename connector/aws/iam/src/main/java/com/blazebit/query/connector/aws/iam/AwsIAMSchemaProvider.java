@@ -22,6 +22,7 @@ import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import software.amazon.awssdk.services.iam.model.PasswordPolicy;
+import software.amazon.awssdk.services.iam.model.MFADevice;
 import software.amazon.awssdk.services.iam.model.User;
 
 /**
@@ -41,7 +42,9 @@ public final class AwsIAMSchemaProvider implements QuerySchemaProvider {
     public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
         return Map.<Class<?>, DataFetcher<?>>of(
                 User.class, UserDataFetcher.INSTANCE,
-                PasswordPolicy.class, PasswordPolicyDataFetcher.INSTANCE
+                PasswordPolicy.class, PasswordPolicyDataFetcher.INSTANCE,
+                MFADevice.class, MFADeviceDataFetcher.INSTANCE,
+                AccountSummary.class, AccountSummaryDataFetcher.INSTANCE
         );
     }
 }
