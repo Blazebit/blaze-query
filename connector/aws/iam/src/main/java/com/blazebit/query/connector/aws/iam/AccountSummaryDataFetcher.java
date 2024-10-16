@@ -66,7 +66,7 @@ public class AccountSummaryDataFetcher implements DataFetcher<AccountSummary>, S
             }
             return list;
         } catch (RuntimeException e) {
-            throw new DataFetcherException("Could not fetch user list", e);
+            throw new DataFetcherException("Could not fetch account summary", e);
         }
     }
 }
