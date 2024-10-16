@@ -25,7 +25,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class AccountSummary {
-    // Create getters, setters and constructor for the following fields
+
     private int groupPolicySizeQuota;
     private int instanceProfilesQuota;
     private int policies;
