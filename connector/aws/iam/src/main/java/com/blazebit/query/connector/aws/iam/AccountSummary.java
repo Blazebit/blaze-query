@@ -16,6 +16,7 @@
 
 package com.blazebit.query.connector.aws.iam;
 
+import software.amazon.awssdk.services.iam.model.GetAccountSummaryResponse;
 import software.amazon.awssdk.services.iam.model.SummaryKeyType;
 
 import java.util.Map;
@@ -61,8 +62,11 @@ public class AccountSummary {
     private int accountPasswordPresent;
     private int groupsQuota;
 
-
-
+    /**
+     * Creates a new account summary from the {@link GetAccountSummaryResponse#summaryMap()} result.
+     *
+     * @param summaryKeyTypeIntegerMap The {@link GetAccountSummaryResponse#summaryMap()}
+     */
     public AccountSummary(Map<SummaryKeyType, Integer> summaryKeyTypeIntegerMap) {
         this.groupPolicySizeQuota = summaryKeyTypeIntegerMap.get(SummaryKeyType.GROUP_POLICY_SIZE_QUOTA);
         this.policies = summaryKeyTypeIntegerMap.get(SummaryKeyType.POLICIES);

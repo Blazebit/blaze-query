@@ -32,6 +32,7 @@
         <version.checkstyle.plugin>3.5.0</version.checkstyle.plugin>
         <version.surefire.plugin>3.0.0-M5</version.surefire.plugin>
         <version.jar.plugin>3.0.2</version.jar.plugin>
+        <version.javadoc.plugin>3.6.0</version.javadoc.plugin>
         <version.war.plugin>3.3.1</version.war.plugin>
         <maven.min.version>3.9.6</maven.min.version>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -104,6 +105,14 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.javadoc.plugin}</version>
+                    <configuration>
+                        <additionalJOption>-Xdoclint:none</additionalJOption>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
