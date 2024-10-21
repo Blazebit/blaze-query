@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 - 2024 Blazebit.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.blazebit.query.connector.aws.iam;
 
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
@@ -33,21 +49,20 @@ public class PasswordPolicyDataFetcher implements DataFetcher<PasswordPolicy>, S
     @Override
     public List<PasswordPolicy> fetch(DataFetchContext context) {
         try {
-            List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
-            SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
+            List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll(context);
+            SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find(context);
             List<PasswordPolicy> list = new ArrayList<>();
-            for ( AwsConnectorConfig.Account account : accounts) {
+            for (AwsConnectorConfig.Account account : accounts) {
                 IamClientBuilder ec2ClientBuilder = IamClient.builder()
-                        .region( account.getRegion() )
-                        .credentialsProvider( account.getCredentialsProvider() );
-                if ( sdkHttpClient != null ) {
-                    ec2ClientBuilder.httpClient( sdkHttpClient );
+                        .region(account.getRegion())
+                        .credentialsProvider(account.getCredentialsProvider());
+                if (sdkHttpClient != null) {
+                    ec2ClientBuilder.httpClient(sdkHttpClient);
                 }
                 try (IamClient client = ec2ClientBuilder.build()) {
-                    list.add( client.getAccountPasswordPolicy().passwordPolicy() );
-                }
-                // The AWS SDK throws a NoSuchEntity exception if the password policy is default
-                catch (NoSuchEntityException e) {
+                    list.add(client.getAccountPasswordPolicy().passwordPolicy());
+                } catch (NoSuchEntityException e) {
+                    // The AWS SDK throws a NoSuchEntity exception if the password policy is default
                     return list;
                 }
             }
