@@ -31,6 +31,12 @@ public class AccessKeyMetaDataLastUsed implements Serializable {
     private final AccessKeyMetadata accessKeyMetadata;
     private final AccessKeyLastUsed accessKeyLastUsed;
 
+    /**
+     * Constructs an AccessKeyMetaDataLastUsed object with the specified metadata and last used information.
+     *
+     * @param accessKeyMetadata the metadata of the access key
+     * @param accessKeyLastUsed the last used information of the access key
+     */
     public AccessKeyMetaDataLastUsed(AccessKeyMetadata accessKeyMetadata, AccessKeyLastUsed accessKeyLastUsed) {
         this.accessKeyMetadata = accessKeyMetadata;
         this.accessKeyLastUsed = accessKeyLastUsed;
