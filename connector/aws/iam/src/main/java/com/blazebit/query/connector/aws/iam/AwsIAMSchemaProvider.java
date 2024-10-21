@@ -21,7 +21,6 @@ import java.util.Map;
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
-import software.amazon.awssdk.services.iam.model.AccessKeyLastUsed;
 import software.amazon.awssdk.services.iam.model.User;
 
 /**

@@ -15,6 +15,7 @@
  */
 package com.blazebit.query.app;
 
+import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.microsoft.graph.beta.models.ManagedDevice;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +43,11 @@ import com.blazebit.query.TypedQuery;
 //import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
 //import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+//import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+//import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
-import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
+//import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
@@ -111,11 +112,11 @@ public class Main {
 
             QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
-            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-//            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
+//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
-            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+//            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.registerSchemaObjectAlias(VirtualMachine.class, "OpenAPIVirtualMachine");
 //            queryContextBuilder.registerSchemaObjectAlias(StorageAccount.class, "OpenAPIStorageAccount");
 //            queryContextBuilder.registerSchemaObjectAlias(BlobServiceProperties.class, "OpenAPIBlobServiceProperties");
@@ -133,6 +134,7 @@ public class Main {
 
             // IAM
             queryContextBuilder.registerSchemaObjectAlias(software.amazon.awssdk.services.iam.model.User.class, "AwsUser");
+            queryContextBuilder.registerSchemaObjectAlias(AccessKeyMetaDataLastUsed.class, "AwsAccessKeyMetaDataLastUsed");
             // EC2
             queryContextBuilder.registerSchemaObjectAlias(Instance.class, "AwsInstance");
             queryContextBuilder.registerSchemaObjectAlias(Volume.class, "AwsVolume");
@@ -168,11 +170,11 @@ public class Main {
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-//                    testAws( session );
+                        testAws( session );
 //                    testGitlab( session );
 //                    testEntityView( session );
-                    testAzureGraph( session );
-                    testAzureResourceManager( session );
+//                    testAzureGraph( session );
+//                    testAzureResourceManager( session );
 //                    testAzureOpenAPI( session );
                 }
             }
@@ -186,6 +188,12 @@ public class Main {
         List<Object[]> awsUserResult = awsUserQuery.getResultList();
         System.out.println("AwsUsers");
         print(awsUserResult);
+
+        TypedQuery<Object[]> AwsAccessKeyMetaDataLastUsedQuery = session.createQuery(
+                "select a.* from AwsAccessKeyMetaDataLastUsed a" );
+        List<Object[]> awsAccessKeyMetaDataLastUsed = AwsAccessKeyMetaDataLastUsedQuery.getResultList();
+        System.out.println("AwsAccessKeyMetaDataLastUsed");
+        print(awsAccessKeyMetaDataLastUsed);
 
         // EC2
         TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
