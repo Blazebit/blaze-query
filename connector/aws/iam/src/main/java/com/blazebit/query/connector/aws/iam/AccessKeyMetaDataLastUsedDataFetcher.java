@@ -41,7 +41,7 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
 
     public static final AccessKeyMetaDataLastUsedDataFetcher INSTANCE = new AccessKeyMetaDataLastUsedDataFetcher();
 
-    private AccessKeyMetaDataLastUsedDataFetcher(){
+    private AccessKeyMetaDataLastUsedDataFetcher() {
     }
 
     @Override
@@ -63,9 +63,9 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
                     ec2ClientBuilder.httpClient( sdkHttpClient );
                 }
                 try (IamClient client = ec2ClientBuilder.build()) {
-                    for(User user : context.getSession().get(User.class)){
+                    for (User user : context.getSession().get(User.class)) {
                         // Retrieve access key metadata for all access keys of the user (maximum of 100 keys are retrieved by default)
-                        for(AccessKeyMetadata accessKeyMetadata : client.listAccessKeys(builder -> builder.userName(user.userName())).accessKeyMetadata()){
+                        for (AccessKeyMetadata accessKeyMetadata : client.listAccessKeys(builder -> builder.userName(user.userName())).accessKeyMetadata()) {
                             list.add( new AccessKeyMetaDataLastUsed(accessKeyMetadata, client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()) );
                         }
                     }
