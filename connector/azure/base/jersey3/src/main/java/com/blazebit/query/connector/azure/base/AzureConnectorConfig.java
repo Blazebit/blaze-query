@@ -30,7 +30,7 @@ public final class AzureConnectorConfig {
     /**
      * Specified the {@link ApiClient} to use for querying data.
      */
-    public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "apiClient" );
+    public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "azureApiClient" );
 
     private AzureConnectorConfig() {
     }

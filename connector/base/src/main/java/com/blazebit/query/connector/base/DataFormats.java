@@ -199,7 +199,7 @@ public final class DataFormats {
             if (subFilter != null) {
                 DataFormatField dataFormatField = DataFormatField.of(
                         entry.getKey(),
-                        factory.memberAccessor(entry.getValue()),
+                        factory.memberAccessor(entry.getValue(), conventionContext),
                         getOrCreateDataFormat(factory.memberType(entry.getValue()), subFilter, visitedTypes, registry, factory)
                 );
                 fields.add(dataFormatField);
@@ -267,7 +267,7 @@ public final class DataFormats {
 
     private interface DataFormatFactory {
         TreeMap<String, ? extends Member> getAttributes(Class<?> clazz);
-        DataFormatFieldAccessor memberAccessor(Member member);
+        DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext);
         Type memberType(Member member);
     }
 
@@ -293,7 +293,7 @@ public final class DataFormats {
         }
 
         @Override
-        public DataFormatFieldAccessor memberAccessor(Member member) {
+        public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
             return new FieldFieldAccessor((Field) member);
         }
 
@@ -319,8 +319,9 @@ public final class DataFormats {
         }
 
         @Override
-        public DataFormatFieldAccessor memberAccessor(Member member) {
-            return new MethodFieldAccessor((Method) member);
+        public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
+            Method method = (Method) member;
+            return conventionContext.nullOnException(method) ? new LaxMethodFieldAccessor(method) : new MethodFieldAccessor(method);
         }
 
         @Override
@@ -392,7 +393,7 @@ public final class DataFormats {
         }
 
         @Override
-        public DataFormatFieldAccessor memberAccessor(Member member) {
+        public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
             return new MethodFieldAccessor((Method) member);
         }
 
@@ -429,7 +430,7 @@ public final class DataFormats {
         }
 
         @Override
-        public DataFormatFieldAccessor memberAccessor(Member member) {
+        public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
             return new MethodFieldAccessor((Method) member);
         }
 

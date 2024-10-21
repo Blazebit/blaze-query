@@ -47,7 +47,7 @@ public class ProjectMemberDataFetcher implements DataFetcher<ProjectMember>, Ser
             List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll(context);
             List<ProjectMember> list = new ArrayList<>();
             for (GitLabApi gitLabApi : gitlabApis) {
-                for (Project project : context.getSession().get(Project.class)) {
+                for (Project project : context.getSession().getOrFetch(Project.class)) {
                     for (Member member : gitLabApi.getProjectApi().getMembers(project.getId())) {
                         list.add(new ProjectMember(member, project));
                     }

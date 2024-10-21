@@ -17,6 +17,9 @@
         <module>aws</module>
         <module>entity-view</module>
         <module>gitlab</module>
+        <module>github</module>
+        <module>github-openapi</module>
+        <module>kandji</module>
     </modules>
 
 </project>

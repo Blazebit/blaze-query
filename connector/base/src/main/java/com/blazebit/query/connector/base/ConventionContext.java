@@ -17,6 +17,7 @@
 package com.blazebit.query.connector.base;
 
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -90,4 +91,14 @@ public interface ConventionContext {
         return typeClass.isEnum();
     }
 
+    /**
+     * Returns whether an exception thrown by the given accessor method should cause {@code null} to be returned
+     * instead of rethrowing.
+     *
+     * @param method The accessor method to check
+     * @return whether a method invocation should produce {@code null} when an exception happens
+     */
+    default boolean nullOnException(Method method) {
+        return false;
+    }
 }

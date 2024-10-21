@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.blazebit.query.connector.base.FieldFieldAccessor;
+import com.blazebit.query.connector.base.LaxMethodFieldAccessor;
 import com.blazebit.query.connector.base.MethodFieldAccessor;
 import com.blazebit.query.impl.calcite.converter.Converter;
 import com.blazebit.query.impl.calcite.converter.DurationConverter;
@@ -172,6 +173,19 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
         if (accessor instanceof MethodFieldAccessor) {
             MethodFieldAccessor methodAccessor = (MethodFieldAccessor) accessor;
             e = Expressions.call(row, methodAccessor.getMethod());
+        } else if (accessor instanceof LaxMethodFieldAccessor) {
+            LaxMethodFieldAccessor methodAccessor = (LaxMethodFieldAccessor) accessor;
+            ParameterExpression localVar = blockBuilder.createLocalVariable(dataFormatField.getFormat().getType());
+            blockBuilder.add(Expressions.declare(0, localVar, null));
+
+            SimpleBlockBuilder tryBlockBuilder = new SimpleBlockBuilder(blockBuilder);
+            SimpleBlockBuilder catchBlockBuilder = new SimpleBlockBuilder(blockBuilder);
+            ParameterExpression exVar = catchBlockBuilder.createLocalVariable(Throwable.class);
+            tryBlockBuilder.add(Expressions.statement(Expressions.assign(localVar, Expressions.call(row, methodAccessor.getMethod()))));
+            // todo: add logging?
+            catchBlockBuilder.add(Expressions.statement(Expressions.assign(localVar, Expressions.constant(null))));
+            blockBuilder.add(Expressions.tryCatch(tryBlockBuilder.toBlock(), Expressions.catch_(exVar, catchBlockBuilder.toBlock())));
+            e = localVar;
         } else if (accessor instanceof FieldFieldAccessor) {
             FieldFieldAccessor fieldAccessor = (FieldFieldAccessor) accessor;
             e = Expressions.field(row, fieldAccessor.getField());
