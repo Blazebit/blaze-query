@@ -225,7 +225,7 @@ public class Main {
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
                      QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-                        testAws( session );
+                      testAws( session );
 //                    testGitlab( session );
 //                    testGitHub( session );
 //                    testGitHubOpenAPI( session );
@@ -265,9 +265,9 @@ public class Main {
         System.out.println("AwsAccountSummary");
         print(awsAccountSummaryResult);
 
-        TypedQuery<Object[]> AwsAccessKeyMetaDataLastUsedQuery = session.createQuery(
+        TypedQuery<Object[]> awsAccessKeyMetaDataLastUsedQuery = session.createQuery(
                 "select a.* from AwsAccessKeyMetaDataLastUsed a" );
-        List<Object[]> awsAccessKeyMetaDataLastUsed = AwsAccessKeyMetaDataLastUsedQuery.getResultList();
+        List<Object[]> awsAccessKeyMetaDataLastUsed = awsAccessKeyMetaDataLastUsedQuery.getResultList();
         System.out.println("AwsAccessKeyMetaDataLastUsed");
         print(awsAccessKeyMetaDataLastUsed);
 
