@@ -53,13 +53,13 @@ public class PasswordPolicyDataFetcher implements DataFetcher<PasswordPolicy>, S
             SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find(context);
             List<PasswordPolicy> list = new ArrayList<>();
             for (AwsConnectorConfig.Account account : accounts) {
-                IamClientBuilder ec2ClientBuilder = IamClient.builder()
+                IamClientBuilder iamClientBuilder = IamClient.builder()
                         .region(account.getRegion())
                         .credentialsProvider(account.getCredentialsProvider());
                 if (sdkHttpClient != null) {
-                    ec2ClientBuilder.httpClient(sdkHttpClient);
+                    iamClientBuilder.httpClient(sdkHttpClient);
                 }
-                try (IamClient client = ec2ClientBuilder.build()) {
+                try (IamClient client = iamClientBuilder.build()) {
                     list.add(client.getAccountPasswordPolicy().passwordPolicy());
                 } catch (NoSuchEntityException e) {
                     // The AWS SDK throws a NoSuchEntity exception if the password policy is default
