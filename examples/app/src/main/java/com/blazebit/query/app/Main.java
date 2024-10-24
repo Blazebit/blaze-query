@@ -15,21 +15,25 @@
  */
 package com.blazebit.query.app;
 
+import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import java.io.IOException;
 
-import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
-import com.blazebit.query.connector.github.v0314.model.ShortBranch;
-import com.blazebit.query.connector.github.v0314.model.Team;
-import com.blazebit.query.connector.kandji.DeviceParameter;
-import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
-import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
-import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
-import com.microsoft.graph.beta.models.ManagedDevice;
+//import com.blazebit.query.connector.github.v0314.OrganizationSimple;
+//import com.blazebit.query.connector.github.v0314.model.ShortBranch;
+//import com.blazebit.query.connector.github.v0314.model.Team;
+//import com.blazebit.query.connector.kandji.DeviceParameter;
+//import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
+//import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
+//import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
+//import com.blazebit.query.connector.aws.iam.AccountSummary;
+//import com.microsoft.graph.beta.models.ManagedDevice;
 
 import java.util.List;
 import java.util.Map;
 
+//import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
+import com.microsoft.graph.beta.models.ManagedDevice;
 import org.hibernate.SessionFactory;
 
 import com.azure.core.management.AzureEnvironment;
@@ -53,8 +57,11 @@ import com.blazebit.query.TypedQuery;
 //import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
 //import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
+//import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+//import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 //import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
 //import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
+//import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
@@ -133,6 +140,9 @@ public class Main {
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
 //            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
 //            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
+//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
             queryContextBuilder.setProperty(EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm);
 //            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
@@ -159,6 +169,7 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(PasswordPolicy.class, "AwsIamPasswordPolicy");
             queryContextBuilder.registerSchemaObjectAlias(MFADevice.class, "AwsMFADevice");
             queryContextBuilder.registerSchemaObjectAlias(AccountSummary.class, "AwsIamAccountSummary");
+            queryContextBuilder.registerSchemaObjectAlias(AccessKeyMetaDataLastUsed.class, "AwsAccessKeyMetaDataLastUsed");
 
             // EC2
             queryContextBuilder.registerSchemaObjectAlias(Instance.class, "AwsInstance");
@@ -200,25 +211,25 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(GHTeam.class, "GitHubTeam");
 
             // GitHub OpenAPI
-            queryContextBuilder.registerSchemaObjectAlias(OrganizationSimple.class, "OpenAPIGitHubOrganization");
-            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Repository.class, "OpenAPIGitHubRepository");
-            queryContextBuilder.registerSchemaObjectAlias(ShortBranch.class, "OpenAPIGitHubBranch");
-            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Project.class, "OpenAPIGitHubProject");
-            queryContextBuilder.registerSchemaObjectAlias(Team.class, "OpenAPIGitHubTeam");
+//            queryContextBuilder.registerSchemaObjectAlias(OrganizationSimple.class, "OpenAPIGitHubOrganization");
+//            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Repository.class, "OpenAPIGitHubRepository");
+//            queryContextBuilder.registerSchemaObjectAlias(ShortBranch.class, "OpenAPIGitHubBranch");
+//            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Project.class, "OpenAPIGitHubProject");
+//            queryContextBuilder.registerSchemaObjectAlias(Team.class, "OpenAPIGitHubTeam");
 
             // Kandji
-            queryContextBuilder.registerSchemaObjectAlias(ListDevices200ResponseInner.class, "KandjiDevice");
-            queryContextBuilder.registerSchemaObjectAlias(DeviceParameter.class, "KandjiDeviceParameter");
-            queryContextBuilder.registerSchemaObjectAlias(GetDeviceDetails200Response.class, "KandjiDeviceDetail");
+//            queryContextBuilder.registerSchemaObjectAlias(ListDevices200ResponseInner.class, "KandjiDevice");
+//            queryContextBuilder.registerSchemaObjectAlias(DeviceParameter.class, "KandjiDeviceParameter");
+//            queryContextBuilder.registerSchemaObjectAlias(GetDeviceDetails200Response.class, "KandjiDeviceDetail");
 
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
-                     QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
-//                    testAws( session );
+                    QuerySession session = queryContext.createSession(Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em))) {
+                    testAws( session );
 //                    testGitlab( session );
 //                    testGitHub( session );
 //                    testGitHubOpenAPI( session );
-                    testKandji( session );
+//                    testKandji( session );
 //                    testEntityView( session );
 //                    testAzureGraph( session );
 //                    testAzureResourceManager( session );
@@ -253,6 +264,25 @@ public class Main {
         List<Object[]> awsAccountSummaryResult = awsAccountSummaryQuery.getResultList();
         System.out.println("AwsAccountSummary");
         print(awsAccountSummaryResult);
+
+        TypedQuery<Object[]> awsAccessKeyMetaDataLastUsedQuery = session.createQuery(
+                "select a.* from AwsAccessKeyMetaDataLastUsed a" );
+        List<Object[]> awsAccessKeyMetaDataLastUsed = awsAccessKeyMetaDataLastUsedQuery.getResultList();
+        System.out.println("AwsAccessKeyMetaDataLastUsed");
+        print(awsAccessKeyMetaDataLastUsed);
+
+        // EC2
+        TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
+                "select i.* from AwsInstance i" );
+        List<Object[]> awsInstanceResult = awsInstanceQuery.getResultList();
+        System.out.println("AwsInstances");
+        print(awsInstanceResult);
+
+        TypedQuery<Object[]> awsVolumeQuery = session.createQuery(
+                "select v.* from AwsVolume v" );
+        List<Object[]> awsVolumeResult = awsVolumeQuery.getResultList();
+        System.out.println("AwsVolumes");
+        print(awsVolumeResult);
 
 //        // EC2
 //        TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
@@ -544,24 +574,24 @@ public class Main {
         }
     }
 
-    private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
-        com.blazebit.query.connector.github.v0314.invoker.ApiClient apiClient = new com.blazebit.query.connector.github.v0314.invoker.ApiClient();
-        apiClient.addDefaultHeader( "Authorization", "Bearer " + GITHUB_KEY );
+//    private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
+//        com.blazebit.query.connector.github.v0314.invoker.ApiClient apiClient = new com.blazebit.query.connector.github.v0314.invoker.ApiClient();
+//        apiClient.addDefaultHeader( "Authorization", "Bearer " + GITHUB_KEY );
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return apiClient;
-    }
+//        return apiClient;
+//    }
 
-    private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
-        com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth( "Bearer" );
-        auth.setBearerToken( KANDJI_KEY );
-        com.blazebit.query.connector.kandji.invoker.ApiClient apiClient = new com.blazebit.query.connector.kandji.invoker.ApiClient(
-                Map.of("bearerAuth", auth )
-        );
-        apiClient.setBasePath( KANDJI_BASE_PATH );
-        apiClient.getJSON().getMapper().registerModule(new KandjiJavaTimeModule());
+//    private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
+//        com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth( "Bearer" );
+//        auth.setBearerToken( KANDJI_KEY );
+//        com.blazebit.query.connector.kandji.invoker.ApiClient apiClient = new com.blazebit.query.connector.kandji.invoker.ApiClient(
+//                Map.of("bearerAuth", auth )
+//        );
+//        apiClient.setBasePath( KANDJI_BASE_PATH );
+//        apiClient.getJSON().getMapper().registerModule(new KandjiJavaTimeModule());
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return apiClient;
-    }
+//        return apiClient;
+//    }
 
     private static String name(Class<?> clazz) {
         String name = clazz.getName();
