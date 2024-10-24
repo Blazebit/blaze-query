@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.iam;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -19,6 +15,10 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.User;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
@@ -38,13 +38,13 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
 			List<User> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				IamClientBuilder ec2ClientBuilder = IamClient.builder()
+				IamClientBuilder iamClientBuilder = IamClient.builder()
 						.region( account.getRegion() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
+					iamClientBuilder.httpClient( sdkHttpClient );
 				}
-				try (IamClient client = ec2ClientBuilder.build()) {
+				try (IamClient client = iamClientBuilder.build()) {
 					list.addAll( client.listUsers().users() );
 				}
 			}

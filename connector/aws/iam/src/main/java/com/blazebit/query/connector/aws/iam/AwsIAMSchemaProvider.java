@@ -4,14 +4,14 @@
  */
 package com.blazebit.query.connector.aws.iam;
 
-import java.util.Map;
-
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
-import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.iam.model.User;
+
+import java.util.Map;
 
 /**
  * The schema provider for the AWS IAM connector.
@@ -28,11 +28,9 @@ public final class AwsIAMSchemaProvider implements QuerySchemaProvider {
 
 	@Override
 	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-		return Map.<Class<?>, DataFetcher<?>>of(
-				User.class, UserDataFetcher.INSTANCE,
-				PasswordPolicy.class, PasswordPolicyDataFetcher.INSTANCE,
-				MFADevice.class, MFADeviceDataFetcher.INSTANCE,
-				AccountSummary.class, AccountSummaryDataFetcher.INSTANCE
-		);
+		return Map.<Class<?>, DataFetcher<?>>of( User.class, UserDataFetcher.INSTANCE, PasswordPolicy.class,
+				PasswordPolicyDataFetcher.INSTANCE, MFADevice.class, MFADeviceDataFetcher.INSTANCE,
+				AccountSummary.class, AccountSummaryDataFetcher.INSTANCE, AccessKeyMetaDataLastUsed.class,
+				AccessKeyMetaDataLastUsedDataFetcher.INSTANCE );
 	}
 }

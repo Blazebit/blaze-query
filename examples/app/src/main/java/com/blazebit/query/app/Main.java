@@ -21,6 +21,7 @@ import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
+import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
@@ -141,6 +142,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( PasswordPolicy.class, "AwsIamPasswordPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( MFADevice.class, "AwsMFADevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
+			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
+					"AwsAccessKeyMetaDataLastUsed" );
 
 			// EC2
 			queryContextBuilder.registerSchemaObjectAlias( Instance.class, "AwsInstance" );
@@ -198,8 +201,8 @@ public class Main {
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
-					QuerySession session = queryContext.createSession(
-							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
+					 QuerySession session = queryContext.createSession(
+							 Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //                    testAws( session );
 //                    testGitlab( session );
 //                    testGitHub( session );
@@ -221,6 +224,12 @@ public class Main {
 		List<Object[]> awsUserResult = awsUserQuery.getResultList();
 		System.out.println( "AwsUsers" );
 		print( awsUserResult );
+
+		TypedQuery<Object[]> AwsAccessKeyMetaDataLastUsedQuery = session.createQuery(
+				"select a.* from AwsAccessKeyMetaDataLastUsed a" );
+		List<Object[]> awsAccessKeyMetaDataLastUsed = AwsAccessKeyMetaDataLastUsedQuery.getResultList();
+		System.out.println( "AwsAccessKeyMetaDataLastUsed" );
+		print( awsAccessKeyMetaDataLastUsed );
 
 		TypedQuery<Object[]> awsPasswordPolicyQuery = session.createQuery(
 				"select p.* from AwsIamPasswordPolicy p" );
