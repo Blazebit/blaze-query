@@ -27,6 +27,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -62,7 +63,9 @@ public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializabl
                     iamClientBuilder.httpClient( sdkHttpClient );
                 }
                 try (IamClient client = iamClientBuilder.build()) {
-                    list.addAll( client.listMFADevices().mfaDevices() );
+                    for (User user : context.getSession().get(User.class)) {
+                        list.addAll( client.listMFADevices(builder -> builder.userName(user.userName())).mfaDevices() );
+                    }
                 }
             }
             return list;
