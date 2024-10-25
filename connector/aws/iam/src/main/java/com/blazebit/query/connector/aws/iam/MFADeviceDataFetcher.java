@@ -63,8 +63,8 @@ public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializabl
                     iamClientBuilder.httpClient( sdkHttpClient );
                 }
                 try (IamClient client = iamClientBuilder.build()) {
-                    for (User user : context.getSession().get(User.class)) {
-                        list.addAll( client.listMFADevices(builder -> builder.userName(user.userName())).mfaDevices() );
+                    for (User user : client.listUsers().users()) {
+                        list.addAll(client.listMFADevices(builder -> builder.userName(user.userName())).mfaDevices());
                     }
                 }
             }
