@@ -1,0 +1,64 @@
+{
+  "id": "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/christian/providers/Microsoft.Storage/storageAccounts/onetwothree",
+  "kind": "StorageV2",
+  "location": "westeurope",
+  "name": "onetwothree",
+  "properties": {
+    "dnsEndpointType": "Standard",
+    "defaultToOAuthAuthentication": false,
+    "publicNetworkAccess": "Enabled",
+    "keyCreationTime": {
+      "key1": "2024-06-11T13:11:55.5595832Z",
+      "key2": "2024-06-11T13:11:55.5595832Z"
+    },
+    "allowCrossTenantReplication": false,
+    "privateEndpointConnections": [],
+    "minimumTlsVersion": "TLS1_2",
+    "allowBlobPublicAccess": false,
+    "allowSharedKeyAccess": true,
+    "largeFileSharesState": "Enabled",
+    "networkAcls": {
+      "ipv6Rules": [],
+      "bypass": "AzureServices",
+      "virtualNetworkRules": [],
+      "ipRules": [],
+      "defaultAction": "Allow"
+    },
+    "supportsHttpsTrafficOnly": true,
+    "encryption": {
+      "requireInfrastructureEncryption": false,
+      "services": {
+        "file": {
+          "keyType": "Account",
+          "enabled": true,
+          "lastEnabledTime": "2024-06-11T13:11:55.9033283Z"
+        },
+        "blob": {
+          "keyType": "Account",
+          "enabled": true,
+          "lastEnabledTime": "2024-06-11T13:11:55.9033283Z"
+        }
+      },
+      "keySource": "Microsoft.Storage"
+    },
+    "accessTier": "Hot",
+    "provisioningState": "Succeeded",
+    "creationTime": "2024-06-11T13:11:55.4189574Z",
+    "primaryEndpoints": {
+      "dfs": "https://onetwothree.dfs.core.windows.net/",
+      "web": "https://onetwothree.z6.web.core.windows.net/",
+      "blob": "https://onetwothree.blob.core.windows.net/",
+      "queue": "https://onetwothree.queue.core.windows.net/",
+      "table": "https://onetwothree.table.core.windows.net/",
+      "file": "https://onetwothree.file.core.windows.net/"
+    },
+    "primaryLocation": "westeurope",
+    "statusOfPrimary": "available"
+  },
+  "sku": {
+    "name": "Standard_LRS",
+    "tier": "Standard"
+  },
+  "tags": {},
+  "type": "Microsoft.Storage/storageAccounts"
+}

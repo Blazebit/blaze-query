@@ -12,6 +12,8 @@ import com.blazebit.query.spi.QuerySchemaProvider;
 import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.ManagedDevice;
+import com.microsoft.graph.beta.models.Organization;
+import com.microsoft.graph.beta.models.ServicePlanInfo;
 import com.microsoft.graph.beta.models.User;
 
 /**
@@ -33,7 +35,11 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
 				Application.class, ApplicationDataFetcher.INSTANCE,
 				ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
 				ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
-				User.class, UserDataFetcher.INSTANCE
+				User.class, UserDataFetcher.INSTANCE,
+				UserLastSignInActivity.class, UserLastSignInActivityDataFetcher.INSTANCE,
+				Organization.class, OrganizationDataFetcher.INSTANCE,
+				ServicePlan.class, ServicePlanDataFetcher.INSTANCE,
+				ServicePlanInfo.class, ServicePlanInfoDataFetcher.INSTANCE
 		);
 	}
 }
