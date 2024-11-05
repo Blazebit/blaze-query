@@ -123,7 +123,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Until 7.9.0 is released -->
+    <!-- Until OpenAPI Generator Maven Plugin 7.10.0 is released -->
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
