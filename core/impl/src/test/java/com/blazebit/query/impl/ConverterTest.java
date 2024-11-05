@@ -31,9 +31,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
@@ -44,6 +41,9 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFormat;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Christian Beikov
@@ -115,7 +115,7 @@ public class ConverterTest {
 								"  and m.theCustomEnum = 'VALUE1'"
 				);
 				List<Object[]> result = query.getResultList();
-				Assert.assertEquals(1, result.size());
+				assertEquals(1, result.size());
 			}
 		}
 	}
@@ -136,10 +136,11 @@ public class ConverterTest {
 		public MyCustomEnum theCustomEnum;
 	}
 
-	public static enum MyEnum {
+	public enum MyEnum {
 		VALUE1,
 		VALUE2
 	}
+
 	public static class MyCustomEnum {
 		public static final MyCustomEnum VALUE1 = new MyCustomEnum("VALUE1");
 		public static final MyCustomEnum VALUE2 = new MyCustomEnum("VALUE2");

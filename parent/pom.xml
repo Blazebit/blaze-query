@@ -15,13 +15,14 @@
     <description>Blazebit Blaze-Query Parent</description>
 
     <properties>
+        <version.assertj>3.26.3</version.assertj>
         <version.blaze-utils>0.1.21</version.blaze-utils>
         <version.blaze-persistence>1.6.11</version.blaze-persistence>
         <version.hibernate>6.5.2.Final</version.hibernate>
         <version.jakarta-jpa-api>3.0.0</version.jakarta-jpa-api>
         <version.weld-jakarta>4.0.3.Final</version.weld-jakarta>
         <version.weld>2.4.5.Final</version.weld>
-        <version.junit>4.12</version.junit>
+        <version.junit>5.11.3</version.junit>
         <version.bnd>6.4.1</version.bnd>
         <version.calcite>1.37.0</version.calcite>
 
@@ -71,10 +72,18 @@
 
             <!-- Test -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${version.junit}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+              <groupId>org.assertj</groupId>
+              <artifactId>assertj-core</artifactId>
+              <version>${version.assertj}</version>
+              <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -128,7 +137,7 @@
                 <plugin>
                     <groupId>org.openapitools</groupId>
                     <artifactId>openapi-generator-maven-plugin</artifactId>
-                    <version>7.10.0-fix-19921</version>
+                    <version>7.10.0-SNAPSHOT</version>
                 </plugin>
             </plugins>
         </pluginManagement>
