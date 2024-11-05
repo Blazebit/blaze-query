@@ -27,11 +27,11 @@ import com.blazebit.query.spi.DataFetcherConfig;
  */
 public final class AzureConnectorConfig {
 
-    /**
-     * Specified the {@link ApiClient} to use for querying data.
-     */
-    public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "azureApiClient" );
+	/**
+	 * Specified the {@link ApiClient} to use for querying data.
+	 */
+	public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName( "azureApiClient" );
 
-    private AzureConnectorConfig() {
-    }
+	private AzureConnectorConfig() {
+	}
 }

@@ -18,6 +18,7 @@ package com.blazebit.query.connector.azure.subscription.v20221201;
 
 import com.blazebit.query.connector.azure.base.invoker.ApiClient;
 import com.blazebit.query.spi.DataFetcherException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,27 +38,28 @@ import com.blazebit.query.spi.DataFormat;
  */
 public class SubscriptionDataFetcher implements DataFetcher<Subscription>, Serializable {
 
-    public static final SubscriptionDataFetcher INSTANCE = new SubscriptionDataFetcher();
+	public static final SubscriptionDataFetcher INSTANCE = new SubscriptionDataFetcher();
 
-    private SubscriptionDataFetcher() {
-    }
+	private SubscriptionDataFetcher() {
+	}
 
-    @Override
-    public List<Subscription> fetch(DataFetchContext context) {
-        try {
-            List<ApiClient> apiClients = AzureConnectorConfig.API_CLIENT.getAll(context);
-            List<Subscription> list = new ArrayList<>();
-            for (ApiClient apiClient : apiClients) {
-                list.addAll(new SubscriptionsApi(apiClient).subscriptionsList("2022-12-01").getValue());
-            }
-            return list;
-        } catch (ApiException e) {
-            throw new DataFetcherException("Could not fetch subscription list", e);
-        }
-    }
+	@Override
+	public List<Subscription> fetch(DataFetchContext context) {
+		try {
+			List<ApiClient> apiClients = AzureConnectorConfig.API_CLIENT.getAll( context );
+			List<Subscription> list = new ArrayList<>();
+			for ( ApiClient apiClient : apiClients ) {
+				list.addAll( new SubscriptionsApi( apiClient ).subscriptionsList( "2022-12-01" ).getValue() );
+			}
+			return list;
+		}
+		catch (ApiException e) {
+			throw new DataFetcherException( "Could not fetch subscription list", e );
+		}
+	}
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(Subscription.class);
-    }
+	@Override
+	public DataFormat getDataFormat() {
+		return DataFormats.beansConvention( Subscription.class );
+	}
 }

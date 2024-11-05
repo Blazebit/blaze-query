@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.connector.github.v0314;
 
 import java.io.Serializable;
@@ -39,48 +27,50 @@ import com.blazebit.query.spi.DataFormat;
  */
 public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 
-    public static final ProjectDataFetcher INSTANCE = new ProjectDataFetcher();
+	public static final ProjectDataFetcher INSTANCE = new ProjectDataFetcher();
 
-    private ProjectDataFetcher() {
-    }
+	private ProjectDataFetcher() {
+	}
 
-    @Override
-    public List<Project> fetch(DataFetchContext context) {
-        try {
-            List<ApiClient> apiClients = GithubConnectorConfig.API_CLIENT.getAll(context);
-            List<Project> list = new ArrayList<>();
-            Set<Integer> seenProjects = new HashSet<>();
-            List<? extends OrganizationSimple> organizations = context.getSession().getOrFetch(OrganizationSimple.class);
-            for (ApiClient apiClient : apiClients) {
-                ProjectsApi projectsApi = new ProjectsApi(apiClient);
-                for (OrganizationSimple organization : organizations) {
-                    for (int page = 1; ; page++) {
-                        List<Project> projects = projectsApi.projectsListForOrg(
-                                organization.getLogin(),
-                                null,
-                                100,
-                                page
-                        );
-                        for (Project project : projects) {
-                            if (seenProjects.add(project.getId())) {
-                                list.add(project);
-                            }
-                        }
-                        if (projects.size() != 100) {
-                            break;
-                        }
-                    }
-                }
+	@Override
+	public List<Project> fetch(DataFetchContext context) {
+		try {
+			List<ApiClient> apiClients = GithubConnectorConfig.API_CLIENT.getAll( context );
+			List<Project> list = new ArrayList<>();
+			Set<Integer> seenProjects = new HashSet<>();
+			List<? extends OrganizationSimple> organizations = context.getSession()
+					.getOrFetch( OrganizationSimple.class );
+			for ( ApiClient apiClient : apiClients ) {
+				ProjectsApi projectsApi = new ProjectsApi( apiClient );
+				for ( OrganizationSimple organization : organizations ) {
+					for ( int page = 1; ; page++ ) {
+						List<Project> projects = projectsApi.projectsListForOrg(
+								organization.getLogin(),
+								null,
+								100,
+								page
+						);
+						for ( Project project : projects ) {
+							if ( seenProjects.add( project.getId() ) ) {
+								list.add( project );
+							}
+						}
+						if ( projects.size() != 100 ) {
+							break;
+						}
+					}
+				}
 
-            }
-            return list;
-        } catch (ApiException e) {
-            throw new DataFetcherException("Could not fetch project list", e);
-        }
-    }
+			}
+			return list;
+		}
+		catch (ApiException e) {
+			throw new DataFetcherException( "Could not fetch project list", e );
+		}
+	}
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(Project.class, GithubConventionContext.INSTANCE);
-    }
+	@Override
+	public DataFormat getDataFormat() {
+		return DataFormats.beansConvention( Project.class, GithubConventionContext.INSTANCE );
+	}
 }

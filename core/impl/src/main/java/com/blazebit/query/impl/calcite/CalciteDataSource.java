@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.impl.calcite;
 
 import java.io.PrintWriter;
@@ -90,275 +78,278 @@ import static org.apache.calcite.rel.rel2sql.SqlImplementor.POS;
  * @since 1.0.0
  */
 public class CalciteDataSource extends Driver implements DataSource {
-    private final Properties properties;
-    private final JavaTypeFactory typeFactory;
-    private final CalciteSchema rootSchema;
+	private final Properties properties;
+	private final JavaTypeFactory typeFactory;
+	private final CalciteSchema rootSchema;
 
-    public CalciteDataSource(Properties properties) {
-        properties.setProperty( "lex", "JAVA" );
-        this.properties = properties;
+	public CalciteDataSource(Properties properties) {
+		properties.setProperty( "lex", "JAVA" );
+		this.properties = properties;
 
-        CalciteConnectionConfig cfg = new CalciteConnectionConfigImpl( properties );
-        RelDataTypeSystem typeSystem = cfg.typeSystem( RelDataTypeSystem.class, RelDataTypeSystem.DEFAULT );
-        if ( cfg.conformance().shouldConvertRaggedUnionTypesToVarying() ) {
-            typeSystem = new DelegatingTypeSystem( typeSystem ) {
-                @Override
-                public boolean shouldConvertRaggedUnionTypesToVarying() {
-                    return true;
-                }
-            };
-        }
-        this.typeFactory = new JavaTypeFactoryImpl( typeSystem );
-        this.rootSchema = CalciteSchema.createRootSchema( true );
-    }
+		CalciteConnectionConfig cfg = new CalciteConnectionConfigImpl( properties );
+		RelDataTypeSystem typeSystem = cfg.typeSystem( RelDataTypeSystem.class, RelDataTypeSystem.DEFAULT );
+		if ( cfg.conformance().shouldConvertRaggedUnionTypesToVarying() ) {
+			typeSystem = new DelegatingTypeSystem( typeSystem ) {
+				@Override
+				public boolean shouldConvertRaggedUnionTypesToVarying() {
+					return true;
+				}
+			};
+		}
+		this.typeFactory = new JavaTypeFactoryImpl( typeSystem );
+		this.rootSchema = CalciteSchema.createRootSchema( true );
+	}
 
-    public SchemaPlus getRootSchema() {
-        return rootSchema.plus();
-    }
+	public SchemaPlus getRootSchema() {
+		return rootSchema.plus();
+	}
 
-    @Override
-    public CalcitePrepare createPrepare() {
-        return new MyCalcitePrepareImpl();
-    }
+	@Override
+	public CalcitePrepare createPrepare() {
+		return new MyCalcitePrepareImpl();
+	}
 
-    public static RelRoot parseQueryToRel(CalciteConnection connection, String sql) {
-        final CalcitePrepare.Context prepareContext = connection.createPrepareContext();
+	public static RelRoot parseQueryToRel(CalciteConnection connection, String sql) {
+		final CalcitePrepare.Context prepareContext = connection.createPrepareContext();
 
-        // SQL Parsing
-        final CalciteConnectionConfig config = prepareContext.config();
-        SqlParser.Config parserConfig = SqlParser.config()
-                .withQuotedCasing(config.quotedCasing())
-                .withUnquotedCasing(config.unquotedCasing())
-                .withQuoting(config.quoting())
-                .withConformance(config.conformance())
-                .withCaseSensitive(config.caseSensitive());
-        final SqlParserImplFactory parserFactory = config.parserFactory( SqlParserImplFactory.class, null);
-        if (parserFactory != null) {
-            parserConfig = parserConfig.withParserFactory(parserFactory);
-        }
-        SqlParser parser = SqlParser.create(sql, parserConfig);
-        SqlNode sqlNode;
-        try {
-            sqlNode = parser.parseStmt();
-        } catch (SqlParseException e) {
-            throw new RuntimeException(
-                    "parse failed: " + e.getMessage(), e);
-        }
-        if ( !isSelect( sqlNode.getKind()) ) {
-            throw new RuntimeException("Unsupported sql: " + sql);
-        }
+		// SQL Parsing
+		final CalciteConnectionConfig config = prepareContext.config();
+		SqlParser.Config parserConfig = SqlParser.config()
+				.withQuotedCasing( config.quotedCasing() )
+				.withUnquotedCasing( config.unquotedCasing() )
+				.withQuoting( config.quoting() )
+				.withConformance( config.conformance() )
+				.withCaseSensitive( config.caseSensitive() );
+		final SqlParserImplFactory parserFactory = config.parserFactory( SqlParserImplFactory.class, null );
+		if ( parserFactory != null ) {
+			parserConfig = parserConfig.withParserFactory( parserFactory );
+		}
+		SqlParser parser = SqlParser.create( sql, parserConfig );
+		SqlNode sqlNode;
+		try {
+			sqlNode = parser.parseStmt();
+		}
+		catch (SqlParseException e) {
+			throw new RuntimeException(
+					"parse failed: " + e.getMessage(), e );
+		}
+		if ( !isSelect( sqlNode.getKind() ) ) {
+			throw new RuntimeException( "Unsupported sql: " + sql );
+		}
 
-        // Convert the SQL AST to a RelNode
-        final JavaTypeFactory typeFactory = prepareContext.getTypeFactory();
-        final CalciteCatalogReader catalogReader = new CalciteCatalogReader(
-                prepareContext.getRootSchema(),
-                prepareContext.getDefaultSchemaPath(),
-                typeFactory,
-                prepareContext.config()
-        );
-        final SqlValidator validator = createSqlValidator( prepareContext, catalogReader);
+		// Convert the SQL AST to a RelNode
+		final JavaTypeFactory typeFactory = prepareContext.getTypeFactory();
+		final CalciteCatalogReader catalogReader = new CalciteCatalogReader(
+				prepareContext.getRootSchema(),
+				prepareContext.getDefaultSchemaPath(),
+				typeFactory,
+				prepareContext.config()
+		);
+		final SqlValidator validator = createSqlValidator( prepareContext, catalogReader );
 
-        final SqlToRelConverter.Config sqlToRelConfig =
-                SqlToRelConverter.config()
-                        .withTrimUnusedFields(true)
-                        .withExpand(false)
-                        .withInSubQueryThreshold(20)
-                        .withExplain(false);
+		final SqlToRelConverter.Config sqlToRelConfig =
+				SqlToRelConverter.config()
+						.withTrimUnusedFields( true )
+						.withExpand( false )
+						.withInSubQueryThreshold( 20 )
+						.withExplain( false );
 
-        final VolcanoPlanner planner = new VolcanoPlanner( null, Contexts.of( prepareContext.config()));
-        RelOptTable.ViewExpander viewExpander = (rowType, queryString, schemaPath, viewPath) -> null;
-        SqlToRelConverter sqlToRelConverter = new SqlToRelConverter(
-                viewExpander,
-                validator,
-                catalogReader,
-                RelOptCluster.create( planner, new RexBuilder( typeFactory)),
-                StandardConvertletTable.INSTANCE,
-                sqlToRelConfig
-        );
-        return sqlToRelConverter.convertQuery(sqlNode, true, true);
-    }
+		final VolcanoPlanner planner = new VolcanoPlanner( null, Contexts.of( prepareContext.config() ) );
+		RelOptTable.ViewExpander viewExpander = (rowType, queryString, schemaPath, viewPath) -> null;
+		SqlToRelConverter sqlToRelConverter = new SqlToRelConverter(
+				viewExpander,
+				validator,
+				catalogReader,
+				RelOptCluster.create( planner, new RexBuilder( typeFactory ) ),
+				StandardConvertletTable.INSTANCE,
+				sqlToRelConfig
+		);
+		return sqlToRelConverter.convertQuery( sqlNode, true, true );
+	}
 
-    public static RelRoot parsePredicateToRel(CalciteConnection connection, String sql) {
-        final CalcitePrepare.Context prepareContext = connection.createPrepareContext();
+	public static RelRoot parsePredicateToRel(CalciteConnection connection, String sql) {
+		final CalcitePrepare.Context prepareContext = connection.createPrepareContext();
 
-        // SQL Parsing
-        final CalciteConnectionConfig config = prepareContext.config();
-        SqlParser.Config parserConfig = SqlParser.config()
-                .withQuotedCasing(config.quotedCasing())
-                .withUnquotedCasing(config.unquotedCasing())
-                .withQuoting(config.quoting())
-                .withConformance(config.conformance())
-                .withCaseSensitive(config.caseSensitive());
-        final SqlParserImplFactory parserFactory = config.parserFactory(SqlParserImplFactory.class, null);
-        if (parserFactory != null) {
-            parserConfig = parserConfig.withParserFactory(parserFactory);
-        }
-        SqlParser parser = SqlParser.create(sql, parserConfig);
-        SqlNode sqlNode;
-        try {
-            sqlNode = parser.parseExpression();
-        } catch (SqlParseException e) {
-            throw new RuntimeException(
-                    "parse failed: " + e.getMessage(), e);
-        }
+		// SQL Parsing
+		final CalciteConnectionConfig config = prepareContext.config();
+		SqlParser.Config parserConfig = SqlParser.config()
+				.withQuotedCasing( config.quotedCasing() )
+				.withUnquotedCasing( config.unquotedCasing() )
+				.withQuoting( config.quoting() )
+				.withConformance( config.conformance() )
+				.withCaseSensitive( config.caseSensitive() );
+		final SqlParserImplFactory parserFactory = config.parserFactory( SqlParserImplFactory.class, null );
+		if ( parserFactory != null ) {
+			parserConfig = parserConfig.withParserFactory( parserFactory );
+		}
+		SqlParser parser = SqlParser.create( sql, parserConfig );
+		SqlNode sqlNode;
+		try {
+			sqlNode = parser.parseExpression();
+		}
+		catch (SqlParseException e) {
+			throw new RuntimeException(
+					"parse failed: " + e.getMessage(), e );
+		}
 
-        SqlIdentifier e = new SqlIdentifier( ImmutableList.of( "azure", "vm", "VirtualMachine" ), POS );
-        SqlCall fromPart = SqlStdOperatorTable.AS.createCall( POS, e, new SqlIdentifier( "vm", POS ) );
-        sqlNode = new SqlSelect(
-                POS,
-                null,
-                new SqlNodeList( ImmutableList.of( SqlLiteral.createExactNumeric( "1", POS ) ), POS ),
-                fromPart,
-                sqlNode,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+		SqlIdentifier e = new SqlIdentifier( ImmutableList.of( "azure", "vm", "VirtualMachine" ), POS );
+		SqlCall fromPart = SqlStdOperatorTable.AS.createCall( POS, e, new SqlIdentifier( "vm", POS ) );
+		sqlNode = new SqlSelect(
+				POS,
+				null,
+				new SqlNodeList( ImmutableList.of( SqlLiteral.createExactNumeric( "1", POS ) ), POS ),
+				fromPart,
+				sqlNode,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+		);
 
-        // Convert the SQL AST to a RelNode
-        final JavaTypeFactory typeFactory = prepareContext.getTypeFactory();
-        final CalciteCatalogReader catalogReader = new CalciteCatalogReader(
-                prepareContext.getRootSchema(),
-                prepareContext.getDefaultSchemaPath(),
-                typeFactory,
-                prepareContext.config()
-        );
-        final SqlValidator validator = createSqlValidator( prepareContext, catalogReader);
+		// Convert the SQL AST to a RelNode
+		final JavaTypeFactory typeFactory = prepareContext.getTypeFactory();
+		final CalciteCatalogReader catalogReader = new CalciteCatalogReader(
+				prepareContext.getRootSchema(),
+				prepareContext.getDefaultSchemaPath(),
+				typeFactory,
+				prepareContext.config()
+		);
+		final SqlValidator validator = createSqlValidator( prepareContext, catalogReader );
 
-        final SqlToRelConverter.Config sqlToRelConfig =
-                SqlToRelConverter.config()
-                        .withTrimUnusedFields(true)
-                        .withExpand(false)
-                        .withInSubQueryThreshold(20)
-                        .withExplain(false);
+		final SqlToRelConverter.Config sqlToRelConfig =
+				SqlToRelConverter.config()
+						.withTrimUnusedFields( true )
+						.withExpand( false )
+						.withInSubQueryThreshold( 20 )
+						.withExplain( false );
 
-        final VolcanoPlanner planner = new VolcanoPlanner( null, Contexts.of( prepareContext.config()));
-        RelOptTable.ViewExpander viewExpander = (rowType, queryString, schemaPath, viewPath) -> null;
-        SqlToRelConverter sqlToRelConverter = new SqlToRelConverter(
-                viewExpander,
-                validator,
-                catalogReader,
-                RelOptCluster.create( planner, new RexBuilder( typeFactory)),
-                StandardConvertletTable.INSTANCE,
-                sqlToRelConfig
-        );
-        return sqlToRelConverter.convertQuery(sqlNode, true, true);
-    }
+		final VolcanoPlanner planner = new VolcanoPlanner( null, Contexts.of( prepareContext.config() ) );
+		RelOptTable.ViewExpander viewExpander = (rowType, queryString, schemaPath, viewPath) -> null;
+		SqlToRelConverter sqlToRelConverter = new SqlToRelConverter(
+				viewExpander,
+				validator,
+				catalogReader,
+				RelOptCluster.create( planner, new RexBuilder( typeFactory ) ),
+				StandardConvertletTable.INSTANCE,
+				sqlToRelConfig
+		);
+		return sqlToRelConverter.convertQuery( sqlNode, true, true );
+	}
 
-    private static SqlValidator createSqlValidator(
-            CalcitePrepare.Context context,
-            CalciteCatalogReader catalogReader) {
-        final SqlOperatorTable opTab0 = context.config().fun(SqlOperatorTable.class, SqlStdOperatorTable.instance());
-        final List<SqlOperatorTable> list = new ArrayList<>();
-        list.add(opTab0);
-        list.add(catalogReader);
-        final SqlOperatorTable opTab = SqlOperatorTables.chain( list);
-        final JavaTypeFactory typeFactory = context.getTypeFactory();
-        final CalciteConnectionConfig connectionConfig = context.config();
-        final SqlValidator.Config config = SqlValidator.Config.DEFAULT
-                .withLenientOperatorLookup(connectionConfig.lenientOperatorLookup())
-                .withConformance(connectionConfig.conformance())
-                .withDefaultNullCollation(connectionConfig.defaultNullCollation())
-                .withIdentifierExpansion(true)
-                .withTypeCoercionFactory(MyTypeCoercionImpl::new);
-        return new CalciteSqlValidator( opTab, catalogReader, typeFactory, config);
-    }
+	private static SqlValidator createSqlValidator(
+			CalcitePrepare.Context context,
+			CalciteCatalogReader catalogReader) {
+		final SqlOperatorTable opTab0 = context.config().fun( SqlOperatorTable.class, SqlStdOperatorTable.instance() );
+		final List<SqlOperatorTable> list = new ArrayList<>();
+		list.add( opTab0 );
+		list.add( catalogReader );
+		final SqlOperatorTable opTab = SqlOperatorTables.chain( list );
+		final JavaTypeFactory typeFactory = context.getTypeFactory();
+		final CalciteConnectionConfig connectionConfig = context.config();
+		final SqlValidator.Config config = SqlValidator.Config.DEFAULT
+				.withLenientOperatorLookup( connectionConfig.lenientOperatorLookup() )
+				.withConformance( connectionConfig.conformance() )
+				.withDefaultNullCollation( connectionConfig.defaultNullCollation() )
+				.withIdentifierExpansion( true )
+				.withTypeCoercionFactory( MyTypeCoercionImpl::new );
+		return new CalciteSqlValidator( opTab, catalogReader, typeFactory, config );
+	}
 
-    private static boolean isSelect(SqlKind kind) {
-        switch (kind) {
-            case INSERT:
-            case DELETE:
-            case UPDATE:
-            case MERGE:
-                return false;
-            default:
-                return true;
-        }
-    }
+	private static boolean isSelect(SqlKind kind) {
+		switch ( kind ) {
+			case INSERT:
+			case DELETE:
+			case UPDATE:
+			case MERGE:
+				return false;
+			default:
+				return true;
+		}
+	}
 
-    @Override
-    protected DriverVersion createDriverVersion() {
-        return new DriverVersion(
-                "Blaze-Query Calcite driver",
-                "1.0.0-SNAPSHOT",
-                "Blaze-Query",
-                "1.0.0-SNAPSHOT",
-                true,
-                4,
-                2,
-                1,
-                0
-        );
-    }
+	@Override
+	protected DriverVersion createDriverVersion() {
+		return new DriverVersion(
+				"Blaze-Query Calcite driver",
+				"1.0.0-SNAPSHOT",
+				"Blaze-Query",
+				"1.0.0-SNAPSHOT",
+				true,
+				4,
+				2,
+				1,
+				0
+		);
+	}
 
-    @Override
-    protected String getConnectStringPrefix() {
-        return "";
-    }
+	@Override
+	protected String getConnectStringPrefix() {
+		return "";
+	}
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        AvaticaConnection connection = ( (CalciteFactory) factory ).newConnection(
-                this,
-                factory,
-                "jdbc:calcite:",
-                properties,
-                rootSchema,
-                typeFactory
-        );
-        handler.onConnectionInit( connection );
-        return connection;
-    }
+	@Override
+	public Connection getConnection() throws SQLException {
+		AvaticaConnection connection = ((CalciteFactory) factory).newConnection(
+				this,
+				factory,
+				"jdbc:calcite:",
+				properties,
+				rootSchema,
+				typeFactory
+		);
+		handler.onConnectionInit( connection );
+		return connection;
+	}
 
-    @Override
-    public Connection getConnection(String username, String password) throws SQLException {
-        return getConnection();
-    }
+	@Override
+	public Connection getConnection(String username, String password) throws SQLException {
+		return getConnection();
+	}
 
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        return null;
-    }
+	@Override
+	public PrintWriter getLogWriter() throws SQLException {
+		return null;
+	}
 
-    @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-    }
+	@Override
+	public void setLogWriter(PrintWriter out) throws SQLException {
+	}
 
-    @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-    }
+	@Override
+	public void setLoginTimeout(int seconds) throws SQLException {
+	}
 
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return 0;
-    }
+	@Override
+	public int getLoginTimeout() throws SQLException {
+		return 0;
+	}
 
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return iface != null && iface.isAssignableFrom( getClass() );
-    }
+	@Override
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+		return iface != null && iface.isAssignableFrom( getClass() );
+	}
 
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        try {
-            if ( isWrapperFor( iface ) ) {
-                return (T) this;
-            }
-            throw new SQLException( "Can't unwrap to " + iface.getTypeName() );
-        } catch (Exception e) {
-            throw new SQLException( "Can't unwrap to " + iface.getTypeName(), e );
-        }
-    }
+	@Override
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		try {
+			if ( isWrapperFor( iface ) ) {
+				return (T) this;
+			}
+			throw new SQLException( "Can't unwrap to " + iface.getTypeName() );
+		}
+		catch (Exception e) {
+			throw new SQLException( "Can't unwrap to " + iface.getTypeName(), e );
+		}
+	}
 
-    private static class MyTypeCoercionImpl extends TypeCoercionImpl {
-        public MyTypeCoercionImpl(RelDataTypeFactory typeFactory, SqlValidator validator) {
-            super( typeFactory, validator );
-        }
+	private static class MyTypeCoercionImpl extends TypeCoercionImpl {
+		public MyTypeCoercionImpl(RelDataTypeFactory typeFactory, SqlValidator validator) {
+			super( typeFactory, validator );
+		}
 
 //        @Override
 //        public boolean binaryComparisonCoercion(SqlCallBinding binding) {
@@ -556,129 +547,131 @@ public class CalciteDataSource extends Driver implements DataSource {
 //            return SqlStdOperatorTable.CAST.createCall( SqlParserPos.ZERO, node,
 //                                                        SqlTypeUtil.convertTypeToSpec(type).withNullable(type.isNullable()));
 //        }
-    }
+	}
 
-    private static class MyCalcitePrepareImpl extends CalcitePrepareImpl {
-        @Override
-        protected CalcitePreparingStmt getPreparingStmt(Context context, Type elementType, CalciteCatalogReader catalogReader, RelOptPlanner planner) {
-            final JavaTypeFactory typeFactory = context.getTypeFactory();
-            final EnumerableRel.Prefer prefer;
-            if (elementType == Object[].class) {
-                prefer = EnumerableRel.Prefer.ARRAY;
-            } else {
-                prefer = EnumerableRel.Prefer.CUSTOM;
-            }
-            final Convention resultConvention = enableBindable ? BindableConvention.INSTANCE : EnumerableConvention.INSTANCE;
-            return new MyCalcitePreparingStmt(
-                    this,
-                    context,
-                    catalogReader,
-                    typeFactory,
-                    context.getRootSchema(),
-                    prefer,
-                    createCluster(planner, new RexBuilder(typeFactory)),
-                    resultConvention,
-                    createConvertletTable()
-            );
-        }
-    }
+	private static class MyCalcitePrepareImpl extends CalcitePrepareImpl {
+		@Override
+		protected CalcitePreparingStmt getPreparingStmt(Context context, Type elementType, CalciteCatalogReader catalogReader, RelOptPlanner planner) {
+			final JavaTypeFactory typeFactory = context.getTypeFactory();
+			final EnumerableRel.Prefer prefer;
+			if ( elementType == Object[].class ) {
+				prefer = EnumerableRel.Prefer.ARRAY;
+			}
+			else {
+				prefer = EnumerableRel.Prefer.CUSTOM;
+			}
+			final Convention resultConvention =
+					enableBindable ? BindableConvention.INSTANCE : EnumerableConvention.INSTANCE;
+			return new MyCalcitePreparingStmt(
+					this,
+					context,
+					catalogReader,
+					typeFactory,
+					context.getRootSchema(),
+					prefer,
+					createCluster( planner, new RexBuilder( typeFactory ) ),
+					resultConvention,
+					createConvertletTable()
+			);
+		}
+	}
 
-    private static class MyCalcitePreparingStmt extends CalcitePrepareImpl.CalcitePreparingStmt {
+	private static class MyCalcitePreparingStmt extends CalcitePrepareImpl.CalcitePreparingStmt {
 
-        private final RelOptCluster cluster;
+		private final RelOptCluster cluster;
 
-        public MyCalcitePreparingStmt(
-                CalcitePrepareImpl prepare,
-                CalcitePrepare.Context context,
-                CatalogReader catalogReader,
-                RelDataTypeFactory typeFactory,
-                CalciteSchema schema,
-                EnumerableRel.@Nullable Prefer prefer,
-                RelOptCluster cluster,
-                Convention resultConvention,
-                SqlRexConvertletTable convertletTable) {
-            super(
-                    prepare,
-                    context,
-                    catalogReader,
-                    typeFactory,
-                    schema,
-                    prefer,
-                    cluster,
-                    resultConvention,
-                    convertletTable
-            );
-            this.cluster = cluster;
-        }
+		public MyCalcitePreparingStmt(
+				CalcitePrepareImpl prepare,
+				CalcitePrepare.Context context,
+				CatalogReader catalogReader,
+				RelDataTypeFactory typeFactory,
+				CalciteSchema schema,
+				EnumerableRel.@Nullable Prefer prefer,
+				RelOptCluster cluster,
+				Convention resultConvention,
+				SqlRexConvertletTable convertletTable) {
+			super(
+					prepare,
+					context,
+					catalogReader,
+					typeFactory,
+					schema,
+					prefer,
+					cluster,
+					resultConvention,
+					convertletTable
+			);
+			this.cluster = cluster;
+		}
 
-        @Override
-        protected SqlToRelConverter getSqlToRelConverter(
-                SqlValidator validator,
-                CatalogReader catalogReader,
-                SqlToRelConverter.Config config) {
-            return new MySqlToRelConverter(this, validator, catalogReader, cluster, convertletTable, config);
-        }
+		@Override
+		protected SqlToRelConverter getSqlToRelConverter(
+				SqlValidator validator,
+				CatalogReader catalogReader,
+				SqlToRelConverter.Config config) {
+			return new MySqlToRelConverter( this, validator, catalogReader, cluster, convertletTable, config );
+		}
 
-        @Override
-        protected SqlValidator createSqlValidator(CatalogReader catalogReader) {
-            return CalciteDataSource.createSqlValidator( context, (CalciteCatalogReader) catalogReader );
-        }
-    }
+		@Override
+		protected SqlValidator createSqlValidator(CatalogReader catalogReader) {
+			return CalciteDataSource.createSqlValidator( context, (CalciteCatalogReader) catalogReader );
+		}
+	}
 
-    private static class MySqlToRelConverter extends SqlToRelConverter {
-        public MySqlToRelConverter(
-                RelOptTable.ViewExpander viewExpander,
-                @Nullable SqlValidator validator,
-                Prepare.CatalogReader catalogReader,
-                RelOptCluster cluster,
-                SqlRexConvertletTable convertletTable,
-                Config config) {
-            super( viewExpander, validator, catalogReader, cluster, convertletTable, config );
-        }
+	private static class MySqlToRelConverter extends SqlToRelConverter {
+		public MySqlToRelConverter(
+				RelOptTable.ViewExpander viewExpander,
+				@Nullable SqlValidator validator,
+				Prepare.CatalogReader catalogReader,
+				RelOptCluster cluster,
+				SqlRexConvertletTable convertletTable,
+				Config config) {
+			super( viewExpander, validator, catalogReader, cluster, convertletTable, config );
+		}
 
-        @Override
-        protected Blackboard createBlackboard(
-                SqlValidatorScope scope,
-                @Nullable Map<String, RexNode> nameToNodeMap, boolean top) {
-            return new MyBlackboard(scope, nameToNodeMap, top);
-        }
+		@Override
+		protected Blackboard createBlackboard(
+				SqlValidatorScope scope,
+				@Nullable Map<String, RexNode> nameToNodeMap, boolean top) {
+			return new MyBlackboard( scope, nameToNodeMap, top );
+		}
 
-        private class MyBlackboard extends Blackboard {
-            public MyBlackboard(
-                    @Nullable SqlValidatorScope scope,
-                    @Nullable Map<String, RexNode> nameToNodeMap,
-                    boolean top) {
-                super( scope, nameToNodeMap, top );
-            }
+		private class MyBlackboard extends Blackboard {
+			public MyBlackboard(
+					@Nullable SqlValidatorScope scope,
+					@Nullable Map<String, RexNode> nameToNodeMap,
+					boolean top) {
+				super( scope, nameToNodeMap, top );
+			}
 
-            @Override
-            public RexNode convertLiteral(SqlLiteral literal) {
-                return visit(literal);
-            }
+			@Override
+			public RexNode convertLiteral(SqlLiteral literal) {
+				return visit( literal );
+			}
 
-            @Override
-            public RexNode visit(SqlLiteral literal) {
-                switch (literal.getTypeName()) {
-                    case TIMESTAMP_TZ:
-                        return rexBuilder.makeTimestampLiteral(
-                                literal.getValueAs(TimestampWithTimeZoneString.class).getLocalTimestampString(),
-                                ((SqlTimestampTzLiteral) literal).getPrec()
-                        );
+			@Override
+			public RexNode visit(SqlLiteral literal) {
+				switch ( literal.getTypeName() ) {
+					case TIMESTAMP_TZ:
+						return rexBuilder.makeTimestampLiteral(
+								literal.getValueAs( TimestampWithTimeZoneString.class ).getLocalTimestampString(),
+								((SqlTimestampTzLiteral) literal).getPrec()
+						);
 //                        return rexBuilder.makeTimestampTzLiteral(
 //                                literal.getValueAs(TimestampWithTimeZoneString.class),
 //                                ((SqlTimestampTzLiteral) literal).getPrec()
 //                        );
-                    case TIME_TZ:
-                        return rexBuilder.makeTimeLiteral(
-                                literal.getValueAs( TimeString.class),
-                                ((SqlTimeLiteral) literal).getPrec());
+					case TIME_TZ:
+						return rexBuilder.makeTimeLiteral(
+								literal.getValueAs( TimeString.class ),
+								((SqlTimeLiteral) literal).getPrec() );
 //                        return rexBuilder.makeTimeTzLiteral(
 //                                literal.getValueAs( TimeWithTimeZoneString.class),
 //                                ((SqlTimeTzLiteral) literal).getPrec());
-                    default:
-                        return super.convertLiteral(literal);
-                }
-            }
-        }
-    }
+					default:
+						return super.convertLiteral( literal );
+				}
+			}
+		}
+	}
 }
