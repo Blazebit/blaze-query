@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.blazebit</groupId>
         <artifactId>blaze-query-connector-azure-subscription-v20221201</artifactId>
@@ -122,10 +123,10 @@
 
         <!-- Test dependencies -->
         <dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,7 +140,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>https://github.com/Azure/azure-rest-api-specs/raw/main/specification/resources/resource-manager/Microsoft.Resources/stable/2022-12-01/subscriptions.json</inputSpec>
+                            <inputSpec>
+                                https://github.com/Azure/azure-rest-api-specs/raw/main/specification/resources/resource-manager/Microsoft.Resources/stable/2022-12-01/subscriptions.json
+                            </inputSpec>
                             <generatorName>java</generatorName>
                             <modelPackage>com.blazebit.query.connector.azure.subscription.v20221201.model</modelPackage>
                             <apiPackage>com.blazebit.query.connector.azure.subscription.v20221201.api</apiPackage>
