@@ -38,6 +38,7 @@
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
         <currentYearDynamic>${maven.build.timestamp}</currentYearDynamic>
         <skipNpmDeploy>false</skipNpmDeploy>
+        <release.push>false</release.push>
     </properties>
 
     <inceptionYear>2024</inceptionYear>
@@ -175,7 +176,7 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <pushChanges>false</pushChanges>
+                    <pushChanges>${release.push}</pushChanges>
                     <localCheckout>true</localCheckout>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
 
