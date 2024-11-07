@@ -623,16 +623,16 @@ public class Main {
         }
     }
 
-    private static import com.blazebit.query.connector.azure.base.invoker.ApiClient createApiClient() {
-        String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
-        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
-                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
-                // Default scope
-                .setScope("https://management.core.windows.net//.default");
-        import com.blazebit.query.connector.azure.base.invoker.ApiClient apiClient = new import com.blazebit.query.connector.azure.base.invoker.ApiClient(Map.of("azure_auth", oAuth));
-        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return apiClient;
-    }
+//    private static import com.blazebit.query.connector.azure.base.invoker.ApiClient createApiClient() {
+//        String basePath = "https://login.microsoftonline.com/" + TENANT_ID;
+//        OAuth oAuth = new OAuth(basePath, "/oauth2/v2.0/token")
+//                .setCredentials(CLIENT_ID, CLIENT_SECRET, false)
+//                // Default scope
+//                .setScope("https://management.core.windows.net//.default");
+//        import com.blazebit.query.connector.azure.base.invoker.ApiClient apiClient = new import com.blazebit.query.connector.azure.base.invoker.ApiClient(Map.of("azure_auth", oAuth));
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        return apiClient;
+//    }
 
     private static AzureResourceManager createResourceManager() {
         AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, null, AzureEnvironment.AZURE);
