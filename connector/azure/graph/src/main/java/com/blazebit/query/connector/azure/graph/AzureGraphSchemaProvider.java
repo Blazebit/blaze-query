@@ -16,15 +16,16 @@
 
 package com.blazebit.query.connector.azure.graph;
 
-import java.util.Map;
-
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.ManagedDevice;
+import com.microsoft.graph.beta.models.Organization;
 import com.microsoft.graph.beta.models.User;
+
+import java.util.Map;
 
 /**
  * The schema provider for the Azure Subscription connector.
@@ -45,7 +46,8 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
                 Application.class, ApplicationDataFetcher.INSTANCE,
                 ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
                 ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
-                User.class, UserDataFetcher.INSTANCE
+                User.class, UserDataFetcher.INSTANCE,
+                Organization.class, OrganizationDataFetcher.INSTANCE
         );
     }
 }

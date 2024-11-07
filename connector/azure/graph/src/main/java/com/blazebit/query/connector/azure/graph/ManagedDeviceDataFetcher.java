@@ -22,6 +22,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ManagedDevice;
+import com.microsoft.graph.beta.models.odataerrors.ODataError;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +50,17 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
             List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
             List<ManagedDevice> list = new ArrayList<>();
             for (GraphServiceClient graphClient : graphClients) {
-                list.addAll(graphClient.deviceManagement().managedDevices().get().getValue());
+                try {
+                    list.addAll(graphClient.deviceManagement().managedDevices().get().getValue());
+                } catch (ODataError oDataError) {
+                    // Check for the specific error indicating Intune is not available
+                    if (oDataError.getMessage().contains("AADSTS500014")) {
+                        // If the error is thrown, Intune is not in use: return an empty list
+                        return list;
+                    } else {
+                        throw oDataError;
+                    }
+                }
             }
             return list;
         } catch (RuntimeException e) {
