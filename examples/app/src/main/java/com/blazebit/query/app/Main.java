@@ -18,22 +18,19 @@ package com.blazebit.query.app;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import java.io.IOException;
 
+import com.blazebit.query.connector.github.v0314.OrganizationSimple;
+import com.blazebit.query.connector.github.v0314.model.ShortBranch;
+import com.blazebit.query.connector.github.v0314.model.Team;
+import com.blazebit.query.connector.kandji.DeviceParameter;
+import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
+import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
+import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
-//import com.blazebit.query.connector.github.v0314.OrganizationSimple;
-//import com.blazebit.query.connector.github.v0314.model.ShortBranch;
-//import com.blazebit.query.connector.github.v0314.model.Team;
-//import com.blazebit.query.connector.kandji.DeviceParameter;
-//import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
-//import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
-//import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
-//import com.blazebit.query.connector.aws.iam.AccountSummary;
-//import com.microsoft.graph.beta.models.ManagedDevice;
+import com.microsoft.graph.beta.models.ManagedDevice;
 
 import java.util.List;
 import java.util.Map;
 
-//import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
-import com.microsoft.graph.beta.models.ManagedDevice;
 import org.hibernate.SessionFactory;
 
 import com.azure.core.management.AzureEnvironment;
@@ -211,16 +208,16 @@ public class Main {
             queryContextBuilder.registerSchemaObjectAlias(GHTeam.class, "GitHubTeam");
 
             // GitHub OpenAPI
-//            queryContextBuilder.registerSchemaObjectAlias(OrganizationSimple.class, "OpenAPIGitHubOrganization");
-//            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Repository.class, "OpenAPIGitHubRepository");
-//            queryContextBuilder.registerSchemaObjectAlias(ShortBranch.class, "OpenAPIGitHubBranch");
-//            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Project.class, "OpenAPIGitHubProject");
-//            queryContextBuilder.registerSchemaObjectAlias(Team.class, "OpenAPIGitHubTeam");
+            queryContextBuilder.registerSchemaObjectAlias(OrganizationSimple.class, "OpenAPIGitHubOrganization");
+            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Repository.class, "OpenAPIGitHubRepository");
+            queryContextBuilder.registerSchemaObjectAlias(ShortBranch.class, "OpenAPIGitHubBranch");
+            queryContextBuilder.registerSchemaObjectAlias(com.blazebit.query.connector.github.v0314.model.Project.class, "OpenAPIGitHubProject");
+            queryContextBuilder.registerSchemaObjectAlias(Team.class, "OpenAPIGitHubTeam");
 
             // Kandji
-//            queryContextBuilder.registerSchemaObjectAlias(ListDevices200ResponseInner.class, "KandjiDevice");
-//            queryContextBuilder.registerSchemaObjectAlias(DeviceParameter.class, "KandjiDeviceParameter");
-//            queryContextBuilder.registerSchemaObjectAlias(GetDeviceDetails200Response.class, "KandjiDeviceDetail");
+            queryContextBuilder.registerSchemaObjectAlias(ListDevices200ResponseInner.class, "KandjiDevice");
+            queryContextBuilder.registerSchemaObjectAlias(DeviceParameter.class, "KandjiDeviceParameter");
+            queryContextBuilder.registerSchemaObjectAlias(GetDeviceDetails200Response.class, "KandjiDeviceDetail");
 
             try (QueryContext queryContext = queryContextBuilder.build()) {
                 try (EntityManager em = emf.createEntityManager();
@@ -574,24 +571,24 @@ public class Main {
         }
     }
 
-//    private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
-//        com.blazebit.query.connector.github.v0314.invoker.ApiClient apiClient = new com.blazebit.query.connector.github.v0314.invoker.ApiClient();
-//        apiClient.addDefaultHeader( "Authorization", "Bearer " + GITHUB_KEY );
+    private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
+        com.blazebit.query.connector.github.v0314.invoker.ApiClient apiClient = new com.blazebit.query.connector.github.v0314.invoker.ApiClient();
+        apiClient.addDefaultHeader( "Authorization", "Bearer " + GITHUB_KEY );
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        return apiClient;
-//    }
+        return apiClient;
+    }
 
-//    private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
-//        com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth( "Bearer" );
-//        auth.setBearerToken( KANDJI_KEY );
-//        com.blazebit.query.connector.kandji.invoker.ApiClient apiClient = new com.blazebit.query.connector.kandji.invoker.ApiClient(
-//                Map.of("bearerAuth", auth )
-//        );
-//        apiClient.setBasePath( KANDJI_BASE_PATH );
-//        apiClient.getJSON().getMapper().registerModule(new KandjiJavaTimeModule());
+    private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
+        com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth( "Bearer" );
+        auth.setBearerToken( KANDJI_KEY );
+        com.blazebit.query.connector.kandji.invoker.ApiClient apiClient = new com.blazebit.query.connector.kandji.invoker.ApiClient(
+                Map.of("bearerAuth", auth )
+        );
+        apiClient.setBasePath( KANDJI_BASE_PATH );
+        apiClient.getJSON().getMapper().registerModule(new KandjiJavaTimeModule());
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        return apiClient;
-//    }
+        return apiClient;
+    }
 
     private static String name(Class<?> clazz) {
         String name = clazz.getName();

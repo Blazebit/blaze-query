@@ -44,7 +44,8 @@ public final class AwsIAMSchemaProvider implements QuerySchemaProvider {
                 User.class, UserDataFetcher.INSTANCE,
                 PasswordPolicy.class, PasswordPolicyDataFetcher.INSTANCE,
                 MFADevice.class, MFADeviceDataFetcher.INSTANCE,
-                AccountSummary.class, AccountSummaryDataFetcher.INSTANCE,
+                AccountSummary.class, AccountSummaryDataFetcher.INSTANCE
+                User.class, UserDataFetcher.INSTANCE,
                 AccessKeyMetaDataLastUsed.class, AccessKeyMetaDataLastUsedDataFetcher.INSTANCE
         );
     }
