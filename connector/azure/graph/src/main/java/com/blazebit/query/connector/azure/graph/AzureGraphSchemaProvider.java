@@ -23,6 +23,7 @@ import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.Organization;
+import com.microsoft.graph.beta.models.SubscribedSku;
 import com.microsoft.graph.beta.models.User;
 
 import java.util.Map;
@@ -47,7 +48,8 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
                 ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
                 ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
                 User.class, UserDataFetcher.INSTANCE,
-                Organization.class, OrganizationDataFetcher.INSTANCE
+                Organization.class, OrganizationDataFetcher.INSTANCE,
+                SubscribedSku.class, SubscribedSkuDataFetcher.INSTANCE
         );
     }
 }
