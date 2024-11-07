@@ -27,6 +27,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.AccessKeyMetadata;
+import software.amazon.awssdk.services.iam.model.ListAccessKeysResponse;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
@@ -56,20 +57,36 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
             SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
             List<AccessKeyMetaDataLastUsed> list = new ArrayList<>();
             for ( AwsConnectorConfig.Account account : accounts) {
-                IamClientBuilder ec2ClientBuilder = IamClient.builder()
+                IamClientBuilder iamClientBuilder = IamClient.builder()
                         .region( account.getRegion() )
                         .credentialsProvider( account.getCredentialsProvider() );
                 if ( sdkHttpClient != null ) {
-                    ec2ClientBuilder.httpClient( sdkHttpClient );
+                    iamClientBuilder.httpClient( sdkHttpClient );
                 }
-                try (IamClient client = ec2ClientBuilder.build()) {
+                try (IamClient client = iamClientBuilder.build()) {
                     for (User user : client.listUsers().users()) {
-                        // Retrieve access key metadata for all access keys of the user (maximum of 100 keys are retrieved by default)
-                        for (AccessKeyMetadata accessKeyMetadata : client.listAccessKeys(builder -> builder.userName(user.userName())).accessKeyMetadata()) {
-                            list.add( new AccessKeyMetaDataLastUsed(accessKeyMetadata, client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()) );
-                        }
+                        String marker = null;
+                        boolean isTruncated;
+
+                        // Handle pagination
+                        do {
+                            String finalMarker = marker;
+                            ListAccessKeysResponse response = client.listAccessKeys(
+                                    builder -> builder.userName(user.userName()).marker(finalMarker)
+                            );
+
+                            for (AccessKeyMetadata accessKeyMetadata : response.accessKeyMetadata()) {
+                                list.add(new AccessKeyMetaDataLastUsed(
+                                        accessKeyMetadata,
+                                        client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()
+                                ));
+                            }
+
+                            // Update marker for the next request
+                            marker = response.marker();
+                            isTruncated = response.isTruncated();
+                        } while (isTruncated);
                     }
-                    return list;
                 }
             }
             return list;
