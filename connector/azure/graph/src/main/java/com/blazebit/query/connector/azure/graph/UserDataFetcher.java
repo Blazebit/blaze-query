@@ -48,8 +48,7 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
             List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
             List<User> list = new ArrayList<>();
             for (GraphServiceClient graphServiceClient : graphServiceClients) {
-                List<ServicePlanName> servicePlanNames = getAllServicePlanNames(context.getSession().createQuery(
-                        "select s.* from AzureSubscribedSku s" ).getResultList());
+                List<ServicePlanName> servicePlanNames = getAllServicePlanNames(context.getSession().getOrFetch(SubscribedSku.class));
                 if (servicePlanNames.contains("AAD_PREMIUM") || servicePlanNames.contains("AAD_PREMIUM_P2")) {
                     // If the serviceplan names includes "AAD_PREMIUM" or "AAD_PREMIUM_P2", also fetch the signInActivity
                     list.addAll(graphServiceClient.users().get(getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[]{"signInActivity"}).getValue());
