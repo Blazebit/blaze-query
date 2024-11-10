@@ -19,17 +19,17 @@ package com.blazebit.query.connector.azure.graph;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import com.microsoft.graph.beta.models.ServicePlanInfo;
 import com.microsoft.graph.beta.models.SubscribedSku;
 import com.microsoft.graph.beta.models.User;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
+
+import static com.blazebit.query.connector.azure.graph.ServicePlanUtils.getAllServicePlanNames;
 
 /**
  * @author Christian Beikov
@@ -50,7 +50,7 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
             for (GraphServiceClient graphServiceClient : graphServiceClients) {
                 List<SubscribedSku> subscribedSkus = (List<SubscribedSku>) context.getSession().getOrFetch(SubscribedSku.class);
                 List<ServicePlanName> servicePlanNames = getAllServicePlanNames(subscribedSkus);
-                if (servicePlanNames.contains(ServicePlanName.AAD_PREMIUM) || servicePlanNames.contains(ServicePlanName.AAD_PREMIUM_P2)) {
+                if (servicePlanNames.stream().anyMatch(ServicePlanName::isAad)) {
                     // If the serviceplan names includes "AAD_PREMIUM" or "AAD_PREMIUM_P2", also fetch the signInActivity
                     list.addAll(graphServiceClient.users().get(getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[]{"signInActivity"}).getValue());
                 } else {
@@ -68,21 +68,4 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
         return DataFormats.beansConvention(User.class, AzureGraphConventionContext.INSTANCE);
     }
 
-    /**
-     * Extracts all service plan names from a list of SubscribedSku objects.
-     *
-     * @param subscribedSkus the list of SubscribedSku
-     * @return a list of all service plan names across all SubscribedSku
-     */
-    private List<ServicePlanName> getAllServicePlanNames(List<SubscribedSku> subscribedSkus) {
-        List<ServicePlanName> servicePlanNames = new ArrayList<>();
-
-        for (SubscribedSku sku : subscribedSkus) {
-            for (ServicePlanInfo servicePlan : Objects.requireNonNull(sku.getServicePlans())) {
-                ServicePlanName.fromName(servicePlan.getServicePlanName()).ifPresent(servicePlanNames::add);
-            }
-        }
-
-        return servicePlanNames;
-    }
 }

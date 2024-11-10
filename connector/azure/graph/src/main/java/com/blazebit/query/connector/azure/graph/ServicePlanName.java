@@ -4,7 +4,18 @@ import java.util.Optional;
 
 public enum ServicePlanName {
     AAD_PREMIUM("AAD_PREMIUM"),
-    AAD_PREMIUM_P2("AAD_PREMIUM_P2");
+    AAD_PREMIUM_P2("AAD_PREMIUM_P2"),
+    INTUNE_A("INTUNE_A"),
+    INTUNE_A_GOV("INTUNE_A_GOV"),
+    INTUNE_A_VL("INTUNE_A_VL"),
+    INTUNE_O365("INTUNE_O365"),
+    INTUNE_Defender("Intune_Defender"),
+    INTUNE_AdvancedEA("Intune_AdvancedEA"),
+    INTUNE_EPM("Intune-EPM"),
+    INTUNE_MAMTunnel("Intune-MAMTunnel"),
+    INTUNE_EDU("INTUNE_EDU"),
+    INTUNE_P2("INTUNE_P2"),
+    INTUNE_SMBIZ("INTUNE_SMBIZ");
 
     private final String name;
 
@@ -24,5 +35,13 @@ public enum ServicePlanName {
             }
         }
         return Optional.empty();
+    }
+
+    public boolean isAad() {
+        return this.name.toUpperCase().startsWith("AAD");
+    }
+
+    public boolean isIntune() {
+        return this.name.toUpperCase().startsWith("INTUNE");
     }
 }

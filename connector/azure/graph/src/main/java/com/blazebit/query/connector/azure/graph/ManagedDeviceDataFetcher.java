@@ -22,11 +22,13 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ManagedDevice;
-import com.microsoft.graph.beta.models.odataerrors.ODataError;
+import com.microsoft.graph.beta.models.SubscribedSku;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.blazebit.query.connector.azure.graph.ServicePlanUtils.getAllServicePlanNames;
 
 /**
  * @author Max Hovens
@@ -50,16 +52,10 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
             List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
             List<ManagedDevice> list = new ArrayList<>();
             for (GraphServiceClient graphClient : graphClients) {
-                try {
+                List<SubscribedSku> subscribedSkus = (List<SubscribedSku>) context.getSession().getOrFetch(SubscribedSku.class);
+                List<ServicePlanName> servicePlanNames = getAllServicePlanNames(subscribedSkus);
+                if(servicePlanNames.stream().anyMatch(ServicePlanName::isIntune)) {
                     list.addAll(graphClient.deviceManagement().managedDevices().get().getValue());
-                } catch (ODataError oDataError) {
-                    // Check for the specific error indicating Intune is not available
-                    if (oDataError.getMessage().contains("AADSTS500014")) {
-                        // If the error is thrown, Intune is not in use: return an empty list
-                        return list;
-                    } else {
-                        throw oDataError;
-                    }
                 }
             }
             return list;
