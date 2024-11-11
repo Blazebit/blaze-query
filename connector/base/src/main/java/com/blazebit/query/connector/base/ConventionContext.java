@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.connector.base;
 
 import java.lang.reflect.Member;
@@ -37,68 +25,67 @@ import org.apache.calcite.sql.type.JavaToSqlTypeConversionRules;
  */
 public interface ConventionContext {
 
-    /**
-     * A no-op filter that doesn't filter anything.
-     */
-    ConventionContext NO_FILTER = new ConventionContext() {
-        @Override
-        public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
-            return this;
-        }
-    };
+	/**
+	 * A no-op filter that doesn't filter anything.
+	 */
+	ConventionContext NO_FILTER = new ConventionContext() {
+		@Override
+		public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+			return this;
+		}
+	};
 
-    /**
-     * Returns the sub-filter to use for attributes of the return type of the attribute identified by the given method.
-     * A {@code null} return means that the attribute identified by the given method should be filtered.
-     *
-     * @param concreteClass The concrete class for which this method should be checked
-     * @param member The member for an attribute that should be checked
-     *
-     * @return The sub-filter to use or {@code null} if the attribute for this method should be filtered.
-     */
-    ConventionContext getSubFilter(Class<?> concreteClass, Member member);
+	/**
+	 * Returns the sub-filter to use for attributes of the return type of the attribute identified by the given method.
+	 * A {@code null} return means that the attribute identified by the given method should be filtered.
+	 *
+	 * @param concreteClass The concrete class for which this method should be checked
+	 * @param member The member for an attribute that should be checked
+	 * @return The sub-filter to use or {@code null} if the attribute for this method should be filtered.
+	 */
+	ConventionContext getSubFilter(Class<?> concreteClass, Member member);
 
-    /**
-     * Returns whether the given class is a basic type.
-     *
-     * @param typeClass The class to check
-     * @return whether the given class is a basic type
-     */
-    default boolean isBaseType(Class<?> typeClass) {
-        return isEnumType(typeClass)
-                || JavaToSqlTypeConversionRules.instance().lookup(typeClass) != null
-                || typeClass == Object.class
-                || typeClass == Instant.class
-                || typeClass == ZonedDateTime.class
-                || typeClass == OffsetDateTime.class
-                || typeClass == OffsetTime.class
-                || typeClass == LocalDate.class
-                || typeClass == LocalDateTime.class
-                || typeClass == LocalTime.class
-                || typeClass == Duration.class
-                || typeClass == Period.class
-                || typeClass == UUID.class
-                ;
-    }
+	/**
+	 * Returns whether the given class is a basic type.
+	 *
+	 * @param typeClass The class to check
+	 * @return whether the given class is a basic type
+	 */
+	default boolean isBaseType(Class<?> typeClass) {
+		return isEnumType( typeClass )
+				|| JavaToSqlTypeConversionRules.instance().lookup( typeClass ) != null
+				|| typeClass == Object.class
+				|| typeClass == Instant.class
+				|| typeClass == ZonedDateTime.class
+				|| typeClass == OffsetDateTime.class
+				|| typeClass == OffsetTime.class
+				|| typeClass == LocalDate.class
+				|| typeClass == LocalDateTime.class
+				|| typeClass == LocalTime.class
+				|| typeClass == Duration.class
+				|| typeClass == Period.class
+				|| typeClass == UUID.class
+				;
+	}
 
-    /**
-     * Returns whether the given class is an enum type.
-     *
-     * @param typeClass The class to check
-     * @return whether the given class is an enum type
-     */
-    default boolean isEnumType(Class<?> typeClass) {
-        return typeClass.isEnum();
-    }
+	/**
+	 * Returns whether the given class is an enum type.
+	 *
+	 * @param typeClass The class to check
+	 * @return whether the given class is an enum type
+	 */
+	default boolean isEnumType(Class<?> typeClass) {
+		return typeClass.isEnum();
+	}
 
-    /**
-     * Returns whether an exception thrown by the given accessor method should cause {@code null} to be returned
-     * instead of rethrowing.
-     *
-     * @param method The accessor method to check
-     * @return whether a method invocation should produce {@code null} when an exception happens
-     */
-    default boolean nullOnException(Method method) {
-        return false;
-    }
+	/**
+	 * Returns whether an exception thrown by the given accessor method should cause {@code null} to be returned
+	 * instead of rethrowing.
+	 *
+	 * @param method The accessor method to check
+	 * @return whether a method invocation should produce {@code null} when an exception happens
+	 */
+	default boolean nullOnException(Method method) {
+		return false;
+	}
 }

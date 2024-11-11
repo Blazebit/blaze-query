@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.impl;
 
 import java.lang.reflect.Member;
@@ -31,9 +19,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
@@ -45,6 +30,10 @@ import com.blazebit.query.spi.DataFormat;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Christian Beikov
  * @since 1.0.0
@@ -54,23 +43,33 @@ public class ConverterTest {
 	@Test
 	public void testConverters() {
 		Model model = new Model();
-		model.theInstant = Instant.parse( "2000-01-01T12:12:12.123456789Z");
-		model.theZonedDateTime = ZonedDateTime.of( LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC), ZoneId.of( "America/Los_Angeles"));
-		model.theOffsetDateTime = OffsetDateTime.of( LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC), ZoneOffset.ofHoursMinutes( 1, 30));
-		model.theOffsetTime = OffsetTime.of( 12, 12, 12, 123456789, ZoneOffset.ofHoursMinutes( 1, 30));
-		model.theLocalDate = LocalDate.ofInstant( model.theInstant, ZoneOffset.UTC);
-		model.theLocalDateTime = LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC);
-		model.theLocalTime = LocalTime.ofInstant( model.theInstant, ZoneOffset.UTC);
-		model.theDuration = Duration.ofDays( 1).plusHours( 9).plusMinutes( 8).plusSeconds( 7).plusNanos( 123456789L);
-		model.thePeriod = Period.ofYears( 1).plusMonths( 5);
-		model.theUuid = UUID.fromString( "53886a8a-7082-4879-b430-25cb94415be8");
+		model.theInstant = Instant.parse( "2000-01-01T12:12:12.123456789Z" );
+		model.theZonedDateTime = ZonedDateTime.of(
+				LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC ),
+				ZoneId.of( "America/Los_Angeles" )
+		);
+		model.theOffsetDateTime = OffsetDateTime.of(
+				LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC ),
+				ZoneOffset.ofHoursMinutes( 1, 30 )
+		);
+		model.theOffsetTime = OffsetTime.of( 12, 12, 12, 123456789, ZoneOffset.ofHoursMinutes( 1, 30 ) );
+		model.theLocalDate = LocalDate.ofInstant( model.theInstant, ZoneOffset.UTC );
+		model.theLocalDateTime = LocalDateTime.ofInstant( model.theInstant, ZoneOffset.UTC );
+		model.theLocalTime = LocalTime.ofInstant( model.theInstant, ZoneOffset.UTC );
+		model.theDuration = Duration.ofDays( 1 )
+				.plusHours( 9 )
+				.plusMinutes( 8 )
+				.plusSeconds( 7 )
+				.plusNanos( 123456789L );
+		model.thePeriod = Period.ofYears( 1 ).plusMonths( 5 );
+		model.theUuid = UUID.fromString( "53886a8a-7082-4879-b430-25cb94415be8" );
 		model.theEnum = MyEnum.VALUE1;
 		model.theCustomEnum = MyCustomEnum.VALUE1;
 		QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-		queryContextBuilder.registerSchemaObject(Model.class, new DataFetcher<>() {
+		queryContextBuilder.registerSchemaObject( Model.class, new DataFetcher<>() {
 			@Override
 			public DataFormat getDataFormat() {
-				return DataFormats.fieldsConvention(Model.class, new ConventionContext() {
+				return DataFormats.fieldsConvention( Model.class, new ConventionContext() {
 					@Override
 					public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
 						return this;
@@ -78,17 +77,17 @@ public class ConverterTest {
 
 					@Override
 					public boolean isEnumType(Class<?> typeClass) {
-						return typeClass == MyCustomEnum.class || ConventionContext.super.isEnumType(typeClass);
+						return typeClass == MyCustomEnum.class || ConventionContext.super.isEnumType( typeClass );
 					}
-				});
+				} );
 			}
 
 			@Override
 			public List<Model> fetch(DataFetchContext context) {
-				return List.of(model);
+				return List.of( model );
 			}
 		} );
-		queryContextBuilder.registerSchemaObjectAlias(Model.class, "Model");
+		queryContextBuilder.registerSchemaObjectAlias( Model.class, "Model" );
 		try (QueryContext queryContext = queryContextBuilder.build()) {
 			try (QuerySession session = queryContext.createSession()) {
 				TypedQuery<Object[]> query = session.createQuery(
@@ -115,34 +114,35 @@ public class ConverterTest {
 								"  and m.theCustomEnum = 'VALUE1'"
 				);
 				List<Object[]> result = query.getResultList();
-				Assert.assertEquals(1, result.size());
+				assertEquals( 1, result.size() );
 			}
 		}
 	}
 
 	public static class Model {
-        public Object object;
-        public Instant theInstant;
-        public ZonedDateTime theZonedDateTime;
-        public OffsetDateTime theOffsetDateTime;
-        public OffsetTime theOffsetTime;
-        public LocalDate theLocalDate;
-        public LocalDateTime theLocalDateTime;
-        public LocalTime theLocalTime;
-        public Duration theDuration;
-        public Period thePeriod;
-        public UUID theUuid;
+		public Object object;
+		public Instant theInstant;
+		public ZonedDateTime theZonedDateTime;
+		public OffsetDateTime theOffsetDateTime;
+		public OffsetTime theOffsetTime;
+		public LocalDate theLocalDate;
+		public LocalDateTime theLocalDateTime;
+		public LocalTime theLocalTime;
+		public Duration theDuration;
+		public Period thePeriod;
+		public UUID theUuid;
 		public MyEnum theEnum;
 		public MyCustomEnum theCustomEnum;
 	}
 
-	public static enum MyEnum {
+	public enum MyEnum {
 		VALUE1,
 		VALUE2
 	}
+
 	public static class MyCustomEnum {
-		public static final MyCustomEnum VALUE1 = new MyCustomEnum("VALUE1");
-		public static final MyCustomEnum VALUE2 = new MyCustomEnum("VALUE2");
+		public static final MyCustomEnum VALUE1 = new MyCustomEnum( "VALUE1" );
+		public static final MyCustomEnum VALUE2 = new MyCustomEnum( "VALUE2" );
 
 		private final String value;
 

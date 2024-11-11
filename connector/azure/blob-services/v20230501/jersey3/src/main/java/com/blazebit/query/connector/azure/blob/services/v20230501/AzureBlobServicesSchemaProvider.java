@@ -30,16 +30,16 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  * @since 1.0.0
  */
 public final class AzureBlobServicesSchemaProvider implements QuerySchemaProvider {
-    /**
-     * Creates a new schema provider.
-     */
-    public AzureBlobServicesSchemaProvider() {
-    }
+	/**
+	 * Creates a new schema provider.
+	 */
+	public AzureBlobServicesSchemaProvider() {
+	}
 
-    @Override
-    public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        return Map.<Class<?>, DataFetcher<?>>of(
-                BlobServiceProperties.class, BlobServicesDataFetcher.INSTANCE
-        );
-    }
+	@Override
+	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Map.<Class<?>, DataFetcher<?>>of(
+				BlobServiceProperties.class, BlobServicesDataFetcher.INSTANCE
+		);
+	}
 }

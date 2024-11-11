@@ -18,4 +18,3 @@
  * Blaze-Query metamodel.
  */
 package com.blazebit.query.metamodel;
-
