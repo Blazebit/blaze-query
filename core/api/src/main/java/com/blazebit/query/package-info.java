@@ -18,4 +18,3 @@
  * Blaze-Query is a querying tool.
  */
 package com.blazebit.query;
-

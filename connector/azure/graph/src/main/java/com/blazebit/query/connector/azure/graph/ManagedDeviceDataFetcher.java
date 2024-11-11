@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.connector.base.DataFormats;
@@ -24,6 +12,7 @@ import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.SubscribedSku;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +25,10 @@ import static com.blazebit.query.connector.azure.graph.ServicePlanUtils.getAllSe
  */
 public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Serializable {
 
-    public static final ManagedDeviceDataFetcher INSTANCE = new ManagedDeviceDataFetcher();
+	public static final ManagedDeviceDataFetcher INSTANCE = new ManagedDeviceDataFetcher();
 
-    private ManagedDeviceDataFetcher() {
-    }
+	private ManagedDeviceDataFetcher() {
+	}
 
     /**
      * @param context The data fetching context
@@ -64,8 +53,8 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
         }
     }
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(ManagedDevice.class, AzureGraphConventionContext.INSTANCE);
-    }
+	@Override
+	public DataFormat getDataFormat() {
+		return DataFormats.beansConvention( ManagedDevice.class, AzureGraphConventionContext.INSTANCE );
+	}
 }

@@ -1,17 +1,6 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
 package com.blazebit.query.impl;
 
@@ -32,112 +21,118 @@ import com.blazebit.query.spi.DataFetchContext;
  */
 public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 
-    private final QuerySessionImpl querySession;
-    private final String queryString;
-    private final Class<T> resultClass;
-    private final PreparedStatement preparedStatement;
-    private Map<String, Object> properties;
+	private final QuerySessionImpl querySession;
+	private final String queryString;
+	private final Class<T> resultClass;
+	private final PreparedStatement preparedStatement;
+	private Map<String, Object> properties;
 
-    public TypedQueryImpl(QuerySessionImpl querySession, String queryString, Class<T> resultClass, Map<String, Object> properties) {
-        this.querySession = querySession;
-        this.queryString = queryString;
-        this.resultClass = resultClass;
-        try {
-            this.preparedStatement = querySession.connection().prepareStatement(queryString);
-        } catch (SQLException ex) {
-            throw new IllegalArgumentException(ex);
-        }
-        if (!properties.isEmpty()) {
-            this.properties = properties;
-        }
-    }
+	public TypedQueryImpl(
+			QuerySessionImpl querySession,
+			String queryString,
+			Class<T> resultClass,
+			Map<String, Object> properties) {
+		this.querySession = querySession;
+		this.queryString = queryString;
+		this.resultClass = resultClass;
+		try {
+			this.preparedStatement = querySession.connection().prepareStatement( queryString );
+		}
+		catch (SQLException ex) {
+			throw new IllegalArgumentException( ex );
+		}
+		if ( !properties.isEmpty() ) {
+			this.properties = properties;
+		}
+	}
 
-    @Override
-    public QuerySession getSession() {
-        return querySession;
-    }
+	@Override
+	public QuerySession getSession() {
+		return querySession;
+	}
 
-    public Class<T> getResultClass() {
-        return resultClass;
-    }
+	public Class<T> getResultClass() {
+		return resultClass;
+	}
 
-    @Override
-    public TypedQueryImpl<T> setParameter(int position, Object value) {
-        checkClosed();
-        try {
-            preparedStatement.setObject( position, value );
-        } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
-        }
-        return this;
-    }
+	@Override
+	public TypedQueryImpl<T> setParameter(int position, Object value) {
+		checkClosed();
+		try {
+			preparedStatement.setObject( position, value );
+		}
+		catch (SQLException e) {
+			throw new IllegalArgumentException( e );
+		}
+		return this;
+	}
 
-    @Override
-    public List<T> getResultList() {
-        checkClosed();
-        return querySession.getContext().getResultList(this, preparedStatement);
-    }
+	@Override
+	public List<T> getResultList() {
+		checkClosed();
+		return querySession.getContext().getResultList( this, preparedStatement );
+	}
 
-    @Override
-    public Stream<T> getResultStream() {
-        checkClosed();
-        return querySession.getContext().getResultStream(this, preparedStatement);
-    }
+	@Override
+	public Stream<T> getResultStream() {
+		checkClosed();
+		return querySession.getContext().getResultStream( this, preparedStatement );
+	}
 
-    @Override
-    public String getQueryString() {
-        return queryString;
-    }
+	@Override
+	public String getQueryString() {
+		return queryString;
+	}
 
-    @Override
-    public <P> P findProperty(String key) {
-        Object value = null;
-        if (properties != null) {
-            value = properties.get(key);
-        }
-        if (value == null) {
-            value = querySession.findLocalProperty(key);
-        }
-        //noinspection unchecked
-        return (P) value;
-    }
+	@Override
+	public <P> P findProperty(String key) {
+		Object value = null;
+		if ( properties != null ) {
+			value = properties.get( key );
+		}
+		if ( value == null ) {
+			value = querySession.findLocalProperty( key );
+		}
+		//noinspection unchecked
+		return (P) value;
+	}
 
-    @Override
-    public void setProperty(String propertyName, Object value) {
-        checkClosed();
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        properties.put( propertyName, value );
-    }
+	@Override
+	public void setProperty(String propertyName, Object value) {
+		checkClosed();
+		if ( properties == null ) {
+			properties = new HashMap<>();
+		}
+		properties.put( propertyName, value );
+	}
 
-    @Override
-    public Map<String, Object> getProperties() {
-        checkClosed();
-        Map<String, Object> sessionProperties = querySession.getPropertiesInternal();
-        if ( properties == null ) {
-            return sessionProperties;
-        }
-        if (sessionProperties == null) {
-            return new HashMap<>( properties );
-        }
-        HashMap<String, Object> properties = new HashMap<>( sessionProperties.size() + this.properties.size() );
-        properties.putAll( sessionProperties );
-        properties.putAll( this.properties );
-        return properties;
-    }
+	@Override
+	public Map<String, Object> getProperties() {
+		checkClosed();
+		Map<String, Object> sessionProperties = querySession.getPropertiesInternal();
+		if ( properties == null ) {
+			return sessionProperties;
+		}
+		if ( sessionProperties == null ) {
+			return new HashMap<>( properties );
+		}
+		HashMap<String, Object> properties = new HashMap<>( sessionProperties.size() + this.properties.size() );
+		properties.putAll( sessionProperties );
+		properties.putAll( this.properties );
+		return properties;
+	}
 
-    public void checkClosed() {
-        querySession.checkClosed();
-    }
+	public void checkClosed() {
+		querySession.checkClosed();
+	}
 
-    @Override
-    public <C> C unwrap(Class<C> cls) {
-        checkClosed();
-        if (PreparedStatement.class.isAssignableFrom( cls )) {
-            //noinspection unchecked
-            return (C) preparedStatement;
-        }
-        throw new IllegalArgumentException("Can't unwrap to: " + cls.getName() );
-    }
+	@Override
+	public <C> C unwrap(Class<C> cls) {
+		checkClosed();
+		if ( PreparedStatement.class.isAssignableFrom( cls ) ) {
+			//noinspection unchecked
+			return (C) preparedStatement;
+		}
+		throw new IllegalArgumentException( "Can't unwrap to: " + cls.getName() );
+	}
 }

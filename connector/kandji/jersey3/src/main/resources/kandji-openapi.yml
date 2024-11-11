@@ -10,10 +10,10 @@ info:
 
 
     - US - `https://SubDomain.api.kandji.io`
-        
+    
     - EU - `https://SubDomain.api.eu.kandji.io`
-        
-
+    
+    
     For information on how to obtain an API token, please refer to the following
     support article.
 
@@ -115,7 +115,7 @@ info:
     Code examples using the API can be found in the Kandji support
     [GitHub](https://github.com/kandji-inc/support/tree/main/api-tools).
   version: 1.0.0
-  contact: {}
+  contact: { }
 servers:
   - url: https://{sub_domain}.api.kandji.io
   - url: '{post_url}'
@@ -742,7 +742,7 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              properties: {}
+              properties: { }
       responses:
         '204':
           description: Delete integration
@@ -807,7 +807,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     patch:
       tags:
         - Automated Device Enrollment integrations
@@ -2947,7 +2947,7 @@ paths:
                           example: auto_app_testing
                         params:
                           type: object
-                          properties: {}
+                          properties: { }
                         type:
                           type: string
                           example: classic
@@ -2961,7 +2961,7 @@ paths:
                         icon: ss-paintdisabled
                         id: b38787e4-401c-4c4b-86dc-f1cca2072531
                         name: auto_app_testing
-                        params: {}
+                        params: { }
                         type: classic
                       - color: aqua-800
                         computers_count: 0
@@ -2972,7 +2972,7 @@ paths:
                         icon: ss-files
                         id: cbe7daa9-2bcb-4cb1-aff9-024cd3a0330c
                         name: this is a test assignment map
-                        params: {}
+                        params: { }
                         type: map
               examples:
                 success:
@@ -2990,7 +2990,7 @@ paths:
                         icon: ss-paintdisabled
                         id: b38787e4-401c-4c4b-86dc-f1cca2072531
                         name: auto_app_testing
-                        params: {}
+                        params: { }
                         type: classic
                       - color: aqua-800
                         computers_count: 0
@@ -3001,7 +3001,7 @@ paths:
                         icon: ss-files
                         id: cbe7daa9-2bcb-4cb1-aff9-024cd3a0330c
                         name: this is a test assignment map
-                        params: {}
+                        params: { }
                         type: map
     post:
       tags:
@@ -3101,7 +3101,7 @@ paths:
                     example: Test Template123
                   params:
                     type: object
-                    properties: {}
+                    properties: { }
                   type:
                     type: string
                     example: map
@@ -3116,7 +3116,7 @@ paths:
                     icon: ss-files
                     id: f3a0445f-87ba-4c37-ba9f-67186004f375
                     name: Test Template123
-                    params: {}
+                    params: { }
                     type: map
         '400':
           description: 400 - type does not match source.id blueprint type
@@ -3379,7 +3379,7 @@ paths:
                     example: Default Blueprint
                   params:
                     type: object
-                    properties: {}
+                    properties: { }
               examples:
                 success:
                   value:
@@ -3393,7 +3393,7 @@ paths:
                     id: 6391086e-85a1-4820-813c-f9c75025fff4
                     missing_computers_count: 1
                     name: Default Blueprint
-                    params: {}
+                    params: { }
     parameters:
       - name: blueprint_id
         in: path
@@ -3421,18 +3421,18 @@ paths:
 
 
         - `count` (int): The total count of library items.
-            
+        
         - `next` (str): The URL for the next page of results, if available. If
         not available will value will be `null`.
-            
+        
         - `previous` (str): The URL for the previous page of results, if
         available. If not available will value will be `null`.
-            
+        
         - `results` (object): An array containing objects with the following
         fields:
-            
+        
             - `id` (str): The ID of the library item.
-                
+        
             - `name` (str): The name of the library item.
       operationId: listLibraryItems
       responses:
@@ -3649,12 +3649,12 @@ paths:
 
 
         - `library_item_id` (string, required)
-            
+        
         - `assignment_node_id` (string, required for maps)
-            
+        
             - Note: To find the assignment_node_id, view the map in a browser. Then, on your keyboard, press and hold the Option ⌥ key. Each node ID remains fixed for the lifespan of the node on the map.
-                
-
+        
+        
         ### Error responses
 
 
@@ -3784,10 +3784,10 @@ paths:
 
 
         - `library_item_id` (string, required)
-            
+        
         - `assignment_node_id` (string, required for maps)
-            
-
+        
+        
         ### Error responses
 
 
@@ -8059,7 +8059,7 @@ paths:
                     serial_number: C02FL5YXQ6LC
                     supplemental_build_version: ''
                     supplemental_os_version_extra: ''
-                    tags: []
+                    tags: [ ]
                     user:
                       email: steve@accuhive.io
                       id: 9519
@@ -8259,7 +8259,7 @@ paths:
                       serial_number: C02FL5YXQ6LC
                       supplemental_build_version: ''
                       supplemental_os_version_extra: ''
-                      tags: []
+                      tags: [ ]
                       user:
                         email: steve@accuhive.io
                         id: 9519
@@ -8343,7 +8343,7 @@ paths:
                       serial_number: GG7FF8QSQ1GH
                       supplemental_build_version: 22F66
                       supplemental_os_version_extra: ''
-                      tags: []
+                      tags: [ ]
                       user: ''
                 List iPhone only:
                   value:
@@ -8367,7 +8367,7 @@ paths:
                       serial_number: FCLD57YLN70G
                       supplemental_build_version: 22F66
                       supplemental_os_version_extra: ''
-                      tags: []
+                      tags: [ ]
                       user: ''
                 Query for specific serial number:
                   value:
@@ -8622,7 +8622,7 @@ paths:
       responses:
         '204':
           description: Delete Device
-          content: {}
+          content: { }
     patch:
       tags:
         - Device Information
@@ -8713,12 +8713,12 @@ paths:
               properties:
                 tags:
                   type: array
-                  items: {}
-                  example: []
+                  items: { }
+                  example: [ ]
             examples:
               Update Device:
                 value:
-                  tags: []
+                  tags: [ ]
       responses:
         '200':
           description: >-
@@ -8914,7 +8914,7 @@ paths:
                     os_version: 10.15.7
                     platform: Mac
                     serial_number: 57NT5OHHKIED
-                    tags: []
+                    tags: [ ]
                     user:
                       email: testuser@dtnb.domain
                       id: 23
@@ -8939,7 +8939,7 @@ paths:
                     os_version: 10.15.7
                     platform: Mac
                     serial_number: 57NT5OHHKIED
-                    tags: []
+                    tags: [ ]
                     user:
                       email: testuser@dtnb.domain
                       id: 23
@@ -9148,7 +9148,7 @@ paths:
                         type: array
                         items:
                           type: string
-                        example: ["testuser"]
+                        example: [ "testuser" ]
                   activation_lock:
                     type: object
                     properties:
@@ -9390,7 +9390,7 @@ paths:
                     type: array
                     items:
                       type: string
-                    example: ["accuhive_02"]
+                    example: [ "accuhive_02" ]
     parameters:
       - name: device_id
         in: path
@@ -9691,8 +9691,8 @@ paths:
                                   example: DEP
                                 error_chain:
                                   type: array
-                                  items: {}
-                                  example: []
+                                  items: { }
+                                  example: [ ]
                                 from:
                                   type: string
                                   example: iPad
@@ -9826,10 +9826,10 @@ paths:
                               command_type: ActivationLockBypassCode
                               date_completed: '2021-03-30T18:07:28.186776Z'
                               date_requested: '2021-03-30T18:07:27.804250Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:27.869132Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -9856,7 +9856,7 @@ paths:
                               command_type: SetInitialConfiguration
                               date_completed: '2021-03-30T18:07:28.609114Z'
                               date_requested: '2021-03-30T18:07:27.823122Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:28.215228Z'
                               metadata:
@@ -9888,10 +9888,10 @@ paths:
                               command_type: DeviceConfigured
                               date_completed: '2021-03-30T18:07:28.962094Z'
                               date_requested: '2021-03-30T18:07:27.841671Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:28.637185Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -9918,10 +9918,10 @@ paths:
                               command_type: DeviceInformation
                               date_completed: '2021-03-30T18:07:41.715109Z'
                               date_requested: '2021-03-30T18:07:41.065813Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:41.363998Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -9948,10 +9948,10 @@ paths:
                               command_type: AvailableOSUpdates
                               date_completed: '2021-03-30T18:07:42.179027Z'
                               date_requested: '2021-03-30T18:07:41.096045Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:41.732682Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -9978,10 +9978,10 @@ paths:
                               command_type: CertificateList
                               date_completed: '2021-03-30T18:07:42.541505Z'
                               date_requested: '2021-03-30T18:07:41.115379Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:42.197706Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10008,10 +10008,10 @@ paths:
                               command_type: SecurityInfo
                               date_completed: '2021-03-30T18:07:42.904447Z'
                               date_requested: '2021-03-30T18:07:41.138287Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:42.558635Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10038,10 +10038,10 @@ paths:
                               command_type: ProfileList
                               date_completed: '2021-03-30T18:07:43.258979Z'
                               date_requested: '2021-03-30T18:07:41.186337Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:42.922462Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10068,10 +10068,10 @@ paths:
                               command_type: InstalledApplicationList
                               date_completed: '2021-03-30T18:07:43.715321Z'
                               date_requested: '2021-03-30T18:07:41.590898Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-03-30T18:07:43.277496Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10109,7 +10109,7 @@ paths:
                                     request type.
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:08.631369Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10136,7 +10136,7 @@ paths:
                               command_type: SetInitialConfiguration
                               date_completed: '2021-04-19T18:09:09.274604Z'
                               date_requested: '2021-04-19T18:09:08.566561Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:08.933652Z'
                               metadata:
@@ -10169,10 +10169,10 @@ paths:
                               command_type: DeviceConfigured
                               date_completed: '2021-04-19T18:09:09.617146Z'
                               date_requested: '2021-04-19T18:09:08.591847Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:09.292711Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10199,10 +10199,10 @@ paths:
                               command_type: DeviceInformation
                               date_completed: '2021-04-19T18:09:21.867942Z'
                               date_requested: '2021-04-19T18:09:11.928261Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:18.999928Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10229,10 +10229,10 @@ paths:
                               command_type: AvailableOSUpdates
                               date_completed: '2021-04-19T18:09:23.155317Z'
                               date_requested: '2021-04-19T18:09:11.961863Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:21.880775Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10259,10 +10259,10 @@ paths:
                               command_type: CertificateList
                               date_completed: '2021-04-19T18:09:23.471023Z'
                               date_requested: '2021-04-19T18:09:11.988118Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:23.169619Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10289,10 +10289,10 @@ paths:
                               command_type: SecurityInfo
                               date_completed: '2021-04-19T18:09:23.785834Z'
                               date_requested: '2021-04-19T18:09:12.010806Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:23.490562Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10319,10 +10319,10 @@ paths:
                               command_type: ProfileList
                               date_completed: '2021-04-19T18:09:24.112750Z'
                               date_requested: '2021-04-19T18:09:12.064613Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:23.802034Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10349,10 +10349,10 @@ paths:
                               command_type: InstalledApplicationList
                               date_completed: '2021-04-19T18:09:24.459467Z'
                               date_requested: '2021-04-19T18:09:12.567187Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:24.129840Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10379,7 +10379,7 @@ paths:
                               command_type: DeveloperCustomCommand
                               date_completed: '2021-04-19T18:09:46.352281Z'
                               date_requested: '2021-04-19T18:09:45.323246Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:09:46.035918Z'
                               metadata:
@@ -10426,7 +10426,7 @@ paths:
                                     request type.
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:36.117200Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10453,7 +10453,7 @@ paths:
                               command_type: DeveloperCustomCommand
                               date_completed: '2021-04-19T18:13:39.095812Z'
                               date_requested: '2021-04-19T18:13:37.908670Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T18:13:38.766762Z'
                               metadata:
@@ -10527,7 +10527,7 @@ paths:
                                     request type.
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:12.410977Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10554,7 +10554,7 @@ paths:
                               command_type: SetInitialConfiguration
                               date_completed: '2021-04-19T19:57:13.100251Z'
                               date_requested: '2021-04-19T19:57:12.359723Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:12.763863Z'
                               metadata:
@@ -10587,10 +10587,10 @@ paths:
                               command_type: DeviceConfigured
                               date_completed: '2021-04-19T19:57:13.431462Z'
                               date_requested: '2021-04-19T19:57:12.382582Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:13.119505Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10617,10 +10617,10 @@ paths:
                               command_type: DeviceInformation
                               date_completed: '2021-04-19T19:57:25.812174Z'
                               date_requested: '2021-04-19T19:57:15.682921Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:22.665806Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10647,10 +10647,10 @@ paths:
                               command_type: AvailableOSUpdates
                               date_completed: '2021-04-19T19:57:26.909327Z'
                               date_requested: '2021-04-19T19:57:15.702621Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:25.833448Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10677,10 +10677,10 @@ paths:
                               command_type: CertificateList
                               date_completed: '2021-04-19T19:57:27.375605Z'
                               date_requested: '2021-04-19T19:57:15.716198Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:26.936713Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10707,10 +10707,10 @@ paths:
                               command_type: SecurityInfo
                               date_completed: '2021-04-19T19:57:27.696659Z'
                               date_requested: '2021-04-19T19:57:15.731508Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:27.398171Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10737,10 +10737,10 @@ paths:
                               command_type: ProfileList
                               date_completed: '2021-04-19T19:57:27.983476Z'
                               date_requested: '2021-04-19T19:57:15.766025Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:27.711417Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10767,10 +10767,10 @@ paths:
                               command_type: InstalledApplicationList
                               date_completed: '2021-04-19T19:57:28.307171Z'
                               date_requested: '2021-04-19T19:57:16.135218Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T19:57:27.995398Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10812,7 +10812,7 @@ paths:
                               command_type: SetInitialConfiguration
                               date_completed: '2021-04-19T20:00:36.800503Z'
                               date_requested: '2021-04-19T20:00:36.069502Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:36.482120Z'
                               metadata:
@@ -10845,10 +10845,10 @@ paths:
                               command_type: DeviceConfigured
                               date_completed: '2021-04-19T20:00:37.160875Z'
                               date_requested: '2021-04-19T20:00:36.091346Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:36.819036Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10875,7 +10875,7 @@ paths:
                               command_type: DeveloperCustomCommand
                               date_completed: '2021-04-19T20:00:46.017324Z'
                               date_requested: '2021-04-19T20:00:37.438733Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:37.511888Z'
                               metadata:
@@ -10911,10 +10911,10 @@ paths:
                               command_type: DeviceInformation
                               date_completed: '2021-04-19T20:00:53.017565Z'
                               date_requested: '2021-04-19T20:00:39.297026Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:46.036906Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10941,10 +10941,10 @@ paths:
                               command_type: AvailableOSUpdates
                               date_completed: '2021-04-19T20:00:54.918635Z'
                               date_requested: '2021-04-19T20:00:39.337038Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:53.033987Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -10971,10 +10971,10 @@ paths:
                               command_type: CertificateList
                               date_completed: '2021-04-19T20:00:55.252769Z'
                               date_requested: '2021-04-19T20:00:39.359373Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:54.930565Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -11001,10 +11001,10 @@ paths:
                               command_type: SecurityInfo
                               date_completed: '2021-04-19T20:00:55.616124Z'
                               date_requested: '2021-04-19T20:00:39.391303Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:55.269212Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -11031,10 +11031,10 @@ paths:
                               command_type: ProfileList
                               date_completed: '2021-04-19T20:00:55.947010Z'
                               date_requested: '2021-04-19T20:00:39.503698Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:55.634775Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -11061,10 +11061,10 @@ paths:
                               command_type: InstalledApplicationList
                               date_completed: '2021-04-19T20:00:56.303598Z'
                               date_requested: '2021-04-19T20:00:40.017581Z'
-                              error_chain: []
+                              error_chain: [ ]
                               is_silent: false
                               last_pushed: '2021-04-19T20:00:55.961876Z'
-                              metadata: {}
+                              metadata: { }
                               priority: 0
                               profile_name: null
                               profile_uuid: null
@@ -11156,10 +11156,10 @@ paths:
                             command_type: ActivationLockBypassCode
                             date_completed: '2021-03-30T18:07:28.186776Z'
                             date_requested: '2021-03-30T18:07:27.804250Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:27.869132Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11186,7 +11186,7 @@ paths:
                             command_type: SetInitialConfiguration
                             date_completed: '2021-03-30T18:07:28.609114Z'
                             date_requested: '2021-03-30T18:07:27.823122Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:28.215228Z'
                             metadata:
@@ -11218,10 +11218,10 @@ paths:
                             command_type: DeviceConfigured
                             date_completed: '2021-03-30T18:07:28.962094Z'
                             date_requested: '2021-03-30T18:07:27.841671Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:28.637185Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11248,10 +11248,10 @@ paths:
                             command_type: DeviceInformation
                             date_completed: '2021-03-30T18:07:41.715109Z'
                             date_requested: '2021-03-30T18:07:41.065813Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:41.363998Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11278,10 +11278,10 @@ paths:
                             command_type: AvailableOSUpdates
                             date_completed: '2021-03-30T18:07:42.179027Z'
                             date_requested: '2021-03-30T18:07:41.096045Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:41.732682Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11308,10 +11308,10 @@ paths:
                             command_type: CertificateList
                             date_completed: '2021-03-30T18:07:42.541505Z'
                             date_requested: '2021-03-30T18:07:41.115379Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:42.197706Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11338,10 +11338,10 @@ paths:
                             command_type: SecurityInfo
                             date_completed: '2021-03-30T18:07:42.904447Z'
                             date_requested: '2021-03-30T18:07:41.138287Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:42.558635Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11368,10 +11368,10 @@ paths:
                             command_type: ProfileList
                             date_completed: '2021-03-30T18:07:43.258979Z'
                             date_requested: '2021-03-30T18:07:41.186337Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:42.922462Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11398,10 +11398,10 @@ paths:
                             command_type: InstalledApplicationList
                             date_completed: '2021-03-30T18:07:43.715321Z'
                             date_requested: '2021-03-30T18:07:41.590898Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-03-30T18:07:43.277496Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11439,7 +11439,7 @@ paths:
                                   request type.
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:08.631369Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11466,7 +11466,7 @@ paths:
                             command_type: SetInitialConfiguration
                             date_completed: '2021-04-19T18:09:09.274604Z'
                             date_requested: '2021-04-19T18:09:08.566561Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:08.933652Z'
                             metadata:
@@ -11499,10 +11499,10 @@ paths:
                             command_type: DeviceConfigured
                             date_completed: '2021-04-19T18:09:09.617146Z'
                             date_requested: '2021-04-19T18:09:08.591847Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:09.292711Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11529,10 +11529,10 @@ paths:
                             command_type: DeviceInformation
                             date_completed: '2021-04-19T18:09:21.867942Z'
                             date_requested: '2021-04-19T18:09:11.928261Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:18.999928Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11559,10 +11559,10 @@ paths:
                             command_type: AvailableOSUpdates
                             date_completed: '2021-04-19T18:09:23.155317Z'
                             date_requested: '2021-04-19T18:09:11.961863Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:21.880775Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11589,10 +11589,10 @@ paths:
                             command_type: CertificateList
                             date_completed: '2021-04-19T18:09:23.471023Z'
                             date_requested: '2021-04-19T18:09:11.988118Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:23.169619Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11619,10 +11619,10 @@ paths:
                             command_type: SecurityInfo
                             date_completed: '2021-04-19T18:09:23.785834Z'
                             date_requested: '2021-04-19T18:09:12.010806Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:23.490562Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11649,10 +11649,10 @@ paths:
                             command_type: ProfileList
                             date_completed: '2021-04-19T18:09:24.112750Z'
                             date_requested: '2021-04-19T18:09:12.064613Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:23.802034Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11679,10 +11679,10 @@ paths:
                             command_type: InstalledApplicationList
                             date_completed: '2021-04-19T18:09:24.459467Z'
                             date_requested: '2021-04-19T18:09:12.567187Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:24.129840Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11709,7 +11709,7 @@ paths:
                             command_type: DeveloperCustomCommand
                             date_completed: '2021-04-19T18:09:46.352281Z'
                             date_requested: '2021-04-19T18:09:45.323246Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:09:46.035918Z'
                             metadata:
@@ -11756,7 +11756,7 @@ paths:
                                   request type.
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:36.117200Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11783,7 +11783,7 @@ paths:
                             command_type: DeveloperCustomCommand
                             date_completed: '2021-04-19T18:13:39.095812Z'
                             date_requested: '2021-04-19T18:13:37.908670Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T18:13:38.766762Z'
                             metadata:
@@ -11857,7 +11857,7 @@ paths:
                                   request type.
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:12.410977Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11884,7 +11884,7 @@ paths:
                             command_type: SetInitialConfiguration
                             date_completed: '2021-04-19T19:57:13.100251Z'
                             date_requested: '2021-04-19T19:57:12.359723Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:12.763863Z'
                             metadata:
@@ -11917,10 +11917,10 @@ paths:
                             command_type: DeviceConfigured
                             date_completed: '2021-04-19T19:57:13.431462Z'
                             date_requested: '2021-04-19T19:57:12.382582Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:13.119505Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11947,10 +11947,10 @@ paths:
                             command_type: DeviceInformation
                             date_completed: '2021-04-19T19:57:25.812174Z'
                             date_requested: '2021-04-19T19:57:15.682921Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:22.665806Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -11977,10 +11977,10 @@ paths:
                             command_type: AvailableOSUpdates
                             date_completed: '2021-04-19T19:57:26.909327Z'
                             date_requested: '2021-04-19T19:57:15.702621Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:25.833448Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12007,10 +12007,10 @@ paths:
                             command_type: CertificateList
                             date_completed: '2021-04-19T19:57:27.375605Z'
                             date_requested: '2021-04-19T19:57:15.716198Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:26.936713Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12037,10 +12037,10 @@ paths:
                             command_type: SecurityInfo
                             date_completed: '2021-04-19T19:57:27.696659Z'
                             date_requested: '2021-04-19T19:57:15.731508Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:27.398171Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12067,10 +12067,10 @@ paths:
                             command_type: ProfileList
                             date_completed: '2021-04-19T19:57:27.983476Z'
                             date_requested: '2021-04-19T19:57:15.766025Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:27.711417Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12097,10 +12097,10 @@ paths:
                             command_type: InstalledApplicationList
                             date_completed: '2021-04-19T19:57:28.307171Z'
                             date_requested: '2021-04-19T19:57:16.135218Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T19:57:27.995398Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12142,7 +12142,7 @@ paths:
                             command_type: SetInitialConfiguration
                             date_completed: '2021-04-19T20:00:36.800503Z'
                             date_requested: '2021-04-19T20:00:36.069502Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:36.482120Z'
                             metadata:
@@ -12175,10 +12175,10 @@ paths:
                             command_type: DeviceConfigured
                             date_completed: '2021-04-19T20:00:37.160875Z'
                             date_requested: '2021-04-19T20:00:36.091346Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:36.819036Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12205,7 +12205,7 @@ paths:
                             command_type: DeveloperCustomCommand
                             date_completed: '2021-04-19T20:00:46.017324Z'
                             date_requested: '2021-04-19T20:00:37.438733Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:37.511888Z'
                             metadata:
@@ -12241,10 +12241,10 @@ paths:
                             command_type: DeviceInformation
                             date_completed: '2021-04-19T20:00:53.017565Z'
                             date_requested: '2021-04-19T20:00:39.297026Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:46.036906Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12271,10 +12271,10 @@ paths:
                             command_type: AvailableOSUpdates
                             date_completed: '2021-04-19T20:00:54.918635Z'
                             date_requested: '2021-04-19T20:00:39.337038Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:53.033987Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12301,10 +12301,10 @@ paths:
                             command_type: CertificateList
                             date_completed: '2021-04-19T20:00:55.252769Z'
                             date_requested: '2021-04-19T20:00:39.359373Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:54.930565Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12331,10 +12331,10 @@ paths:
                             command_type: SecurityInfo
                             date_completed: '2021-04-19T20:00:55.616124Z'
                             date_requested: '2021-04-19T20:00:39.391303Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:55.269212Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12361,10 +12361,10 @@ paths:
                             command_type: ProfileList
                             date_completed: '2021-04-19T20:00:55.947010Z'
                             date_requested: '2021-04-19T20:00:39.503698Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:55.634775Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -12391,10 +12391,10 @@ paths:
                             command_type: InstalledApplicationList
                             date_completed: '2021-04-19T20:00:56.303598Z'
                             date_requested: '2021-04-19T20:00:40.017581Z'
-                            error_chain: []
+                            error_chain: [ ]
                             is_silent: false
                             last_pushed: '2021-04-19T20:00:55.961876Z'
-                            metadata: {}
+                            metadata: { }
                             priority: 0
                             profile_name: null
                             profile_uuid: null
@@ -15796,7 +15796,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -15852,7 +15852,7 @@ paths:
       responses:
         '200':
           description: Delete User
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -15946,7 +15946,7 @@ paths:
       responses:
         '200':
           description: macOS / Return to service
-          content: {}
+          content: { }
         '400':
           description: RTS - Profile not in scope
           content:
@@ -16389,7 +16389,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16481,7 +16481,7 @@ paths:
         `true` inSecurityInfoResponse.SecurityInfo, the device requests the
         bootstrap token from MDM before executing this command. This value is
         available in macOS 11 and later. Default: false
-            
+        
         - `NotifyUser` - If `true`, notifies the user to restart the device at
         their convenience. Forced restart if the device is at `loginwindow` with
         no logged-in users. The user can dismiss the notification and ignore the
@@ -16566,7 +16566,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16646,7 +16646,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16741,7 +16741,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16816,7 +16816,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16893,7 +16893,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -16993,7 +16993,7 @@ paths:
               schema:
                 type: string
                 example: 1; mode=block
-          content: {}
+          content: { }
     parameters:
       - name: device_id
         in: path
@@ -17589,8 +17589,8 @@ paths:
       summary: Create Custom App
       description: >-
         This request allows you to create a custom app in the Kandji library.
-
-          
+        
+        
         Must have already generated a `file_key` via `Create custom app`
         endpoint and uploaded the file to S3 using a request similar to the
         `Upload to S3` example.
@@ -18026,7 +18026,7 @@ paths:
               schema:
                 type: string
                 example: DENY
-          content: {}
+          content: { }
         '404':
           description: requested library item not found
           headers:
@@ -18548,9 +18548,9 @@ paths:
               schema:
                 type: string
                 example: j35cEd0o3S64P4ug0_SpFP7T4b4IeO0o
-          content: {}
+          content: { }
       security:
-        - {}
+        - { }
   /api/v1/library/custom-profiles:
     get:
       tags:
@@ -19004,7 +19004,7 @@ paths:
               schema:
                 type: string
                 example: DENY
-          content: {}
+          content: { }
         '404':
           description: requested library item not found
           headers:
@@ -19807,7 +19807,7 @@ paths:
               schema:
                 type: string
                 example: DENY
-          content: {}
+          content: { }
         '404':
           description: requested library item not found
           headers:
@@ -20162,8 +20162,8 @@ paths:
       description: >-
         This endpoint retrieves a list of self-service categories and their
         associated IDs.
-
-          
+        
+        
         If you are planning to make a Library item available in Self Service
         under a specific category, you can call this endpoint to get the
         category ID and then use that ID when creating or updating the library
@@ -25609,8 +25609,8 @@ paths:
                     example: null
                   data:
                     type: array
-                    items: {}
-                    example: []
+                    items: { }
+                    example: [ ]
                   limit:
                     type: number
                     example: 25
@@ -25624,7 +25624,7 @@ paths:
                 success - no kernel extensions:
                   value:
                     cursor: null
-                    data: []
+                    data: [ ]
                     limit: 25
                     offset: null
                     total: 0
@@ -25799,14 +25799,14 @@ paths:
                           properties:
                             daemon:
                               type: object
-                              properties: {}
+                              properties: { }
                             system_agent:
                               type: object
                               properties:
                                 disabled_users:
                                   type: array
-                                  items: {}
-                                  example: []
+                                  items: { }
+                                  example: [ ]
                                 loaded_users:
                                   type: array
                                   items:
@@ -25905,7 +25905,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: testuser
@@ -25945,7 +25945,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: testuser
@@ -25983,7 +25983,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26018,7 +26018,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26053,7 +26053,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26090,7 +26090,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: anka
@@ -26130,7 +26130,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: anka
@@ -26168,7 +26168,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26203,7 +26203,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26238,7 +26238,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26289,7 +26289,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: testuser
@@ -26329,7 +26329,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: testuser
@@ -26367,7 +26367,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26402,7 +26402,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26437,7 +26437,7 @@ paths:
                         device_id: 782f4054-b971-4bec-850b-7bf13ce806fe
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26474,7 +26474,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: anka
@@ -26514,7 +26514,7 @@ paths:
                         disabled: null
                         domain:
                           system_agent:
-                            disabled_users: []
+                            disabled_users: [ ]
                             loaded_users:
                               - uid: 501
                                 username: anka
@@ -26552,7 +26552,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26587,7 +26587,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -26622,7 +26622,7 @@ paths:
                         device_id: d6ac2d8c-3852-4dc1-afe7-d5a32306ee39
                         disabled: null
                         domain:
-                          daemon: {}
+                          daemon: { }
                         group_name: null
                         is_disabled: false
                         is_loaded: true
@@ -27957,28 +27957,28 @@ paths:
               properties:
                 blueprint_ids:
                   type: array
-                  items: {}
-                  example: []
+                  items: { }
+                  example: [ ]
                 category:
                   type: string
                   example: application_firewal
                 device_families:
                   type: array
-                  items: {}
-                  example: []
+                  items: { }
+                  example: [ ]
                 filter:
                   type: object
-                  properties: {}
+                  properties: { }
                 sort_by:
                   type: string
                   example: ''
             examples:
               Request category export:
                 value:
-                  blueprint_ids: []
+                  blueprint_ids: [ ]
                   category: application_firewal
-                  device_families: []
-                  filter: {}
+                  device_families: [ ]
+                  filter: { }
                   sort_by: ''
       responses:
         '200':
@@ -28060,19 +28060,19 @@ paths:
                     properties:
                       blueprint_ids:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       columns:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       device_families:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       filter:
                         type: object
-                        properties: {}
+                        properties: { }
                       sort_by:
                         type: string
                         example: ''
@@ -28104,11 +28104,11 @@ paths:
                 Device info for all iPads:
                   value:
                     args:
-                      blueprint_ids: []
-                      columns: []
+                      blueprint_ids: [ ]
+                      columns: [ ]
                       device_families:
                         - iPad
-                      filter: {}
+                      filter: { }
                       sort_by: ''
                     category: device_information
                     created_at: '2023-09-15T17:26:33.578350+00:00'
@@ -28121,11 +28121,11 @@ paths:
                 Mac device info sorted by device name:
                   value:
                     args:
-                      blueprint_ids: []
-                      columns: []
+                      blueprint_ids: [ ]
+                      columns: [ ]
                       device_families:
                         - Mac
-                      filter: {}
+                      filter: { }
                       sort_by: device__name
                     category: device_information
                     created_at: '2023-09-15T20:06:52.285122+00:00'
@@ -28138,10 +28138,10 @@ paths:
                 success:
                   value:
                     args:
-                      blueprint_ids: []
-                      columns: []
-                      device_families: []
-                      filter: {}
+                      blueprint_ids: [ ]
+                      columns: [ ]
+                      device_families: [ ]
+                      filter: { }
                       sort_by: ''
                     category: apps
                     created_at: '2023-09-14T20:57:59.298293+00:00'
@@ -28320,19 +28320,19 @@ paths:
                     properties:
                       blueprint_ids:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       columns:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       device_families:
                         type: array
-                        items: {}
-                        example: []
+                        items: { }
+                        example: [ ]
                       filter:
                         type: object
-                        properties: {}
+                        properties: { }
                       sort_by:
                         type: string
                         example: ''
@@ -28366,10 +28366,10 @@ paths:
                 Example export status check:
                   value:
                     args:
-                      blueprint_ids: []
-                      columns: []
-                      device_families: []
-                      filter: {}
+                      blueprint_ids: [ ]
+                      columns: [ ]
+                      device_families: [ ]
+                      filter: { }
                       sort_by: ''
                     category: apps
                     created_at: '2023-09-14T20:57:59.298293+00:00'
@@ -28612,7 +28612,7 @@ paths:
       responses:
         '204':
           description: success
-          content: {}
+          content: { }
     patch:
       tags:
         - Tags
@@ -30067,7 +30067,7 @@ components:
       type: http
       scheme: bearer
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 tags:
   - name: Automated Device Enrollment integrations
     description: Use these endpoints to create and interact with ADE integrations.

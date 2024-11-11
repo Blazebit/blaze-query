@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.blazebit</groupId>
         <artifactId>blaze-query-connector-azure-virtual-machine-v20240301</artifactId>
@@ -122,8 +123,8 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -139,9 +140,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/compute/resource-manager/Microsoft.Compute/ComputeRP/stable/2024-03-01/virtualMachine.json</inputSpec>
+                            <inputSpec>
+                                https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/compute/resource-manager/Microsoft.Compute/ComputeRP/stable/2024-03-01/virtualMachine.json
+                            </inputSpec>
                             <generatorName>java</generatorName>
-                            <modelPackage>com.blazebit.query.connector.azure.virtual.machine.v20240301.model</modelPackage>
+                            <modelPackage>com.blazebit.query.connector.azure.virtual.machine.v20240301.model
+                            </modelPackage>
                             <apiPackage>com.blazebit.query.connector.azure.virtual.machine.v20240301.api</apiPackage>
                             <invokerPackage>com.blazebit.query.connector.azure.base.invoker</invokerPackage>
                             <library>jersey3</library>
