@@ -485,6 +485,18 @@ public class Main {
         List<Object[]> managedDevicesResult = managedDevices.getResultList();
         System.out.println("Managed Devices");
         print(managedDevicesResult);
+
+        TypedQuery<Object[]> organizationQuery = session.createQuery(
+                "select o.* from AzureOrganization o" );
+        List<Object[]> organizationResult = organizationQuery.getResultList();
+        System.out.println("Organizations");
+        print(organizationResult);
+
+        TypedQuery<Object[]> subscribedSkuQuery = session.createQuery(
+                "select s.* from AzureSubscribedSku s" );
+        List<Object[]> subscribedSkuResult = subscribedSkuQuery.getResultList();
+        System.out.println("Subscribed Skus");
+        print(subscribedSkuResult);
     }
 
     private static void testAzureResourceManager(QuerySession session) {
