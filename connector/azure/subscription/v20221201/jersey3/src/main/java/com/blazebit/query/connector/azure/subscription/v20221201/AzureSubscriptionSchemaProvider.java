@@ -31,17 +31,17 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  * @since 1.0.0
  */
 public final class AzureSubscriptionSchemaProvider implements QuerySchemaProvider {
-    /**
-     * Creates a new schema provider.
-     */
-    public AzureSubscriptionSchemaProvider() {
-    }
+	/**
+	 * Creates a new schema provider.
+	 */
+	public AzureSubscriptionSchemaProvider() {
+	}
 
-    @Override
-    public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        return Map.<Class<?>, DataFetcher<?>>of(
-                Subscription.class, SubscriptionDataFetcher.INSTANCE,
-                TenantIdDescription.class, TenantIdDescriptionDataFetcher.INSTANCE
-        );
-    }
+	@Override
+	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Map.<Class<?>, DataFetcher<?>>of(
+				Subscription.class, SubscriptionDataFetcher.INSTANCE,
+				TenantIdDescription.class, TenantIdDescriptionDataFetcher.INSTANCE
+		);
+	}
 }

@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.spi;
 
 import java.util.List;
@@ -27,19 +15,19 @@ import java.util.List;
  */
 public interface DataFetcher<T> {
 
-    /**
-     * Returns the data format of the fetched data.
-     *
-     * @return  the data format of the fetched data
-     */
-    DataFormat getDataFormat();
+	/**
+	 * Returns the data format of the fetched data.
+	 *
+	 * @return the data format of the fetched data
+	 */
+	DataFormat getDataFormat();
 
-    /**
-     * Returns freshly fetched data for a schema object.
-     *
-     * @param context The data fetching context
-     * @return the fetched data
-     * @throws DataFetcherException when an exception occurs during data fetching
-     */
-    List<T> fetch(DataFetchContext context);
+	/**
+	 * Returns freshly fetched data for a schema object.
+	 *
+	 * @param context The data fetching context
+	 * @return the fetched data
+	 * @throws DataFetcherException when an exception occurs during data fetching
+	 */
+	List<T> fetch(DataFetchContext context);
 }

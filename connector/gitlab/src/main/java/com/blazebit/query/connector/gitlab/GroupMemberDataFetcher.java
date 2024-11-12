@@ -1,19 +1,7 @@
 /*
- * Copyright 2024 - 2024 Blazebit.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
  */
-
 package com.blazebit.query.connector.gitlab;
 
 import java.io.Serializable;
@@ -36,31 +24,32 @@ import org.gitlab4j.api.models.Member;
  */
 public class GroupMemberDataFetcher implements DataFetcher<GroupMember>, Serializable {
 
-    public static final GroupMemberDataFetcher INSTANCE = new GroupMemberDataFetcher();
+	public static final GroupMemberDataFetcher INSTANCE = new GroupMemberDataFetcher();
 
-    private GroupMemberDataFetcher() {
-    }
+	private GroupMemberDataFetcher() {
+	}
 
-    @Override
-    public List<GroupMember> fetch(DataFetchContext context) {
-        try {
-            List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
-            List<GroupMember> list = new ArrayList<>();
-            for (GitLabApi gitLabApi : gitlabApis) {
-                for (Group group : context.getSession().getOrFetch(Group.class)) {
-                    for (Member member : gitLabApi.getGroupApi().getMembers(group.getId())) {
-                        list.add(new GroupMember(member, group));
-                    }
-                }
-            }
-            return list;
-        } catch (GitLabApiException | RuntimeException e) {
-            throw new DataFetcherException("Could not fetch group member list", e);
-        }
-    }
+	@Override
+	public List<GroupMember> fetch(DataFetchContext context) {
+		try {
+			List<GitLabApi> gitlabApis = GitlabConnectorConfig.GITLAB_API.getAll( context );
+			List<GroupMember> list = new ArrayList<>();
+			for ( GitLabApi gitLabApi : gitlabApis ) {
+				for ( Group group : context.getSession().getOrFetch( Group.class ) ) {
+					for ( Member member : gitLabApi.getGroupApi().getMembers( group.getId() ) ) {
+						list.add( new GroupMember( member, group ) );
+					}
+				}
+			}
+			return list;
+		}
+		catch (GitLabApiException | RuntimeException e) {
+			throw new DataFetcherException( "Could not fetch group member list", e );
+		}
+	}
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormats.beansConvention(GroupMember.class, GitlabConventionContext.INSTANCE);
-    }
+	@Override
+	public DataFormat getDataFormat() {
+		return DataFormats.beansConvention( GroupMember.class, GitlabConventionContext.INSTANCE );
+	}
 }

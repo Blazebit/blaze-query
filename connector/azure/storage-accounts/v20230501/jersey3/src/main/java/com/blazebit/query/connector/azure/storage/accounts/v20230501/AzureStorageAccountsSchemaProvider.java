@@ -30,16 +30,16 @@ import com.blazebit.query.spi.QuerySchemaProvider;
  * @since 1.0.0
  */
 public final class AzureStorageAccountsSchemaProvider implements QuerySchemaProvider {
-    /**
-     * Creates a new schema provider.
-     */
-    public AzureStorageAccountsSchemaProvider() {
-    }
+	/**
+	 * Creates a new schema provider.
+	 */
+	public AzureStorageAccountsSchemaProvider() {
+	}
 
-    @Override
-    public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        return Map.<Class<?>, DataFetcher<?>>of(
-                StorageAccount.class, StorageAccountsDataFetcher.INSTANCE
-        );
-    }
+	@Override
+	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Map.<Class<?>, DataFetcher<?>>of(
+				StorageAccount.class, StorageAccountsDataFetcher.INSTANCE
+		);
+	}
 }
