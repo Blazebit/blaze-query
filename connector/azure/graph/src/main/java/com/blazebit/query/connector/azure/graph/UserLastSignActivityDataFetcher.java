@@ -9,7 +9,7 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import com.microsoft.graph.beta.models.SubscribedSku;
+import com.microsoft.graph.beta.models.User;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
@@ -20,29 +20,30 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class SubscribedSkuDataFetcher implements DataFetcher<SubscribedSku>, Serializable {
+public class UserLastSignActivityDataFetcher implements DataFetcher<User>, Serializable {
 
-	public static final SubscribedSkuDataFetcher INSTANCE = new SubscribedSkuDataFetcher();
+	public static final UserLastSignActivityDataFetcher INSTANCE = new UserLastSignActivityDataFetcher();
 
-	private SubscribedSkuDataFetcher() {
+	private UserLastSignActivityDataFetcher() {
 	}
 
 	@Override
-	public List<SubscribedSku> fetch(DataFetchContext context) {
+	public List<User> fetch(DataFetchContext context) {
 		try {
 			List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
-			List<SubscribedSku> list = new ArrayList<>();
+			List<User> list = new ArrayList<>();
 			for (GraphServiceClient graphServiceClient : graphServiceClients) {
-				list.addAll(graphServiceClient.subscribedSkus().get().getValue());
+				// Calling this API requires service plan "AAD_PREMIUM" or "AAD_PREMIUM_P2"
+				list.addAll(graphServiceClient.users().get(getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[]{"signInActivity"}).getValue());
 			}
 			return list;
 		} catch (RuntimeException e) {
-			throw new DataFetcherException("Could not fetch subscribed sku list", e);
+			throw new DataFetcherException("Could not fetch user sign-in activity list", e);
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(SubscribedSku.class, AzureGraphConventionContext.INSTANCE);
+		return DataFormats.beansConvention( User.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

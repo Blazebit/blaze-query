@@ -30,26 +30,26 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 	private UserDataFetcher() {
 	}
 
-    @Override
-    public List<User> fetch(DataFetchContext context) {
-        try {
-            List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
-            List<User> list = new ArrayList<>();
-            for (GraphServiceClient graphServiceClient : graphServiceClients) {
-                List<SubscribedSku> subscribedSkus = (List<SubscribedSku>) context.getSession().getOrFetch(SubscribedSku.class);
-                List<ServicePlanName> servicePlanNames = getAllServicePlanNames(subscribedSkus);
-                if (servicePlanNames.stream().anyMatch(ServicePlanName::isAad)) {
-                    // If the serviceplan names includes "AAD_PREMIUM" or "AAD_PREMIUM_P2", also fetch the signInActivity
-                    list.addAll(graphServiceClient.users().get(getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[]{"signInActivity"}).getValue());
-                } else {
-                    list.addAll(graphServiceClient.users().get().getValue());
-                }
-            }
-            return list;
-        } catch (RuntimeException e) {
-            throw new DataFetcherException("Could not fetch user list", e);
-        }
-    }
+	@Override
+	public List<User> fetch(DataFetchContext context) {
+		try {
+			List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
+			List<User> list = new ArrayList<>();
+			for (GraphServiceClient graphServiceClient : graphServiceClients) {
+				List<SubscribedSku> subscribedSkus = (List<SubscribedSku>) context.getSession().getOrFetch(SubscribedSku.class);
+				List<ServicePlanName> servicePlanNames = getAllServicePlanNames(subscribedSkus);
+				if (servicePlanNames.stream().anyMatch(ServicePlanName::isAad)) {
+					// If the serviceplan names includes "AAD_PREMIUM" or "AAD_PREMIUM_P2", also fetch the signInActivity
+					list.addAll(graphServiceClient.users().get(getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[]{"signInActivity"}).getValue());
+				} else {
+					list.addAll(graphServiceClient.users().get().getValue());
+				}
+			}
+			return list;
+		} catch (RuntimeException e) {
+			throw new DataFetcherException("Could not fetch user list", e);
+		}
+	}
 
 	@Override
 	public DataFormat getDataFormat() {
