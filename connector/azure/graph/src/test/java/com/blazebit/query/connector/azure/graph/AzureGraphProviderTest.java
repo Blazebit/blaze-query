@@ -7,12 +7,12 @@ package com.blazebit.query.connector.azure.graph;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import com.microsoft.graph.beta.models.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AzureGraphProviderTest {
 
