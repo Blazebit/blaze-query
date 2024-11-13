@@ -29,15 +29,16 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
 	public AzureGraphSchemaProvider() {
 	}
 
-    @Override
-    public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-        return Map.<Class<?>, DataFetcher<?>>of(
-                Application.class, ApplicationDataFetcher.INSTANCE,
-                ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
-                ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
-                User.class, UserDataFetcher.INSTANCE,
-                Organization.class, OrganizationDataFetcher.INSTANCE,
-                SubscribedSku.class, SubscribedSkuDataFetcher.INSTANCE
-        );
-    }
+	@Override
+	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Map.<Class<?>, DataFetcher<?>>of(
+				Application.class, ApplicationDataFetcher.INSTANCE,
+				ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
+				ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
+				User.class, UserDataFetcher.INSTANCE,
+				UserLastSignInActivity.class, UserLastSignActivityDataFetcher.INSTANCE,
+				Organization.class, OrganizationDataFetcher.INSTANCE,
+				SubscribedSku.class, SubscribedSkuDataFetcher.INSTANCE
+		);
+	}
 }
