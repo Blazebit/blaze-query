@@ -23,7 +23,7 @@
   "state": "nl-ge",
   "street": "Sint Janssingel 92",
   "technicalNotificationMails": [
-    "max@tidalcontrol.com"
+    "max@acme.com"
   ],
   "tenantType": "AAD",
   "assignedPlans": [
@@ -460,8 +460,8 @@
   },
   "onPremisesSyncStatus": [],
   "privacyProfile": {
-    "contactEmail": "dennis@tidalcontrol.com",
-    "statementUrl": "https://tidalcontrol.com/privacy"
+    "contactEmail": "bob@acme.com",
+    "statementUrl": "https://acme.com/privacy"
   },
   "provisionedPlans": [
     {
@@ -610,21 +610,21 @@
       "capabilities": "Email, OfficeCommunicationsOnline",
       "isDefault": false,
       "isInitial": true,
-      "name": "riskops.onmicrosoft.com",
+      "name": "acme.onmicrosoft.com",
       "type": "Managed"
     },
     {
       "capabilities": "Email",
       "isDefault": false,
       "isInitial": false,
-      "name": "riskops.nl",
+      "name": "acme.nl",
       "type": "Managed"
     },
     {
       "capabilities": "Email, Intune",
       "isDefault": true,
       "isInitial": false,
-      "name": "tidalcontrol.com",
+      "name": "acme.com",
       "type": "Managed"
     }
   ]

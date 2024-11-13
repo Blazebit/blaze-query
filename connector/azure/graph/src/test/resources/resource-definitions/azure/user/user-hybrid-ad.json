@@ -11,15 +11,15 @@
   "consentProvidedForMinor": null,
   "country": null,
   "department": null,
-  "displayName": "Dennis van de Wiel",
+  "displayName": "Bob the User",
   "employeeId": null,
   "employeeHireDate": null,
   "employeeLeaveDateTime": null,
   "employeeType": null,
   "faxNumber": null,
-  "givenName": "Dennis",
+  "givenName": "Bob",
   "imAddresses": [
-    "dennis@tidalcontrol.com"
+    "Bob@acme.com"
   ],
   "infoCatalogs": [],
   "isLicenseReconciliationNeeded": false,
@@ -27,28 +27,28 @@
   "isResourceAccount": null,
   "jobTitle": null,
   "legalAgeGroupClassification": null,
-  "mail": "dennis@tidalcontrol.com",
-  "mailNickname": "dennis",
-  "mobilePhone": "+31651541639",
+  "mail": "bob@acme.com",
+  "mailNickname": "bob",
+  "mobilePhone": "+31612345678",
   "onPremisesDistinguishedName": null,
   "officeLocation": null,
-  "onPremisesDomainName": "tidalcontrol.com",
+  "onPremisesDomainName": "acme.com",
   "onPremisesImmutableId": null,
   "onPremisesLastSyncDateTime": null,
   "onPremisesObjectIdentifier": null,
   "onPremisesSecurityIdentifier": null,
-  "onPremisesSamAccountName": "dennis",
+  "onPremisesSamAccountName": "bob",
   "onPremisesSyncEnabled": true,
-  "onPremisesUserPrincipalName": "dennis",
+  "onPremisesUserPrincipalName": "bob",
   "otherMails": [],
   "passwordPolicies": "None",
   "postalCode": null,
   "preferredDataLocation": null,
   "preferredLanguage": "en-US",
   "proxyAddresses": [
-    "smtp:realcato@tidalcontrol.com",
-    "smtp:dennis@riskops.nl",
-    "SMTP:dennis@tidalcontrol.com"
+    "smtp:bobbie@acme.com",
+    "smtp:bob@acme.nl",
+    "SMTP:bobbert@acme.com"
   ],
   "refreshTokensValidFromDateTime": "2021-04-01T06:57:35Z",
   "securityIdentifier": "S-1-12-1-2002618923-1304941417-447616679-3559952540",
@@ -56,9 +56,9 @@
   "signInSessionsValidFromDateTime": "2021-04-01T06:57:35Z",
   "state": null,
   "streetAddress": null,
-  "surname": "van de Wiel",
+  "surname": "the User",
   "usageLocation": "NL",
-  "userPrincipalName": "dennis@tidalcontrol.com",
+  "userPrincipalName": "bob@acme.com",
   "externalUserConvertedOn": null,
   "externalUserState": null,
   "externalUserStateChangeDateTime": null,
@@ -440,8 +440,8 @@
   "identities": [
     {
       "signInType": "userPrincipalName",
-      "issuer": "riskops.onmicrosoft.com",
-      "issuerAssignedId": "dennis@tidalcontrol.com"
+      "issuer": "acme.onmicrosoft.com",
+      "issuerAssignedId": "bob@acme.com"
     }
   ],
   "onPremisesExtensionAttributes": {

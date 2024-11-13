@@ -52,7 +52,7 @@
   "streetAddress": null,
   "surname": null,
   "usageLocation": "NL",
-  "userPrincipalName": "backupadm@tidalcontrol.com",
+  "userPrincipalName": "backupadm@acme.com",
   "externalUserConvertedOn": null,
   "externalUserState": null,
   "externalUserStateChangeDateTime": null,
@@ -71,8 +71,8 @@
   "identities": [
     {
       "signInType": "userPrincipalName",
-      "issuer": "riskops.onmicrosoft.com",
-      "issuerAssignedId": "backupadm@tidalcontrol.com"
+      "issuer": "acme.onmicrosoft.com",
+      "issuerAssignedId": "backupadm@acme.com"
     }
   ],
   "onPremisesExtensionAttributes": {
