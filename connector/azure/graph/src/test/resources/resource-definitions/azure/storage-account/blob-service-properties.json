@@ -1,0 +1,29 @@
+{
+  "automaticSnapshotPolicyEnabled": null,
+  "changeFeed": null,
+  "containerDeleteRetentionPolicy": {
+    "allowPermanentDelete": null,
+    "days": 7,
+    "enabled": true
+  },
+  "cors": {
+    "corsRules": []
+  },
+  "defaultServiceVersion": null,
+  "deleteRetentionPolicy": {
+    "allowPermanentDelete": false,
+    "days": 7,
+    "enabled": true
+  },
+  "id": "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/blobstoragetest/providers/Microsoft.Storage/storageAccounts/testtidal/blobServices/default",
+  "isVersioningEnabled": null,
+  "lastAccessTimeTrackingPolicy": null,
+  "name": "default",
+  "resourceGroup": "blobstoragetest",
+  "restorePolicy": null,
+  "sku": {
+    "name": "Standard_LRS",
+    "tier": "Standard"
+  },
+  "type": "Microsoft.Storage/storageAccounts/blobServices"
+}

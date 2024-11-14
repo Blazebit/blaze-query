@@ -4,23 +4,6 @@
  */
 package com.blazebit.query.app;
 
-import java.io.IOException;
-
-import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
-import com.blazebit.query.connector.github.v0314.model.ShortBranch;
-import com.blazebit.query.connector.github.v0314.model.Team;
-import com.blazebit.query.connector.kandji.DeviceParameter;
-import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
-import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
-import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
-import com.blazebit.query.connector.aws.iam.AccountSummary;
-import com.microsoft.graph.beta.models.ManagedDevice;
-
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.SessionFactory;
-
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.ClientSecretCredential;
@@ -37,22 +20,24 @@ import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
-//import com.blazebit.query.connector.azure.base.AzureConnectorConfig;
-//import com.blazebit.query.connector.azure.base.invoker.ApiClient;
-//import com.blazebit.query.connector.azure.base.invoker.auth.OAuth;
-//import com.blazebit.query.connector.azure.blob.services.v20230501.model.BlobServiceProperties;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-//import com.blazebit.query.connector.azure.storage.accounts.v20230501.model.StorageAccount;
-//import com.blazebit.query.connector.azure.virtual.machine.v20240301.model.VirtualMachine;
+import com.blazebit.query.connector.aws.iam.AccountSummary;
+import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
+import com.blazebit.query.connector.github.v0314.model.ShortBranch;
+import com.blazebit.query.connector.github.v0314.model.Team;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.kandji.DeviceParameter;
+import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
+import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
+import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
-//import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
+import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.User;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
@@ -61,6 +46,7 @@ import jakarta.persistence.Persistence;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Group;
 import org.gitlab4j.api.models.Project;
+import org.hibernate.SessionFactory;
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
@@ -80,13 +66,17 @@ import software.amazon.awssdk.services.ecr.model.Repository;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
-import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.route53.model.HealthCheck;
 import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.s3.model.Bucket;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -481,6 +471,18 @@ public class Main {
 		List<Object[]> managedDevicesResult = managedDevices.getResultList();
 		System.out.println( "Managed Devices" );
 		print( managedDevicesResult );
+
+		TypedQuery<Object[]> organizationQuery = session.createQuery(
+				"select o.* from AzureOrganization o" );
+		List<Object[]> organizationResult = organizationQuery.getResultList();
+		System.out.println( "Organizations" );
+		print( organizationResult );
+
+		TypedQuery<Object[]> subscribedSkuQuery = session.createQuery(
+				"select s.* from AzureSubscribedSku s" );
+		List<Object[]> subscribedSkuResult = subscribedSkuQuery.getResultList();
+		System.out.println( "Subscribed Skus" );
+		print( subscribedSkuResult );
 	}
 
 	private static void testAzureResourceManager(QuerySession session) {

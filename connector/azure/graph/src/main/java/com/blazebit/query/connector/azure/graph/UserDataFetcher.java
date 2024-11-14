@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.azure.graph;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -16,7 +12,13 @@ import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.User;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
+ * Data fetcher that fetches Azure users from the Microsoft Graph API
+ *
  * @author Christian Beikov
  * @since 1.0.0
  */
