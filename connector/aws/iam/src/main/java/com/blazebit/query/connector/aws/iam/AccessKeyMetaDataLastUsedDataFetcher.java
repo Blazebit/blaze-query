@@ -28,58 +28,58 @@ import java.util.List;
  */
 public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessKeyMetaDataLastUsed>, Serializable {
 
-    public static final AccessKeyMetaDataLastUsedDataFetcher INSTANCE = new AccessKeyMetaDataLastUsedDataFetcher();
+	public static final AccessKeyMetaDataLastUsedDataFetcher INSTANCE = new AccessKeyMetaDataLastUsedDataFetcher();
 
-    private AccessKeyMetaDataLastUsedDataFetcher() {
-    }
+	private AccessKeyMetaDataLastUsedDataFetcher() {
+	}
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormats.componentMethodConvention(AccessKeyMetaDataLastUsed.class, AwsConventionContext.INSTANCE);
-    }
+	@Override
+	public DataFormat getDataFormat() {
+		return DataFormats.componentMethodConvention(AccessKeyMetaDataLastUsed.class, AwsConventionContext.INSTANCE);
+	}
 
-    @Override
-    public List<AccessKeyMetaDataLastUsed> fetch(DataFetchContext context) {
-        try {
-            List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
-            SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-            List<AccessKeyMetaDataLastUsed> list = new ArrayList<>();
-            for ( AwsConnectorConfig.Account account : accounts) {
-                IamClientBuilder iamClientBuilder = IamClient.builder()
-                        .region( account.getRegion() )
-                        .credentialsProvider( account.getCredentialsProvider() );
-                if ( sdkHttpClient != null ) {
-                    iamClientBuilder.httpClient( sdkHttpClient );
-                }
-                try (IamClient client = iamClientBuilder.build()) {
-                    for (User user : client.listUsers().users()) {
-                        String marker = null;
-                        boolean isTruncated;
+	@Override
+	public List<AccessKeyMetaDataLastUsed> fetch(DataFetchContext context) {
+		try {
+			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
+			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
+			List<AccessKeyMetaDataLastUsed> list = new ArrayList<>();
+			for ( AwsConnectorConfig.Account account : accounts) {
+				IamClientBuilder iamClientBuilder = IamClient.builder()
+						.region( account.getRegion() )
+						.credentialsProvider( account.getCredentialsProvider() );
+				if ( sdkHttpClient != null ) {
+					iamClientBuilder.httpClient( sdkHttpClient );
+				}
+				try (IamClient client = iamClientBuilder.build()) {
+					for (User user : client.listUsers().users()) {
+						String marker = null;
+						boolean isTruncated;
 
-                        // Handle pagination
-                        do {
-                            String finalMarker = marker;
-                            ListAccessKeysResponse response = client.listAccessKeys(
-                                    builder -> builder.userName(user.userName()).marker(finalMarker)
-                            );
+						// Handle pagination
+						do {
+							String finalMarker = marker;
+							ListAccessKeysResponse response = client.listAccessKeys(
+									builder -> builder.userName(user.userName()).marker(finalMarker)
+							);
 
-                            for (AccessKeyMetadata accessKeyMetadata : response.accessKeyMetadata()) {
-                                list.add(new AccessKeyMetaDataLastUsed(
-                                        accessKeyMetadata,
-                                        client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()
-                                ));
-                            }
+							for (AccessKeyMetadata accessKeyMetadata : response.accessKeyMetadata()) {
+								list.add(new AccessKeyMetaDataLastUsed(
+										accessKeyMetadata,
+										client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()
+								));
+							}
 
-                            // Update marker for the next request
-                            marker = response.marker();
-                            isTruncated = response.isTruncated();
-                        } while (isTruncated);
-                    }
-                }
-            }
-            return list;
-        } catch (RuntimeException e) {
-            throw new DataFetcherException("Could not fetch access key list", e);
-        }
-    }
+							// Update marker for the next request
+							marker = response.marker();
+							isTruncated = response.isTruncated();
+						} while (isTruncated);
+					}
+				}
+			}
+			return list;
+		} catch (RuntimeException e) {
+			throw new DataFetcherException("Could not fetch access key list", e);
+		}
+	}
 }

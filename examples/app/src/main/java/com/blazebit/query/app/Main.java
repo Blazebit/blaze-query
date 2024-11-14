@@ -201,8 +201,8 @@ public class Main {
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
-					 QuerySession session = queryContext.createSession(
-							 Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
+					QuerySession session = queryContext.createSession(
+							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //                    testAws( session );
 //                    testGitlab( session );
 //                    testGitHub( session );
