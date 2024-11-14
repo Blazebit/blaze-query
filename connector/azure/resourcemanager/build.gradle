@@ -12,7 +12,9 @@ dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
     api libs.com.azure.resourcemanager.azure.resourcemanager
+    testImplementation project(':blaze-query-core-impl')
     testImplementation libs.org.junit.jupiter.junit.jupiter
+    testImplementation libs.org.assertj.assertj.core
 }
 
 description = 'blaze-query-connector-azure-resourcemanager'

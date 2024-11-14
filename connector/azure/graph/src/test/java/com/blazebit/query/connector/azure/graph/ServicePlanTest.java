@@ -31,7 +31,7 @@ class ServicePlanTest {
 	void should_return_available_service_plan() {
 		try (var session = CONTEXT.createSession()) {
 			var aadPremium = new ServicePlanInfo();
-			aadPremium.setServicePlanId( UUID.fromString("41781fb2-bc02-4b7c-bd55-b576c07bb09d") );
+			aadPremium.setServicePlanId( UUID.fromString( "41781fb2-bc02-4b7c-bd55-b576c07bb09d" ) );
 			aadPremium.setServicePlanName( "AAD_PREMIUM" );
 
 			session.put(
@@ -44,7 +44,7 @@ class ServicePlanTest {
 		}
 	}
 
-		@Test
+	@Test
 	void should_return_service_plan() {
 		try (var session = CONTEXT.createSession()) {
 			var typedQuery =
@@ -54,18 +54,19 @@ class ServicePlanTest {
 		}
 	}
 
-		@Test
+	@Test
 	void should_return_correct_service_plans() {
 		try (var session = CONTEXT.createSession()) {
 			var aadPremium = new ServicePlanInfo();
-			aadPremium.setServicePlanId( UUID.fromString("41781fb2-bc02-4b7c-bd55-b576c07bb09d") );
+			aadPremium.setServicePlanId( UUID.fromString( "41781fb2-bc02-4b7c-bd55-b576c07bb09d" ) );
 			aadPremium.setServicePlanName( "AAD_PREMIUM" );
 
 			session.put(
 					ServicePlanInfo.class, Collections.singletonList( aadPremium ) );
 
 			var typedQuery =
-					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?", Map.class );
+					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?",
+							Map.class );
 			typedQuery.setParameter( 1, aadPremium.getServicePlanId().toString() );
 			typedQuery.setParameter( 2, aadPremium.getServicePlanId().toString() );
 

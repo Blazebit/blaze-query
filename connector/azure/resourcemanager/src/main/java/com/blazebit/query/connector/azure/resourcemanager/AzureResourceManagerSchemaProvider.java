@@ -7,7 +7,9 @@ package com.blazebit.query.connector.azure.resourcemanager;
 import java.util.Map;
 
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
+import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
+import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
 import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
 import com.azure.resourcemanager.resources.fluent.models.SubscriptionInner;
 import com.azure.resourcemanager.resources.fluent.models.TenantIdDescriptionInner;
@@ -33,11 +35,13 @@ public final class AzureResourceManagerSchemaProvider implements QuerySchemaProv
 	@Override
 	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Map.<Class<?>, DataFetcher<?>>of(
+				VirtualNetworkInner.class, VirtualNetworkDataFetcher.INSTANCE,
 				SubscriptionInner.class, SubscriptionDataFetcher.INSTANCE,
 				TenantIdDescriptionInner.class, TenantDataFetcher.INSTANCE,
 				VirtualMachineInner.class, VirtualMachineDataFetcher.INSTANCE,
 				StorageAccountInner.class, StorageAccountDataFetcher.INSTANCE,
 				ResourceGroupInner.class, ResourceGroupDataFetcher.INSTANCE,
+				ManagedClusterInner.class, ManagedClusterDataFetcher.INSTANCE,
 				VaultInner.class, VaultDataFetcher.INSTANCE,
 				BlobServicePropertiesInner.class, BlobServicePropertiesDataFetcher.INSTANCE
 		);
