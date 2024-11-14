@@ -7,6 +7,7 @@ package com.blazebit.query.connector.azure.resourcemanager;
 import java.util.Map;
 
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
+import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
 import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
 import com.azure.resourcemanager.resources.fluent.models.SubscriptionInner;
@@ -39,7 +40,8 @@ public final class AzureResourceManagerSchemaProvider implements QuerySchemaProv
 				StorageAccountInner.class, StorageAccountDataFetcher.INSTANCE,
 				ResourceGroupInner.class, ResourceGroupDataFetcher.INSTANCE,
 				VaultInner.class, VaultDataFetcher.INSTANCE,
-				BlobServicePropertiesInner.class, BlobServicePropertiesDataFetcher.INSTANCE
+				BlobServicePropertiesInner.class, BlobServicePropertiesDataFetcher.INSTANCE,
+				ManagedClusterInner.class, ManagedClusterDataFetcher.INSTANCE
 		);
 	}
 }
