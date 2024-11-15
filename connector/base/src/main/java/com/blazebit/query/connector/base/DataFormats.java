@@ -248,20 +248,28 @@ public final class DataFormats {
 			return existingFormat;
 		}
 
-		if ( conventionContext.isBaseType( typeClass ) ) {
-			DataFormat format = createBaseTypeDataFormat( typeClass, conventionContext );
-			registry.put( typeClass, format );
+		if (visitedTypes.containsKey(typeClass)) {
+			if (visitedTypes.get(typeClass) == conventionContext) {
+				return DataFormat.of(typeClass, Collections.emptyList());
+			}
+		}
+
+		if (conventionContext.isBaseType(typeClass)) {
+			DataFormat format = createBaseTypeDataFormat(typeClass, conventionContext);
+			registry.put(typeClass, format);
 			return format;
 		}
-		ConventionContext oldConventionContext = visitedTypes.put( typeClass, conventionContext );
-		if ( oldConventionContext != null && conventionContext == oldConventionContext ) {
-			throw new IllegalArgumentException( "Detected cyclic model via class: " + typeClass.getTypeName() );
+
+		ConventionContext oldConventionContext = visitedTypes.put(typeClass, conventionContext);
+		try {
+			DataFormat format = DataFormat.of(typeClass, createFields(typeClass, conventionContext, visitedTypes, registry, factory));
+			visitedTypes.put(typeClass, oldConventionContext);  // Ensure that the visited types map is reverted back correctly
+			registry.put(typeClass, format);
+			return format;
+		} catch (RuntimeException e) {
+			visitedTypes.remove(typeClass);  // Clean up visited types map in case of exception
+			throw e;
 		}
-		DataFormat format = DataFormat.of( typeClass,
-				createFields( typeClass, conventionContext, visitedTypes, registry, factory ) );
-		visitedTypes.remove( typeClass );
-		registry.put( typeClass, format );
-		return format;
 	}
 
 	private interface DataFormatFactory {
