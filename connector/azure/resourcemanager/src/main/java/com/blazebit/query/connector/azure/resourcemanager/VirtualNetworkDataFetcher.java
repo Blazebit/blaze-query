@@ -5,8 +5,8 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
-import com.azure.resourcemanager.containerservice.models.KubernetesCluster;
+import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
+import com.azure.resourcemanager.network.models.Network;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -21,34 +21,34 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class ManagedClusterDataFetcher implements DataFetcher<ManagedClusterInner>, Serializable {
+public class VirtualNetworkDataFetcher implements DataFetcher<VirtualNetworkInner>, Serializable {
 
-	public static final ManagedClusterDataFetcher INSTANCE = new ManagedClusterDataFetcher();
+	public static final VirtualNetworkDataFetcher INSTANCE = new VirtualNetworkDataFetcher();
 
-	private ManagedClusterDataFetcher() {
+	private VirtualNetworkDataFetcher() {
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( ManagedClusterInner.class,
+		return DataFormats.componentMethodConvention( VirtualNetworkInner.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<ManagedClusterInner> fetch(DataFetchContext context) {
+	public List<VirtualNetworkInner> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<ManagedClusterInner> list = new ArrayList<>();
+			List<VirtualNetworkInner> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
-				for ( KubernetesCluster kubernetesCluster : resourceManager.kubernetesClusters().list() ) {
-					list.add( kubernetesCluster.innerModel() );
+				for ( Network networkManager : resourceManager.networks().list() ) {
+					list.add( networkManager.innerModel() );
 				}
 			}
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch managed cluster list", e );
+			throw new DataFetcherException( "Could not fetch virtual network list", e );
 		}
 	}
 }
