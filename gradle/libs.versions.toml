@@ -4,7 +4,7 @@
 [versions]
 com-azure-azure-core = "1.49.1"
 com-azure-azure-identity = "1.11.0"
-com-azure-resourcemanager-azure-resourcemanager = "2.40.0"
+com-azure-resourcemanager-azure-resourcemanager = "2.44.0"
 com-blazebit-blaze-persistence-core-api-jakarta = "1.6.11"
 com-blazebit-blaze-persistence-core-impl-jakarta = "1.6.11"
 com-blazebit-blaze-persistence-entity-view-api-jakarta = "1.6.11"
@@ -51,6 +51,7 @@ software-amazon-awssdk-s3 = "2.26.21"
 com-azure-azure-core = { module = "com.azure:azure-core", version.ref = "com-azure-azure-core" }
 com-azure-azure-identity = { module = "com.azure:azure-identity", version.ref = "com-azure-azure-identity" }
 com-azure-resourcemanager-azure-resourcemanager = { module = "com.azure.resourcemanager:azure-resourcemanager", version.ref = "com-azure-resourcemanager-azure-resourcemanager" }
+com-azure-resourcemanager-azure-resourcemanager-postgresqlflexibleserver = { module = "com.azure.resourcemanager:azure-resourcemanager-postgresqlflexibleserver", version.ref = "com-azure-resourcemanager-azure-resourcemanager-postgresqlflexibleserver" }
 com-blazebit-blaze-persistence-core-api-jakarta = { module = "com.blazebit:blaze-persistence-core-api-jakarta", version.ref = "com-blazebit-blaze-persistence-core-api-jakarta" }
 com-blazebit-blaze-persistence-core-impl-jakarta = { module = "com.blazebit:blaze-persistence-core-impl-jakarta", version.ref = "com-blazebit-blaze-persistence-core-impl-jakarta" }
 com-blazebit-blaze-persistence-entity-view-api-jakarta = { module = "com.blazebit:blaze-persistence-entity-view-api-jakarta", version.ref = "com-blazebit-blaze-persistence-entity-view-api-jakarta" }
