@@ -13,7 +13,6 @@ import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
 import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
 import com.azure.resourcemanager.resources.fluent.models.SubscriptionInner;
 import com.azure.resourcemanager.resources.fluent.models.TenantIdDescriptionInner;
-import com.azure.resourcemanager.sql.fluent.models.ServerInner;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 import com.blazebit.query.spi.ConfigurationProvider;
