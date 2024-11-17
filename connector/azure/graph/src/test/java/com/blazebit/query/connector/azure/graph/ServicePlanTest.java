@@ -44,7 +44,7 @@ class ServicePlanTest {
 		}
 	}
 
-		@Test
+	@Test
 	void should_return_service_plan() {
 		try (var session = CONTEXT.createSession()) {
 			var typedQuery =
@@ -54,7 +54,7 @@ class ServicePlanTest {
 		}
 	}
 
-		@Test
+	@Test
 	void should_return_correct_service_plans() {
 		try (var session = CONTEXT.createSession()) {
 			var aadPremium = new ServicePlanInfo();
