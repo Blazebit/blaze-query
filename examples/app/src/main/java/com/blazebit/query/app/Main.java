@@ -10,6 +10,9 @@ import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
+import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
+import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
+import com.azure.resourcemanager.postgresqlflexibleserver.PostgreSqlManager;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 import com.blazebit.persistence.Criteria;
@@ -22,6 +25,7 @@ import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
@@ -110,7 +114,7 @@ public class Main {
 
 			QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 //            queryContextBuilder.setProperty(AzureConnectorConfig.API_CLIENT.getPropertyName(), createApiClient());
-//            queryContextBuilder.setProperty(AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
 //            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
@@ -127,6 +131,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( StorageAccountInner.class, "AzureStorageAccount" );
 			queryContextBuilder.registerSchemaObjectAlias( BlobServicePropertiesInner.class,
 					"AzureBlobServiceProperties" );
+			queryContextBuilder.registerSchemaObjectAlias( ManagedClusterInner.class, "AzureManagedCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( VirtualNetworkInner.class, "AzureVirtualNetwork" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( User.class, "AzureUser" );
@@ -204,10 +210,10 @@ public class Main {
 //                    testGitlab( session );
 //                    testGitHub( session );
 //                    testGitHubOpenAPI( session );
-					testKandji( session );
+//					testKandji( session );
 //                    testEntityView( session );
 //                    testAzureGraph( session );
-//                    testAzureResourceManager( session );
+					testAzureResourceManager( session );
 //                    testAzureOpenAPI( session );
 				}
 			}
@@ -503,6 +509,19 @@ public class Main {
 		List<Object[]> storageAccountsResult2 = storageAccountsQuery2.getResultList();
 		System.out.println( "StorageAccounts" );
 		print( storageAccountsResult2 );
+
+		TypedQuery<Object[]> virtualNetworkQuery = session.createQuery(
+				"select nm.* from AzureVirtualNetwork nm" );
+		List<Object[]> virtualNetworkResult = virtualNetworkQuery.getResultList();
+		System.out.println( "VirtualNetworks" );
+		print( virtualNetworkResult );
+
+		TypedQuery<Object[]> managedClusterQuery = session.createQuery(
+				"select mc.* from AzureManagedCluster mc" );
+		List<Object[]> managedClusterResult = managedClusterQuery.getResultList();
+		System.out.println( "ManagedClusters" );
+		print( managedClusterResult );
+
 	}
 
 	private static void testAzureOpenAPI(QuerySession session) {
