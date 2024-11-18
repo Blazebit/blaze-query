@@ -5,11 +5,10 @@
  */
 
 plugins {
-    id 'buildlogic.java-conventions'
+    id 'blaze-query.java-conventions'
 }
 
 dependencies {
-    api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
     api libs.com.microsoft.graph.microsoft.graph.beta
     testImplementation project(':blaze-query-core-impl')
