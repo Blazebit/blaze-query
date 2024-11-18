@@ -12,7 +12,6 @@ pluginManagement {
 }
 
 rootProject.name = 'blaze-query'
-include(':blaze-query-checkstyle-rules')
 include(':blaze-query-connector')
 include(':blaze-query-connector-aws')
 include(':blaze-query-connector-aws-base')
