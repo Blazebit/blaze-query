@@ -4,14 +4,11 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import java.util.Map;
-
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
-import org.gitlab4j.api.models.Group;
-import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.User;
+
+import java.util.Set;
 
 /**
  * The schema provider for the Gitlab connector.
@@ -20,21 +17,15 @@ import org.gitlab4j.api.models.User;
  * @since 1.0.0
  */
 public final class GitlabSchemaProvider implements QuerySchemaProvider {
-	/**
-	 * Creates a new schema provider.
-	 */
-	public GitlabSchemaProvider() {
-	}
-
 	@Override
-	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-		return Map.<Class<?>, DataFetcher<?>>of(
-				Project.class, ProjectDataFetcher.INSTANCE,
-				User.class, UserDataFetcher.INSTANCE,
-				Group.class, GroupDataFetcher.INSTANCE,
-				ProjectMember.class, ProjectMemberDataFetcher.INSTANCE,
-				GroupMember.class, GroupMemberDataFetcher.INSTANCE,
-				ProjectProtectedBranch.class, ProtectedBranchDataFetcher.INSTANCE
+	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Set.of(
+				ProjectDataFetcher.INSTANCE,
+				UserDataFetcher.INSTANCE,
+				GroupDataFetcher.INSTANCE,
+				ProjectMemberDataFetcher.INSTANCE,
+				GroupMemberDataFetcher.INSTANCE,
+				ProtectedBranchDataFetcher.INSTANCE
 		);
 	}
 }
