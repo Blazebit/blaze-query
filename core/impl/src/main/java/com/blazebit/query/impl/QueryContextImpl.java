@@ -4,8 +4,6 @@
  */
 package com.blazebit.query.impl;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.QueryException;
 import com.blazebit.query.QuerySession;
@@ -16,6 +14,8 @@ import com.blazebit.query.impl.metamodel.MetamodelImpl;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
 import com.google.common.collect.ImmutableMap;
+import org.apache.calcite.schema.SchemaPlus;
+import org.apache.calcite.schema.Table;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,12 +26,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.calcite.schema.SchemaPlus;
-import org.apache.calcite.schema.Table;
+import static java.util.Spliterators.spliteratorUnknownSize;
 
 /**
  * @author Christian Beikov
@@ -87,14 +87,15 @@ public class QueryContextImpl implements QueryContext {
 			QueryContextBuilderImpl builder,
 			ConfigurationProviderImpl configurationProvider,
 			CalciteDataSource calciteDataSource) {
-		HashMap<String, SchemaProviderEntry> schemaProviderEntries = new HashMap<>();
+
+		Map<String, SchemaProviderEntry> schemaProviderEntries = new HashMap<>();
 		for ( QuerySchemaProvider schemaProvider : builder.schemaProviders ) {
-			Map<Class<?>, ? extends DataFetcher<?>> schemaObjects = schemaProvider.resolveSchemaObjects(
+			Set<? extends DataFetcher<?>> schemaObjects = schemaProvider.resolveSchemaObjects(
 					configurationProvider );
-			for ( Map.Entry<Class<?>, ? extends DataFetcher<?>> entry : schemaObjects.entrySet() ) {
+			for ( DataFetcher<?> schemaObject : schemaObjects ) {
 				SchemaProviderEntry providerEntry = schemaProviderEntries.put(
-						entry.getKey().getCanonicalName(),
-						new SchemaProviderEntry( entry.getKey(), entry.getValue(), schemaProvider )
+						schemaObject.getDataFormat().getType().getTypeName(),
+						new SchemaProviderEntry( schemaObject, schemaProvider )
 				);
 				if ( providerEntry != null ) {
 					throw new IllegalArgumentException(
@@ -104,7 +105,8 @@ public class QueryContextImpl implements QueryContext {
 				}
 			}
 		}
-		HashMap<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>(
+
+		Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>(
 				schemaProviderEntries.size() + builder.schemaObjects.size()
 						+ builder.schemaObjectNames.size()
 		);
@@ -126,6 +128,7 @@ public class QueryContextImpl implements QueryContext {
 				);
 			}
 		}
+
 		for ( SchemaObjectTypeImpl<?> schemaObject : builder.schemaObjects.values() ) {
 			//noinspection rawtypes,unchecked
 			SchemaObjectTypeImpl<?> schemaObjectType = new SchemaObjectTypeImpl(
@@ -141,6 +144,7 @@ public class QueryContextImpl implements QueryContext {
 					configurationProvider
 			);
 		}
+
 		for ( Map.Entry<String, String> entry : builder.schemaObjectNames.entrySet() ) {
 			SchemaObjectTypeImpl<?> schemaObjectType = schemaObjects.get( entry.getValue() );
 			if ( schemaObjectType == null ) {
@@ -150,6 +154,7 @@ public class QueryContextImpl implements QueryContext {
 			schemaObjects.put( entry.getKey(), schemaObjectType );
 			addTable( rootSchema, entry.getKey(), getTable( rootSchema, entry.getValue() ) );
 		}
+
 		return ImmutableMap.copyOf( schemaObjects );
 	}
 
@@ -320,6 +325,10 @@ public class QueryContextImpl implements QueryContext {
 
 		@Override
 		public T next() {
+			if (!hasNext) {
+				return null;
+			}
+
 			T object;
 			try {
 				object = extractor.extract( resultSet );
@@ -396,10 +405,13 @@ public class QueryContextImpl implements QueryContext {
 		final QuerySchemaProvider provider;
 
 		public SchemaProviderEntry(
-				Class<?> schemaObjectType,
 				DataFetcher<?> dataFetcher,
 				QuerySchemaProvider provider) {
-			this.schemaObjectType = schemaObjectType;
+			if ( !(dataFetcher.getDataFormat().getType() instanceof Class<?>) ) {
+				throw new IllegalArgumentException(
+						"Field type unsupported: " + dataFetcher.getDataFormat().getType() );
+			}
+			this.schemaObjectType = (Class<?>) dataFetcher.getDataFormat().getType();
 			this.dataFetcher = dataFetcher;
 			this.provider = provider;
 		}

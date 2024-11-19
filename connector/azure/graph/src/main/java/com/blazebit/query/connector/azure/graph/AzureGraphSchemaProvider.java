@@ -4,17 +4,11 @@
  */
 package com.blazebit.query.connector.azure.graph;
 
-import java.util.Map;
-
 import com.blazebit.query.spi.ConfigurationProvider;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
-import com.microsoft.graph.beta.models.Application;
-import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
-import com.microsoft.graph.beta.models.ManagedDevice;
-import com.microsoft.graph.beta.models.Organization;
-import com.microsoft.graph.beta.models.ServicePlanInfo;
-import com.microsoft.graph.beta.models.User;
+
+import java.util.Set;
 
 /**
  * The schema provider for the Azure Subscription connector.
@@ -23,23 +17,17 @@ import com.microsoft.graph.beta.models.User;
  * @since 1.0.0
  */
 public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
-	/**
-	 * Creates a new schema provider.
-	 */
-	public AzureGraphSchemaProvider() {
-	}
-
 	@Override
-	public Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-		return Map.<Class<?>, DataFetcher<?>>of(
-				Application.class, ApplicationDataFetcher.INSTANCE,
-				ConditionalAccessPolicy.class, ConditionalAccessPolicyDataFetcher.INSTANCE,
-				ManagedDevice.class, ManagedDeviceDataFetcher.INSTANCE,
-				User.class, UserDataFetcher.INSTANCE,
-				UserLastSignInActivity.class, UserLastSignInActivityDataFetcher.INSTANCE,
-				Organization.class, OrganizationDataFetcher.INSTANCE,
-				ServicePlan.class, ServicePlanDataFetcher.INSTANCE,
-				ServicePlanInfo.class, ServicePlanInfoDataFetcher.INSTANCE
+	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
+		return Set.of(
+				ApplicationDataFetcher.INSTANCE,
+				ConditionalAccessPolicyDataFetcher.INSTANCE,
+				ManagedDeviceDataFetcher.INSTANCE,
+				UserDataFetcher.INSTANCE,
+				UserLastSignInActivityDataFetcher.INSTANCE,
+				OrganizationDataFetcher.INSTANCE,
+				ServicePlanDataFetcher.INSTANCE,
+				ServicePlanInfoDataFetcher.INSTANCE
 		);
 	}
 }
