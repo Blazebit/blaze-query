@@ -8,6 +8,11 @@ plugins {
     id 'blaze-query.java-conventions'
 }
 
+// Do not publish this module
+tasks.withType(PublishToMavenRepository).configureEach {
+    it.enabled = false
+}
+
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-core-impl')
