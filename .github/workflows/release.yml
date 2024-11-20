@@ -15,10 +15,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
+          cache: 'gradle'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Publish with Gradle
-        run: ./gradlew publish
+        run: ./gradlew publish --no-daemon
         with:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
