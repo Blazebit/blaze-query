@@ -1,8 +1,11 @@
 name: Release
 on:
-  release:
-    types:
-      - created
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to release (which will also be used for the tag)'
+        required: true
+        type: string
 
 jobs:
   publish:
@@ -19,7 +22,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Publish with Gradle
-        run: ./gradlew publish --no-daemon
+        run: ./gradlew publish -Pversion=$VERSION --no-daemon
         with:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          VERSION: ${{ inputs.version }}
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
+        run: |
+          gh release create "$tag" --generate-notes
