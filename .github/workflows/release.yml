@@ -41,6 +41,6 @@ jobs:
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ inputs.version }}
+          VERSION: ${{ inputs.version }}
         run: |
-          gh release create "$tag" --generate-notes
+          gh release create "$VERSION" --generate-notes
