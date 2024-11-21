@@ -1,9 +1,13 @@
 name: Release
 on:
-  release:
-    types:
-      - created
-
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to release (which will also be used for the tag)'
+        required: true
+        type: string
+permissions:
+  contents: write # To write the version change to the repository
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,10 +19,28 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
+          cache: 'gradle'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Publish with Gradle
-        run: ./gradlew publish
+      - name: Update version in gradle.properties
+        run: |
+          sed -i "s/^version=.*$/version=$VERSION/" gradle.properties
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add gradle.properties
+          git commit -m "Set version to $VERSION"
+          git tag -a $VERSION -m "Release $VERSION"
+          ./gradlew publish :incrementVersion --no-daemon
+          git add gradle.properties
+          git commit -m "Update to next development version"
+          git push --tags
         with:
+          VERSION: ${{ inputs.version }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "$VERSION" --generate-notes
