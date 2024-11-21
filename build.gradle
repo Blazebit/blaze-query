@@ -3,6 +3,8 @@ plugins {
     id 'incrementVersion'
 }
 
+group = "com.blazebit"
+
 nexusPublishing {
     repositories {
         sonatype {
