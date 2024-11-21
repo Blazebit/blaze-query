@@ -14,17 +14,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 11
+          cache: 'gradle'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Update version in gradle.properties
         run: |
           sed -i 's/^version=.*$/version=$VERSION/' gradle.properties
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add gradle.properties
-          git commit -m "Update version to $VERSION"
+          git commit -m "Set version to $VERSION"
           git tag -a $VERSION -m "Release $VERSION"
+          ./gradlew :incrementVersion --no-daemon
+          git add gradle.properties
+          git commit -m "Update to next development version"
           git push --tags
+          ./gradlew publish --no-daemon
         with:
           VERSION: ${{ inputs.version }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
