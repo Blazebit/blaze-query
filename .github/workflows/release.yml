@@ -34,7 +34,7 @@ jobs:
           ./gradlew :incrementVersion --no-daemon
           git add gradle.properties
           git commit -m "Update to next development version"
-          git push --branches
+          git push
           git push --tags
         env:
           VERSION: ${{ inputs.version }}
