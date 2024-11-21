@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
+    id "io.github.gradle-nexus.publish-plugin"
     id 'signing'
     id 'com.diffplug.spotless'
 }
@@ -23,11 +23,19 @@ test {
     useJUnitPlatform()
 }
 
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = System.getenv("OSSRH_USERNAME")
+            password = System.getenv("OSSRH_PASSWORD")
+        }
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from(components.java)
-
             pom {
                 licenses {
                     license {
@@ -39,17 +47,6 @@ publishing {
                     connection = 'scm:git:git://github.com/Blazebit/blaze-query'
                     developerConnection = 'scm:git:ssh://github.com/Blazebit/blaze-query'
                 }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
