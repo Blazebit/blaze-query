@@ -41,6 +41,8 @@ jobs:
           VERSION: ${{ inputs.version }}
           OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
