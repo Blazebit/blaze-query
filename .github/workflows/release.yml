@@ -34,7 +34,7 @@ jobs:
           git add gradle.properties
           git commit -m "Update to next development version"
           git push --tags
-        with:
+        env:
           VERSION: ${{ inputs.version }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
