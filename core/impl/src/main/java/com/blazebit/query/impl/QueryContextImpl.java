@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -325,8 +326,8 @@ public class QueryContextImpl implements QueryContext {
 
 		@Override
 		public T next() {
-			if (!hasNext) {
-				return null;
+			if ( !hasNext ) {
+				throw new NoSuchElementException();
 			}
 
 			T object;
