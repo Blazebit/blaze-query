@@ -77,6 +77,7 @@ public interface QuerySession extends AutoCloseable {
 	 * Creates an executable query associated to this {@linkplain QuerySession}.
 	 *
 	 * @param queryString A Blaze-Query query string
+	 * @param resultClass The result class
 	 * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
 	 * @return a new query instance
 	 * @throws IllegalArgumentException If the query string is invalid
