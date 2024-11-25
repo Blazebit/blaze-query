@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ public class AwsEc2SchemaProviderTest {
 			session.put( AwsInstance.class, Collections.singletonList( TestObjects.instance() ) );
 
 			var typedQuery =
-					session.createQuery( "select i.* from AwsEc2Instance i", Map.class );
+					session.createQuery( "select i.* from AwsEc2Instance i" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -48,7 +47,7 @@ public class AwsEc2SchemaProviderTest {
 			session.put( AwsVolume.class, Collections.singletonList( TestObjects.volume() ) );
 
 			var typedQuery =
-					session.createQuery( "select v.* from AwsEc2Volume v", Map.class );
+					session.createQuery( "select v.* from AwsEc2Volume v" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}

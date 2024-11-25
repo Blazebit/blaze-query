@@ -4,14 +4,13 @@
  */
 package com.blazebit.query;
 
+import com.blazebit.query.metamodel.SchemaObjectType;
 import com.blazebit.query.spi.DataFetcherException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.blazebit.query.metamodel.SchemaObjectType;
 
 /**
  * A session within which queries can be executed against schema object data.
@@ -42,7 +41,7 @@ public interface QuerySession extends AutoCloseable {
 	 * @throws IllegalArgumentException If the query string is invalid
 	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
 	 */
-	default TypedQuery<Object[]> createQuery(String queryString) {
+	default <T> TypedQuery<T> createQuery(String queryString) {
 		return createQuery( queryString, Collections.emptyMap() );
 	}
 
@@ -55,36 +54,23 @@ public interface QuerySession extends AutoCloseable {
 	 * @throws IllegalArgumentException If the query string is invalid
 	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
 	 */
-	default TypedQuery<Object[]> createQuery(String queryString, Map<String, Object> properties) {
-		return createQuery( queryString, Object[].class, properties );
+	default <T> TypedQuery<T> createQuery(String queryString, Map<String, Object> properties) {
+		return createQuery( queryString, new TypeReference<>() {
+		}, properties );
 	}
 
 	/**
 	 * Creates an executable query associated to this {@linkplain QuerySession}.
 	 *
 	 * @param queryString A Blaze-Query query string
-	 * @param resultClass The result class
-	 * @param <T> The result type
-	 * @return a new query instance
-	 * @throws IllegalArgumentException If the query string is invalid
-	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
-	 */
-	default <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass) {
-		return createQuery( queryString, resultClass, Collections.emptyMap() );
-	}
-
-	/**
-	 * Creates an executable query associated to this {@linkplain QuerySession}.
-	 *
-	 * @param queryString A Blaze-Query query string
-	 * @param resultClass The result class
+	 * @param resultType The result type
 	 * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
 	 * @param <T> The result type
 	 * @return a new query instance
 	 * @throws IllegalArgumentException If the query string is invalid
 	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
 	 */
-	<T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass, Map<String, Object> properties);
+	<T> TypedQuery<T> createQuery(String queryString, TypeReference<T> resultType, Map<String, Object> properties);
 
 	/**
 	 * Returns the schema object data for the given schema object type stored in this {@linkplain QuerySession},
