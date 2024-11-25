@@ -5,11 +5,13 @@
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import com.microsoft.graph.beta.models.ServicePlanInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +39,7 @@ class ServicePlanTest {
 					AzureGraphServicePlanInfo.class, Collections.singletonList( new AzureGraphServicePlanInfo( "123",aadPremium ) ) );
 
 			var typedQuery =
-					session.createQuery( "select s.* from AzureAvailableServicePlan s" );
+					session.createQuery( "select s.* from AzureAvailableServicePlan s", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -47,7 +49,7 @@ class ServicePlanTest {
 	void should_return_service_plan() {
 		try (var session = CONTEXT.createSession()) {
 			var typedQuery =
-					session.createQuery( "select s.* from AzureServicePlan s" );
+					session.createQuery( "select s.* from AzureServicePlan s", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -64,7 +66,7 @@ class ServicePlanTest {
 					AzureGraphServicePlanInfo.class, Collections.singletonList( new AzureGraphServicePlanInfo( "123", aadPremium ) ) );
 
 			var typedQuery =
-					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?" );
+					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?", new TypeReference<Map<String, Object>>() {} );
 			typedQuery.setParameter( 1, aadPremium.getServicePlanId().toString() );
 			typedQuery.setParameter( 2, aadPremium.getServicePlanId().toString() );
 

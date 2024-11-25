@@ -5,10 +5,12 @@
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +32,7 @@ class UserDataFetcherTest {
 					AzureGraphUser.class, Collections.singletonList( AzureTestObjects.hybridUser() ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from AzureUser u" );
+					session.createQuery( "select u.* from AzureUser u", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
