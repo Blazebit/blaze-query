@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Table;
 
+import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,7 +70,7 @@ public class QueryContextImpl implements QueryContext {
 
 		}
 
-		if ( query.getResultClass() == Map.class ) {
+		if ( query.getResultClass() instanceof ParameterizedType parameterizedType && parameterizedType.getRawType() == Map.class ) {
 			try {
 				return (ResultExtractor<T>) new MapExtractor(
 						resultSet.getMetaData().getColumnCount() );

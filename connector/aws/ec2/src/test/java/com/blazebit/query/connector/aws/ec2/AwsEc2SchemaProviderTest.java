@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.aws.ec2;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +42,7 @@ public class AwsEc2SchemaProviderTest {
 			session.put( Instance.class, Collections.singletonList( TestObjects.instance() ) );
 
 			var typedQuery =
-					session.createQuery( "select i.* from AwsEc2Instance i" );
+					session.createQuery( "select i.* from AwsEc2Instance i", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -52,7 +54,7 @@ public class AwsEc2SchemaProviderTest {
 			session.put( Volume.class, Collections.singletonList( TestObjects.volume() ) );
 
 			var typedQuery =
-					session.createQuery( "select v.* from AwsEc2Volume v" );
+					session.createQuery( "select v.* from AwsEc2Volume v", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}

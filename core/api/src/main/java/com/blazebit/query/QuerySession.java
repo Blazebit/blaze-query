@@ -49,6 +49,19 @@ public interface QuerySession extends AutoCloseable {
 	 * Creates an executable query associated to this {@linkplain QuerySession}.
 	 *
 	 * @param queryString A Blaze-Query query string
+	 * @param resultType The result type
+	 * @return a new query instance
+	 * @throws IllegalArgumentException If the query string is invalid
+	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+	 */
+	default <T> TypedQuery<T> createQuery(String queryString, TypeReference<T> resultType) {
+		return createQuery( queryString, resultType, Collections.emptyMap() );
+	}
+
+	/**
+	 * Creates an executable query associated to this {@linkplain QuerySession}.
+	 *
+	 * @param queryString A Blaze-Query query string
 	 * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
 	 * @return a new query instance
 	 * @throws IllegalArgumentException If the query string is invalid

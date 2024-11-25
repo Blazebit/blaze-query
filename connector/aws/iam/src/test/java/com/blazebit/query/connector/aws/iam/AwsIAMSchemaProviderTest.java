@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.aws.iam;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.iam.model.MFADevice;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +38,8 @@ public class AwsIAMSchemaProviderTest {
 					User.class, Collections.singletonList( TestObjects.userWithMfa() ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from AwsIAMUser u" );
+					session.createQuery( "select u.* from AwsIAMUser u", new TypeReference<Map<String, Object>>() {
+					} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -48,7 +51,9 @@ public class AwsIAMSchemaProviderTest {
 			session.put( PasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
 
 			var typedQuery =
-					session.createQuery( "select p.* from AwsIAMPasswordPolicy p" );
+					session.createQuery( "select p.* from AwsIAMPasswordPolicy p",
+							new TypeReference<Map<String, Object>>() {
+							} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -61,7 +66,8 @@ public class AwsIAMSchemaProviderTest {
 
 			var typedQuery =
 					session.createQuery(
-							"select m.* from AwsIAMMFADevice m" );
+							"select m.* from AwsIAMMFADevice m", new TypeReference<Map<String, Object>>() {
+							} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -74,7 +80,8 @@ public class AwsIAMSchemaProviderTest {
 
 			var typedQuery =
 					session.createQuery(
-							"select a.* from AwsIAMAccountSummary a" );
+							"select a.* from AwsIAMAccountSummary a", new TypeReference<Map<String, Object>>() {
+							} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
