@@ -57,7 +57,7 @@ public class QueryContextImpl implements QueryContext {
 	private static <T> ResultExtractor<T> getResultExtractor(
 			ResultSet resultSet,
 			TypedQueryImpl<T> query) {
-		if ( query.getResultClass() == Object[].class ) {
+		if ( query.getResultType() == Object[].class ) {
 			try {
 				return (ResultExtractor<T>) new ObjectArrayExtractor(
 						resultSet.getMetaData().getColumnCount() );
@@ -70,7 +70,7 @@ public class QueryContextImpl implements QueryContext {
 
 		}
 
-		if ( query.getResultClass() instanceof ParameterizedType parameterizedType && parameterizedType.getRawType() == Map.class ) {
+		if ( query.getResultType() instanceof ParameterizedType parameterizedType && parameterizedType.getRawType() == Map.class ) {
 			try {
 				return (ResultExtractor<T>) new MapExtractor(
 						resultSet.getMetaData().getColumnCount() );
