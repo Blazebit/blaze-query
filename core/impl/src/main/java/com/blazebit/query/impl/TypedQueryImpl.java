@@ -53,7 +53,7 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 		return querySession;
 	}
 
-	public Type getResultClass() {
+	public Type getResultType() {
 		return resultType.getType();
 	}
 
