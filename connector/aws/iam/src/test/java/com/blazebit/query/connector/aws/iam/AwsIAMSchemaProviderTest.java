@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,7 @@ public class AwsIAMSchemaProviderTest {
 					User.class, Collections.singletonList( TestObjects.userWithMfa() ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from AwsIAMUser u", Map.class );
+					session.createQuery( "select u.* from AwsIAMUser u" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -49,7 +48,7 @@ public class AwsIAMSchemaProviderTest {
 			session.put( PasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
 
 			var typedQuery =
-					session.createQuery( "select p.* from AwsIAMPasswordPolicy p", Map.class );
+					session.createQuery( "select p.* from AwsIAMPasswordPolicy p" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -62,7 +61,7 @@ public class AwsIAMSchemaProviderTest {
 
 			var typedQuery =
 					session.createQuery(
-							"select m.* from AwsIAMMFADevice m", Map.class );
+							"select m.* from AwsIAMMFADevice m" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
@@ -75,7 +74,7 @@ public class AwsIAMSchemaProviderTest {
 
 			var typedQuery =
 					session.createQuery(
-							"select a.* from AwsIAMAccountSummary a", Map.class );
+							"select a.* from AwsIAMAccountSummary a" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}

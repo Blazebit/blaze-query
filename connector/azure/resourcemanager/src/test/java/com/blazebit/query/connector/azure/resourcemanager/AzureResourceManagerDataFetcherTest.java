@@ -10,7 +10,6 @@ import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +31,7 @@ public class AzureResourceManagerDataFetcherTest {
 					ManagedClusterInner.class, Collections.singletonList( AzureTestObjects.azureKubernetesService() ) );
 
 			var typedQuery =
-					session.createQuery( "select mc.* from AzureManagedCluster mc", Map.class );
+					session.createQuery( "select mc.* from AzureManagedCluster mc" );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
