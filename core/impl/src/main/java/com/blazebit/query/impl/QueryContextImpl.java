@@ -21,7 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -53,32 +53,14 @@ public class QueryContextImpl implements QueryContext {
 				resolveSchemaObjects( builder, configurationProvider, calciteDataSource ) );
 	}
 
-	private static <T> ResultExtractor<T> getResultExtractor(
-			ResultSet resultSet,
-			TypedQueryImpl<T> query) {
+	private static ResultExtractor getResultExtractor(
+			TypedQueryImpl query) {
 		if ( query.getResultClass() == Object[].class ) {
-			try {
-				return (ResultExtractor<T>) new ObjectArrayExtractor(
-						resultSet.getMetaData().getColumnCount() );
-			}
-			catch (SQLException e) {
-				throw new QueryException( "Couldn't access result set metadata", e,
-						query.getQueryString()
-				);
-			}
-
+			return new ObjectArrayExtractor();
 		}
 
 		if ( query.getResultClass() == Map.class ) {
-			try {
-				return (ResultExtractor<T>) new MapExtractor(
-						resultSet.getMetaData().getColumnCount() );
-			}
-			catch (SQLException e) {
-				throw new QueryException( "Couldn't access result set metadata", e,
-						query.getQueryString()
-				);
-			}
+			return new MapExtractor();
 		}
 
 		return SingleObjectExtractor.INSTANCE;
@@ -218,21 +200,7 @@ public class QueryContextImpl implements QueryContext {
 	}
 
 	public <T> List<T> getResultList(TypedQueryImpl<T> query, PreparedStatement preparedStatement) {
-		configurationProvider.setQuery( query );
-		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			ResultExtractor<T> extractor = getResultExtractor( resultSet, query );
-			ArrayList<T> resultList = new ArrayList<>();
-			while ( resultSet.next() ) {
-				resultList.add( extractor.extract( resultSet ) );
-			}
-			return resultList;
-		}
-		catch (SQLException e) {
-			throw new QueryException( "Error while executing query", e, query.getQueryString() );
-		}
-		finally {
-			configurationProvider.unsetQuery();
-		}
+		return getResultStream( query, preparedStatement ).toList();
 	}
 
 	public <T> Stream<T> getResultStream(
@@ -306,7 +274,7 @@ public class QueryContextImpl implements QueryContext {
 		public ResultSetIterator(TypedQueryImpl<T> query, ResultSet resultSet) {
 			this.query = query;
 			this.resultSet = resultSet;
-			this.extractor = getResultExtractor( resultSet, query );
+			this.extractor = getResultExtractor( query );
 			advance();
 		}
 
@@ -355,14 +323,9 @@ public class QueryContextImpl implements QueryContext {
 
 	private static class ObjectArrayExtractor implements ResultExtractor<Object[]> {
 
-		private final int columnCount;
-
-		public ObjectArrayExtractor(int columnCount) {
-			this.columnCount = columnCount;
-		}
-
 		@Override
 		public Object[] extract(ResultSet resultSet) throws SQLException {
+			var columnCount = resultSet.getMetaData().getColumnCount();
 			Object[] tuple = new Object[columnCount];
 			for ( int i = 0; i < tuple.length; i++ ) {
 				tuple[i] = resultSet.getObject( i + 1 );
@@ -371,19 +334,28 @@ public class QueryContextImpl implements QueryContext {
 		}
 	}
 
-	private static class MapExtractor implements ResultExtractor<Map> {
-
-		private final int columnCount;
-
-		public MapExtractor(int columnCount) {
-			this.columnCount = columnCount;
-		}
+	private static class MapExtractor implements ResultExtractor<Map<String, Object>> {
 
 		@Override
 		public Map<String, Object> extract(ResultSet resultSet) throws SQLException {
 			Map<String, Object> map = new HashMap<>();
-			for ( int i = 0; i < columnCount; i++ ) {
-				map.put( resultSet.getMetaData().getColumnLabel( i + 1 ), resultSet.getObject( i + 1 ) );
+
+			var columnCount = resultSet.getMetaData().getColumnCount();
+			for ( int i = 1; i <= columnCount; i++ ) {
+				var columnLabel = resultSet.getMetaData().getColumnLabel( i );
+				var columnType = resultSet.getMetaData().getColumnType( i );
+				var columnValue = switch ( columnType ) {
+					case Types.ARRAY -> {
+						var array = resultSet.getArray( i );
+						if ( array == null ) {
+							yield null;
+						}
+
+						yield array.getArray();
+					}
+					default -> resultSet.getObject( i );
+				};
+				map.put( columnLabel, columnValue );
 			}
 			return map;
 		}
