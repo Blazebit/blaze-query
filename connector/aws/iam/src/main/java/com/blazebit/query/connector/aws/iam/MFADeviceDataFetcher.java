@@ -15,6 +15,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
@@ -52,8 +53,15 @@ public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializabl
 				}
 				try (IamClient client = iamClientBuilder.build()) {
 					for ( User user : context.getSession().getOrFetch( User.class ) ) {
-						list.addAll(
-								client.listMFADevices( builder -> builder.userName( user.userName() ) ).mfaDevices() );
+						try {
+							list.addAll(
+									client.listMFADevices( builder -> builder.userName( user.userName() ) ).mfaDevices()
+							);
+						}
+						catch (NoSuchEntityException e) {
+							// If the user cannot be found, log and continue
+							System.err.printf("User %s cannot be found: %s%n", user.userName(), e.getMessage());
+						}
 					}
 				}
 			}
