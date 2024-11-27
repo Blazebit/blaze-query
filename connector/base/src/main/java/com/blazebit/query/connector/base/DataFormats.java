@@ -4,6 +4,12 @@
  */
 package com.blazebit.query.connector.base;
 
+import com.blazebit.query.spi.CollectionDataFormat;
+import com.blazebit.query.spi.DataFormat;
+import com.blazebit.query.spi.DataFormatField;
+import com.blazebit.query.spi.DataFormatFieldAccessor;
+import com.blazebit.query.spi.MapDataFormat;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -18,12 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.blazebit.query.spi.CollectionDataFormat;
-import com.blazebit.query.spi.DataFormat;
-import com.blazebit.query.spi.DataFormatField;
-import com.blazebit.query.spi.DataFormatFieldAccessor;
-import com.blazebit.query.spi.MapDataFormat;
 
 /**
  * An enumerator for producing converted objects.
@@ -248,28 +248,62 @@ public final class DataFormats {
 			return existingFormat;
 		}
 
-		if (visitedTypes.containsKey(typeClass)) {
-			if (visitedTypes.get(typeClass) == conventionContext) {
-				return DataFormat.of(typeClass, Collections.emptyList());
+		if ( visitedTypes.containsKey( typeClass ) ) {
+			if ( visitedTypes.get( typeClass ) == conventionContext ) {
+				return DataFormat.of( typeClass, Collections.emptyList() );
 			}
 		}
 
-		if (conventionContext.isBaseType(typeClass)) {
-			DataFormat format = createBaseTypeDataFormat(typeClass, conventionContext);
-			registry.put(typeClass, format);
+		if ( conventionContext.isBaseType( typeClass ) ) {
+			DataFormat format = createBaseTypeDataFormat( typeClass, conventionContext );
+			registry.put( typeClass, format );
 			return format;
 		}
 
-		ConventionContext oldConventionContext = visitedTypes.put(typeClass, conventionContext);
+		ConventionContext oldConventionContext = visitedTypes.put( typeClass, conventionContext );
 		try {
-			DataFormat format = DataFormat.of(typeClass, createFields(typeClass, conventionContext, visitedTypes, registry, factory));
-			visitedTypes.put(typeClass, oldConventionContext);  // Ensure that the visited types map is reverted back correctly
-			registry.put(typeClass, format);
+			DataFormat format = DataFormat.of( typeClass,
+					createFields( typeClass, conventionContext, visitedTypes, registry, factory ) );
+			visitedTypes.put( typeClass,
+					oldConventionContext );  // Ensure that the visited types map is reverted back correctly
+			registry.put( typeClass, format );
 			return format;
-		} catch (RuntimeException e) {
-			visitedTypes.remove(typeClass);  // Clean up visited types map in case of exception
+		}
+		catch (RuntimeException e) {
+			visitedTypes.remove( typeClass );  // Clean up visited types map in case of exception
 			throw e;
 		}
+	}
+
+	private static DataFormat createBaseTypeDataFormat(Class<?> type, ConventionContext conventionContext) {
+		if ( conventionContext.isEnumType( type ) ) {
+			return DataFormat.enumType( type );
+		}
+		else {
+			return DataFormat.of( type, Collections.emptyList() );
+		}
+	}
+
+	private static boolean isAccessor(Method method) {
+		return !method.isSynthetic()
+				&& !method.isBridge()
+				&& Modifier.isPublic( method.getModifiers() )
+				&& !Modifier.isStatic( method.getModifiers() )
+				&& method.getReturnType() != void.class
+				&& method.getParameterCount() == 0;
+	}
+
+	private static String getAttributeName(Method method) {
+		if ( method.getParameterCount() == 0 && method.getReturnType() != void.class ) {
+			String methodName = method.getName();
+			if ( methodName.startsWith( "get" ) && methodName.length() > 3 ) {
+				return Character.toLowerCase( methodName.charAt( 3 ) ) + methodName.substring( 4 );
+			}
+			else if ( methodName.startsWith( "is" ) && methodName.length() > 2 ) {
+				return Character.toLowerCase( methodName.charAt( 2 ) ) + methodName.substring( 3 );
+			}
+		}
+		return null;
 	}
 
 	private interface DataFormatFactory {
@@ -320,26 +354,6 @@ public final class DataFormats {
 		private BeansConventionDataFormatFactory() {
 		}
 
-		@Override
-		public TreeMap<String, ? extends Member> getAttributes(Class<?> clazz) {
-			TreeMap<String, Method> attributeMap = new TreeMap<>();
-			visitClassAttributes( attributeMap, clazz );
-			visitInterfaceAttributes( attributeMap, clazz );
-			return attributeMap;
-		}
-
-		@Override
-		public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
-			Method method = (Method) member;
-			return conventionContext.nullOnException( method ) ? new LaxMethodFieldAccessor( method )
-					: new MethodFieldAccessor( method );
-		}
-
-		@Override
-		public Type memberType(Member member) {
-			return ((Method) member).getGenericReturnType();
-		}
-
 		private static void visitClassAttributes(TreeMap<String, Method> attributeMap, Class<?> clazz) {
 			do {
 				visitDeclaredAttributes( attributeMap, clazz );
@@ -370,6 +384,26 @@ public final class DataFormats {
 					}
 				}
 			}
+		}
+
+		@Override
+		public TreeMap<String, ? extends Member> getAttributes(Class<?> clazz) {
+			TreeMap<String, Method> attributeMap = new TreeMap<>();
+			visitClassAttributes( attributeMap, clazz );
+			visitInterfaceAttributes( attributeMap, clazz );
+			return attributeMap;
+		}
+
+		@Override
+		public DataFormatFieldAccessor memberAccessor(Member member, ConventionContext conventionContext) {
+			Method method = (Method) member;
+			return conventionContext.nullOnException( method ) ? new LaxMethodFieldAccessor( method )
+					: new MethodFieldAccessor( method );
+		}
+
+		@Override
+		public Type memberType(Member member) {
+			return ((Method) member).getGenericReturnType();
 		}
 	}
 
@@ -457,37 +491,6 @@ public final class DataFormats {
 		public Type memberType(Member member) {
 			return ((Method) member).getGenericReturnType();
 		}
-	}
-
-	private static DataFormat createBaseTypeDataFormat(Class<?> type, ConventionContext conventionContext) {
-		if ( conventionContext.isEnumType( type ) ) {
-			return DataFormat.enumType( type );
-		}
-		else {
-			return DataFormat.of( type, Collections.emptyList() );
-		}
-	}
-
-	private static boolean isAccessor(Method method) {
-		return !method.isSynthetic()
-				&& !method.isBridge()
-				&& Modifier.isPublic( method.getModifiers() )
-				&& !Modifier.isStatic( method.getModifiers() )
-				&& method.getReturnType() != void.class
-				&& method.getParameterCount() == 0;
-	}
-
-	private static String getAttributeName(Method method) {
-		if ( method.getParameterCount() == 0 && method.getReturnType() != void.class ) {
-			String methodName = method.getName();
-			if ( methodName.startsWith( "get" ) && methodName.length() > 3 ) {
-				return Character.toLowerCase( methodName.charAt( 3 ) ) + methodName.substring( 4 );
-			}
-			else if ( methodName.startsWith( "is" ) && methodName.length() > 2 ) {
-				return Character.toLowerCase( methodName.charAt( 2 ) ) + methodName.substring( 3 );
-			}
-		}
-		return null;
 	}
 
 }

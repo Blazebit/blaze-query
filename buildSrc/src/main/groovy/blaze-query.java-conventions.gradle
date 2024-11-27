@@ -1,0 +1,87 @@
+plugins {
+    id 'java-library'
+    id 'signing'
+    id 'maven-publish'
+    id 'com.diffplug.spotless'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+group = 'com.blazebit'
+
+java {
+    sourceCompatibility = 17
+    targetCompatibility = 17
+
+    withJavadocJar()
+    withSourcesJar()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from(components.java)
+            pom {
+                name = 'Blaze Query'
+                description = 'A multi-platform querying library'
+                url = 'https://github.com/Blazebit/blaze-query/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'cbeikov'
+                        name = 'Christian Beikov'
+                        email = 'christian@blazebit.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/Blazebit/blaze-query/'
+                    connection = 'scm:git:git://github.com/Blazebit/blaze-query'
+                    developerConnection = 'scm:git:ssh://github.com/Blazebit/blaze-query'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    failOnError false
+}
+
+tasks.compileJava.dependsOn tasks.spotlessApply
+
+spotless {
+    //Don't fail during the check: rather than enforcing guidelines, we use this plugin to fix mistakes automatically.
+    enforceCheck false
+    java {
+        targetExclude("**/build/**/*.java")
+        licenseHeaderFile rootProject.file('spotless.license.java')
+        removeUnusedImports()
+        indentWithTabs(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}

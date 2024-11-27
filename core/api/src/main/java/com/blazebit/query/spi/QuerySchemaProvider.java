@@ -4,7 +4,7 @@
  */
 package com.blazebit.query.spi;
 
-import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link java.util.ServiceLoader} SPI to provide schema objects.
@@ -20,6 +20,6 @@ public interface QuerySchemaProvider {
 	 * @param configurationProvider A configuration provider
 	 * @return The schema objects to register
 	 */
-	Map<Class<?>, ? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider);
+	Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider);
 
 }

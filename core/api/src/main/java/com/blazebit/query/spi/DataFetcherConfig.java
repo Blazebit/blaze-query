@@ -76,7 +76,7 @@ public interface DataFetcherConfig<T> {
 	default List<T> getAll(DataFetchContext context) {
 		List<T> value = findAll( context );
 		if ( value.isEmpty() ) {
-			throw new IllegalStateException( "Value for " + this + " required, but not found." );
+			throw new PropertyNotFoundException( "Property for " + this + " required, but not found." );
 		}
 		return value;
 	}

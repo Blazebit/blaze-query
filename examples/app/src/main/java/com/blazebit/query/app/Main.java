@@ -12,7 +12,6 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
-import com.azure.resourcemanager.postgresqlflexibleserver.PostgreSqlManager;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 import com.blazebit.persistence.Criteria;
@@ -24,6 +23,7 @@ import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
+import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
@@ -147,6 +147,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( PasswordPolicy.class, "AwsIamPasswordPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( MFADevice.class, "AwsMFADevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
+			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
+					"AwsAccessKeyMetaDataLastUsed" );
 
 			// EC2
 			queryContextBuilder.registerSchemaObjectAlias( Instance.class, "AwsInstance" );
@@ -227,6 +229,12 @@ public class Main {
 		List<Object[]> awsUserResult = awsUserQuery.getResultList();
 		System.out.println( "AwsUsers" );
 		print( awsUserResult );
+
+		TypedQuery<Object[]> AwsAccessKeyMetaDataLastUsedQuery = session.createQuery(
+				"select a.* from AwsAccessKeyMetaDataLastUsed a" );
+		List<Object[]> awsAccessKeyMetaDataLastUsed = AwsAccessKeyMetaDataLastUsedQuery.getResultList();
+		System.out.println( "AwsAccessKeyMetaDataLastUsed" );
+		print( awsAccessKeyMetaDataLastUsed );
 
 		TypedQuery<Object[]> awsPasswordPolicyQuery = session.createQuery(
 				"select p.* from AwsIamPasswordPolicy p" );
