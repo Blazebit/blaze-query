@@ -29,20 +29,21 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(Organization.class, AzureGraphConventionContext.INSTANCE);
+		return DataFormats.beansConvention( Organization.class, AzureGraphConventionContext.INSTANCE );
 	}
 
 	@Override
 	public List<Organization> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
+			List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<Organization> list = new ArrayList<>();
-			for (GraphServiceClient graphClient : graphClients) {
-				list.addAll(graphClient.organization().get().getValue());
+			for ( GraphServiceClient graphClient : graphClients ) {
+				list.addAll( graphClient.organization().get().getValue() );
 			}
 			return list;
-		} catch (RuntimeException e) {
-			throw new DataFetcherException("Could not fetch organization list", e);
+		}
+		catch (RuntimeException e) {
+			throw new DataFetcherException( "Could not fetch organization list", e );
 		}
 	}
 }

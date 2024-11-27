@@ -1,0 +1,15 @@
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'incrementVersion'
+}
+
+group = "com.blazebit"
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = System.getenv("OSSRH_USERNAME")
+            password = System.getenv("OSSRH_PASSWORD")
+        }
+    }
+}

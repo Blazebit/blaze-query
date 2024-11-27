@@ -15,6 +15,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,14 +44,17 @@ public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializabl
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
 			List<MFADevice> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				IamClientBuilder ec2ClientBuilder = IamClient.builder()
+				IamClientBuilder iamClientBuilder = IamClient.builder()
 						.region( account.getRegion() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
+					iamClientBuilder.httpClient( sdkHttpClient );
 				}
-				try (IamClient client = ec2ClientBuilder.build()) {
-					list.addAll( client.listMFADevices().mfaDevices() );
+				try (IamClient client = iamClientBuilder.build()) {
+					for ( User user : context.getSession().getOrFetch( User.class ) ) {
+						list.addAll(
+								client.listMFADevices( builder -> builder.userName( user.userName() ) ).mfaDevices() );
+					}
 				}
 			}
 			return list;

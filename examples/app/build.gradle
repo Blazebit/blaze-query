@@ -5,7 +5,12 @@
  */
 
 plugins {
-    id 'buildlogic.java-conventions'
+    id 'blaze-query.java-conventions'
+}
+
+// Do not publish this module
+tasks.withType(PublishToMavenRepository).configureEach {
+    it.enabled = false
 }
 
 dependencies {

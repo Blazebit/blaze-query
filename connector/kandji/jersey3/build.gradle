@@ -5,8 +5,8 @@
  */
 
 plugins {
-    id 'buildlogic.java-conventions'
-    id 'org.openapi.generator' version '7.10.0-SNAPSHOT'
+    id 'blaze-query.java-conventions'
+    id 'org.openapi.generator' version '7.10.0'
 }
 
 dependencies {
