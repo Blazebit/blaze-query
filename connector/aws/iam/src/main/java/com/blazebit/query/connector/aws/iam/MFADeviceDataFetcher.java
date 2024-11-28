@@ -11,10 +11,13 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
@@ -28,6 +31,7 @@ import java.util.List;
 public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializable {
 
 	public static final MFADeviceDataFetcher INSTANCE = new MFADeviceDataFetcher();
+	private static final Logger log = LoggerFactory.getLogger( MFADeviceDataFetcher.class );
 
 	private MFADeviceDataFetcher() {
 	}
@@ -52,8 +56,15 @@ public class MFADeviceDataFetcher implements DataFetcher<MFADevice>, Serializabl
 				}
 				try (IamClient client = iamClientBuilder.build()) {
 					for ( User user : context.getSession().getOrFetch( User.class ) ) {
-						list.addAll(
-								client.listMFADevices( builder -> builder.userName( user.userName() ) ).mfaDevices() );
+						try {
+							list.addAll(
+									client.listMFADevices( builder -> builder.userName( user.userName() ) ).mfaDevices()
+							);
+						}
+						catch (NoSuchEntityException e) {
+							// If the user cannot be found, log and continue
+							log.warn( "User '{}' cannot be found: {}", user.userName(), e.getMessage() );
+						}
 					}
 				}
 			}
