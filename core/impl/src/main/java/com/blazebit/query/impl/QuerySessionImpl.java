@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.blazebit.query.QuerySession;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.metamodel.SchemaObjectType;
 import com.blazebit.query.spi.DataFetchContext;
@@ -55,9 +56,9 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
 	}
 
 	@Override
-	public <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass, Map<String, Object> properties) {
+	public <T> TypedQuery<T> createQuery(String queryString, TypeReference<T> resultType, Map<String, Object> properties) {
 		checkClosed();
-		return new TypedQueryImpl<>( this, queryString, resultClass, properties );
+		return new TypedQueryImpl<>( this, queryString, resultType, properties );
 	}
 
 	@Override

@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.impl;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.blazebit.query.QuerySession;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
 
@@ -23,18 +25,18 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 
 	private final QuerySessionImpl querySession;
 	private final String queryString;
-	private final Class<T> resultClass;
+	private final TypeReference<T> resultType;
 	private final PreparedStatement preparedStatement;
 	private Map<String, Object> properties;
 
 	public TypedQueryImpl(
 			QuerySessionImpl querySession,
 			String queryString,
-			Class<T> resultClass,
+			TypeReference<T> resultType,
 			Map<String, Object> properties) {
 		this.querySession = querySession;
 		this.queryString = queryString;
-		this.resultClass = resultClass;
+		this.resultType = resultType;
 		try {
 			this.preparedStatement = querySession.connection().prepareStatement( queryString );
 		}
@@ -51,8 +53,8 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 		return querySession;
 	}
 
-	public Class<T> getResultClass() {
-		return resultClass;
+	public Type getResultType() {
+		return resultType.getType();
 	}
 
 	@Override

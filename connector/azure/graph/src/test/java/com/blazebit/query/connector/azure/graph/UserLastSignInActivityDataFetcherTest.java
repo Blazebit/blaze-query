@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,7 @@ class UserLastSignInActivityDataFetcherTest {
 			session.put( UserLastSignInActivity.class, Collections.singletonList( user ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from UserLastSignInActivity u", Map.class );
+					session.createQuery( "select u.* from UserLastSignInActivity u", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).first().satisfies( map -> {
 				assertThat( map ).containsEntry( "id", user.getId() );

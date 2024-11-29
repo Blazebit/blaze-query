@@ -4,14 +4,14 @@
  */
 package com.blazebit.query;
 
+import com.blazebit.query.metamodel.SchemaObjectType;
 import com.blazebit.query.spi.DataFetcherException;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.blazebit.query.metamodel.SchemaObjectType;
 
 /**
  * A session within which queries can be executed against schema object data.
@@ -43,7 +43,7 @@ public interface QuerySession extends AutoCloseable {
 	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
 	 */
 	default TypedQuery<Object[]> createQuery(String queryString) {
-		return createQuery( queryString, Collections.emptyMap() );
+		return createQuery( queryString, Object[].class );
 	}
 
 	/**
@@ -79,12 +79,44 @@ public interface QuerySession extends AutoCloseable {
 	 * @param queryString A Blaze-Query query string
 	 * @param resultClass The result class
 	 * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
+	 * @return a new query instance
+	 * @throws IllegalArgumentException If the query string is invalid
+	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+	 */
+	default <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass, Map<String, Object> properties) {
+		return createQuery( queryString, new TypeReference<>() {
+			@Override
+			public Type getType() {
+				return resultClass;
+			}
+		}, properties );
+	}
+
+	/**
+	 * Creates an executable query associated to this {@linkplain QuerySession}.
+	 *
+	 * @param queryString A Blaze-Query query string
+	 * @param resultType The result type
+	 * @return a new query instance
+	 * @throws IllegalArgumentException If the query string is invalid
+	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
+	 */
+	default <T> TypedQuery<T> createQuery(String queryString, TypeReference<T> resultType) {
+		return createQuery( queryString, resultType, Collections.emptyMap() );
+	}
+
+	/**
+	 * Creates an executable query associated to this {@linkplain QuerySession}.
+	 *
+	 * @param queryString A Blaze-Query query string
+	 * @param resultType The result type
+	 * @param properties The properties for the query, which should override {@linkplain QuerySession} properties
 	 * @param <T> The result type
 	 * @return a new query instance
 	 * @throws IllegalArgumentException If the query string is invalid
 	 * @throws IllegalStateException if the {@linkplain QuerySession} is closed
 	 */
-	<T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass, Map<String, Object> properties);
+	<T> TypedQuery<T> createQuery(String queryString, TypeReference<T> resultType, Map<String, Object> properties);
 
 	/**
 	 * Returns the schema object data for the given schema object type stored in this {@linkplain QuerySession},
