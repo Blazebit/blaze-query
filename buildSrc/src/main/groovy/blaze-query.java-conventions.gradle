@@ -71,6 +71,12 @@ tasks.withType(Javadoc).configureEach {
     failOnError false
 }
 
+tasks.withType(Sign).configureEach {
+    onlyIf("not publishing to local Maven repository") {
+        !gradle.startParameter.taskNames.any { it == 'publishToMavenLocal' }
+    }
+}
+
 tasks.compileJava.dependsOn tasks.spotlessApply
 
 spotless {
