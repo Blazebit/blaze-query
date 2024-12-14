@@ -26,12 +26,19 @@ import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.google.directory.GoogleDirectoryConnectorConfig;
+import com.blazebit.query.connector.google.drive.GoogleDriveConnectorConfig;
+import com.blazebit.query.connector.jira.cloud.JiraCloudConnectorConfig;
+import com.blazebit.query.connector.jira.cloud.model.UserPermission;
+import com.blazebit.query.connector.jira.datacenter.JiraDatacenterConnectorConfig;
+import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
@@ -39,6 +46,19 @@ import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.services.directory.Directory;
+import com.google.api.services.directory.DirectoryScopes;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.auth.http.HttpCredentialsAdapter;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.iam.admin.v1.ServiceAccount;
+import com.google.iam.v2.Policy;
 import com.microsoft.graph.beta.models.Application;
 import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.ManagedDevice;
@@ -79,6 +99,7 @@ import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.s3.model.Bucket;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +116,17 @@ public class Main {
 	private static final String GITHUB_KEY = "";
 	private static final String KANDJI_BASE_PATH = "";
 	private static final String KANDJI_KEY = "";
+
+	private static final String GOOGLE_WORKSPACE_CLIENT_ID = "";
+	private static final String GOOGLE_WORKSPACE_CLIENT_EMAIL = "";
+	private static final String GOOGLE_WORKSPACE_PROJECT_ID = "";
+	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY_ID = "";
+	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
+	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
+
+	private static final String JIRA_CLOUD_HOST = "";
+	private static final String JIRA_DATACENTER_HOST = "";
+	private static final String JIRA_TOKEN = "";
 
 	private Main() {
 	}
@@ -117,6 +149,11 @@ public class Main {
 			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
 //            queryContextBuilder.setProperty(AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //            queryContextBuilder.setProperty(AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount());
+			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
+			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
+			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
+			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
+			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 //            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -204,19 +241,47 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( DeviceParameter.class, "KandjiDeviceParameter" );
 			queryContextBuilder.registerSchemaObjectAlias( GetDeviceDetails200Response.class, "KandjiDeviceDetail" );
 
+			// Google Workspace
+			queryContextBuilder.registerSchemaObjectAlias( com.google.api.services.directory.model.User.class, "GoogleUser" );
+			queryContextBuilder.registerSchemaObjectAlias( com.google.api.services.drive.model.Drive.class, "GoogleDrive" );
+
+			// GCP
+			queryContextBuilder.registerSchemaObjectAlias( com.google.cloud.compute.v1.Instance.class, "GcpInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( com.google.iam.admin.v1.Role.class, "GcpIamRole" );
+			queryContextBuilder.registerSchemaObjectAlias( ServiceAccount.class, "GcpIamServiceAccount" );
+			queryContextBuilder.registerSchemaObjectAlias( Policy.class, "GcpIamPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( com.google.cloud.resourcemanager.v3.Project.class, "GcpProject" );
+			queryContextBuilder.registerSchemaObjectAlias( com.google.storage.v2.Bucket.class, "GcpBucket" );
+
+			// Jira Datacenter
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.model.ProjectBean.class, "JiraDatacenterProject" );
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.model.UserBean.class, "JiraDatacenterUser" );
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.model.GroupSuggestionBean.class, "JiraDatacenterGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.GroupMember.class, "JiraDatacenterMember" );
+			queryContextBuilder.registerSchemaObjectAlias( PermissionGrantBean.class, "JiraDatacenterPermission" );
+
+			// Jira Cloud
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.Project.class, "JiraCloudProject" );
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.User.class, "JiraCloudUser" );
+			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
+
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
 					QuerySession session = queryContext.createSession(
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
-//                    testAws( session );
-//                    testGitlab( session );
-//                    testGitHub( session );
-//                    testGitHubOpenAPI( session );
+//					testJiraDatacenter( session );
+//					testJiraCloud( session );
+					testGcp( session );
+					testGoogleWorkspace( session );
+//					testAws( session );
+//					testGitlab( session );
+//					testGitHub( session );
+//					testGitHubOpenAPI( session );
 //					testKandji( session );
-//                    testEntityView( session );
-//                    testAzureGraph( session );
+//					testEntityView( session );
+//					testAzureGraph( session );
 					testAzureResourceManager( session );
-//                    testAzureOpenAPI( session );
+//					testAzureOpenAPI( session );
 				}
 			}
 		}
@@ -454,6 +519,110 @@ public class Main {
 		print( kandjiDeviceDetailResult );
 	}
 
+	private static void testGoogleWorkspace(QuerySession session) {
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from GoogleUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
+
+		TypedQuery<Object[]> driveQuery = session.createQuery(
+				"select u.* from GoogleDrive u" );
+		List<Object[]> driveResult = driveQuery.getResultList();
+		System.out.println( "Drive" );
+		print( driveResult );
+	}
+
+	private static void testGcp(QuerySession session) {
+		TypedQuery<Object[]> projectQuery = session.createQuery(
+				"select i.* from GcpProject i" );
+		List<Object[]> projectResult = projectQuery.getResultList();
+		System.out.println( "Project" );
+		print( projectResult );
+
+		TypedQuery<Object[]> instanceQuery = session.createQuery(
+				"select i.* from GcpInstance i" );
+		List<Object[]> instanceResult = instanceQuery.getResultList();
+		System.out.println( "Instance" );
+		print( instanceResult );
+
+		TypedQuery<Object[]> policyQuery = session.createQuery(
+				"select i.* from GcpIamPolicy i" );
+		List<Object[]> policyResult = policyQuery.getResultList();
+		System.out.println( "Policy" );
+		print( policyResult );
+
+		TypedQuery<Object[]> roleQuery = session.createQuery(
+				"select i.* from GcpIamRole i" );
+		List<Object[]> roleResult = roleQuery.getResultList();
+		System.out.println( "Role" );
+		print( roleResult );
+
+		TypedQuery<Object[]> serviceAccountQuery = session.createQuery(
+				"select i.* from GcpIamServiceAccount i" );
+		List<Object[]> serviceAccountResult = serviceAccountQuery.getResultList();
+		System.out.println( "Service Account" );
+		print( serviceAccountResult );
+
+		TypedQuery<Object[]> bucketQuery = session.createQuery(
+				"select i.* from GcpBucket i" );
+		List<Object[]> bucketResult = bucketQuery.getResultList();
+		System.out.println( "Bucket" );
+		print( bucketResult );
+	}
+
+	private static void testJiraDatacenter(QuerySession session) {
+		TypedQuery<Object[]> driveQuery = session.createQuery(
+				"select u.* from JiraDatacenterProject u" );
+		List<Object[]> driveResult = driveQuery.getResultList();
+		System.out.println( "Project" );
+		print( driveResult );
+
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from JiraDatacenterUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
+
+		TypedQuery<Object[]> groupQuery = session.createQuery(
+				"select u.* from JiraDatacenterGroup u" );
+		List<Object[]> groupResult = groupQuery.getResultList();
+		System.out.println( "Group" );
+		print( groupResult );
+
+		TypedQuery<Object[]> memberQuery = session.createQuery(
+				"select u.* from JiraDatacenterMember u" );
+		List<Object[]> memberResult = memberQuery.getResultList();
+		System.out.println( "Group" );
+		print( memberResult );
+
+		TypedQuery<Object[]> permissionQuery = session.createQuery(
+				"select u.* from JiraDatacenterPermission u" );
+		List<Object[]> permissionResult = permissionQuery.getResultList();
+		System.out.println( "Permission" );
+		print( permissionResult );
+	}
+
+	private static void testJiraCloud(QuerySession session) {
+		TypedQuery<Object[]> driveQuery = session.createQuery(
+				"select u.* from JiraCloudProject u" );
+		List<Object[]> driveResult = driveQuery.getResultList();
+		System.out.println( "Project" );
+		print( driveResult );
+
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from JiraCloudUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
+
+		TypedQuery<Object[]> permissionQuery = session.createQuery(
+				"select u.* from JiraCloudPermission u" );
+		List<Object[]> permissionResult = permissionQuery.getResultList();
+		System.out.println( "Permission" );
+		print( permissionResult );
+	}
+
 	private static void testEntityView(QuerySession session) {
 		TypedQuery<Object[]> entityViewQuery = session.createQuery(
 				"select t.id, e.text1 from " + name( TestEntityView.class ) + " t, unnest(t.elements) e" );
@@ -578,6 +747,22 @@ public class Main {
 		return apiClient;
 	}
 
+	private static com.blazebit.query.connector.jira.datacenter.invoker.ApiClient createJiraDatacenterApiClient() {
+		com.blazebit.query.connector.jira.datacenter.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.datacenter.invoker.ApiClient();
+		apiClient.setBasePath( JIRA_DATACENTER_HOST );
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_TOKEN );
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return apiClient;
+	}
+
+	private static com.blazebit.query.connector.jira.cloud.invoker.ApiClient createJiraCloudApiClient() {
+		com.blazebit.query.connector.jira.cloud.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.invoker.ApiClient();
+		apiClient.setBasePath( JIRA_CLOUD_HOST );
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_TOKEN );
+//        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return apiClient;
+	}
+
 	private static com.blazebit.query.connector.kandji.invoker.ApiClient createKandjiApiClient() {
 		com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth auth = new com.blazebit.query.connector.kandji.invoker.auth.HttpBearerAuth(
 				"Bearer" );
@@ -669,6 +854,80 @@ public class Main {
 				.build();
 		// Default scope
 		return new GraphServiceClient( credentials, "https://graph.microsoft.com/.default" );
+	}
+
+	private static Directory createGoogleDirectory() {
+		try {
+			final GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+			final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+			ArrayList<String> scopeList = new ArrayList<>();
+			scopeList.add(DirectoryScopes.ADMIN_DIRECTORY_USER_READONLY);
+			scopeList.add(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY);
+			scopeList.add(DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER_READONLY);
+			scopeList.add(DirectoryScopes.ADMIN_DIRECTORY_ROLEMANAGEMENT_READONLY);
+			return new Directory.Builder(
+					httpTransport,
+					jsonFactory,
+					new HttpCredentialsAdapter(
+							ServiceAccountCredentials.newBuilder()
+									.setClientId( GOOGLE_WORKSPACE_CLIENT_ID )
+									.setClientEmail( GOOGLE_WORKSPACE_CLIENT_EMAIL )
+									.setProjectId( GOOGLE_WORKSPACE_PROJECT_ID )
+									.setPrivateKeyId( GOOGLE_WORKSPACE_PRIVATE_KEY_ID )
+									.setPrivateKeyString( GOOGLE_WORKSPACE_PRIVATE_KEY )
+									.setServiceAccountUser( GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER )
+									.setScopes( scopeList )
+									.build()
+					)
+			).setApplicationName( "blaze-query-test" ).build();
+		}
+		catch (Exception e) {
+			throw new RuntimeException( e );
+		}
+	}
+
+	private static Drive createGoogleDrive() {
+		try {
+			final GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+			final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+			ArrayList<String> scopeList = new ArrayList<>();
+			scopeList.add(DriveScopes.DRIVE_READONLY);
+			return new Drive.Builder(
+					httpTransport,
+					jsonFactory,
+					new HttpCredentialsAdapter(
+							ServiceAccountCredentials.newBuilder()
+									.setClientId( GOOGLE_WORKSPACE_CLIENT_ID )
+									.setClientEmail( GOOGLE_WORKSPACE_CLIENT_EMAIL )
+									.setProjectId( GOOGLE_WORKSPACE_PROJECT_ID )
+									.setPrivateKeyId( GOOGLE_WORKSPACE_PRIVATE_KEY_ID )
+									.setPrivateKeyString( GOOGLE_WORKSPACE_PRIVATE_KEY )
+									.setServiceAccountUser( GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER )
+									.setScopes( scopeList )
+									.build()
+					)
+			).setApplicationName( "blaze-query-test" ).build();
+		}
+		catch (Exception e) {
+			throw new RuntimeException( e );
+		}
+	}
+
+	private static CredentialsProvider createGcpCredentialsProvider() {
+		try {
+			return FixedCredentialsProvider.create(
+					ServiceAccountCredentials.newBuilder()
+							.setClientId( GOOGLE_WORKSPACE_CLIENT_ID )
+							.setClientEmail( GOOGLE_WORKSPACE_CLIENT_EMAIL )
+							.setProjectId( GOOGLE_WORKSPACE_PROJECT_ID )
+							.setPrivateKeyId( GOOGLE_WORKSPACE_PRIVATE_KEY_ID )
+							.setPrivateKeyString( GOOGLE_WORKSPACE_PRIVATE_KEY )
+							.build()
+			);
+		}
+		catch (Exception e) {
+			throw new RuntimeException( e );
+		}
 	}
 
 }

@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     api project(':blaze-query-connector-aws-base')
-    api libs.software.amazon.awssdk.efs
-    testImplementation libs.org.junit.jupiter.junit.jupiter
+    api libs.awssdk.efs
+    testImplementation libs.junit.jupiter
 }
 
 description = 'blaze-query-connector-aws-efs'

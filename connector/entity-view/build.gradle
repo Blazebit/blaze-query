@@ -11,11 +11,11 @@ plugins {
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
-    api libs.com.blazebit.blaze.persistence.core.api.jakarta
-    api libs.com.blazebit.blaze.persistence.entity.view.api.jakarta
-    runtimeOnly libs.com.blazebit.blaze.persistence.core.impl.jakarta
-    runtimeOnly libs.com.blazebit.blaze.persistence.entity.view.impl.jakarta
-    compileOnly libs.jakarta.persistence.jakarta.persistence.api
+    api libs.blaze.persistence.core.api
+    api libs.blaze.persistence.entity.view.api
+    runtimeOnly libs.blaze.persistence.core.impl
+    runtimeOnly libs.blaze.persistence.entity.view.impl
+    compileOnly libs.jakarta.persistence.api
 }
 
 description = 'blaze-query-connector-entity-view'

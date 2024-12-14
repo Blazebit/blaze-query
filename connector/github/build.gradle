@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
-    api libs.org.kohsuke.github.api
+    api libs.github.api
 }
 
 description = 'blaze-query-connector-github'
