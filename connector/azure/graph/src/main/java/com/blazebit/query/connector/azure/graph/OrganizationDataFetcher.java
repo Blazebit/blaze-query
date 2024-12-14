@@ -10,7 +10,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.Organization;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,10 +34,10 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 	@Override
 	public List<Organization> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<Organization> list = new ArrayList<>();
-			for ( GraphServiceClient graphClient : graphClients ) {
-				list.addAll( graphClient.organization().get().getValue() );
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				list.addAll( accessor.getGraphServiceClient().organization().get().getValue() );
 			}
 			return list;
 		}

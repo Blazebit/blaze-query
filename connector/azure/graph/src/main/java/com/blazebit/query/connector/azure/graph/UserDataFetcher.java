@@ -10,7 +10,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.User;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,11 +31,11 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 	@Override
 	public List<User> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
 					context );
 			List<User> list = new ArrayList<>();
-			for ( GraphServiceClient graphServiceClient : graphServiceClients ) {
-				list.addAll( graphServiceClient.users().get().getValue() );
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				list.addAll( accessor.getGraphServiceClient().users().get().getValue() );
 			}
 			return list;
 		}

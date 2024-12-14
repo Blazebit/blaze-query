@@ -10,7 +10,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.User;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,12 +30,12 @@ public class UserLastSignInActivityDataFetcher implements DataFetcher<UserLastSi
 	@Override
 	public List<UserLastSignInActivity> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
 					context );
 			List<User> list = new ArrayList<>();
-			for ( GraphServiceClient graphServiceClient : graphServiceClients ) {
+			for ( AzureGraphClientAccessor accessor : accessors ) {
 				// Calling this API requires service plan "AAD_PREMIUM" or "AAD_PREMIUM_P2"
-				list.addAll( graphServiceClient.users()
+				list.addAll( accessor.getGraphServiceClient().users()
 						.get( getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[] {"signInActivity"} )
 						.getValue() );
 			}
