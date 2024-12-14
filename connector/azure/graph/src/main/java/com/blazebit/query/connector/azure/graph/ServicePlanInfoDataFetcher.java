@@ -11,7 +11,6 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ServicePlanInfo;
 import com.microsoft.graph.beta.models.SubscribedSku;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,11 +33,10 @@ public class ServicePlanInfoDataFetcher implements DataFetcher<ServicePlanInfo>,
 	@Override
 	public List<ServicePlanInfo> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphServiceClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
-					context );
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<SubscribedSku> list = new ArrayList<>();
-			for ( GraphServiceClient graphServiceClient : graphServiceClients ) {
-				list.addAll( graphServiceClient.subscribedSkus().get().getValue() );
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				list.addAll( accessor.getGraphServiceClient().subscribedSkus().get().getValue() );
 			}
 			return list.stream()
 					.flatMap( subscribedSku -> subscribedSku.getServicePlans().stream() )

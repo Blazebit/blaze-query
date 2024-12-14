@@ -10,7 +10,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ManagedDevice;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,10 +34,10 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
 	@Override
 	public List<ManagedDevice> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<ManagedDevice> list = new ArrayList<>();
-			for ( GraphServiceClient graphClient : graphClients ) {
-				list.addAll( graphClient.deviceManagement().managedDevices().get().getValue() );
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				list.addAll( accessor.getGraphServiceClient().deviceManagement().managedDevices().get().getValue() );
 			}
 			return list;
 		}

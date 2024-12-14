@@ -25,6 +25,7 @@ import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
+import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
@@ -846,14 +847,17 @@ public class Main {
 		return AzureResourceManager.authenticate( credentials, profile ).withDefaultSubscription();
 	}
 
-	private static GraphServiceClient createGraphServiceClient() {
+	private static AzureGraphClientAccessor createGraphServiceClient() {
 		ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
 				.clientId( AZURE_CLIENT_ID )
 				.clientSecret( AZURE_CLIENT_SECRET )
 				.tenantId( AZURE_TENANT_ID )
 				.build();
 		// Default scope
-		return new GraphServiceClient( credentials, "https://graph.microsoft.com/.default" );
+		return AzureGraphClientAccessor.create(
+				AZURE_TENANT_ID,
+				new GraphServiceClient( credentials, "https://graph.microsoft.com/.default" )
+		);
 	}
 
 	private static Directory createGoogleDirectory() {

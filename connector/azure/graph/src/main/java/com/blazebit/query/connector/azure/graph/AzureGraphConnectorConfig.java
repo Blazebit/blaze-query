@@ -18,7 +18,7 @@ public final class AzureGraphConnectorConfig {
 	/**
 	 * Specified the {@link GraphServiceClient} to use for querying data.
 	 */
-	public static final DataFetcherConfig<GraphServiceClient> GRAPH_SERVICE_CLIENT = DataFetcherConfig.forPropertyName(
+	public static final DataFetcherConfig<AzureGraphClientAccessor> GRAPH_SERVICE_CLIENT = DataFetcherConfig.forPropertyName(
 			"azureGraphServiceClient" );
 
 	private AzureGraphConnectorConfig() {
