@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     api project(':blaze-query-connector-aws-base')
-    api libs.software.amazon.awssdk.elasticloadbalancingv2
-    testImplementation libs.org.junit.jupiter.junit.jupiter
+    api libs.awssdk.elasticloadbalancingv2
+    testImplementation libs.junit.jupiter
 }
 
 description = 'blaze-query-connector-aws-elb'
