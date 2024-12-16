@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.LambdaClientBuilder;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class FunctionConfigurationDataFetcher implements DataFetcher<FunctionConfiguration>, Serializable {
+public class FunctionConfigurationDataFetcher implements DataFetcher<AwsFunction>, Serializable {
 
 	public static final FunctionConfigurationDataFetcher INSTANCE = new FunctionConfigurationDataFetcher();
 
@@ -32,20 +33,24 @@ public class FunctionConfigurationDataFetcher implements DataFetcher<FunctionCon
 	}
 
 	@Override
-	public List<FunctionConfiguration> fetch(DataFetchContext context) {
+	public List<AwsFunction> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<FunctionConfiguration> list = new ArrayList<>();
+			List<AwsFunction> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				LambdaClientBuilder ec2ClientBuilder = LambdaClient.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (LambdaClient client = ec2ClientBuilder.build()) {
-					list.addAll( client.listFunctions().functions() );
+				for ( Region region : account.getRegions() ) {
+					LambdaClientBuilder ec2ClientBuilder = LambdaClient.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (LambdaClient client = ec2ClientBuilder.build()) {
+						for ( FunctionConfiguration function : client.listFunctions().functions() ) {
+							list.add( new AwsFunction( function.functionArn(), function ) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +62,6 @@ public class FunctionConfigurationDataFetcher implements DataFetcher<FunctionCon
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( FunctionConfiguration.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsFunction.class, AwsConventionContext.INSTANCE );
 	}
 }

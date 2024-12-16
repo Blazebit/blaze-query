@@ -16,11 +16,11 @@ import java.util.Set;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public final class GcpResourceManagerSchemaProvider implements QuerySchemaProvider {
+public final class GcpSchemaProvider implements QuerySchemaProvider {
 	/**
 	 * Creates a new schema provider.
 	 */
-	public GcpResourceManagerSchemaProvider() {
+	public GcpSchemaProvider() {
 	}
 
 	@Override

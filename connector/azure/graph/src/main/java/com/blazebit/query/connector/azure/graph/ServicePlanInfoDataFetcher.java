@@ -15,7 +15,6 @@ import com.microsoft.graph.beta.models.SubscribedSku;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * DataFetcher that retrieves the service plan the currently logged in Azure client is subscribed to
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class ServicePlanInfoDataFetcher implements DataFetcher<ServicePlanInfo>, Serializable {
+public class ServicePlanInfoDataFetcher implements DataFetcher<AzureGraphServicePlanInfo>, Serializable {
 
 	public static final ServicePlanInfoDataFetcher INSTANCE = new ServicePlanInfoDataFetcher();
 
@@ -31,25 +30,26 @@ public class ServicePlanInfoDataFetcher implements DataFetcher<ServicePlanInfo>,
 	}
 
 	@Override
-	public List<ServicePlanInfo> fetch(DataFetchContext context) {
+	public List<AzureGraphServicePlanInfo> fetch(DataFetchContext context) {
 		try {
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
-			List<SubscribedSku> list = new ArrayList<>();
+			List<AzureGraphServicePlanInfo> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
-				list.addAll( accessor.getGraphServiceClient().subscribedSkus().get().getValue() );
+				for ( SubscribedSku subscribedSku : accessor.getGraphServiceClient().subscribedSkus().get().getValue() ) {
+					for ( ServicePlanInfo servicePlan : subscribedSku.getServicePlans() ) {
+						list.add( new AzureGraphServicePlanInfo( accessor.getTenantId(), servicePlan ) );
+					}
+				}
 			}
-			return list.stream()
-					.flatMap( subscribedSku -> subscribedSku.getServicePlans().stream() )
-					.distinct()
-					.collect( Collectors.toList() );
+			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch subscribed sku list", e );
+			throw new DataFetcherException( "Could not fetch subscribed sku list for service plan infos", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( ServicePlanInfo.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphServicePlanInfo.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

@@ -15,6 +15,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.AccessKeyMetadata;
+import software.amazon.awssdk.services.iam.model.ListAccessKeysRequest;
 import software.amazon.awssdk.services.iam.model.ListAccessKeysResponse;
 import software.amazon.awssdk.services.iam.model.User;
 
@@ -46,7 +47,8 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
 			List<AccessKeyMetaDataLastUsed> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
-						.region( account.getRegion() )
+						// Any region is fine for IAM operations
+						.region( account.getRegions().iterator().next() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
 					iamClientBuilder.httpClient( sdkHttpClient );
@@ -58,13 +60,16 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
 
 						// Handle pagination
 						do {
-							String finalMarker = marker;
-							ListAccessKeysResponse response = client.listAccessKeys(
-									builder -> builder.userName(user.userName()).marker(finalMarker)
-							);
+							ListAccessKeysRequest request = ListAccessKeysRequest.builder()
+									.userName( user.userName() )
+									.marker( marker )
+									.build();
+							ListAccessKeysResponse response = client.listAccessKeys( request );
 
 							for (AccessKeyMetadata accessKeyMetadata : response.accessKeyMetadata()) {
 								list.add(new AccessKeyMetaDataLastUsed(
+										account.getAccountId(),
+										user.userName(),
 										accessKeyMetadata,
 										client.getAccessKeyLastUsed(builder -> builder.accessKeyId(accessKeyMetadata.accessKeyId())).accessKeyLastUsed()
 								));

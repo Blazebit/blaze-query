@@ -23,7 +23,7 @@ class ServicePlanTest {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AzureGraphSchemaProvider() );
 		builder.registerSchemaObjectAlias( ServicePlan.class, "AzureServicePlan" );
-		builder.registerSchemaObjectAlias( ServicePlanInfo.class, "AzureAvailableServicePlan" );
+		builder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
 		CONTEXT = builder.build();
 	}
 
@@ -35,7 +35,7 @@ class ServicePlanTest {
 			aadPremium.setServicePlanName( "AAD_PREMIUM" );
 
 			session.put(
-					ServicePlanInfo.class, Collections.singletonList( aadPremium ) );
+					AzureGraphServicePlanInfo.class, Collections.singletonList( new AzureGraphServicePlanInfo( "123",aadPremium ) ) );
 
 			var typedQuery =
 					session.createQuery( "select s.* from AzureAvailableServicePlan s", Map.class );
@@ -62,7 +62,7 @@ class ServicePlanTest {
 			aadPremium.setServicePlanName( "AAD_PREMIUM" );
 
 			session.put(
-					ServicePlanInfo.class, Collections.singletonList( aadPremium ) );
+					AzureGraphServicePlanInfo.class, Collections.singletonList( new AzureGraphServicePlanInfo( "123", aadPremium ) ) );
 
 			var typedQuery =
 					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?",

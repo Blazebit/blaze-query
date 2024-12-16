@@ -14,13 +14,12 @@ import com.microsoft.graph.beta.models.User;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class UserLastSignInActivityDataFetcher implements DataFetcher<UserLastSignInActivity>, Serializable {
+public class UserLastSignInActivityDataFetcher implements DataFetcher<AzureGraphUserLastSignInActivity>, Serializable {
 
 	public static final UserLastSignInActivityDataFetcher INSTANCE = new UserLastSignInActivityDataFetcher();
 
@@ -28,20 +27,20 @@ public class UserLastSignInActivityDataFetcher implements DataFetcher<UserLastSi
 	}
 
 	@Override
-	public List<UserLastSignInActivity> fetch(DataFetchContext context) {
+	public List<AzureGraphUserLastSignInActivity> fetch(DataFetchContext context) {
 		try {
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
 					context );
-			List<User> list = new ArrayList<>();
+			List<AzureGraphUserLastSignInActivity> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
 				// Calling this API requires service plan "AAD_PREMIUM" or "AAD_PREMIUM_P2"
-				list.addAll( accessor.getGraphServiceClient().users()
+				for ( User user : accessor.getGraphServiceClient().users()
 						.get( getRequestConfiguration -> getRequestConfiguration.queryParameters.select = new String[] {"signInActivity"} )
-						.getValue() );
+						.getValue() ) {
+					list.add( new AzureGraphUserLastSignInActivity( accessor.getTenantId(), new UserLastSignInActivity( user ) ) );
+				}
 			}
-			return list.stream()
-					.map( UserLastSignInActivity::new )
-					.collect( Collectors.toList() );
+			return list;
 		}
 		catch (RuntimeException e) {
 			throw new DataFetcherException( "Could not fetch user sign-in activity list", e );
@@ -50,6 +49,6 @@ public class UserLastSignInActivityDataFetcher implements DataFetcher<UserLastSi
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( UserLastSignInActivity.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphUserLastSignInActivity.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

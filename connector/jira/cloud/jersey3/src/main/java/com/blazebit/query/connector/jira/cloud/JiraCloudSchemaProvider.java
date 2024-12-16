@@ -28,7 +28,9 @@ public final class JiraCloudSchemaProvider implements QuerySchemaProvider {
 		return Set.of(
 				UserDataFetcher.INSTANCE,
 				PermissionDataFetcher.INSTANCE,
-				ProjectDataFetcher.INSTANCE
+				ProjectDataFetcher.INSTANCE,
+				GroupDataFetcher.INSTANCE,
+				MemberDataFetcher.INSTANCE
 		);
 	}
 }

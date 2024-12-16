@@ -21,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class UserDataFetcher implements DataFetcher<User>, Serializable {
+public class UserDataFetcher implements DataFetcher<AzureGraphUser>, Serializable {
 
 	public static final UserDataFetcher INSTANCE = new UserDataFetcher();
 
@@ -29,13 +29,15 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 	}
 
 	@Override
-	public List<User> fetch(DataFetchContext context) {
+	public List<AzureGraphUser> fetch(DataFetchContext context) {
 		try {
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
 					context );
-			List<User> list = new ArrayList<>();
+			List<AzureGraphUser> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
-				list.addAll( accessor.getGraphServiceClient().users().get().getValue() );
+				for ( User user : accessor.getGraphServiceClient().users().get().getValue() ) {
+					list.add( new AzureGraphUser( accessor.getTenantId(), user ) );
+				}
 			}
 			return list;
 		}
@@ -46,6 +48,6 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( User.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphUser.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

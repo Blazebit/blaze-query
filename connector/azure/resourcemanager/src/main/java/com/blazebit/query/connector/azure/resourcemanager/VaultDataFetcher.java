@@ -4,14 +4,11 @@
  */
 package com.blazebit.query.connector.azure.resourcemanager;
 
-import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
 import com.azure.resourcemanager.keyvault.models.Vault;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -23,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VaultDataFetcher implements DataFetcher<VaultInner>, Serializable {
+public class VaultDataFetcher implements DataFetcher<AzureResourceManagerVault>, Serializable {
 
 	public static final VaultDataFetcher INSTANCE = new VaultDataFetcher();
 
@@ -31,16 +28,24 @@ public class VaultDataFetcher implements DataFetcher<VaultInner>, Serializable {
 	}
 
 	@Override
-	public List<VaultInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerVault> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<VaultInner> list = new ArrayList<>();
+			List<AzureResourceManagerVault> list = new ArrayList<>();
+			List<? extends AzureResourceManagerResourceGroup> resourceGroups = context.getSession().getOrFetch(
+					AzureResourceManagerResourceGroup.class );
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
-				for ( ResourceGroupInner resourceGroup : context.getSession().getOrFetch(
-						ResourceGroupInner.class ) ) {
-					for ( Vault vault : resourceManager.vaults().listByResourceGroup( resourceGroup.name() ) ) {
-						list.add( vault.innerModel() );
+				for ( AzureResourceManagerResourceGroup resourceGroup : resourceGroups ) {
+					if ( resourceManager.tenantId().equals( resourceGroup.getTenantId() ) ) {
+						for ( Vault vault : resourceManager.vaults()
+								.listByResourceGroup( resourceGroup.getResourceGroupName() ) ) {
+							list.add( new AzureResourceManagerVault(
+									resourceManager.tenantId(),
+									vault.id(),
+									vault.innerModel()
+							) );
+						}
 					}
 				}
 			}
@@ -53,7 +58,7 @@ public class VaultDataFetcher implements DataFetcher<VaultInner>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( VaultInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerVault.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

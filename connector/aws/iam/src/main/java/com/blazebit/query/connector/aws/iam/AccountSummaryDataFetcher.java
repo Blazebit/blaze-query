@@ -43,13 +43,14 @@ public class AccountSummaryDataFetcher implements DataFetcher<AccountSummary>, S
 			List<AccountSummary> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
-						.region( account.getRegion() )
+						// Any region is fine for IAM operations
+						.region( account.getRegions().iterator().next() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					list.add( new AccountSummary( client.getAccountSummary().summaryMap() ) );
+					list.add( new AccountSummary( account.getAccountId(), client.getAccountSummary().summaryMap() ) );
 				}
 			}
 			return list;

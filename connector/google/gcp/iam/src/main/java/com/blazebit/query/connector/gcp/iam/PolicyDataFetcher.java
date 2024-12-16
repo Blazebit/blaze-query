@@ -13,10 +13,11 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.rpc.PermissionDeniedException;
-import com.google.iam.v2.ListPoliciesRequest;
-import com.google.iam.v2.PoliciesClient;
-import com.google.iam.v2.PoliciesSettings;
-import com.google.iam.v2.Policy;
+import com.google.cloud.asset.v1.AssetServiceClient;
+import com.google.cloud.asset.v1.AssetServiceSettings;
+import com.google.cloud.asset.v1.IamPolicySearchResult;
+import com.google.cloud.asset.v1.SearchAllIamPoliciesRequest;
+import com.google.cloud.resourcemanager.v3.Organization;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,7 +28,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class PolicyDataFetcher implements DataFetcher<Policy>, Serializable {
+public class PolicyDataFetcher implements DataFetcher<IamPolicySearchResult>, Serializable {
 
 	public static final PolicyDataFetcher INSTANCE = new PolicyDataFetcher();
 
@@ -35,22 +36,25 @@ public class PolicyDataFetcher implements DataFetcher<Policy>, Serializable {
 	}
 
 	@Override
-	public List<Policy> fetch(DataFetchContext context) {
+	public List<IamPolicySearchResult> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Policy> list = new ArrayList<>();
+			List<IamPolicySearchResult> list = new ArrayList<>();
+			List<? extends Organization> organizations = context.getSession().getOrFetch( Organization.class );
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
-				final PoliciesSettings settings = PoliciesSettings.newBuilder()
+				final AssetServiceSettings settings = AssetServiceSettings.newBuilder()
 						.setCredentialsProvider(credentialsProvider)
 						.build();
-				try (PoliciesClient client = PoliciesClient.create( settings )) {
+				try (AssetServiceClient client = AssetServiceClient.create( settings )) {
 					try {
-						final ListPoliciesRequest request = ListPoliciesRequest.newBuilder()
-//							.setName("970024905535")
-								.build();
-						final PoliciesClient.ListPoliciesPagedResponse response = client.listPolicies( request );
-						for ( Policy instance : response.iterateAll() ) {
-							list.add( instance );
+						for ( Organization organization : organizations ) {
+							final SearchAllIamPoliciesRequest request = SearchAllIamPoliciesRequest.newBuilder()
+									.setScope( organization.getName() )
+									.build();
+							final AssetServiceClient.SearchAllIamPoliciesPagedResponse response = client.searchAllIamPolicies( request );
+							for ( IamPolicySearchResult instance : response.iterateAll() ) {
+								list.add( instance );
+							}
 						}
 					}
 					catch (PermissionDeniedException e) {
@@ -71,6 +75,6 @@ public class PolicyDataFetcher implements DataFetcher<Policy>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Policy.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( IamPolicySearchResult.class, GcpConventionContext.INSTANCE );
 	}
 }

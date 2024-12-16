@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2ClientBuilder;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class LoadBalancerDataFetcher implements DataFetcher<LoadBalancer>, Serializable {
+public class LoadBalancerDataFetcher implements DataFetcher<AwsLoadBalancer>, Serializable {
 
 	public static final LoadBalancerDataFetcher INSTANCE = new LoadBalancerDataFetcher();
 
@@ -32,20 +33,27 @@ public class LoadBalancerDataFetcher implements DataFetcher<LoadBalancer>, Seria
 	}
 
 	@Override
-	public List<LoadBalancer> fetch(DataFetchContext context) {
+	public List<AwsLoadBalancer> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<LoadBalancer> list = new ArrayList<>();
+			List<AwsLoadBalancer> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				ElasticLoadBalancingV2ClientBuilder ec2ClientBuilder = ElasticLoadBalancingV2Client.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (ElasticLoadBalancingV2Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeLoadBalancers().loadBalancers() );
+				for ( Region region : account.getRegions() ) {
+					ElasticLoadBalancingV2ClientBuilder ec2ClientBuilder = ElasticLoadBalancingV2Client.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (ElasticLoadBalancingV2Client client = ec2ClientBuilder.build()) {
+						for ( LoadBalancer loadBalancer : client.describeLoadBalancers().loadBalancers() ) {
+							list.add( new AwsLoadBalancer(
+									loadBalancer.loadBalancerArn(),
+									loadBalancer
+							) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +65,6 @@ public class LoadBalancerDataFetcher implements DataFetcher<LoadBalancer>, Seria
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( LoadBalancer.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsLoadBalancer.class, AwsConventionContext.INSTANCE );
 	}
 }

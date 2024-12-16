@@ -9,6 +9,8 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 
 import java.io.IOException;
@@ -32,13 +34,23 @@ public class DriveDataFetcher implements DataFetcher<com.google.api.services.dri
 		try {
 			List<Drive> directoryServices = GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getAll( context );
 			List<com.google.api.services.drive.model.Drive> list = new ArrayList<>();
-			for ( Drive drive : directoryServices ) {
-				list.addAll( drive.drives().list().execute().getDrives() );
+			OUTER: for ( Drive drive : directoryServices ) {
+				try {
+					list.addAll( drive.drives().list().execute().getDrives() );
+				}
+				catch ( GoogleJsonResponseException e ) {
+					for ( GoogleJsonError.Details detail : e.getDetails().getDetails() ) {
+						if ( "SERVICE_DISABLED".equals( detail.getReason() ) ) {
+							continue OUTER;
+						}
+					}
+					throw e;
+				}
 			}
 			return list;
 		}
 		catch (IOException e) {
-			throw new DataFetcherException( "Could not fetch group list", e );
+			throw new DataFetcherException( "Could not fetch drive list", e );
 		}
 	}
 

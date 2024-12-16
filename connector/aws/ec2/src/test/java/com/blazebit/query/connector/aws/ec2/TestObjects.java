@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.aws.ec2;
 
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.VolumeAttachment;
@@ -16,12 +17,18 @@ public final class TestObjects {
 	private TestObjects() {
 	}
 
-	public static Instance instance() {
-		return Instance.builder().instanceId( "ami-0346fe82e44423dcb4" ).build();
+	public static AwsInstance instance() {
+		Instance instance = Instance.builder().instanceId( "ami-0346fe82e44423dcb4" ).build();
+		return new AwsInstance(
+				"123",
+				Region.EU_CENTRAL_1.id(),
+				instance.instanceId(),
+				instance
+		);
 	}
 
-	public static Volume volume() {
-		return Volume.builder()
+	public static AwsVolume volume() {
+		Volume volume = Volume.builder()
 				.attachments(
 						Collections.singletonList(
 								VolumeAttachment.builder()
@@ -44,5 +51,11 @@ public final class TestObjects {
 				.multiAttachEnabled( false )
 				.throughput( 125 )
 				.build();
+		return new AwsVolume(
+				"123",
+				Region.EU_CENTRAL_1.id(),
+				volume.volumeId(),
+				volume
+		);
 	}
 }

@@ -73,11 +73,15 @@ public class AzureTestObjects {
 		}
 	}
 
-	public static ManagedClusterInner azureKubernetesService() {
+	public static AzureResourceManagerManagedCluster azureKubernetesService() {
 		try {
-			return ManagedClusterInner.fromJson(
+			ManagedClusterInner managedClusterInner = ManagedClusterInner.fromJson(
 					jsonReader(
-							"src/test/resources/resource-definitions/azure/aks/aks.json"));
+							"src/test/resources/resource-definitions/azure/aks/aks.json" ) );
+			return new AzureResourceManagerManagedCluster(
+					"123",
+					managedClusterInner.id(),
+					managedClusterInner );
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

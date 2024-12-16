@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.route53.model.HostedZone;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class HostedZoneDataFetcher implements DataFetcher<HostedZone>, Serializable {
+public class HostedZoneDataFetcher implements DataFetcher<AwsHostedZone>, Serializable {
 
 	public static final HostedZoneDataFetcher INSTANCE = new HostedZoneDataFetcher();
 
@@ -32,20 +32,27 @@ public class HostedZoneDataFetcher implements DataFetcher<HostedZone>, Serializa
 	}
 
 	@Override
-	public List<HostedZone> fetch(DataFetchContext context) {
+	public List<AwsHostedZone> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<HostedZone> list = new ArrayList<>();
+			List<AwsHostedZone> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				Route53ClientBuilder ec2ClientBuilder = Route53Client.builder()
-						.region( account.getRegion() )
+						// Any region is fine for IAM operations
+						.region( account.getRegions().iterator().next() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
 					ec2ClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (Route53Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.listHostedZones().hostedZones() );
+					for ( HostedZone hostedZone : client.listHostedZones().hostedZones() ) {
+						list.add( new AwsHostedZone(
+							account.getAccountId(),
+							hostedZone.id(),
+							hostedZone
+						) );
+					}
 				}
 			}
 			return list;
@@ -57,6 +64,6 @@ public class HostedZoneDataFetcher implements DataFetcher<HostedZone>, Serializa
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( HostedZone.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsHostedZone.class, AwsConventionContext.INSTANCE );
 	}
 }
