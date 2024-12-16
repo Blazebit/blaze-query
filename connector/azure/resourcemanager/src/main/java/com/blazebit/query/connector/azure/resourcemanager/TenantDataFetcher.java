@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.resources.fluent.models.TenantIdDescriptionInner;
 import com.azure.resourcemanager.resources.models.Tenant;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -21,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class TenantDataFetcher implements DataFetcher<TenantIdDescriptionInner>, Serializable {
+public class TenantDataFetcher implements DataFetcher<AzureResourceManagerTenant>, Serializable {
 
 	public static final TenantDataFetcher INSTANCE = new TenantDataFetcher();
 
@@ -29,14 +28,14 @@ public class TenantDataFetcher implements DataFetcher<TenantIdDescriptionInner>,
 	}
 
 	@Override
-	public List<TenantIdDescriptionInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerTenant> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<TenantIdDescriptionInner> list = new ArrayList<>();
+			List<AzureResourceManagerTenant> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Tenant tenant : resourceManager.tenants().list() ) {
-					list.add( tenant.innerModel() );
+					list.add( new AzureResourceManagerTenant( tenant.tenantId(), tenant.innerModel() ) );
 				}
 			}
 			return list;
@@ -48,7 +47,7 @@ public class TenantDataFetcher implements DataFetcher<TenantIdDescriptionInner>,
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( TenantIdDescriptionInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerTenant.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.route53.model.HealthCheck;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class HealthCheckDataFetcher implements DataFetcher<HealthCheck>, Serializable {
+public class HealthCheckDataFetcher implements DataFetcher<AwsHealthCheck>, Serializable {
 
 	public static final HealthCheckDataFetcher INSTANCE = new HealthCheckDataFetcher();
 
@@ -32,20 +32,27 @@ public class HealthCheckDataFetcher implements DataFetcher<HealthCheck>, Seriali
 	}
 
 	@Override
-	public List<HealthCheck> fetch(DataFetchContext context) {
+	public List<AwsHealthCheck> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<HealthCheck> list = new ArrayList<>();
+			List<AwsHealthCheck> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				Route53ClientBuilder ec2ClientBuilder = Route53Client.builder()
-						.region( account.getRegion() )
+						// Any region is fine for IAM operations
+						.region( account.getRegions().iterator().next() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
 					ec2ClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (Route53Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.listHealthChecks().healthChecks() );
+					for ( HealthCheck healthCheck : client.listHealthChecks().healthChecks() ) {
+						list.add( new AwsHealthCheck(
+								account.getAccountId(),
+								healthCheck.id(),
+								healthCheck
+						) );
+					}
 				}
 			}
 			return list;
@@ -57,6 +64,6 @@ public class HealthCheckDataFetcher implements DataFetcher<HealthCheck>, Seriali
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( HealthCheck.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsHealthCheck.class, AwsConventionContext.INSTANCE );
 	}
 }

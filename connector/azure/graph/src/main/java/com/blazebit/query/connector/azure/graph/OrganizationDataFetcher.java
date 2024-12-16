@@ -19,7 +19,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class OrganizationDataFetcher implements DataFetcher<Organization>, Serializable {
+public class OrganizationDataFetcher implements DataFetcher<AzureGraphOrganization>, Serializable {
 
 	public static final OrganizationDataFetcher INSTANCE = new OrganizationDataFetcher();
 
@@ -28,16 +28,18 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Organization.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphOrganization.class, AzureGraphConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<Organization> fetch(DataFetchContext context) {
+	public List<AzureGraphOrganization> fetch(DataFetchContext context) {
 		try {
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
-			List<Organization> list = new ArrayList<>();
+			List<AzureGraphOrganization> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
-				list.addAll( accessor.getGraphServiceClient().organization().get().getValue() );
+				for ( Organization organization : accessor.getGraphServiceClient().organization().get().getValue() ) {
+					list.add( new AzureGraphOrganization( accessor.getTenantId(), organization ) );
+				}
 			}
 			return list;
 		}

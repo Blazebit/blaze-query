@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.Cluster;
@@ -26,7 +27,7 @@ import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ClusterDataFetcher implements DataFetcher<Cluster>, Serializable {
+public class ClusterDataFetcher implements DataFetcher<AwsCluster>, Serializable {
 
 	public static final ClusterDataFetcher INSTANCE = new ClusterDataFetcher();
 
@@ -34,23 +35,28 @@ public class ClusterDataFetcher implements DataFetcher<Cluster>, Serializable {
 	}
 
 	@Override
-	public List<Cluster> fetch(DataFetchContext context) {
+	public List<AwsCluster> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<Cluster> list = new ArrayList<>();
+			List<AwsCluster> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				EcsClientBuilder ec2ClientBuilder = EcsClient.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (EcsClient client = ec2ClientBuilder.build()) {
-					List<String> clusters = client.listClusters().clusterArns();
-					DescribeClustersRequest request = DescribeClustersRequest.builder().clusters( clusters ).build();
-					DescribeClustersResponse describeClustersResponse = client.describeClusters( request );
-					list.addAll( describeClustersResponse.clusters() );
+				for ( Region region : account.getRegions() ) {
+					EcsClientBuilder ec2ClientBuilder = EcsClient.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (EcsClient client = ec2ClientBuilder.build()) {
+						List<String> clusters = client.listClusters().clusterArns();
+						DescribeClustersRequest request = DescribeClustersRequest.builder().clusters( clusters )
+								.build();
+						DescribeClustersResponse describeClustersResponse = client.describeClusters( request );
+						for ( Cluster cluster : describeClustersResponse.clusters() ) {
+							list.add( new AwsCluster( cluster.clusterArn(), cluster ) );
+						}
+					}
 				}
 			}
 			return list;
@@ -62,6 +68,6 @@ public class ClusterDataFetcher implements DataFetcher<Cluster>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( Cluster.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsCluster.class, AwsConventionContext.INSTANCE );
 	}
 }

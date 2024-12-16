@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.compute.models.VirtualMachine;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -21,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachineInner>, Serializable {
+public class VirtualMachineDataFetcher implements DataFetcher<AzureResourceManagerVirtualMachine>, Serializable {
 
 	public static final VirtualMachineDataFetcher INSTANCE = new VirtualMachineDataFetcher();
 
@@ -29,14 +28,18 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachineInne
 	}
 
 	@Override
-	public List<VirtualMachineInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerVirtualMachine> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<VirtualMachineInner> list = new ArrayList<>();
+			List<AzureResourceManagerVirtualMachine> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( VirtualMachine virtualMachine : resourceManager.virtualMachines().list() ) {
-					list.add( virtualMachine.innerModel() );
+					list.add( new AzureResourceManagerVirtualMachine(
+							resourceManager.tenantId(),
+							virtualMachine.id(),
+							virtualMachine.innerModel()
+					) );
 				}
 			}
 			return list;
@@ -48,7 +51,7 @@ public class VirtualMachineDataFetcher implements DataFetcher<VirtualMachineInne
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( VirtualMachineInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerVirtualMachine.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

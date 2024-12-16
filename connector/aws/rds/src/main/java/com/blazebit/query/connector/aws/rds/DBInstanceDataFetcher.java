@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.rds.model.DBInstance;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<DBInstance>, Serializable {
+public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
 
 	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
 
@@ -32,20 +33,24 @@ public class DBInstanceDataFetcher implements DataFetcher<DBInstance>, Serializa
 	}
 
 	@Override
-	public List<DBInstance> fetch(DataFetchContext context) {
+	public List<AwsDBInstance> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<DBInstance> list = new ArrayList<>();
+			List<AwsDBInstance> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				RdsClientBuilder ec2ClientBuilder = RdsClient.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (RdsClient client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeDBInstances().dbInstances() );
+				for ( Region region : account.getRegions() ) {
+					RdsClientBuilder ec2ClientBuilder = RdsClient.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (RdsClient client = ec2ClientBuilder.build()) {
+						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
+							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +62,6 @@ public class DBInstanceDataFetcher implements DataFetcher<DBInstance>, Serializa
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( DBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
 	}
 }

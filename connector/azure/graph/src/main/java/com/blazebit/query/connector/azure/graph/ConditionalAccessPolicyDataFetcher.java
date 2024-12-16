@@ -19,7 +19,7 @@ import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ConditionalAccessPolicyDataFetcher implements DataFetcher<ConditionalAccessPolicy>, Serializable {
+public class ConditionalAccessPolicyDataFetcher implements DataFetcher<AzureGraphConditionalAccessPolicy>, Serializable {
 
 	public static final ConditionalAccessPolicyDataFetcher INSTANCE = new ConditionalAccessPolicyDataFetcher();
 
@@ -27,12 +27,14 @@ public class ConditionalAccessPolicyDataFetcher implements DataFetcher<Condition
 	}
 
 	@Override
-	public List<ConditionalAccessPolicy> fetch(DataFetchContext context) {
+	public List<AzureGraphConditionalAccessPolicy> fetch(DataFetchContext context) {
 		try {
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
-			List<ConditionalAccessPolicy> list = new ArrayList<>();
+			List<AzureGraphConditionalAccessPolicy> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
-				list.addAll( accessor.getGraphServiceClient().policies().conditionalAccessPolicies().get().getValue() );
+				for ( ConditionalAccessPolicy conditionalAccessPolicy : accessor.getGraphServiceClient().policies().conditionalAccessPolicies().get().getValue() ) {
+					list.add( new AzureGraphConditionalAccessPolicy( accessor.getTenantId(), conditionalAccessPolicy ) );
+				}
 			}
 			return list;
 		}
@@ -43,6 +45,6 @@ public class ConditionalAccessPolicyDataFetcher implements DataFetcher<Condition
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( ConditionalAccessPolicy.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphConditionalAccessPolicy.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

@@ -28,7 +28,9 @@ public final class GoogleDirectorySchemaProvider implements QuerySchemaProvider 
 		return Set.of(
 				UserDataFetcher.INSTANCE,
 				GroupDataFetcher.INSTANCE,
-				MemberDataFetcher.INSTANCE
+				MemberDataFetcher.INSTANCE,
+				RoleDataFetcher.INSTANCE,
+				RoleAssignmentDataFetcher.INSTANCE
 		);
 	}
 }

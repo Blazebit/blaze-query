@@ -7,9 +7,6 @@ package com.blazebit.query.connector.aws.iam;
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.services.iam.model.MFADevice;
-import software.amazon.awssdk.services.iam.model.PasswordPolicy;
-import software.amazon.awssdk.services.iam.model.User;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,9 +20,9 @@ public class AwsIAMSchemaProviderTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AwsIAMSchemaProvider() );
-		builder.registerSchemaObjectAlias( User.class, "AwsIAMUser" );
-		builder.registerSchemaObjectAlias( PasswordPolicy.class, "AwsIAMPasswordPolicy" );
-		builder.registerSchemaObjectAlias( MFADevice.class, "AwsIAMMFADevice" );
+		builder.registerSchemaObjectAlias( AwsUser.class, "AwsIAMUser" );
+		builder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIAMPasswordPolicy" );
+		builder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsIAMMFADevice" );
 		builder.registerSchemaObjectAlias( AccountSummary.class, "AwsIAMAccountSummary" );
 		CONTEXT = builder.build();
 	}
@@ -34,7 +31,7 @@ public class AwsIAMSchemaProviderTest {
 	void should_return_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					User.class, Collections.singletonList( TestObjects.userWithMfa() ) );
+					AwsUser.class, Collections.singletonList( TestObjects.userWithMfa() ) );
 
 			var typedQuery =
 					session.createQuery( "select u.* from AwsIAMUser u", Map.class );
@@ -46,7 +43,7 @@ public class AwsIAMSchemaProviderTest {
 	@Test
 	void should_return_password_policy() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( PasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
+			session.put( AwsPasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
 
 			var typedQuery =
 					session.createQuery( "select p.* from AwsIAMPasswordPolicy p", Map.class );
@@ -58,7 +55,7 @@ public class AwsIAMSchemaProviderTest {
 	@Test
 	void should_return_mfa_device() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( MFADevice.class, Collections.singletonList( TestObjects.mfaDevice() ) );
+			session.put( AwsMFADevice.class, Collections.singletonList( TestObjects.mfaDevice() ) );
 
 			var typedQuery =
 					session.createQuery(

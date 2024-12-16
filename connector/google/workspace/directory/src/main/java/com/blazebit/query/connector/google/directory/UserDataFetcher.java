@@ -34,7 +34,7 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<User> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.users().list().setDomain( "tidalcontrol.com" ).execute().getUsers() );
+				list.addAll( directory.users().list().setCustomer( "my_customer" ).execute().getUsers() );
 			}
 			return list;
 		}

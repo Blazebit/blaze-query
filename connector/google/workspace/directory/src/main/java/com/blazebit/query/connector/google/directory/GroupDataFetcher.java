@@ -34,7 +34,7 @@ public class GroupDataFetcher implements DataFetcher<Group>, Serializable {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<Group> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.groups().list().setDomain( "tidalcontrol.com" ).execute().getGroups() );
+				list.addAll( directory.groups().list().setCustomer( "my_customer" ).execute().getGroups() );
 			}
 			return list;
 		}

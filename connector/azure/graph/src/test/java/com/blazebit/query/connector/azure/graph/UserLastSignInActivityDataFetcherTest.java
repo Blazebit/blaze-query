@@ -20,22 +20,22 @@ class UserLastSignInActivityDataFetcherTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AzureGraphSchemaProvider() );
-		builder.registerSchemaObjectAlias( UserLastSignInActivity.class, "UserLastSignInActivity" );
+		builder.registerSchemaObjectAlias( AzureGraphUserLastSignInActivity.class, "UserLastSignInActivity" );
 		CONTEXT = builder.build();
 	}
 
 	@Test
 	void should_return_user_last_sign_in_activity() {
-		var user = new UserLastSignInActivity( AzureTestObjects.staleEnabledUserWithSignInActivity() );
+		var user = AzureTestObjects.staleEnabledUserWithSignInActivity();
 
 		try (var session = CONTEXT.createSession()) {
-			session.put( UserLastSignInActivity.class, Collections.singletonList( user ) );
+			session.put( AzureGraphUserLastSignInActivity.class, Collections.singletonList( user ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from UserLastSignInActivity u", Map.class );
+					session.createQuery( "select u.payload.* from UserLastSignInActivity u", Map.class );
 
 			assertThat( typedQuery.getResultList() ).first().satisfies( map -> {
-				assertThat( map ).containsEntry( "id", user.getId() );
+				assertThat( map ).containsEntry( "id", user.getPayload().getId() );
 				assertThat( map ).extractingByKey( "signInActivity" ).isNotNull();
 			} );
 		}

@@ -16,13 +16,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -192,8 +195,8 @@ public final class DataFormats {
 				DataFormatField dataFormatField = DataFormatField.of(
 						entry.getKey(),
 						factory.memberAccessor( entry.getValue(), conventionContext ),
-						getOrCreateDataFormat( factory.memberType( entry.getValue() ), subFilter, visitedTypes,
-								registry, factory )
+						getOrCreateDataFormat( clazz, factory.memberType( entry.getValue() ), subFilter,
+								visitedTypes, registry, factory )
 				);
 				fields.add( dataFormatField );
 			}
@@ -201,7 +204,7 @@ public final class DataFormats {
 		return fields;
 	}
 
-	private static DataFormat getOrCreateDataFormat(Type type, ConventionContext conventionContext, Map<Class<?>, ConventionContext> visitedTypes, Map<Class<?>, DataFormat> registry, DataFormatFactory factory) {
+	private static DataFormat getOrCreateDataFormat(Class<?> ownerType, Type type, ConventionContext conventionContext, Map<Class<?>, ConventionContext> visitedTypes, Map<Class<?>, DataFormat> registry, DataFormatFactory factory) {
 		if ( type instanceof WildcardType ) {
 			WildcardType wildcardType = (WildcardType) type;
 			Type[] upperBounds = wildcardType.getUpperBounds();
@@ -216,6 +219,9 @@ public final class DataFormats {
 				type = upperBounds[0];
 			}
 		}
+		if ( type instanceof TypeVariable<?> ) {
+			type = resolveTypeVariable( ownerType, (TypeVariable<?>) type );
+		}
 		if ( type instanceof ParameterizedType ) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
 			Type rawType = parameterizedType.getRawType();
@@ -227,15 +233,15 @@ public final class DataFormats {
 				Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 				Type elementType = actualTypeArguments[actualTypeArguments.length - 1];
 				return CollectionDataFormat.of( type,
-						getOrCreateDataFormat( elementType, conventionContext, visitedTypes, registry, factory ) );
+						getOrCreateDataFormat( ownerType, elementType, conventionContext, visitedTypes, registry, factory ) );
 			}
 			else if ( Map.class.isAssignableFrom( rawTypeClass ) ) {
 				Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 				Type keyType = actualTypeArguments[0];
 				Type elementType = actualTypeArguments[actualTypeArguments.length - 1];
 				return MapDataFormat.of( type,
-						getOrCreateDataFormat( keyType, conventionContext, visitedTypes, registry, factory ),
-						getOrCreateDataFormat( elementType, conventionContext, visitedTypes, registry, factory ) );
+						getOrCreateDataFormat( ownerType, keyType, conventionContext, visitedTypes, registry, factory ),
+						getOrCreateDataFormat( ownerType, elementType, conventionContext, visitedTypes, registry, factory ) );
 			}
 			type = rawTypeClass;
 		}
@@ -272,6 +278,58 @@ public final class DataFormats {
 		catch (RuntimeException e) {
 			visitedTypes.remove( typeClass );  // Clean up visited types map in case of exception
 			throw e;
+		}
+	}
+
+	private static Type resolveTypeVariable(Class<?> ownerType, TypeVariable<?> typeVariable) {
+		Map<TypeVariable<?>, Type> typeAssignments = new HashMap<>();
+		discoverTypeVariableAssignments( ownerType, typeAssignments );
+		Set<TypeVariable<?>> visitedTypeVariables = new HashSet<>();
+		TypeVariable<?> currentTypeVariable = typeVariable;
+		while ( visitedTypeVariables.add( currentTypeVariable ) ) {
+			Type type = typeAssignments.get( typeVariable );
+			if ( type instanceof Class<?> || type instanceof ParameterizedType ) {
+				return type;
+			}
+			if ( type instanceof TypeVariable<?> ) {
+				currentTypeVariable = (TypeVariable<?>) type;
+			}
+			else {
+				break;
+			}
+		}
+		Type[] bounds = typeVariable.getBounds();
+		if ( bounds[0] != Object.class ) {
+			return bounds[0];
+		}
+		return typeVariable;
+	}
+
+	private static void discoverTypeVariableAssignments(Class<?> ownerType, Map<TypeVariable<?>, Type> typeAssignments) {
+		Type genericSuperclass = ownerType.getGenericSuperclass();
+		if ( genericSuperclass instanceof ParameterizedType ) {
+			addTypeAssignments( typeAssignments, (ParameterizedType) genericSuperclass );
+		}
+		for ( Type genericInterface : ownerType.getGenericInterfaces() ) {
+			if ( genericInterface instanceof ParameterizedType ) {
+				addTypeAssignments( typeAssignments, (ParameterizedType) genericInterface );
+			}
+		}
+		Class<?> superclass = ownerType.getSuperclass();
+		if ( superclass != null && superclass != Object.class ) {
+			discoverTypeVariableAssignments( superclass, typeAssignments );
+		}
+		for ( Class<?> anInterface : ownerType.getInterfaces() ) {
+			discoverTypeVariableAssignments( anInterface, typeAssignments );
+		}
+	}
+
+	private static void addTypeAssignments(Map<TypeVariable<?>, Type> typeAssignments, ParameterizedType parameterizedType) {
+		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+		Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+		TypeVariable<? extends Class<?>>[] typeParameters = rawType.getTypeParameters();
+		for ( int i = 0; i < typeParameters.length; i++ ) {
+			typeAssignments.put( typeParameters[i], actualTypeArguments[ i ] );
 		}
 	}
 

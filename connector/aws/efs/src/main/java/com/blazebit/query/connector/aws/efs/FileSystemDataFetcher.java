@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.EfsClientBuilder;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.efs.model.FileSystemDescription;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class FileSystemDataFetcher implements DataFetcher<FileSystemDescription>, Serializable {
+public class FileSystemDataFetcher implements DataFetcher<AwsFileSystem>, Serializable {
 
 	public static final FileSystemDataFetcher INSTANCE = new FileSystemDataFetcher();
 
@@ -32,20 +33,27 @@ public class FileSystemDataFetcher implements DataFetcher<FileSystemDescription>
 	}
 
 	@Override
-	public List<FileSystemDescription> fetch(DataFetchContext context) {
+	public List<AwsFileSystem> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<FileSystemDescription> list = new ArrayList<>();
+			List<AwsFileSystem> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				EfsClientBuilder ec2ClientBuilder = EfsClient.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (EfsClient client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeFileSystems().fileSystems() );
+				for ( Region region : account.getRegions() ) {
+					EfsClientBuilder ec2ClientBuilder = EfsClient.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (EfsClient client = ec2ClientBuilder.build()) {
+						for ( FileSystemDescription fileSystem : client.describeFileSystems().fileSystems() ) {
+							list.add( new AwsFileSystem(
+									fileSystem.fileSystemArn(),
+									fileSystem
+							) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +65,6 @@ public class FileSystemDataFetcher implements DataFetcher<FileSystemDescription>
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( FileSystemDescription.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsFileSystem.class, AwsConventionContext.INSTANCE );
 	}
 }
