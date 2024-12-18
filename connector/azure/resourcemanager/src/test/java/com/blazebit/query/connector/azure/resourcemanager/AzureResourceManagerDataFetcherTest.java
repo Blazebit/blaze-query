@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,7 @@ public class AzureResourceManagerDataFetcherTest {
 					AzureResourceManagerManagedCluster.class, Collections.singletonList( AzureTestObjects.azureKubernetesService() ) );
 
 			var typedQuery =
-					session.createQuery( "select mc.* from AzureManagedCluster mc", Map.class );
+					session.createQuery( "select mc.* from AzureManagedCluster mc", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}
