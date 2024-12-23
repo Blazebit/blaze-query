@@ -19,12 +19,13 @@ import software.amazon.awssdk.services.iam.model.User;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class UserDataFetcher implements DataFetcher<User>, Serializable {
+public class UserDataFetcher implements DataFetcher<AwsUser>, Serializable {
 
 	public static final UserDataFetcher INSTANCE = new UserDataFetcher();
 
@@ -32,20 +33,38 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 	}
 
 	@Override
-	public List<User> fetch(DataFetchContext context) {
+	public List<AwsUser> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<User> list = new ArrayList<>();
+			List<AwsUser> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
-						.region( account.getRegion() )
+						// Any region is fine for IAM operations
+						.region( account.getRegions().iterator().next() )
 						.credentialsProvider( account.getCredentialsProvider() );
 				if ( sdkHttpClient != null ) {
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					list.addAll( client.listUsers().users() );
+					for ( User user : client.listUsers().users() ) {
+						StringTokenizer tokenizer = new StringTokenizer( user.arn(), ":" );
+						// arn
+						tokenizer.nextToken();
+						// aws
+						tokenizer.nextToken();
+						// iam
+						tokenizer.nextToken();
+						// empty region
+						tokenizer.nextToken();
+						// resource id
+						String resourceId = tokenizer.nextToken();
+						list.add( new AwsUser(
+								account.getAccountId(),
+								resourceId,
+								user
+						) );
+					}
 				}
 			}
 			return list;
@@ -57,6 +76,6 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( User.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsUser.class, AwsConventionContext.INSTANCE );
 	}
 }

@@ -14,13 +14,12 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.Application;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ApplicationDataFetcher implements DataFetcher<Application>, Serializable {
+public class ApplicationDataFetcher implements DataFetcher<AzureGraphApplication>, Serializable {
 
 	public static final ApplicationDataFetcher INSTANCE = new ApplicationDataFetcher();
 
@@ -28,13 +27,14 @@ public class ApplicationDataFetcher implements DataFetcher<Application>, Seriali
 	}
 
 	@Override
-	public List<Application> fetch(DataFetchContext context) {
+	public List<AzureGraphApplication> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> resourceManagers = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(
-					context );
-			List<Application> list = new ArrayList<>();
-			for ( GraphServiceClient resourceManager : resourceManagers ) {
-				list.addAll( resourceManager.applications().get().getValue() );
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
+			List<AzureGraphApplication> list = new ArrayList<>();
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				for ( Application application : accessor.getGraphServiceClient().applications().get().getValue() ) {
+					list.add( new AzureGraphApplication( accessor.getTenantId(), application ) );
+				}
 			}
 			return list;
 		}
@@ -45,6 +45,6 @@ public class ApplicationDataFetcher implements DataFetcher<Application>, Seriali
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Application.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphApplication.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.Vpc;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.ec2.model.Vpc;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VpcDataFetcher implements DataFetcher<Vpc>, Serializable {
+public class VpcDataFetcher implements DataFetcher<AwsVpc>, Serializable {
 
 	public static final VpcDataFetcher INSTANCE = new VpcDataFetcher();
 
@@ -32,20 +33,29 @@ public class VpcDataFetcher implements DataFetcher<Vpc>, Serializable {
 	}
 
 	@Override
-	public List<Vpc> fetch(DataFetchContext context) {
+	public List<AwsVpc> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<Vpc> list = new ArrayList<>();
+			List<AwsVpc> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (Ec2Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeVpcs().vpcs() );
+				for ( Region region : account.getRegions() ) {
+					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (Ec2Client client = ec2ClientBuilder.build()) {
+						for ( Vpc vpc : client.describeVpcs().vpcs() ) {
+							list.add( new AwsVpc(
+									vpc.ownerId(),
+									region.id(),
+									vpc.vpcId(),
+									vpc
+							) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +67,6 @@ public class VpcDataFetcher implements DataFetcher<Vpc>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( Vpc.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsVpc.class, AwsConventionContext.INSTANCE );
 	}
 }

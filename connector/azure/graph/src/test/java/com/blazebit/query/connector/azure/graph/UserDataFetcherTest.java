@@ -5,8 +5,8 @@
 package com.blazebit.query.connector.azure.graph;
 
 import com.blazebit.query.QueryContext;
+import com.blazebit.query.TypeReference;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
-import com.microsoft.graph.beta.models.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -21,7 +21,7 @@ class UserDataFetcherTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AzureGraphSchemaProvider() );
-		builder.registerSchemaObjectAlias( User.class, "AzureUser" );
+		builder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
 		CONTEXT = builder.build();
 	}
 
@@ -29,10 +29,10 @@ class UserDataFetcherTest {
 	void should_return_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					User.class, Collections.singletonList( AzureTestObjects.hybridUser() ) );
+					AzureGraphUser.class, Collections.singletonList( AzureTestObjects.hybridUser() ) );
 
 			var typedQuery =
-					session.createQuery( "select u.* from AzureUser u", Map.class );
+					session.createQuery( "select u.* from AzureUser u", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).isNotEmpty();
 		}

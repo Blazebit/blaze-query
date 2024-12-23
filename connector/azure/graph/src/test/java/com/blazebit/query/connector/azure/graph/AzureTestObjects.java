@@ -44,11 +44,12 @@ public final class AzureTestObjects {
 	}
 
 	// https://graph.microsoft.com/beta/users?$select=signInActivity
-	public static User staleEnabledUserWithSignInActivity() {
-		return TestObject.fromJson(
+	public static AzureGraphUserLastSignInActivity staleEnabledUserWithSignInActivity() {
+		User user = TestObject.fromJson(
 				User.class,
 				new File(
-						"src/test/resources/resource-definitions/azure/user/user-stale-with-sign-in-activity.json"));
+						"src/test/resources/resource-definitions/azure/user/user-stale-with-sign-in-activity.json" ) );
+		return new AzureGraphUserLastSignInActivity( "123", new UserLastSignInActivity( user ) );
 	}
 
 	public static User staleDisabledUserWithSignInActivity() {
@@ -63,10 +64,11 @@ public final class AzureTestObjects {
 				User.class, new File("src/test/resources/resource-definitions/azure/user/user-1.json"));
 	}
 
-	public static User hybridUser() {
-		return TestObject.fromJson(
+	public static AzureGraphUser hybridUser() {
+		User user = TestObject.fromJson(
 				User.class,
-				new File("src/test/resources/resource-definitions/azure/user/user-hybrid-ad.json"));
+				new File( "src/test/resources/resource-definitions/azure/user/user-hybrid-ad.json" ) );
+		return new AzureGraphUser( "123", user );
 	}
 
 	public static Organization organization() {

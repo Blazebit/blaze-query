@@ -6,26 +6,26 @@
 
 plugins {
     id 'blaze-query.java-conventions'
-    id 'org.openapi.generator' version '7.10.0'
+    id 'org.openapi.generator'
 }
 
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
     api libs.com.google.code.findbugs.jsr305
-    api libs.org.glassfish.jersey.core.jersey.client
-    api libs.org.glassfish.jersey.inject.jersey.hk2
-    api libs.org.glassfish.jersey.media.jersey.media.multipart
-    api libs.org.glassfish.jersey.media.jersey.media.json.jackson
-    api libs.com.fasterxml.jackson.core.jackson.core
-    api libs.com.fasterxml.jackson.core.jackson.annotations
-    api libs.com.fasterxml.jackson.core.jackson.databind
+    api libs.jersey.core.jersey.client
+    api libs.jersey.inject.jersey.hk2
+    api libs.jersey.media.jersey.media.multipart
+    api libs.jersey.media.jersey.media.json.jackson
+    api libs.jackson.core
+    api libs.jackson.annotations
+    api libs.jackson.databind
     api libs.org.openapitools.jackson.databind.nullable
-    api libs.com.fasterxml.jackson.datatype.jackson.datatype.jsr310
+    api libs.jackson.datatype.jsr310
     api libs.com.github.scribejava.scribejava.apis
-    api libs.org.glassfish.jersey.connectors.jersey.apache.connector
-    testImplementation libs.org.junit.jupiter.junit.jupiter
-    compileOnly libs.jakarta.annotation.jakarta.annotation.api
+    api libs.jersey.connectors.jersey.apache.connector
+    testImplementation libs.junit.jupiter
+    compileOnly libs.jakarta.annotation.api
 }
 
 description = 'blaze-query-connector-kandji-jersey3'
@@ -56,6 +56,8 @@ openApiGenerate {
     configOptions.put("serializationLibrary", "jackson")
     configOptions.put("useJakartaEe", "true")
 }
+
+tasks.openApiGenerate.inputs.file("${project.projectDir}/.openapi-generator-ignore")
 
 tasks.compileJava.dependsOn tasks.openApiGenerate
 tasks.sourcesJar.dependsOn tasks.compileJava

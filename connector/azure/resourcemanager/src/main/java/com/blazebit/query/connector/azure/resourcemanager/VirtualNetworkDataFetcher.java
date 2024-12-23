@@ -5,7 +5,6 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
 import com.azure.resourcemanager.network.models.Network;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -21,7 +20,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class VirtualNetworkDataFetcher implements DataFetcher<VirtualNetworkInner>, Serializable {
+public class VirtualNetworkDataFetcher implements DataFetcher<AzureResourceManagerVirtualNetwork>, Serializable {
 
 	public static final VirtualNetworkDataFetcher INSTANCE = new VirtualNetworkDataFetcher();
 
@@ -30,19 +29,23 @@ public class VirtualNetworkDataFetcher implements DataFetcher<VirtualNetworkInne
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( VirtualNetworkInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerVirtualNetwork.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<VirtualNetworkInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerVirtualNetwork> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<VirtualNetworkInner> list = new ArrayList<>();
+			List<AzureResourceManagerVirtualNetwork> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Network networkManager : resourceManager.networks().list() ) {
-					list.add( networkManager.innerModel() );
+					list.add( new AzureResourceManagerVirtualNetwork(
+							resourceManager.tenantId(),
+							networkManager.id(),
+							networkManager.innerModel()
+					) );
 				}
 			}
 			return list;

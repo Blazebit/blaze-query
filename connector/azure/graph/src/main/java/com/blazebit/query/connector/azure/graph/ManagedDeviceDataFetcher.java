@@ -10,7 +10,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.ManagedDevice;
-import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
+import com.microsoft.graph.beta.models.ManagedDeviceCollectionResponse;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
  * @author Max Hovens
  * @since 1.0.0
  */
-public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Serializable {
+public class ManagedDeviceDataFetcher implements DataFetcher<AzureGraphManagedDevice>, Serializable {
 
 	public static final ManagedDeviceDataFetcher INSTANCE = new ManagedDeviceDataFetcher();
 
@@ -33,12 +33,18 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
 	 * @throws com.microsoft.graph.beta.models.odataerrors.ODataError with message "AADSTS500014: The service principal for resource '0000000a-0000-0000-c000-000000000000' is disabled. etc....`" when Microsoft Intune is not activated on the tenant
 	 */
 	@Override
-	public List<ManagedDevice> fetch(DataFetchContext context) {
+	public List<AzureGraphManagedDevice> fetch(DataFetchContext context) {
 		try {
-			List<GraphServiceClient> graphClients = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
-			List<ManagedDevice> list = new ArrayList<>();
-			for ( GraphServiceClient graphClient : graphClients ) {
-				list.addAll( graphClient.deviceManagement().managedDevices().get().getValue() );
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
+			List<AzureGraphManagedDevice> list = new ArrayList<>();
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				ManagedDeviceCollectionResponse response = accessor.getGraphServiceClient()
+						.deviceManagement().managedDevices().get();
+				if ( response != null && response.getValue() != null ) {
+					for ( ManagedDevice managedDevice : response.getValue() ) {
+						list.add( new AzureGraphManagedDevice( accessor.getTenantId(), managedDevice ) );
+					}
+				}
 			}
 			return list;
 		}
@@ -49,6 +55,6 @@ public class ManagedDeviceDataFetcher implements DataFetcher<ManagedDevice>, Ser
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( ManagedDevice.class, AzureGraphConventionContext.INSTANCE );
+		return DataFormats.beansConvention( AzureGraphManagedDevice.class, AzureGraphConventionContext.INSTANCE );
 	}
 }

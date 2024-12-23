@@ -15,47 +15,42 @@ import java.util.Map;
  */
 public class AccountSummary {
 
-	private int groupPolicySizeQuota;
-	private int instanceProfilesQuota;
-	private int policies;
-	private int groupsPerUserQuota;
-	private int instanceProfiles;
-	private int attachedPoliciesPerUserQuota;
-	private int users;
-	private int policiesQuota;
-	private int providers;
-	private int accountMFAEnabled;
-	private int accessKeysPerUserQuota;
-	private int assumeRolePolicySizeQuota;
-	private int policyVersionsInUseQuota;
-	private int globalEndpointTokenVersion;
-	private int versionsPerPolicyQuota;
-	private int attachedPoliciesPerGroupQuota;
-	private int policySizeQuota;
-	private int groups;
-	private int accountSigningCertificatesPresent;
-	private int usersQuota;
-	private int serverCertificatesQuota;
-	private int mfaDevices;
-	private int userPolicySizeQuota;
-	private int policyVersionsInUse;
-	private int serverCertificates;
-	private int roles;
-	private int rolesQuota;
-	private int signingCertificatesPerUserQuota;
-	private int mfaDevicesInUse;
-	private int rolePolicySizeQuota;
-	private int attachedPoliciesPerRoleQuota;
-	private int accountAccessKeysPresent;
-	private int accountPasswordPresent;
-	private int groupsQuota;
+	private final String accountId;
+	private final int groupPolicySizeQuota;
+	private final int policies;
+	private final int groupsPerUserQuota;
+	private final int attachedPoliciesPerUserQuota;
+	private final int users;
+	private final int policiesQuota;
+	private final int accountMFAEnabled;
+	private final int accessKeysPerUserQuota;
+	private final int policyVersionsInUseQuota;
+	private final int globalEndpointTokenVersion;
+	private final int versionsPerPolicyQuota;
+	private final int attachedPoliciesPerGroupQuota;
+	private final int policySizeQuota;
+	private final int groups;
+	private final int accountSigningCertificatesPresent;
+	private final int usersQuota;
+	private final int serverCertificatesQuota;
+	private final int mfaDevices;
+	private final int userPolicySizeQuota;
+	private final int policyVersionsInUse;
+	private final int serverCertificates;
+	private final int signingCertificatesPerUserQuota;
+	private final int mfaDevicesInUse;
+	private final int attachedPoliciesPerRoleQuota;
+	private final int accountAccessKeysPresent;
+	private final int groupsQuota;
 
 	/**
-	 * Creates a new account summary from the {@link GetAccountSummaryResponse#summaryMap()} result.
+	 * Creates a new account summary from the {@link GetAccountSummaryResponse#summaryMap()} result for an account.
 	 *
+	 * @param accountId The account id
 	 * @param summaryKeyTypeIntegerMap The {@link GetAccountSummaryResponse#summaryMap()}
 	 */
-	public AccountSummary(Map<SummaryKeyType, Integer> summaryKeyTypeIntegerMap) {
+	public AccountSummary(String accountId, Map<SummaryKeyType, Integer> summaryKeyTypeIntegerMap) {
+		this.accountId = accountId;
 		this.groupPolicySizeQuota = summaryKeyTypeIntegerMap.get( SummaryKeyType.GROUP_POLICY_SIZE_QUOTA );
 		this.policies = summaryKeyTypeIntegerMap.get( SummaryKeyType.POLICIES );
 		this.groupsPerUserQuota = summaryKeyTypeIntegerMap.get( SummaryKeyType.GROUPS_PER_USER_QUOTA );
@@ -89,275 +84,107 @@ public class AccountSummary {
 		this.groupsQuota = summaryKeyTypeIntegerMap.get( SummaryKeyType.GROUPS_QUOTA );
 	}
 
-	public int getGroupPolicySizeQuota() {
+	public int groupPolicySizeQuota() {
 		return groupPolicySizeQuota;
 	}
 
-	public void setGroupPolicySizeQuota(int groupPolicySizeQuota) {
-		this.groupPolicySizeQuota = groupPolicySizeQuota;
-	}
-
-	public int getInstanceProfilesQuota() {
-		return instanceProfilesQuota;
-	}
-
-	public void setInstanceProfilesQuota(int instanceProfilesQuota) {
-		this.instanceProfilesQuota = instanceProfilesQuota;
-	}
-
-	public int getPolicies() {
+	public int policies() {
 		return policies;
 	}
 
-	public void setPolicies(int policies) {
-		this.policies = policies;
-	}
-
-	public int getGroupsPerUserQuota() {
+	public int groupsPerUserQuota() {
 		return groupsPerUserQuota;
 	}
 
-	public void setGroupsPerUserQuota(int groupsPerUserQuota) {
-		this.groupsPerUserQuota = groupsPerUserQuota;
-	}
-
-	public int getInstanceProfiles() {
-		return instanceProfiles;
-	}
-
-	public void setInstanceProfiles(int instanceProfiles) {
-		this.instanceProfiles = instanceProfiles;
-	}
-
-	public int getAttachedPoliciesPerUserQuota() {
+	public int attachedPoliciesPerUserQuota() {
 		return attachedPoliciesPerUserQuota;
 	}
 
-	public void setAttachedPoliciesPerUserQuota(int attachedPoliciesPerUserQuota) {
-		this.attachedPoliciesPerUserQuota = attachedPoliciesPerUserQuota;
-	}
-
-	public int getUsers() {
+	public int users() {
 		return users;
 	}
 
-	public void setUsers(int users) {
-		this.users = users;
-	}
-
-	public int getPoliciesQuota() {
+	public int policiesQuota() {
 		return policiesQuota;
 	}
 
-	public void setPoliciesQuota(int policiesQuota) {
-		this.policiesQuota = policiesQuota;
-	}
-
-	public int getProviders() {
-		return providers;
-	}
-
-	public void setProviders(int providers) {
-		this.providers = providers;
-	}
-
-	public int getAccountMFAEnabled() {
+	public int accountMFAEnabled() {
 		return accountMFAEnabled;
 	}
 
-	public void setAccountMFAEnabled(int accountMFAEnabled) {
-		this.accountMFAEnabled = accountMFAEnabled;
-	}
-
-	public int getAccessKeysPerUserQuota() {
+	public int accessKeysPerUserQuota() {
 		return accessKeysPerUserQuota;
 	}
 
-	public void setAccessKeysPerUserQuota(int accessKeysPerUserQuota) {
-		this.accessKeysPerUserQuota = accessKeysPerUserQuota;
-	}
-
-	public int getAssumeRolePolicySizeQuota() {
-		return assumeRolePolicySizeQuota;
-	}
-
-	public void setAssumeRolePolicySizeQuota(int assumeRolePolicySizeQuota) {
-		this.assumeRolePolicySizeQuota = assumeRolePolicySizeQuota;
-	}
-
-	public int getPolicyVersionsInUseQuota() {
+	public int policyVersionsInUseQuota() {
 		return policyVersionsInUseQuota;
 	}
 
-	public void setPolicyVersionsInUseQuota(int policyVersionsInUseQuota) {
-		this.policyVersionsInUseQuota = policyVersionsInUseQuota;
-	}
-
-	public int getGlobalEndpointTokenVersion() {
+	public int globalEndpointTokenVersion() {
 		return globalEndpointTokenVersion;
 	}
 
-	public void setGlobalEndpointTokenVersion(int globalEndpointTokenVersion) {
-		this.globalEndpointTokenVersion = globalEndpointTokenVersion;
-	}
-
-	public int getVersionsPerPolicyQuota() {
+	public int versionsPerPolicyQuota() {
 		return versionsPerPolicyQuota;
 	}
 
-	public void setVersionsPerPolicyQuota(int versionsPerPolicyQuota) {
-		this.versionsPerPolicyQuota = versionsPerPolicyQuota;
-	}
-
-	public int getAttachedPoliciesPerGroupQuota() {
+	public int attachedPoliciesPerGroupQuota() {
 		return attachedPoliciesPerGroupQuota;
 	}
 
-	public void setAttachedPoliciesPerGroupQuota(int attachedPoliciesPerGroupQuota) {
-		this.attachedPoliciesPerGroupQuota = attachedPoliciesPerGroupQuota;
-	}
-
-	public int getPolicySizeQuota() {
+	public int policySizeQuota() {
 		return policySizeQuota;
 	}
 
-	public void setPolicySizeQuota(int policySizeQuota) {
-		this.policySizeQuota = policySizeQuota;
-	}
-
-	public int getGroups() {
+	public int groups() {
 		return groups;
 	}
 
-	public void setGroups(int groups) {
-		this.groups = groups;
-	}
-
-	public int getAccountSigningCertificatesPresent() {
+	public int accountSigningCertificatesPresent() {
 		return accountSigningCertificatesPresent;
 	}
 
-	public void setAccountSigningCertificatesPresent(int accountSigningCertificatesPresent) {
-		this.accountSigningCertificatesPresent = accountSigningCertificatesPresent;
-	}
-
-	public int getUsersQuota() {
+	public int usersQuota() {
 		return usersQuota;
 	}
 
-	public void setUsersQuota(int usersQuota) {
-		this.usersQuota = usersQuota;
-	}
-
-	public int getServerCertificatesQuota() {
+	public int serverCertificatesQuota() {
 		return serverCertificatesQuota;
 	}
 
-	public void setServerCertificatesQuota(int serverCertificatesQuota) {
-		this.serverCertificatesQuota = serverCertificatesQuota;
-	}
-
-	public int getMfaDevices() {
+	public int mfaDevices() {
 		return mfaDevices;
 	}
 
-	public void setMfaDevices(int mfaDevices) {
-		this.mfaDevices = mfaDevices;
-	}
-
-	public int getUserPolicySizeQuota() {
+	public int userPolicySizeQuota() {
 		return userPolicySizeQuota;
 	}
 
-	public void setUserPolicySizeQuota(int userPolicySizeQuota) {
-		this.userPolicySizeQuota = userPolicySizeQuota;
-	}
-
-	public int getPolicyVersionsInUse() {
+	public int policyVersionsInUse() {
 		return policyVersionsInUse;
 	}
 
-	public void setPolicyVersionsInUse(int policyVersionsInUse) {
-		this.policyVersionsInUse = policyVersionsInUse;
-	}
-
-	public int getServerCertificates() {
+	public int serverCertificates() {
 		return serverCertificates;
 	}
 
-	public void setServerCertificates(int serverCertificates) {
-		this.serverCertificates = serverCertificates;
-	}
-
-	public int getRoles() {
-		return roles;
-	}
-
-	public void setRoles(int roles) {
-		this.roles = roles;
-	}
-
-	public int getRolesQuota() {
-		return rolesQuota;
-	}
-
-	public void setRolesQuota(int rolesQuota) {
-		this.rolesQuota = rolesQuota;
-	}
-
-	public int getSigningCertificatesPerUserQuota() {
+	public int signingCertificatesPerUserQuota() {
 		return signingCertificatesPerUserQuota;
 	}
 
-	public void setSigningCertificatesPerUserQuota(int signingCertificatesPerUserQuota) {
-		this.signingCertificatesPerUserQuota = signingCertificatesPerUserQuota;
-	}
-
-	public int getMfaDevicesInUse() {
+	public int mfaDevicesInUse() {
 		return mfaDevicesInUse;
 	}
 
-	public void setMfaDevicesInUse(int mfaDevicesInUse) {
-		this.mfaDevicesInUse = mfaDevicesInUse;
-	}
-
-	public int getRolePolicySizeQuota() {
-		return rolePolicySizeQuota;
-	}
-
-	public void setRolePolicySizeQuota(int rolePolicySizeQuota) {
-		this.rolePolicySizeQuota = rolePolicySizeQuota;
-	}
-
-	public int getAttachedPoliciesPerRoleQuota() {
+	public int attachedPoliciesPerRoleQuota() {
 		return attachedPoliciesPerRoleQuota;
 	}
 
-	public void setAttachedPoliciesPerRoleQuota(int attachedPoliciesPerRoleQuota) {
-		this.attachedPoliciesPerRoleQuota = attachedPoliciesPerRoleQuota;
-	}
-
-	public int getAccountAccessKeysPresent() {
+	public int accountAccessKeysPresent() {
 		return accountAccessKeysPresent;
 	}
 
-	public void setAccountAccessKeysPresent(int accountAccessKeysPresent) {
-		this.accountAccessKeysPresent = accountAccessKeysPresent;
-	}
-
-	public int getAccountPasswordPresent() {
-		return accountPasswordPresent;
-	}
-
-	public void setAccountPasswordPresent(int accountPasswordPresent) {
-		this.accountPasswordPresent = accountPasswordPresent;
-	}
-
-	public int getGroupsQuota() {
+	public int groupsQuota() {
 		return groupsQuota;
-	}
-
-	public void setGroupsQuota(int groupsQuota) {
-		this.groupsQuota = groupsQuota;
 	}
 }

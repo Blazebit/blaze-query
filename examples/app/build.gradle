@@ -17,16 +17,16 @@ dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-core-impl')
     api project(':blaze-query-connector-entity-view')
-    api libs.org.hibernate.orm.hibernate.core
-    api libs.com.h2database.h2
-    api libs.com.fasterxml.jackson.core.jackson.core.x1
-    api libs.com.fasterxml.jackson.core.jackson.annotations.x1
-    api libs.com.fasterxml.jackson.core.jackson.databind.x1
-    api libs.com.azure.azure.core
+    api libs.hibernate.core
+    api libs.h2
+    api libs.jackson.core
+    api libs.jackson.annotations
+    api libs.jackson.databind
+    api libs.azure.core
     api project(':blaze-query-connector-azure-resourcemanager')
     api project(':blaze-query-connector-azure-graph')
-    api libs.com.azure.azure.identity
-    api libs.com.microsoft.graph.microsoft.graph.core
+    api libs.azure.identity
+    api libs.microsoft.graph.core
     api project(':blaze-query-connector-aws-ec2')
     api project(':blaze-query-connector-aws-rds')
     api project(':blaze-query-connector-aws-iam')
@@ -41,7 +41,14 @@ dependencies {
     api project(':blaze-query-connector-github')
     api project(':blaze-query-connector-github-openapi-jersey3')
     api project(':blaze-query-connector-kandji-jersey3')
-    runtimeOnly libs.com.blazebit.blaze.persistence.integration.hibernate.v6.v2
+    api project(':blaze-query-connector-jira-cloud-jersey3')
+    api project(':blaze-query-connector-jira-datacenter-jersey3')
+    api project(':blaze-query-connector-google-workspace-directory')
+    api project(':blaze-query-connector-google-workspace-drive')
+    api project(':blaze-query-connector-google-gcp-compute')
+    api project(':blaze-query-connector-google-gcp-iam')
+    api project(':blaze-query-connector-google-gcp-storage')
+    runtimeOnly libs.blaze.persistence.integration.hibernate6
 }
 
 description = 'blaze-query-examples-app'

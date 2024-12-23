@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    api libs.org.apache.calcite.calcite.core
+    api libs.calcite.core
 }
 
 description = 'blaze-query-core-api'

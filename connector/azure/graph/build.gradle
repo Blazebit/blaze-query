@@ -10,10 +10,10 @@ plugins {
 
 dependencies {
     api project(':blaze-query-connector-base')
-    api libs.com.microsoft.graph.microsoft.graph.beta
+    api libs.microsoft.graph.beta
     testImplementation project(':blaze-query-core-impl')
-    testImplementation libs.org.junit.jupiter.junit.jupiter
-    testImplementation libs.org.assertj.assertj.core
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
 }
 
 description = 'blaze-query-connector-azure-graph'

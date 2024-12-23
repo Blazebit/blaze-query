@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 import com.azure.resourcemanager.storage.models.StorageAccount;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -21,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class StorageAccountDataFetcher implements DataFetcher<StorageAccountInner>, Serializable {
+public class StorageAccountDataFetcher implements DataFetcher<AzureResourceManagerStorageAccount>, Serializable {
 
 	public static final StorageAccountDataFetcher INSTANCE = new StorageAccountDataFetcher();
 
@@ -29,14 +28,18 @@ public class StorageAccountDataFetcher implements DataFetcher<StorageAccountInne
 	}
 
 	@Override
-	public List<StorageAccountInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerStorageAccount> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<StorageAccountInner> list = new ArrayList<>();
+			List<AzureResourceManagerStorageAccount> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( StorageAccount storageAccount : resourceManager.storageAccounts().list() ) {
-					list.add( storageAccount.innerModel() );
+					list.add( new AzureResourceManagerStorageAccount(
+							resourceManager.tenantId(),
+							storageAccount.id(),
+							storageAccount.innerModel()
+					) );
 				}
 			}
 			return list;
@@ -48,7 +51,7 @@ public class StorageAccountDataFetcher implements DataFetcher<StorageAccountInne
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( StorageAccountInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerStorageAccount.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

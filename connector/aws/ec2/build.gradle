@@ -10,10 +10,10 @@ plugins {
 
 dependencies {
     api project(':blaze-query-connector-aws-base')
-    api libs.software.amazon.awssdk.ec2
+    api libs.awssdk.ec2
     testImplementation project(':blaze-query-core-impl')
-    testImplementation libs.org.junit.jupiter.junit.jupiter
-    testImplementation libs.org.assertj.assertj.core
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
 }
 
 description = 'blaze-query-connector-aws-ec2'

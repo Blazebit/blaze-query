@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.ec2.model.SecurityGroup;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class SecurityGroupDataFetcher implements DataFetcher<SecurityGroup>, Serializable {
+public class SecurityGroupDataFetcher implements DataFetcher<AwsSecurityGroup>, Serializable {
 
 	public static final SecurityGroupDataFetcher INSTANCE = new SecurityGroupDataFetcher();
 
@@ -32,20 +33,29 @@ public class SecurityGroupDataFetcher implements DataFetcher<SecurityGroup>, Ser
 	}
 
 	@Override
-	public List<SecurityGroup> fetch(DataFetchContext context) {
+	public List<AwsSecurityGroup> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<SecurityGroup> list = new ArrayList<>();
+			List<AwsSecurityGroup> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (Ec2Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeSecurityGroups().securityGroups() );
+				for ( Region region : account.getRegions() ) {
+					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (Ec2Client client = ec2ClientBuilder.build()) {
+						for ( SecurityGroup securityGroup : client.describeSecurityGroups().securityGroups() ) {
+							list.add( new AwsSecurityGroup(
+									securityGroup.ownerId(),
+									region.id(),
+									securityGroup.groupId(),
+									securityGroup
+							) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +67,6 @@ public class SecurityGroupDataFetcher implements DataFetcher<SecurityGroup>, Ser
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( SecurityGroup.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsSecurityGroup.class, AwsConventionContext.INSTANCE );
 	}
 }

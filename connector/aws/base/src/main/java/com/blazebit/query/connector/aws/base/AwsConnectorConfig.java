@@ -9,6 +9,8 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 
+import java.util.Set;
+
 /**
  * Configuration properties for the AWS {@link com.blazebit.query.spi.DataFetcher} instances.
  *
@@ -37,27 +39,38 @@ public final class AwsConnectorConfig {
 	 * @since 1.0.0
 	 */
 	public static final class Account {
-		private final Region region;
+		private final String accountId;
+		private final Set<Region> regions;
 		private final AwsCredentialsProvider credentialsProvider;
 
 		/**
 		 * Create a new account.
 		 *
-		 * @param region The region to use for the account.
+		 * @param regions The region to use for the account.
 		 * @param credentialsProvider The credentials to use.
 		 */
-		public Account(Region region, AwsCredentialsProvider credentialsProvider) {
-			this.region = region;
+		public Account(String accountId, Set<Region> regions, AwsCredentialsProvider credentialsProvider) {
+			this.accountId = accountId;
+			this.regions = regions;
 			this.credentialsProvider = credentialsProvider;
 		}
 
 		/**
-		 * Returns the AWS region for the account.
+		 * Returns the account id.
 		 *
-		 * @return the AWS region for the account
+		 * @return the account id
 		 */
-		public Region getRegion() {
-			return region;
+		public String getAccountId() {
+			return accountId;
+		}
+
+		/**
+		 * Returns the AWS regions for the account.
+		 *
+		 * @return the AWS regions for the account
+		 */
+		public Set<Region> getRegions() {
+			return regions;
 		}
 
 		/**

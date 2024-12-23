@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
-    api libs.org.gitlab4j.gitlab4j.api
+    api libs.gitlab4j.api
 }
 
 description = 'blaze-query-connector-gitlab'

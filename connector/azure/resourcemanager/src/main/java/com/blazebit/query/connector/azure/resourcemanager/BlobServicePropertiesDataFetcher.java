@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
-import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 import com.azure.resourcemanager.storage.models.BlobServiceProperties;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
@@ -22,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class BlobServicePropertiesDataFetcher implements DataFetcher<BlobServicePropertiesInner>, Serializable {
+public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResourceManagerBlobServiceProperties>, Serializable {
 
 	public static final BlobServicePropertiesDataFetcher INSTANCE = new BlobServicePropertiesDataFetcher();
 
@@ -30,28 +28,26 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<BlobService
 	}
 
 	@Override
-	public List<BlobServicePropertiesInner> fetch(DataFetchContext context) {
+	public List<AzureResourceManagerBlobServiceProperties> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<BlobServicePropertiesInner> list = new ArrayList<>();
+			List<AzureResourceManagerBlobServiceProperties> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
-				for ( StorageAccountInner storageAccount : context.getSession()
-						.getOrFetch( StorageAccountInner.class ) ) {
-					// Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-					String[] splitParts = storageAccount.id().split( "/" );
-					assert splitParts.length == 9;
-					String subscriptionId = splitParts[2];
-					String resourceGroupName = splitParts[4];
-					String storageAccountName = splitParts[8];
-					if ( resourceManager.subscriptionId().equals( subscriptionId ) ) {
+				for ( AzureResourceManagerStorageAccount storageAccount : context.getSession()
+						.getOrFetch( AzureResourceManagerStorageAccount.class ) ) {
+					if ( resourceManager.subscriptionId().equals( storageAccount.getSubscriptionId() ) ) {
 						BlobServiceProperties blobServiceProperties = resourceManager.storageBlobServices()
 								.getServicePropertiesAsync(
-										resourceGroupName,
-										storageAccountName
+										storageAccount.getResourceGroupName(),
+										storageAccount.getResourceName()
 								).block();
 						if ( blobServiceProperties != null ) {
-							list.add( blobServiceProperties.innerModel() );
+							list.add( new AzureResourceManagerBlobServiceProperties(
+									resourceManager.tenantId(),
+									blobServiceProperties.id(),
+									blobServiceProperties.innerModel()
+							) );
 						}
 					}
 				}
@@ -65,7 +61,7 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<BlobService
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( BlobServicePropertiesInner.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagerBlobServiceProperties.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

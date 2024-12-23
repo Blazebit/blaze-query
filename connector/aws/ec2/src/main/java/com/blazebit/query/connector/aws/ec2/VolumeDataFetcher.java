@@ -16,6 +16,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.Volume;
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.ec2.model.Volume;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VolumeDataFetcher implements DataFetcher<Volume>, Serializable {
+public class VolumeDataFetcher implements DataFetcher<AwsVolume>, Serializable {
 
 	public static final VolumeDataFetcher INSTANCE = new VolumeDataFetcher();
 
@@ -32,20 +33,29 @@ public class VolumeDataFetcher implements DataFetcher<Volume>, Serializable {
 	}
 
 	@Override
-	public List<Volume> fetch(DataFetchContext context) {
+	public List<AwsVolume> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<Volume> list = new ArrayList<>();
+			List<AwsVolume> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
-				Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
-						.region( account.getRegion() )
-						.credentialsProvider( account.getCredentialsProvider() );
-				if ( sdkHttpClient != null ) {
-					ec2ClientBuilder.httpClient( sdkHttpClient );
-				}
-				try (Ec2Client client = ec2ClientBuilder.build()) {
-					list.addAll( client.describeVolumes().volumes() );
+				for ( Region region : account.getRegions() ) {
+					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
+							.region( region )
+							.credentialsProvider( account.getCredentialsProvider() );
+					if ( sdkHttpClient != null ) {
+						ec2ClientBuilder.httpClient( sdkHttpClient );
+					}
+					try (Ec2Client client = ec2ClientBuilder.build()) {
+						for ( Volume volume : client.describeVolumes().volumes() ) {
+							list.add( new AwsVolume(
+									account.getAccountId(),
+									region.id(),
+									volume.volumeId(),
+									volume
+							) );
+						}
+					}
 				}
 			}
 			return list;
@@ -57,6 +67,6 @@ public class VolumeDataFetcher implements DataFetcher<Volume>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( Volume.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsVolume.class, AwsConventionContext.INSTANCE );
 	}
 }
