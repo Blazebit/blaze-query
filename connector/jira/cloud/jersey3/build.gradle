@@ -34,7 +34,8 @@ sourceSets {
 
 openApiGenerate {
     generatorName.set("java")
-    remoteInputSpec.set("https://dac-static.atlassian.com/cloud/jira/platform/swagger.v3.json?_v=1.7611.0-0.1314.0")
+    inputSpec.set("${project.projectDir}/swagger.v3.json")
+//    remoteInputSpec.set("https://dac-static.atlassian.com/cloud/jira/platform/swagger.v3.json")
     outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
     apiPackage.set("com.blazebit.query.connector.jira.cloud.api")
     invokerPackage.set("com.blazebit.query.connector.jira.cloud.invoker")
