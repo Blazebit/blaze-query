@@ -70,7 +70,9 @@ public class QueryContextImpl implements QueryContext {
 
 		}
 
-		if ( query.getResultType() instanceof ParameterizedType parameterizedType && parameterizedType.getRawType() == Map.class ) {
+		if ( query.getResultType() == Map.class
+				|| query.getResultType() instanceof ParameterizedType parameterizedType
+				&& parameterizedType.getRawType() == Map.class ) {
 			try {
 				return (ResultExtractor<T>) new MapExtractor(
 						resultSet.getMetaData().getColumnCount() );
