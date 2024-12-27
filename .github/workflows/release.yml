@@ -36,6 +36,7 @@ jobs:
           git commit -m "Update to next development version"
           git push
           git push --tags
+          git reset --hard HEAD~1
           ./gradlew closeAndReleaseSonatypeStagingRepository
         env:
           VERSION: ${{ inputs.version }}
