@@ -73,7 +73,7 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.withType(Sign).configureEach {
     onlyIf("not publishing to local Maven repository") {
-        !gradle.startParameter.taskNames.any { it == 'publishToMavenLocal' }
+        !gradle.startParameter.taskNames.any { it == 'publishToMavenLocal' || it == 'publish' }
     }
 }
 
