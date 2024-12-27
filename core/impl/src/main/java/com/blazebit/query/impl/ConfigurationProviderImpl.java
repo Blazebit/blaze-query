@@ -57,6 +57,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Supplie
 			PropertyProvider supplier = propertyProviders.get( propertyName );
 			if ( supplier != null ) {
 				value = supplier.provide( this );
+				if ( query != null ) {
+					// Cache the resolved property value on the session
+					query.getSession().setProperty( propertyName, value );
+				}
 			}
 		}
 		//noinspection unchecked
