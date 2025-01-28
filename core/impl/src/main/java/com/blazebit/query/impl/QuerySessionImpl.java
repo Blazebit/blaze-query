@@ -33,7 +33,7 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
 		this.queryContext = queryContext;
 		this.data = new HashMap<>();
 		if ( !properties.isEmpty() ) {
-			this.properties = properties;
+			this.properties = new HashMap<>(properties);
 		}
 	}
 
