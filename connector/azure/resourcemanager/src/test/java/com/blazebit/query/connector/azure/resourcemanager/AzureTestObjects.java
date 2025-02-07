@@ -10,6 +10,7 @@ import com.azure.json.implementation.DefaultJsonReader;
 import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
+import com.azure.resourcemanager.network.fluent.models.NetworkSecurityGroupInner;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 
@@ -82,6 +83,34 @@ public class AzureTestObjects {
 					"123",
 					managedClusterInner.id(),
 					managedClusterInner );
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static AzureResourceManagerNetworkSecurityGroup azureNetworkSecurityGroupRdpAllowed() {
+		try {
+			NetworkSecurityGroupInner networkSecurityGroupInner = NetworkSecurityGroupInner.fromJson(
+					jsonReader(
+							"src/test/resources/resource-definitions/azure/network-security-group/allow-rdp-tcp-3389-inbound.json" ) );
+			return new AzureResourceManagerNetworkSecurityGroup(
+					"123",
+					networkSecurityGroupInner.id(),
+					networkSecurityGroupInner );
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static AzureResourceManagerNetworkSecurityGroup azureNetworkSecurityGroupSshAllowed() {
+		try {
+			NetworkSecurityGroupInner networkSecurityGroupInner = NetworkSecurityGroupInner.fromJson(
+					jsonReader(
+							"src/test/resources/resource-definitions/azure/network-security-group/allow-ssh-tcp-22-inbound.json" ) );
+			return new AzureResourceManagerNetworkSecurityGroup(
+					"123",
+					networkSecurityGroupInner.id(),
+					networkSecurityGroupInner );
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
