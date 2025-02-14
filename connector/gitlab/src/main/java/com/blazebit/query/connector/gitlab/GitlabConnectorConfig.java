@@ -20,6 +20,12 @@ public final class GitlabConnectorConfig {
 	 */
 	public static final DataFetcherConfig<GitLabApi> GITLAB_API = DataFetcherConfig.forPropertyName( "gitlabApi" );
 
+	/**
+	 * Specifies the {@link GitlabGraphQlClient} to use for querying data.
+	 */
+	public static final DataFetcherConfig<GitlabGraphQlClient> GITLAB_GRAPHQL_CLIENT =
+			DataFetcherConfig.forPropertyName("gitlabGraphQLClient");
+
 	private GitlabConnectorConfig() {
 	}
 }
