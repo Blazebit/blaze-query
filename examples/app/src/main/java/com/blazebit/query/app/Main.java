@@ -52,6 +52,10 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerVi
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
+import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
+import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
+import com.blazebit.query.connector.gitlab.GitlabGroup;
+import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
@@ -160,7 +164,8 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-//            queryContextBuilder.setProperty(GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
@@ -222,6 +227,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( org.gitlab4j.api.models.User.class, "GitlabUser" );
 			queryContextBuilder.registerSchemaObjectAlias( ProjectProtectedBranch.class,
 					"GitlabProjectProtectedBranch" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -282,7 +289,7 @@ public class Main {
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
-//					testGitlab( session );
+					testGitlab( session );
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
@@ -450,6 +457,16 @@ public class Main {
 		List<Object[]> gitlabProtectedBranchResult = gitlabProtectedBranchQuery.getResultList();
 		System.out.println( "GitlabProtectedBranches" );
 		print( gitlabProtectedBranchResult );
+
+		List<Object[]> gitlabGraphqlUserResult = session.createQuery(
+				"select g.* from GitlabGraphQlUser g" ).getResultList();
+		System.out.println( "GitlabGraphQlUsers" );
+		print( gitlabGraphqlUserResult );
+
+		List<Object[]> gitlabGraphqlGroupResult = session.createQuery(
+				"select g.* from GitlabGraphQlGroup g" ).getResultList();
+		System.out.println( "GitlabGraphQlGroups" );
+		print( gitlabGraphqlGroupResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
@@ -755,6 +772,11 @@ public class Main {
 			gitLabApi.setIgnoreCertificateErrors( true );
 		}
 		return gitLabApi;
+	}
+
+	private static GitlabGraphQlClient createGitlabGraphQLClient() {
+		// Initialize GraphQL client with host and token
+		return new GitlabGraphQlClient(GITLAB_HOST, GITLAB_KEY);
 	}
 
 	private static GitHub createGithub() {
