@@ -12,7 +12,7 @@ dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
     api libs.gitlab4j.api
-    api libs.jackson.databind
+    api libs.org.json
 }
 
 description = 'blaze-query-connector-gitlab'

@@ -4,43 +4,16 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.json.JSONObject;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class GitlabGroup {
-	@JsonProperty("id")
-	private String id;
-
-	@JsonProperty("name")
-	private String name;
-
-	@JsonProperty("path")
-	private String path;
-
-	@JsonProperty("requireTwoFactorAuthentication")
-	private Boolean requireTwoFactorAuthentication;
-
-	@JsonProperty("twoFactorGracePeriod")
-	private Integer twoFactorGracePeriod;
-
-	public String getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public Boolean getRequireTwoFactorAuthentication() {
-		return requireTwoFactorAuthentication;
-	}
-
-	public Integer getTwoFactorGracePeriod() {
-		return twoFactorGracePeriod;
+public record GitlabGroup(String id, String name, String path, boolean requireTwoFactorAuthentication, int twoFactorGracePeriod) {
+	public static GitlabGroup fromJson(JSONObject json) {
+		return new GitlabGroup(
+				json.getString("id"),
+				json.getString("name"),
+				json.getString("path"),
+				json.getBoolean("requireTwoFactorAuthentication"),
+				json.getInt("twoFactorGracePeriod")
+		);
 	}
 }

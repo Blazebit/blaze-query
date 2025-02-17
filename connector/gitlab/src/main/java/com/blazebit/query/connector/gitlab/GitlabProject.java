@@ -4,21 +4,14 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.json.JSONObject;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class GitlabProject {
-	@JsonProperty("id")
-	private String id;
-
-	@JsonProperty("name")
-	private String name;
-
-	@JsonProperty("defaultBranch")
-	private String defaultBranch;
-
-	public String getId() { return id;	}
-	public String getName() { return name; }
-	public String getDefaultBranch() { return defaultBranch; }
+public record GitlabProject(String id, String name, String defaultBranch) {
+	public static GitlabProject fromJson(JSONObject json) {
+		return new GitlabProject(
+				json.getString("id"),
+				json.getString("name"),
+				json.optString("defaultBranch", null)
+		);
+	}
 }

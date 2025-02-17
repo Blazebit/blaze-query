@@ -4,32 +4,16 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.json.JSONObject;
 
-import java.util.Date;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class GitlabUser {
-
-	@JsonProperty("id")
-	private String id;
-
-	@JsonProperty("name")
-	private String name;
-
-	@JsonProperty("username")
-	private String username;
-
-	@JsonProperty("active")
-	private Boolean active;
-
-	@JsonProperty("lastActivityOn")
-	private Date lastActivityOn;
-
-	public String getId() { return id; }
-	public String getName() { return name; }
-	public String getUsername() { return username; }
-	public Boolean getActive() { return active; }
-	public Date getLastActivityOn() { return lastActivityOn; }
+public record GitlabUser(String id, String name, String username, String lastActivityOn, boolean active) {
+	public static GitlabUser fromJson(JSONObject json) {
+		return new GitlabUser(
+				json.getString("id"),
+				json.getString("name"),
+				json.getString("username"),
+				json.optString("lastActivityOn", null),
+				json.getBoolean("active")
+		);
+	}
 }

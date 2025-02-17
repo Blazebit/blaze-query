@@ -4,22 +4,21 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GitlabGraphQlClient {
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final int DEFAULT_PAGE_SIZE = 100; // GitLab's default pagination size
 
 	private final HttpClient httpClient;
@@ -47,14 +46,14 @@ public class GitlabGraphQlClient {
 		variables.put("ids", userIds);
 
 		String query = """
-            query ($ids: [ID!]) { 
-                users(ids: $ids) { 
-                    nodes { id name username lastActivityOn active } 
-                } 
-            }
-        """;
+			query ($ids: [ID!]) {
+				users(ids: $ids) {
+					nodes { id name username lastActivityOn active }
+				}
+			}
+		""";
 
-		return executeQuery(query, variables, "users", GitlabUser.class);
+		return executeQuery(query, variables, "users", GitlabUser::fromJson);
 	}
 
 //	public List<GitlabProject> fetchProjects() {
@@ -72,15 +71,15 @@ public class GitlabGraphQlClient {
 		variables.put("membership", membership);
 
 		String query = """
-            query ($membership: Boolean, $first: Int, $cursor: String) { 
-                projects(membership: $membership, first: $first, after: $cursor) { 
-                    pageInfo { endCursor hasNextPage }
-                    nodes { id name defaultBranch } 
-                } 
-            }
-        """;
+			query ($membership: Boolean, $first: Int, $cursor: String) {
+				projects(membership: $membership, first: $first, after: $cursor) {
+					pageInfo { endCursor hasNextPage }
+					nodes { id name defaultBranch }
+				}
+			}
+		""";
 
-		return executePaginatedQuery(query, variables, "projects", GitlabProject.class);
+		return executePaginatedQuery(query, variables, "projects", GitlabProject::fromJson);
 	}
 
 //	public List<GitlabGroup> fetchGroups() {
@@ -98,18 +97,18 @@ public class GitlabGraphQlClient {
 		variables.put("ownedOnly", ownedOnly);
 
 		String query = """
-            query ($ownedOnly: Boolean, $first: Int, $cursor: String) { 
-                groups(ownedOnly: $ownedOnly, first: $first, after: $cursor) { 
-                    pageInfo { endCursor hasNextPage }
-                    nodes { id name path requireTwoFactorAuthentication twoFactorGracePeriod } 
-                } 
-            }
-        """;
+			query ($ownedOnly: Boolean, $first: Int, $cursor: String) {
+				groups(ownedOnly: $ownedOnly, first: $first, after: $cursor) {
+					pageInfo { endCursor hasNextPage }
+					nodes { id name path requireTwoFactorAuthentication twoFactorGracePeriod }
+				}
+			}
+		""";
 
-		return executePaginatedQuery(query, variables, "groups", GitlabGroup.class);
+		return executePaginatedQuery(query, variables, "groups", GitlabGroup::fromJson);
 	}
 
-	private <T> List<T> executePaginatedQuery(String query, Map<String, Object> variables, String rootNode, Class<T> responseType) {
+	private <T> List<T> executePaginatedQuery(String query, Map<String, Object> variables, String rootNode, JsonParser<T> parser) {
 		List<T> allResults = new ArrayList<>();
 		String cursor = null;
 		boolean hasNextPage;
@@ -134,17 +133,17 @@ public class GitlabGraphQlClient {
 					throw new RuntimeException("GitLab API error: " + response.body());
 				}
 
-				JsonNode jsonResponse = OBJECT_MAPPER.readTree(response.body());
-				JsonNode data = jsonResponse.path("data").path(rootNode);
-				JsonNode nodes = data.path("nodes");
-				JsonNode pageInfo = data.path("pageInfo");
+				JSONObject jsonResponse = new JSONObject(response.body());
+				JSONObject data = jsonResponse.getJSONObject("data").getJSONObject(rootNode);
+				JSONArray nodes = data.getJSONArray("nodes");
+				JSONObject pageInfo = data.getJSONObject("pageInfo");
 
-				if (!nodes.isMissingNode()) {
-					allResults.addAll(OBJECT_MAPPER.readerForListOf(responseType).readValue(nodes));
+				for (int i = 0; i < nodes.length(); i++) {
+					allResults.add(parser.parse(nodes.getJSONObject(i)));
 				}
 
-				cursor = pageInfo.path("endCursor").asText(null);
-				hasNextPage = pageInfo.path("hasNextPage").asBoolean(false);
+				cursor = pageInfo.optString("endCursor", null);
+				hasNextPage = pageInfo.optBoolean("hasNextPage", false);
 
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to fetch " + rootNode + " from GitLab GraphQL API", e);
@@ -155,7 +154,7 @@ public class GitlabGraphQlClient {
 		return allResults;
 	}
 
-	private <T> List<T> executeQuery(String query, Map<String, Object> variables, String rootNode, Class<T> responseType) {
+	private <T> List<T> executeQuery(String query, Map<String, Object> variables, String rootNode, JsonParser<T> parser) {
 		try {
 			String requestBody = createJsonRequest(query, variables);
 
@@ -172,27 +171,28 @@ public class GitlabGraphQlClient {
 				throw new RuntimeException("GitLab API error: " + response.body());
 			}
 
-			JsonNode jsonResponse = OBJECT_MAPPER.readTree(response.body());
-			JsonNode nodes = jsonResponse.path("data").path(rootNode).path("nodes");
+			JSONObject jsonResponse = new JSONObject(response.body());
+			JSONArray nodes = jsonResponse.getJSONObject("data").getJSONObject(rootNode).getJSONArray("nodes");
 
-			if (nodes.isMissingNode()) {
-				return Collections.emptyList();
+			List<T> resultList = new ArrayList<>();
+			for (int i = 0; i < nodes.length(); i++) {
+				resultList.add(parser.parse(nodes.getJSONObject(i)));
 			}
-
-			return OBJECT_MAPPER.readerForListOf(responseType).readValue(nodes);
+			return resultList;
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to fetch " + rootNode + " from GitLab GraphQL API", e);
 		}
 	}
 
 	private String createJsonRequest(String query, Map<String, Object> variables) {
-		try {
-			Map<String, Object> requestPayload = new HashMap<>();
-			requestPayload.put("query", query);
-			requestPayload.put("variables", variables);
-			return OBJECT_MAPPER.writeValueAsString(requestPayload);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to serialize GraphQL request", e);
-		}
+		JSONObject json = new JSONObject();
+		json.put("query", query);
+		json.put("variables", new JSONObject(variables));
+		return json.toString();
+	}
+
+	@FunctionalInterface
+	interface JsonParser<T> {
+		T parse(JSONObject json);
 	}
 }
