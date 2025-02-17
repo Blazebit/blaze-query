@@ -28,7 +28,7 @@ public class GraphQlUserDataFetcher implements DataFetcher<GitlabUser>, Serializ
 			List<GitlabUser> userList = new ArrayList<>();
 
 			for ( GitlabGraphQlClient client : gitlabClients) {
-				userList.addAll(client.fetchUsers());
+				userList.addAll(client.fetchUsers(List.of("gid://gitlab/User/21369228")));
 			}
 
 			return userList;

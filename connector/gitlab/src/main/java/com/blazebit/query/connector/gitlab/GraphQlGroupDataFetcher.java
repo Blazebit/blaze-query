@@ -28,7 +28,7 @@ public class GraphQlGroupDataFetcher implements DataFetcher<GitlabGroup>, Serial
 			List<GitlabGroup> groupList = new ArrayList<>();
 
 			for ( GitlabGraphQlClient client : gitlabClients) {
-				groupList.addAll(client.fetchGroups());
+				groupList.addAll(client.fetchGroups(true));
 			}
 
 			return groupList;
