@@ -39,6 +39,6 @@ public class GraphQlUserDataFetcher implements DataFetcher<GitlabUser>, Serializ
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(GitlabUser.class, GitlabConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(GitlabUser.class);
 	}
 }

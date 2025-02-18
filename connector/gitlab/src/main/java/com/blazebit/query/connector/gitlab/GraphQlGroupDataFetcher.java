@@ -39,6 +39,6 @@ public class GraphQlGroupDataFetcher implements DataFetcher<GitlabGroup>, Serial
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(GitlabGroup.class, GitlabConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(GitlabGroup.class, GitlabConventionContext.INSTANCE);
 	}
 }

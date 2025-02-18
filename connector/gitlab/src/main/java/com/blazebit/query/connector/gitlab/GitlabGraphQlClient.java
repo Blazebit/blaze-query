@@ -4,7 +4,6 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
