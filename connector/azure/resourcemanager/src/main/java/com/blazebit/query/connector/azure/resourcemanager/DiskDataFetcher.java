@@ -20,7 +20,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.2
  */
-public class DiskDataFetcher implements DataFetcher<AzureResourceManagerDisk>, Serializable {
+public class DiskDataFetcher implements DataFetcher<AzureResourceDisk>, Serializable {
 
 	public static final DiskDataFetcher INSTANCE = new DiskDataFetcher();
 
@@ -29,18 +29,18 @@ public class DiskDataFetcher implements DataFetcher<AzureResourceManagerDisk>, S
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerDisk.class, AzureResourceManagerConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AzureResourceDisk.class, AzureResourceManagerConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<AzureResourceManagerDisk> fetch(DataFetchContext context) {
+	public List<AzureResourceDisk> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerDisk> list = new ArrayList<>();
+			List<AzureResourceDisk> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Disk disk : resourceManager.disks().list() ) {
-					list.add( new AzureResourceManagerDisk(
+					list.add( new AzureResourceDisk(
 							resourceManager.tenantId(),
 							disk.id(),
 							disk.innerModel()

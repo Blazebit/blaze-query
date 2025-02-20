@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VaultDataFetcher implements DataFetcher<AzureResourceManagerVault>, Serializable {
+public class VaultDataFetcher implements DataFetcher<AzureResourceVault>, Serializable {
 
 	public static final VaultDataFetcher INSTANCE = new VaultDataFetcher();
 
@@ -28,11 +28,11 @@ public class VaultDataFetcher implements DataFetcher<AzureResourceManagerVault>,
 	}
 
 	@Override
-	public List<AzureResourceManagerVault> fetch(DataFetchContext context) {
+	public List<AzureResourceVault> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerVault> list = new ArrayList<>();
+			List<AzureResourceVault> list = new ArrayList<>();
 			List<? extends AzureResourceManagerResourceGroup> resourceGroups = context.getSession().getOrFetch(
 					AzureResourceManagerResourceGroup.class );
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
@@ -40,7 +40,7 @@ public class VaultDataFetcher implements DataFetcher<AzureResourceManagerVault>,
 					if ( resourceManager.tenantId().equals( resourceGroup.getTenantId() ) ) {
 						for ( Vault vault : resourceManager.vaults()
 								.listByResourceGroup( resourceGroup.getResourceGroupName() ) ) {
-							list.add( new AzureResourceManagerVault(
+							list.add( new AzureResourceVault(
 									resourceManager.tenantId(),
 									vault.id(),
 									vault.innerModel()
@@ -58,7 +58,7 @@ public class VaultDataFetcher implements DataFetcher<AzureResourceManagerVault>,
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerVault.class,
+		return DataFormats.componentMethodConvention( AzureResourceVault.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

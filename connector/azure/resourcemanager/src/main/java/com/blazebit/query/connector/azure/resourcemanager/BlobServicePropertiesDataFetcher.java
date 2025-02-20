@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResourceManagerBlobServiceProperties>, Serializable {
+public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResourceBlobServiceProperties>, Serializable {
 
 	public static final BlobServicePropertiesDataFetcher INSTANCE = new BlobServicePropertiesDataFetcher();
 
@@ -28,14 +28,14 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResour
 	}
 
 	@Override
-	public List<AzureResourceManagerBlobServiceProperties> fetch(DataFetchContext context) {
+	public List<AzureResourceBlobServiceProperties> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerBlobServiceProperties> list = new ArrayList<>();
+			List<AzureResourceBlobServiceProperties> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
-				for ( AzureResourceManagerStorageAccount storageAccount : context.getSession()
-						.getOrFetch( AzureResourceManagerStorageAccount.class ) ) {
+				for ( AzureResourceStorageAccount storageAccount : context.getSession()
+						.getOrFetch( AzureResourceStorageAccount.class ) ) {
 					if ( resourceManager.subscriptionId().equals( storageAccount.getSubscriptionId() ) ) {
 						BlobServiceProperties blobServiceProperties = resourceManager.storageBlobServices()
 								.getServicePropertiesAsync(
@@ -43,7 +43,7 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResour
 										storageAccount.getResourceName()
 								).block();
 						if ( blobServiceProperties != null ) {
-							list.add( new AzureResourceManagerBlobServiceProperties(
+							list.add( new AzureResourceBlobServiceProperties(
 									resourceManager.tenantId(),
 									blobServiceProperties.id(),
 									blobServiceProperties.innerModel()
@@ -61,7 +61,7 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResour
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerBlobServiceProperties.class,
+		return DataFormats.componentMethodConvention( AzureResourceBlobServiceProperties.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

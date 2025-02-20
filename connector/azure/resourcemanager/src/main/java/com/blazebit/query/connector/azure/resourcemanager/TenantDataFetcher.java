@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class TenantDataFetcher implements DataFetcher<AzureResourceManagerTenant>, Serializable {
+public class TenantDataFetcher implements DataFetcher<AzureResourceTenant>, Serializable {
 
 	public static final TenantDataFetcher INSTANCE = new TenantDataFetcher();
 
@@ -28,14 +28,14 @@ public class TenantDataFetcher implements DataFetcher<AzureResourceManagerTenant
 	}
 
 	@Override
-	public List<AzureResourceManagerTenant> fetch(DataFetchContext context) {
+	public List<AzureResourceTenant> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerTenant> list = new ArrayList<>();
+			List<AzureResourceTenant> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Tenant tenant : resourceManager.tenants().list() ) {
-					list.add( new AzureResourceManagerTenant( tenant.tenantId(), tenant.innerModel() ) );
+					list.add( new AzureResourceTenant( tenant.tenantId(), tenant.innerModel() ) );
 				}
 			}
 			return list;
@@ -47,7 +47,7 @@ public class TenantDataFetcher implements DataFetcher<AzureResourceManagerTenant
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerTenant.class,
+		return DataFormats.componentMethodConvention( AzureResourceTenant.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

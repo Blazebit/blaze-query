@@ -74,12 +74,12 @@ public class AzureTestObjects {
 		}
 	}
 
-	public static AzureResourceManagerManagedCluster azureKubernetesService() {
+	public static AzureResourceManagedCluster azureKubernetesService() {
 		try {
 			ManagedClusterInner managedClusterInner = ManagedClusterInner.fromJson(
 					jsonReader(
 							"src/test/resources/resource-definitions/azure/aks/aks.json" ) );
-			return new AzureResourceManagerManagedCluster(
+			return new AzureResourceManagedCluster(
 					"123",
 					managedClusterInner.id(),
 					managedClusterInner );
@@ -88,12 +88,12 @@ public class AzureTestObjects {
 		}
 	}
 
-	public static AzureResourceManagerNetworkSecurityGroup azureNetworkSecurityGroupRdpAllowed() {
+	public static AzureResourceNetworkSecurityGroup azureNetworkSecurityGroupRdpAllowed() {
 		try {
 			NetworkSecurityGroupInner networkSecurityGroupInner = NetworkSecurityGroupInner.fromJson(
 					jsonReader(
 							"src/test/resources/resource-definitions/azure/network-security-group/allow-rdp-tcp-3389-inbound.json" ) );
-			return new AzureResourceManagerNetworkSecurityGroup(
+			return new AzureResourceNetworkSecurityGroup(
 					"123",
 					networkSecurityGroupInner.id(),
 					networkSecurityGroupInner );
@@ -102,12 +102,12 @@ public class AzureTestObjects {
 		}
 	}
 
-	public static AzureResourceManagerNetworkSecurityGroup azureNetworkSecurityGroupSshAllowed() {
+	public static AzureResourceNetworkSecurityGroup azureNetworkSecurityGroupSshAllowed() {
 		try {
 			NetworkSecurityGroupInner networkSecurityGroupInner = NetworkSecurityGroupInner.fromJson(
 					jsonReader(
 							"src/test/resources/resource-definitions/azure/network-security-group/allow-ssh-tcp-22-inbound.json" ) );
-			return new AzureResourceManagerNetworkSecurityGroup(
+			return new AzureResourceNetworkSecurityGroup(
 					"123",
 					networkSecurityGroupInner.id(),
 					networkSecurityGroupInner );
