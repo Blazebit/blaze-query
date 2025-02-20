@@ -12,6 +12,7 @@ dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
     api libs.azure.resourcemanager
+    api libs.azure.resourcemanager.postgresqlflexibleserver
     testImplementation project(':blaze-query-core-impl')
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj.core
