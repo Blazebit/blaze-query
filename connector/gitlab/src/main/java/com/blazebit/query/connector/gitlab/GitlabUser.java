@@ -6,17 +6,26 @@ package com.blazebit.query.connector.gitlab;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+import static com.blazebit.query.connector.gitlab.Util.DATE_FORMAT;
+import static com.blazebit.query.connector.gitlab.Util.ISO_DATE_FORMAT;
+import static com.blazebit.query.connector.gitlab.Util.parseDate;
+
 public record GitlabUser(
 		String id,
 		String name,
 		String username,
-		String lastActivityOn,
+		Date lastActivityOn,
 		boolean active,
 		String avatarUrl,
 		String bio,
 		String bot,
 		String commitEmail,
-		String createdAt,
+		Date createdAt,
 		String discord,
 		boolean gitpodEnabled,
 		Integer groupCount,
@@ -36,13 +45,13 @@ public record GitlabUser(
 				json.getString("id"),
 				json.getString("name"),
 				json.getString("username"),
-				json.optString("lastActivityOn", null),
+				parseDate( json.optString("lastActivityOn", null), DATE_FORMAT),
 				json.getBoolean("active"),
 				json.optString("avatarUrl", null),
 				json.optString("bio", null),
 				json.optString("bot", null),
 				json.optString("commitEmail", null),
-				json.optString("createdAt", null),
+				parseDate( json.optString("createdAt", null), ISO_DATE_FORMAT),
 				json.optString("discord", null),
 				json.optBoolean("gitpodEnabled", false),
 				json.optInt("groupCount", 0),
@@ -58,4 +67,5 @@ public record GitlabUser(
 				json.optString("webUrl", null)
 		);
 	}
+
 }

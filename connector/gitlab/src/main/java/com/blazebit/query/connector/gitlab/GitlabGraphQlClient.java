@@ -47,7 +47,7 @@ public class GitlabGraphQlClient {
 		String query = """
 			query ($ids: [ID!]) {
 				users(ids: $ids) {
-					nodes { id name username lastActivityOn active }
+					nodes { id name username lastActivityOn active avatarUrl bio bot commitEmail createdAt discord gitpodEnabled groupCount human jobTitle linkedin location organization pronouns publicEmail twitter webPath webUrl }
 				}
 			}
 		""";
