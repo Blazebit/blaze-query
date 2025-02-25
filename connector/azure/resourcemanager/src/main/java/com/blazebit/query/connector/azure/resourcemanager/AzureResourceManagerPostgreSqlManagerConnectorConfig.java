@@ -14,7 +14,7 @@ import com.blazebit.query.spi.DataFetcherConfig;
  */
 public class AzureResourceManagerPostgreSqlManagerConnectorConfig {
 
-	public static final DataFetcherConfig<AzureResourceManagerPostgreSqlManager> AZURE_RESOURCE_MANAGER = DataFetcherConfig.forPropertyName(
+	public static final DataFetcherConfig<AzureResourceManagerPostgreSqlManager> POSTGRESQL_MANAGER = DataFetcherConfig.forPropertyName(
 			"azureResourceManagerPostgreSqlManager" );
 
 	private AzureResourceManagerPostgreSqlManagerConnectorConfig() {

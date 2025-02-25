@@ -29,7 +29,7 @@ public class PostgreSqlFlexibleServerDataFetcher implements DataFetcher<AzureRes
 	@Override
 	public List<AzureResourcePostgreSqlFlexibleServer> fetch(DataFetchContext context) {
 		try {
-			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers = AzureResourceManagerPostgreSqlManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
+			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers = AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getAll(
 					context );
 			List<AzureResourcePostgreSqlFlexibleServer> list = new ArrayList<>();
 			for ( AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers ) {
