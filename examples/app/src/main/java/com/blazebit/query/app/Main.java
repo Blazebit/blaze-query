@@ -50,7 +50,7 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServi
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSql;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
@@ -887,9 +887,9 @@ public class Main {
 //        return apiClient;
 //    }
 
-	private static List<AzureResourceManagerPostgreSql> createPostgreSqlManagers(DataFetchContext context) {
+	private static List<AzureResourceManagerPostgreSqlManager> createPostgreSqlManagers(DataFetchContext context) {
 		List<AzureResourceSubscription> azureResourceManagerSubscriptions = (List<AzureResourceSubscription>) context.getSession().getOrFetch( AzureResourceSubscription.class );
-		List<AzureResourceManagerPostgreSql> postgreSqlManagers = new ArrayList<>();
+		List<AzureResourceManagerPostgreSqlManager> postgreSqlManagers = new ArrayList<>();
 
 		for ( AzureResourceSubscription subscription : azureResourceManagerSubscriptions ) {
 			AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, subscription.getSubscriptionId(), AzureEnvironment.AZURE );
@@ -898,7 +898,7 @@ public class Main {
 					.clientSecret( AZURE_CLIENT_SECRET )
 					.tenantId( AZURE_TENANT_ID )
 					.build();
-			postgreSqlManagers.add(new AzureResourceManagerPostgreSql( AZURE_TENANT_ID, subscription.getSubscriptionId(), PostgreSqlManager.authenticate( credentials, profile )  ));
+			postgreSqlManagers.add(new AzureResourceManagerPostgreSqlManager( AZURE_TENANT_ID, subscription.getSubscriptionId(), PostgreSqlManager.authenticate( credentials, profile )  ));
 		}
 		return postgreSqlManagers;
 	}

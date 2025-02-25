@@ -11,7 +11,7 @@ import com.azure.resourcemanager.postgresqlflexibleserver.PostgreSqlManager;
  * @since 1.0.3
  */
 public class AzureResourceManagerPostgreSqlManager extends AzureResourceManagerWrapper<PostgreSqlManager> {
-	public AzureResourceManagerPostgreSql(String tenantId, String subscriptionId, PostgreSqlManager payload) {
+	public AzureResourceManagerPostgreSqlManager(String tenantId, String subscriptionId, PostgreSqlManager payload) {
 		super( tenantId, subscriptionId, payload );
 	}
 
