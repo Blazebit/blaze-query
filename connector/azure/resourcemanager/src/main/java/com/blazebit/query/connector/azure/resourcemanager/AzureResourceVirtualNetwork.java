@@ -10,8 +10,8 @@ import com.azure.resourcemanager.network.fluent.models.VirtualNetworkInner;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerVirtualNetwork extends AzureResourceManagerWrapper<VirtualNetworkInner> {
-	public AzureResourceManagerVirtualNetwork(String tenantId, String resourceId, VirtualNetworkInner payload) {
+public class AzureResourceVirtualNetwork extends AzureResourceWrapper<VirtualNetworkInner> {
+	public AzureResourceVirtualNetwork(String tenantId, String resourceId, VirtualNetworkInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

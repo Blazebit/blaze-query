@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class SubscriptionDataFetcher implements DataFetcher<AzureResourceManagerSubscription>, Serializable {
+public class SubscriptionDataFetcher implements DataFetcher<AzureResourceSubscription>, Serializable {
 
 	public static final SubscriptionDataFetcher INSTANCE = new SubscriptionDataFetcher();
 
@@ -28,14 +28,14 @@ public class SubscriptionDataFetcher implements DataFetcher<AzureResourceManager
 	}
 
 	@Override
-	public List<AzureResourceManagerSubscription> fetch(DataFetchContext context) {
+	public List<AzureResourceSubscription> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerSubscription> list = new ArrayList<>();
+			List<AzureResourceSubscription> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Subscription subscription : resourceManager.subscriptions().list() ) {
-					list.add( new AzureResourceManagerSubscription(
+					list.add( new AzureResourceSubscription(
 							resourceManager.tenantId(),
 							subscription.subscriptionId(),
 							subscription.innerModel()
@@ -51,7 +51,7 @@ public class SubscriptionDataFetcher implements DataFetcher<AzureResourceManager
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerSubscription.class,
+		return DataFormats.componentMethodConvention( AzureResourceSubscription.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

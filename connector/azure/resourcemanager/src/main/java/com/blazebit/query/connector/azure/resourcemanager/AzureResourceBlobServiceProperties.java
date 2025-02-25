@@ -10,8 +10,8 @@ import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInne
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerBlobServiceProperties extends AzureResourceManagerWrapper<BlobServicePropertiesInner> {
-	public AzureResourceManagerBlobServiceProperties(String tenantId, String resourceId, BlobServicePropertiesInner payload) {
+public class AzureResourceBlobServiceProperties extends AzureResourceWrapper<BlobServicePropertiesInner> {
+	public AzureResourceBlobServiceProperties(String tenantId, String resourceId, BlobServicePropertiesInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

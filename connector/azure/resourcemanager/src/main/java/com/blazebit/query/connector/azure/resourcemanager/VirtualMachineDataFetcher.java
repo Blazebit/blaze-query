@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VirtualMachineDataFetcher implements DataFetcher<AzureResourceManagerVirtualMachine>, Serializable {
+public class VirtualMachineDataFetcher implements DataFetcher<AzureResourceVirtualMachine>, Serializable {
 
 	public static final VirtualMachineDataFetcher INSTANCE = new VirtualMachineDataFetcher();
 
@@ -28,14 +28,14 @@ public class VirtualMachineDataFetcher implements DataFetcher<AzureResourceManag
 	}
 
 	@Override
-	public List<AzureResourceManagerVirtualMachine> fetch(DataFetchContext context) {
+	public List<AzureResourceVirtualMachine> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerVirtualMachine> list = new ArrayList<>();
+			List<AzureResourceVirtualMachine> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( VirtualMachine virtualMachine : resourceManager.virtualMachines().list() ) {
-					list.add( new AzureResourceManagerVirtualMachine(
+					list.add( new AzureResourceVirtualMachine(
 							resourceManager.tenantId(),
 							virtualMachine.id(),
 							virtualMachine.innerModel()
@@ -51,7 +51,7 @@ public class VirtualMachineDataFetcher implements DataFetcher<AzureResourceManag
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerVirtualMachine.class,
+		return DataFormats.componentMethodConvention( AzureResourceVirtualMachine.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

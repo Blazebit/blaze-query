@@ -20,7 +20,7 @@ import com.blazebit.query.spi.DataFormat;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class StorageAccountDataFetcher implements DataFetcher<AzureResourceManagerStorageAccount>, Serializable {
+public class StorageAccountDataFetcher implements DataFetcher<AzureResourceStorageAccount>, Serializable {
 
 	public static final StorageAccountDataFetcher INSTANCE = new StorageAccountDataFetcher();
 
@@ -28,14 +28,14 @@ public class StorageAccountDataFetcher implements DataFetcher<AzureResourceManag
 	}
 
 	@Override
-	public List<AzureResourceManagerStorageAccount> fetch(DataFetchContext context) {
+	public List<AzureResourceStorageAccount> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerStorageAccount> list = new ArrayList<>();
+			List<AzureResourceStorageAccount> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( StorageAccount storageAccount : resourceManager.storageAccounts().list() ) {
-					list.add( new AzureResourceManagerStorageAccount(
+					list.add( new AzureResourceStorageAccount(
 							resourceManager.tenantId(),
 							storageAccount.id(),
 							storageAccount.innerModel()
@@ -51,7 +51,7 @@ public class StorageAccountDataFetcher implements DataFetcher<AzureResourceManag
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerStorageAccount.class,
+		return DataFormats.componentMethodConvention( AzureResourceStorageAccount.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 }

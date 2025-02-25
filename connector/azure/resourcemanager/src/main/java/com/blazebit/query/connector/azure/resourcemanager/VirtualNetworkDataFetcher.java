@@ -20,7 +20,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class VirtualNetworkDataFetcher implements DataFetcher<AzureResourceManagerVirtualNetwork>, Serializable {
+public class VirtualNetworkDataFetcher implements DataFetcher<AzureResourceVirtualNetwork>, Serializable {
 
 	public static final VirtualNetworkDataFetcher INSTANCE = new VirtualNetworkDataFetcher();
 
@@ -29,19 +29,19 @@ public class VirtualNetworkDataFetcher implements DataFetcher<AzureResourceManag
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerVirtualNetwork.class,
+		return DataFormats.componentMethodConvention( AzureResourceVirtualNetwork.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<AzureResourceManagerVirtualNetwork> fetch(DataFetchContext context) {
+	public List<AzureResourceVirtualNetwork> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerVirtualNetwork> list = new ArrayList<>();
+			List<AzureResourceVirtualNetwork> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( Network networkManager : resourceManager.networks().list() ) {
-					list.add( new AzureResourceManagerVirtualNetwork(
+					list.add( new AzureResourceVirtualNetwork(
 							resourceManager.tenantId(),
 							networkManager.id(),
 							networkManager.innerModel()
