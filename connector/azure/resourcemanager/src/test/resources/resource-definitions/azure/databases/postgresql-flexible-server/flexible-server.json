@@ -1,0 +1,63 @@
+{
+  "sku": {
+    "name": "Standard_B1ms",
+    "tier": "Burstable"
+  },
+  "systemData": {
+    "createdAt": "2024-11-14T17:20:15.8023794Z"
+  },
+  "properties": {
+    "replica": {
+      "role": "Primary",
+      "capacity": 5
+    },
+    "storage": {
+      "type": "",
+      "iops": 120,
+      "tier": "P4",
+      "storageSizeGB": 32,
+      "autoGrow": "Disabled"
+    },
+    "network": {
+      "publicNetworkAccess": "Enabled"
+    },
+    "privateEndpointConnections": [],
+    "dataEncryption": {
+      "type": "SystemManaged"
+    },
+    "authConfig": {
+      "activeDirectoryAuth": "Enabled",
+      "passwordAuth": "Enabled",
+      "tenantId": "014dab21-c068-44b8-92e7-28fad1130398"
+    },
+    "fullyQualifiedDomainName": "flexiblepostgresql.postgres.database.azure.com",
+    "version": "16",
+    "minorVersion": "4",
+    "administratorLogin": "postgreadmin",
+    "state": "Ready",
+    "availabilityZone": "2",
+    "backup": {
+      "backupRetentionDays": 7,
+      "geoRedundantBackup": "Disabled",
+      "earliestRestoreDate": "2025-02-18T18:43:16.0804869+00:00"
+    },
+    "highAvailability": {
+      "mode": "Disabled",
+      "state": "NotEnabled"
+    },
+    "maintenanceWindow": {
+      "customWindow": "Disabled",
+      "dayOfWeek": 0,
+      "startHour": 0,
+      "startMinute": 0
+    },
+    "replicationRole": "Primary",
+    "replicaCapacity": 5
+  },
+  "location": "West Europe",
+  "tags": {},
+  "id": "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql",
+  "name": "flexiblepostgresql",
+  "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+  "apiVersion": "2024-05-01-privatepreview"
+}

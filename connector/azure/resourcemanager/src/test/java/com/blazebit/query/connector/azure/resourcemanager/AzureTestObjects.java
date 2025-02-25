@@ -11,6 +11,7 @@ import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
 import com.azure.resourcemanager.network.fluent.models.NetworkSecurityGroupInner;
+import com.azure.resourcemanager.postgresqlflexibleserver.fluent.models.ServerInner;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 
@@ -111,6 +112,19 @@ public class AzureTestObjects {
 					"123",
 					networkSecurityGroupInner.id(),
 					networkSecurityGroupInner );
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static AzureResourcePostgreSqlFlexibleServer azureResourcePostgreSqlFlexibleServer() {
+		try {
+			ServerInner postgresqlServerInner = ServerInner.fromJson( jsonReader(
+					"src/test/resources/resource-definitions/azure/databases/postgresql-flexible-server/flexible-server.json" ) );
+			return new AzureResourcePostgreSqlFlexibleServer(
+					"123",
+					postgresqlServerInner.id(),
+					postgresqlServerInner );
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
