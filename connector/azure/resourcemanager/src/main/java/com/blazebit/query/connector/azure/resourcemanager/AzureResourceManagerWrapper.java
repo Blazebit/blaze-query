@@ -5,8 +5,8 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 /**
- * @author Christian Beikov
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 1.0.3
  */
 public abstract class AzureResourceManagerWrapper<T> {
 

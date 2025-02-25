@@ -15,6 +15,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.3
+ */
 public class PostgreSqlFlexibleServerDataFetcher implements DataFetcher<AzureResourcePostgreSqlFlexibleServer>, Serializable {
 
 	public static final PostgreSqlFlexibleServerDataFetcher INSTANCE = new PostgreSqlFlexibleServerDataFetcher();
