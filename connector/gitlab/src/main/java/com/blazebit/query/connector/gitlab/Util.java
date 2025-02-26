@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public class Util {
 	public static final SimpleDateFormat DATE_FORMAT = createDateFormat();
 	public static final SimpleDateFormat ISO_DATE_FORMAT = createIsoDateFormat();

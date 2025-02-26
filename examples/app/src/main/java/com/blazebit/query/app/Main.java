@@ -55,6 +55,7 @@ import com.blazebit.query.connector.github.v0314.model.Team;
 import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
+import com.blazebit.query.connector.gitlab.GitlabProject;
 import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
@@ -229,6 +230,7 @@ public class Main {
 					"GitlabProjectProtectedBranch" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabProject.class, "GitlabGraphQlProject" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -467,6 +469,11 @@ public class Main {
 				"select g.* from GitlabGraphQlGroup g" ).getResultList();
 		System.out.println( "GitlabGraphQlGroups" );
 		print( gitlabGraphqlGroupResult );
+
+		List<Object[]> gitlabGraphqlProjectResult = session.createQuery(
+				"select g.* from GitlabGraphQlProject g" ).getResultList();
+		System.out.println( "GitlabGraphQlProjects" );
+		print( gitlabGraphqlProjectResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
