@@ -18,31 +18,31 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.4
  */
-public class GraphQlGroupDataFetcher implements DataFetcher<GitlabGroup>, Serializable {
+public class GraphQlProjectDataFetcher implements DataFetcher<GitlabProject>, Serializable {
 
-	public static final GraphQlGroupDataFetcher INSTANCE = new GraphQlGroupDataFetcher();
+	public static final GraphQlProjectDataFetcher INSTANCE = new GraphQlProjectDataFetcher();
 
-	private GraphQlGroupDataFetcher() {
+	private GraphQlProjectDataFetcher() {
 	}
 
 	@Override
-	public List<GitlabGroup> fetch(DataFetchContext context) {
+	public List<GitlabProject> fetch(DataFetchContext context) {
 		try {
 			List<GitlabGraphQlClient> gitlabClients = GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getAll(context);
-			List<GitlabGroup> groupList = new ArrayList<>();
+			List<GitlabProject> projectList = new ArrayList<>();
 
 			for ( GitlabGraphQlClient client : gitlabClients) {
-				groupList.addAll(client.fetchGroups(true));
+				projectList.addAll(client.fetchProjects(true));
 			}
 
-			return groupList;
+			return projectList;
 		} catch (RuntimeException e) {
-			throw new DataFetcherException("Could not fetch group list from GitLab GraphQL API", e);
+			throw new DataFetcherException("Could not fetch project list from GitLab GraphQL API", e);
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention(GitlabGroup.class, GitlabConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(GitlabProject.class, GitlabConventionContext.INSTANCE);
 	}
 }

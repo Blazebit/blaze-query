@@ -11,7 +11,10 @@ import java.util.Date;
 import static com.blazebit.query.connector.gitlab.Util.ISO_DATE_FORMAT;
 import static com.blazebit.query.connector.gitlab.Util.parseDate;
 
-
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public record GitlabGroup(String id, String name, String path, boolean requireTwoFactorAuthentication, int twoFactorGracePeriod, Date createdAt, String description, String fullName, String projectCreationLevel,  Date updatedAt, String visibility) {
 	public static GitlabGroup fromJson(JSONObject json) {
 		return new GitlabGroup(

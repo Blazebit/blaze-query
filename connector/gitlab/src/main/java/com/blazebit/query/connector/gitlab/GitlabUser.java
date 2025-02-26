@@ -6,15 +6,16 @@ package com.blazebit.query.connector.gitlab;
 
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import static com.blazebit.query.connector.gitlab.Util.DATE_FORMAT;
 import static com.blazebit.query.connector.gitlab.Util.ISO_DATE_FORMAT;
 import static com.blazebit.query.connector.gitlab.Util.parseDate;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public record GitlabUser(
 		String id,
 		String name,

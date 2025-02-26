@@ -27,7 +27,8 @@ public final class GitlabSchemaProvider implements QuerySchemaProvider {
 				GroupMemberDataFetcher.INSTANCE,
 				ProtectedBranchDataFetcher.INSTANCE,
 				GraphQlUserDataFetcher.INSTANCE,
-				GraphQlGroupDataFetcher.INSTANCE
+				GraphQlGroupDataFetcher.INSTANCE,
+				GraphQlProjectDataFetcher.INSTANCE
 		);
 	}
 }

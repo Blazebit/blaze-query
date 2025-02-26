@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
+ */
 package com.blazebit.query.connector.gitlab;
 
 import org.json.JSONArray;
@@ -7,6 +11,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public record GitlabProject(
 		String id,
 		String name,

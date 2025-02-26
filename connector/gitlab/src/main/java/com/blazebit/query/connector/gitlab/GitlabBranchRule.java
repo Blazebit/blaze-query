@@ -1,7 +1,15 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
+ */
 package com.blazebit.query.connector.gitlab;
 
 import org.json.JSONObject;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public record GitlabBranchRule(
 		String id,
 		String name,

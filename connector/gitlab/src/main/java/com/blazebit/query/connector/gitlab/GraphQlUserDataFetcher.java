@@ -14,6 +14,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public class GraphQlUserDataFetcher implements DataFetcher<GitlabUser>, Serializable {
 
 	public static final GraphQlUserDataFetcher INSTANCE = new GraphQlUserDataFetcher();

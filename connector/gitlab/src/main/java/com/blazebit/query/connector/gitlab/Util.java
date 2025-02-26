@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Blazebit
+ */
 package com.blazebit.query.connector.gitlab;
 
 import java.text.ParseException;

@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Martijn Sprengers
+ * @since 1.0.4
+ */
 public class GitlabGraphQlClient {
 
 	private static final int DEFAULT_PAGE_SIZE = 100; // GitLab's default pagination size
@@ -29,16 +33,6 @@ public class GitlabGraphQlClient {
 		this.gitlabApiUrl = host + "/api/graphql";
 		this.authToken = gitlabToken;
 	}
-
-//	public List<GitlabUser> fetchUsers() {
-//		String query = """
-//			{
-//			"query": "query { users(ids: [\\"gid://gitlab/User/21369228\\"]) { nodes { id name username lastActivityOn active } } }"
-//			}
-//		""";
-//
-//		return executeQuery(query, "users", GitlabUser.class);
-//	}
 
 	public List<GitlabUser> fetchUsers(List<String> userIds) {
 		Map<String, Object> variables = new HashMap<>();
@@ -55,41 +49,49 @@ public class GitlabGraphQlClient {
 		return executeQuery(query, variables, "users", GitlabUser::fromJson);
 	}
 
-//	public List<GitlabProject> fetchProjects() {
-//		String query = """
-//			{
-//			"query": "query { projects(membership: true) { nodes { id name defaultBranch } } }"
-//			}
-//		""";
-//
-//		return executeQuery(query, "projects", GitlabProject.class);
-//	}
-
 	public List<GitlabProject> fetchProjects(boolean membership) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("membership", membership);
 
 		String query = """
-			query ($membership: Boolean, $first: Int, $cursor: String) {
-				projects(membership: $membership, first: $first, after: $cursor) {
-					pageInfo { endCursor hasNextPage }
-					nodes { id name defaultBranch }
+		query ($membership: Boolean, $first: Int, $cursor: String) {
+			projects(membership: $membership, first: $first, after: $cursor) {
+				pageInfo { endCursor hasNextPage }
+				edges {
+					node {
+						id
+						name
+						archived
+						avatarUrl
+						createdAt
+						description
+						lastActivityAt
+						path
+						updatedAt
+						group { id }
+						repository { rootRef }
+						branchRules {
+							edges {
+								node {
+									id
+									name
+									isDefault
+									isProtected
+									branchProtection {
+										allowForcePush
+										codeOwnerApprovalRequired
+									}
+								}
+							}
+						}
+					}
 				}
 			}
-		""";
+		}
+	""";
 
 		return executePaginatedQuery(query, variables, "projects", GitlabProject::fromJson);
 	}
-
-//	public List<GitlabGroup> fetchGroups() {
-//		String query = """
-//			{
-//			"query": "query { groups(ownedOnly: true) { nodes { id name path requireTwoFactorAuthentication twoFactorGracePeriod } } }"
-//			}
-//		""";
-//
-//		return executeQuery(query, "groups", GitlabGroup.class);
-//	}
 
 	public List<GitlabGroup> fetchGroups(boolean ownedOnly) {
 		Map<String, Object> variables = new HashMap<>();
@@ -134,11 +136,22 @@ public class GitlabGraphQlClient {
 
 				JSONObject jsonResponse = new JSONObject(response.body());
 				JSONObject data = jsonResponse.getJSONObject("data").getJSONObject(rootNode);
-				JSONArray nodes = data.getJSONArray("nodes");
 				JSONObject pageInfo = data.getJSONObject("pageInfo");
 
-				for (int i = 0; i < nodes.length(); i++) {
-					allResults.add(parser.parse(nodes.getJSONObject(i)));
+				// Check if data uses "edges -> node" or "nodes"
+				if (data.has("edges")) {
+					JSONArray edges = data.getJSONArray("edges");
+					for (int i = 0; i < edges.length(); i++) {
+						JSONObject node = edges.getJSONObject(i).getJSONObject("node");
+						allResults.add(parser.parse(node));
+					}
+				} else if (data.has("nodes")) {
+					JSONArray nodes = data.getJSONArray("nodes");
+					for (int i = 0; i < nodes.length(); i++) {
+						allResults.add(parser.parse(nodes.getJSONObject(i)));
+					}
+				} else {
+					throw new RuntimeException("Unexpected response structure in " + rootNode);
 				}
 
 				cursor = pageInfo.optString("endCursor", null);
