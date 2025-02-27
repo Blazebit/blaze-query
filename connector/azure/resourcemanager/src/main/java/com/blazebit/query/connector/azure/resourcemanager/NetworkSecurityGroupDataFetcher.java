@@ -20,7 +20,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.2
  */
-public class NetworkSecurityGroupDataFetcher implements DataFetcher<AzureResourceManagerNetworkSecurityGroup>, Serializable {
+public class NetworkSecurityGroupDataFetcher implements DataFetcher<AzureResourceNetworkSecurityGroup>, Serializable {
 
 	public static final NetworkSecurityGroupDataFetcher INSTANCE = new NetworkSecurityGroupDataFetcher();
 
@@ -29,18 +29,18 @@ public class NetworkSecurityGroupDataFetcher implements DataFetcher<AzureResourc
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention(AzureResourceManagerNetworkSecurityGroup.class, AzureResourceManagerConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention( AzureResourceNetworkSecurityGroup.class, AzureResourceManagerConventionContext.INSTANCE);
 	}
 
 	@Override
-	public List<AzureResourceManagerNetworkSecurityGroup> fetch(DataFetchContext context) {
+	public List<AzureResourceNetworkSecurityGroup> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerNetworkSecurityGroup> list = new ArrayList<>();
+			List<AzureResourceNetworkSecurityGroup> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( NetworkSecurityGroup networkSecurityGroup : resourceManager.networkSecurityGroups().list() ) {
-					list.add( new AzureResourceManagerNetworkSecurityGroup(
+					list.add( new AzureResourceNetworkSecurityGroup(
 							resourceManager.tenantId(),
 							networkSecurityGroup.id(),
 							networkSecurityGroup.innerModel()

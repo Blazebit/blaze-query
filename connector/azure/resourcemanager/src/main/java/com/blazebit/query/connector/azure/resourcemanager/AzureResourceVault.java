@@ -10,8 +10,8 @@ import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerVault extends AzureResourceManagerWrapper<VaultInner> {
-	public AzureResourceManagerVault(String tenantId, String resourceId, VaultInner payload) {
+public class AzureResourceVault extends AzureResourceWrapper<VaultInner> {
+	public AzureResourceVault(String tenantId, String resourceId, VaultInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

@@ -10,8 +10,8 @@ import com.azure.resourcemanager.resources.fluent.models.TenantIdDescriptionInne
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerTenant extends AzureResourceManagerWrapper<TenantIdDescriptionInner> {
-	public AzureResourceManagerTenant(String tenantId, TenantIdDescriptionInner payload) {
+public class AzureResourceTenant extends AzureResourceWrapper<TenantIdDescriptionInner> {
+	public AzureResourceTenant(String tenantId, TenantIdDescriptionInner payload) {
 		super( tenantId, null, null, null, payload );
 	}
 

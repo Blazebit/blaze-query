@@ -22,10 +22,11 @@ public class AzureResourceManagerDataFetcherTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AzureResourceManagerSchemaProvider() );
-		builder.registerSchemaObject( AzureResourceManagerManagedCluster.class, ManagedClusterDataFetcher.INSTANCE );
-		builder.registerSchemaObject( AzureResourceManagerNetworkSecurityGroup.class, NetworkSecurityGroupDataFetcher.INSTANCE );
-		builder.registerSchemaObjectAlias( AzureResourceManagerManagedCluster.class, "AzureManagedCluster" );
-		builder.registerSchemaObjectAlias( AzureResourceManagerNetworkSecurityGroup.class, "AzureNetworkSecurityGroup" );
+		builder.registerSchemaObject( AzureResourceManagedCluster.class, ManagedClusterDataFetcher.INSTANCE );
+		builder.registerSchemaObject( AzureResourceNetworkSecurityGroup.class, NetworkSecurityGroupDataFetcher.INSTANCE );
+		builder.registerSchemaObjectAlias( AzureResourceManagedCluster.class, "AzureManagedCluster" );
+		builder.registerSchemaObjectAlias( AzureResourceNetworkSecurityGroup.class, "AzureNetworkSecurityGroup" );
+		builder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class, "AzurePostgreSqlFlexibleServer" );
 		CONTEXT = builder.build();
 	}
 
@@ -33,7 +34,7 @@ public class AzureResourceManagerDataFetcherTest {
 	void should_return_cluster() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					AzureResourceManagerManagedCluster.class, Collections.singletonList( AzureTestObjects.azureKubernetesService() ) );
+					AzureResourceManagedCluster.class, Collections.singletonList( AzureTestObjects.azureKubernetesService() ) );
 
 			var typedQuery =
 					session.createQuery( "select mc.* from AzureManagedCluster mc", new TypeReference<Map<String, Object>>() {} );
@@ -46,12 +47,25 @@ public class AzureResourceManagerDataFetcherTest {
 	void should_return_nsg() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					AzureResourceManagerNetworkSecurityGroup.class, List.of( AzureTestObjects.azureNetworkSecurityGroupSshAllowed(), AzureTestObjects.azureNetworkSecurityGroupRdpAllowed() ) );
+					AzureResourceNetworkSecurityGroup.class, List.of( AzureTestObjects.azureNetworkSecurityGroupSshAllowed(), AzureTestObjects.azureNetworkSecurityGroupRdpAllowed() ) );
 
 			var typedQuery =
 					session.createQuery( "select nsg.payload.id from AzureNetworkSecurityGroup nsg where exists (select 1 from unnest(nsg.payload.securityRules) as r where r.direction = 'Inbound' and r.access = 'Allow' and r.destinationPortRange = 3389 )", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/virtualmachines/providers/Microsoft.Network/networkSecurityGroups/windows-vm-no-automatic-patching-standard-security-type-nsg" );
+		}
+	}
+
+	@Test
+	void should_return_postgreflexibleserver() {
+		try (var session = CONTEXT.createSession()) {
+			session.put(
+					AzureResourcePostgreSqlFlexibleServer.class, List.of( AzureTestObjects.azureResourcePostgreSqlFlexibleServer() ) );
+
+			var typedQuery =
+					session.createQuery( "select server.payload.id from AzurePostgreSqlFlexibleServer server", new TypeReference<Map<String, Object>>() {} );
+
+			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql" );
 		}
 	}
 }

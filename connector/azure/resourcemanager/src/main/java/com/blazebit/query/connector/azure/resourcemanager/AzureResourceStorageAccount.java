@@ -10,8 +10,8 @@ import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerStorageAccount extends AzureResourceManagerWrapper<StorageAccountInner> {
-	public AzureResourceManagerStorageAccount(String tenantId, String resourceId, StorageAccountInner payload) {
+public class AzureResourceStorageAccount extends AzureResourceWrapper<StorageAccountInner> {
+	public AzureResourceStorageAccount(String tenantId, String resourceId, StorageAccountInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

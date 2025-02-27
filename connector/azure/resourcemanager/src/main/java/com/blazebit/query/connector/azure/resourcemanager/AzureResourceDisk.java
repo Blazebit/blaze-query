@@ -10,8 +10,8 @@ import com.azure.resourcemanager.compute.fluent.models.DiskInner;
  * @author Martijn Sprengers
  * @since 1.0.2
  */
-public class AzureResourceManagerDisk extends AzureResourceManagerWrapper<DiskInner> {
-	public AzureResourceManagerDisk(String tenantId, String resourceId, DiskInner payload) {
+public class AzureResourceDisk extends AzureResourceWrapper<DiskInner> {
+	public AzureResourceDisk(String tenantId, String resourceId, DiskInner payload) {
 		super(tenantId, resourceId, payload);
 	}
 
