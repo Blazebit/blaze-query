@@ -20,7 +20,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class ManagedClusterDataFetcher implements DataFetcher<AzureResourceManagerManagedCluster>, Serializable {
+public class ManagedClusterDataFetcher implements DataFetcher<AzureResourceManagedCluster>, Serializable {
 
 	public static final ManagedClusterDataFetcher INSTANCE = new ManagedClusterDataFetcher();
 
@@ -29,19 +29,19 @@ public class ManagedClusterDataFetcher implements DataFetcher<AzureResourceManag
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AzureResourceManagerManagedCluster.class,
+		return DataFormats.componentMethodConvention( AzureResourceManagedCluster.class,
 				AzureResourceManagerConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<AzureResourceManagerManagedCluster> fetch(DataFetchContext context) {
+	public List<AzureResourceManagedCluster> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManager> resourceManagers = AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getAll(
 					context );
-			List<AzureResourceManagerManagedCluster> list = new ArrayList<>();
+			List<AzureResourceManagedCluster> list = new ArrayList<>();
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( KubernetesCluster kubernetesCluster : resourceManager.kubernetesClusters().list() ) {
-					list.add( new AzureResourceManagerManagedCluster(
+					list.add( new AzureResourceManagedCluster(
 							resourceManager.tenantId(),
 							kubernetesCluster.id(),
 							kubernetesCluster.innerModel()

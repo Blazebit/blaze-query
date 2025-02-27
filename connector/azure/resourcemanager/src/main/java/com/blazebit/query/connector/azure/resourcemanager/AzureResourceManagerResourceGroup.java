@@ -10,7 +10,7 @@ import com.azure.resourcemanager.resources.fluent.models.ResourceGroupInner;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerResourceGroup extends AzureResourceManagerWrapper<ResourceGroupInner> {
+public class AzureResourceManagerResourceGroup extends AzureResourceWrapper<ResourceGroupInner> {
 	public AzureResourceManagerResourceGroup(String tenantId, String subscriptionId, String resourceGroupName, ResourceGroupInner payload) {
 		super( tenantId, subscriptionId, resourceGroupName, resourceGroupName, payload );
 	}

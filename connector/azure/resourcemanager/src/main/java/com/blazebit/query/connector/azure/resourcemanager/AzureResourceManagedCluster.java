@@ -10,8 +10,8 @@ import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterIn
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerManagedCluster extends AzureResourceManagerWrapper<ManagedClusterInner> {
-	public AzureResourceManagerManagedCluster(String tenantId, String resourceId, ManagedClusterInner payload) {
+public class AzureResourceManagedCluster extends AzureResourceWrapper<ManagedClusterInner> {
+	public AzureResourceManagedCluster(String tenantId, String resourceId, ManagedClusterInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

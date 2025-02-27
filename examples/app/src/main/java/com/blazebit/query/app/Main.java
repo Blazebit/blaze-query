@@ -9,6 +9,7 @@ import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.postgresqlflexibleserver.PostgreSqlManager;
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
@@ -40,15 +41,22 @@ import com.blazebit.query.connector.aws.s3.AwsBucket;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
+import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerBlobServiceProperties;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerManagedCluster;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerStorageAccount;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerVirtualMachine;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerVirtualNetwork;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
@@ -67,6 +75,7 @@ import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
 import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
+import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.Queries;
 import com.blazebit.query.spi.QueryContextBuilder;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -156,8 +165,10 @@ public class Main {
 			EntityViewManager evm = defaultConfiguration.createEntityViewManager( cbf );
 
 			QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-//			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-//			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
+					Main::createPostgreSqlManagers );
+			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
@@ -172,12 +183,14 @@ public class Main {
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
-			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerVirtualMachine.class, "AzureVirtualMachine" );
-			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerStorageAccount.class, "AzureStorageAccount" );
-			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerBlobServiceProperties.class,
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualMachine.class, "AzureVirtualMachine" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceStorageAccount.class, "AzureStorageAccount" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceBlobServiceProperties.class,
 					"AzureBlobServiceProperties" );
-			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerManagedCluster.class, "AzureManagedCluster" );
-			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerVirtualNetwork.class, "AzureVirtualNetwork" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagedCluster.class, "AzureManagedCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualNetwork.class, "AzureVirtualNetwork" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVault.class, "AzureVault" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class,"AzurePostgreSqlFlexibleServer" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
@@ -297,7 +310,7 @@ public class Main {
 //					testKandji( session );
 //					testEntityView( session );
 //					testAzureGraph( session );
-//					testAzureResourceManager( session );
+					testAzureResourceManager( session );
 				}
 			}
 		}
@@ -762,6 +775,18 @@ public class Main {
 		System.out.println( "ManagedClusters" );
 		print( managedClusterResult );
 
+		TypedQuery<Object[]> vaultQuery = session.createQuery(
+				"select v.* from AzureVault v" );
+		List<Object[]> vaultResult = vaultQuery.getResultList();
+		System.out.println( "Vaults" );
+		print( vaultResult );
+
+		TypedQuery<Object[]> postgreSqlFlexibleServerQuery = session.createQuery(
+				"select s.* from AzurePostgreSqlFlexibleServer s" );
+		List<Object[]> postgreSqlFlexibleServerResult = postgreSqlFlexibleServerQuery.getResultList();
+		System.out.println( "PostgreSqlFlexibleServers" );
+		print( postgreSqlFlexibleServerResult );
+
 	}
 
 	private static AwsConnectorConfig.Account createAwsAccount() {
@@ -890,6 +915,22 @@ public class Main {
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 //        return apiClient;
 //    }
+
+	private static List<AzureResourceManagerPostgreSqlManager> createPostgreSqlManagers(DataFetchContext context) {
+		List<AzureResourceSubscription> azureResourceManagerSubscriptions = (List<AzureResourceSubscription>) context.getSession().getOrFetch( AzureResourceSubscription.class );
+		List<AzureResourceManagerPostgreSqlManager> postgreSqlManagers = new ArrayList<>();
+
+		for ( AzureResourceSubscription subscription : azureResourceManagerSubscriptions ) {
+			AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, subscription.getSubscriptionId(), AzureEnvironment.AZURE );
+			ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
+					.clientId( AZURE_CLIENT_ID )
+					.clientSecret( AZURE_CLIENT_SECRET )
+					.tenantId( AZURE_TENANT_ID )
+					.build();
+			postgreSqlManagers.add(new AzureResourceManagerPostgreSqlManager( AZURE_TENANT_ID, subscription.getSubscriptionId(), PostgreSqlManager.authenticate( credentials, profile )  ));
+		}
+		return postgreSqlManagers;
+	}
 
 	private static AzureResourceManager createResourceManager() {
 		AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, null, AzureEnvironment.AZURE );

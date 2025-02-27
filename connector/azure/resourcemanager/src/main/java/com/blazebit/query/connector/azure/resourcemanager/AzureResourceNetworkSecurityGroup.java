@@ -10,8 +10,8 @@ import com.azure.resourcemanager.network.fluent.models.NetworkSecurityGroupInner
  * @author Martijn Sprengers
  * @since 1.0.2
  */
-public class AzureResourceManagerNetworkSecurityGroup extends AzureResourceManagerWrapper<NetworkSecurityGroupInner> {
-	public AzureResourceManagerNetworkSecurityGroup(String tenantId, String resourceId, NetworkSecurityGroupInner payload) {
+public class AzureResourceNetworkSecurityGroup extends AzureResourceWrapper<NetworkSecurityGroupInner> {
+	public AzureResourceNetworkSecurityGroup(String tenantId, String resourceId, NetworkSecurityGroupInner payload) {
 		super( tenantId, resourceId, payload );
 	}
 

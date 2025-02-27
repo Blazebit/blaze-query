@@ -6,6 +6,7 @@ blaze-persistence = "1.6.11"
 azure-core = "1.49.1"
 azure-identity = "1.11.0"
 azure-resourcemanager = "2.44.0"
+azure-resourcemanager-postgresqlflexibleserver = "1.1.0"
 
 gitlab4j = "6.0.0-rc.5"
 
@@ -50,6 +51,7 @@ blaze-persistence-integration-hibernate6 = { module = "com.blazebit:blaze-persis
 azure-core = { module = "com.azure:azure-core", version.ref = "azure-core" }
 azure-identity = { module = "com.azure:azure-identity", version.ref = "azure-identity" }
 azure-resourcemanager = { module = "com.azure.resourcemanager:azure-resourcemanager", version.ref = "azure-resourcemanager" }
+azure-resourcemanager-postgresqlflexibleserver = { module = "com.azure.resourcemanager:azure-resourcemanager-postgresqlflexibleserver", version.ref = "azure-resourcemanager-postgresqlflexibleserver" }
 
 gitlab4j-api = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab4j" }
 

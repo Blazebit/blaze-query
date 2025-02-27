@@ -10,8 +10,8 @@ import com.azure.resourcemanager.resources.fluent.models.SubscriptionInner;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AzureResourceManagerSubscription extends AzureResourceManagerWrapper<SubscriptionInner> {
-	public AzureResourceManagerSubscription(String tenantId, String subscriptionId, SubscriptionInner payload) {
+public class AzureResourceSubscription extends AzureResourceWrapper<SubscriptionInner> {
+	public AzureResourceSubscription(String tenantId, String subscriptionId, SubscriptionInner payload) {
 		super( tenantId, subscriptionId, null, null, payload );
 	}
 
