@@ -52,6 +52,7 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCl
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
@@ -185,6 +186,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualNetwork.class, "AzureVirtualNetwork" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVault.class, "AzureVault" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class,"AzurePostgreSqlFlexibleServer" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerBackup.class,"AzurePostgreSqlFlexibleServerBackup" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
@@ -763,6 +765,11 @@ public class Main {
 		System.out.println( "PostgreSqlFlexibleServers" );
 		print( postgreSqlFlexibleServerResult );
 
+		TypedQuery<Object[]> postgreSqlFlexibleServerBackupQuery = session.createQuery(
+				"select b.* from AzurePostgreSqlFlexibleServerBackup b" );
+		List<Object[]> postgreSqlFlexibleServerBackupQueryResult = postgreSqlFlexibleServerBackupQuery.getResultList();
+		System.out.println( "PostgreSqlFlexibleServersBackups" );
+		print( postgreSqlFlexibleServerBackupQueryResult );
 	}
 
 	private static AwsConnectorConfig.Account createAwsAccount() {
