@@ -4,6 +4,8 @@
  */
 package com.blazebit.query.connector.gitlab;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,9 +31,10 @@ public class Util {
 		return format;
 	}
 
-	public static Date parseDate(String dateString, SimpleDateFormat dateFormat) {
-		if (dateString == null || dateString.isEmpty()) {
-			return null; // Return null if the date is not provided
+	public static Date parseDate(JsonNode dateNode, SimpleDateFormat dateFormat) {
+		String dateString = dateNode.asText(null); // Returns null if the field is missing
+		if (dateString == null || dateNode.isMissingNode() || dateNode.asText().isEmpty()) {
+			return null; // Return null if the date is missing or empty
 		}
 		try {
 			return dateFormat.parse(dateString);

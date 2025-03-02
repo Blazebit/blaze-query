@@ -4,7 +4,9 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;
 
@@ -16,6 +18,7 @@ import static com.blazebit.query.connector.gitlab.Util.parseDate;
  * @author Martijn Sprengers
  * @since 1.0.4
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record GitlabUser(
 		String id,
 		String name,
@@ -41,32 +44,40 @@ public record GitlabUser(
 		String webPath,
 		String webUrl
 ) {
-	public static GitlabUser fromJson(JSONObject json) {
-		return new GitlabUser(
-				json.getString("id"),
-				json.getString("name"),
-				json.getString("username"),
-				parseDate( json.optString("lastActivityOn", null), DATE_FORMAT),
-				json.getBoolean("active"),
-				json.optString("avatarUrl", null),
-				json.optString("bio", null),
-				json.getBoolean("bot"),
-				json.optString("commitEmail", null),
-				parseDate( json.optString("createdAt", null), ISO_DATE_FORMAT),
-				json.optString("discord", null),
-				json.optBoolean("gitpodEnabled", false),
-				json.optInt("groupCount", 0),
-				json.optBoolean("human", false),
-				json.optString("jobTitle", null),
-				json.optString("linkedin", null),
-				json.optString("location", null),
-				json.optString("organization", null),
-				json.optString("pronouns", null),
-				json.optString("publicEmail", null),
-				json.optString("twitter", null),
-				json.optString("webPath", null),
-				json.optString("webUrl", null)
-		);
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+
+	public static GitlabUser fromJson(String jsonString) {
+		try {
+			JsonNode json = MAPPER.readTree(jsonString);
+
+			return new GitlabUser(
+					json.get("id").asText(),
+					json.get("name").asText(),
+					json.get("username").asText(),
+					parseDate(json.path("lastActivityOn"), DATE_FORMAT),
+					json.get("active").asBoolean(),
+					json.has("avatarUrl") ? json.get("avatarUrl").asText() : null,
+					json.has("bio") ? json.get("bio").asText() : null,
+					json.get("bot").asBoolean(),
+					json.has("commitEmail") ? json.get("commitEmail").asText() : null,
+					parseDate(json.path("createdAt"),ISO_DATE_FORMAT),
+					json.has("discord") ? json.get("discord").asText() : null,
+					json.has("gitpodEnabled") && json.get("gitpodEnabled").asBoolean(false),
+					json.has("groupCount") ? json.get("groupCount").asInt(0) : 0,
+					json.has("human") && json.get("human").asBoolean(false),
+					json.has("jobTitle") ? json.get("jobTitle").asText() : null,
+					json.has("linkedin") ? json.get("linkedin").asText() : null,
+					json.has("location") ? json.get("location").asText() : null,
+					json.has("organization") ? json.get("organization").asText() : null,
+					json.has("pronouns") ? json.get("pronouns").asText() : null,
+					json.has("publicEmail") ? json.get("publicEmail").asText() : null,
+					json.has("twitter") ? json.get("twitter").asText() : null,
+					json.has("webPath") ? json.get("webPath").asText() : null,
+					json.has("webUrl") ? json.get("webUrl").asText() : null
+			);
+		} catch (Exception e) {
+			throw new RuntimeException("Error parsing JSON for GitlabUser", e);
+		}
 	}
 
 }

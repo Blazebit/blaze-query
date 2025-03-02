@@ -4,8 +4,8 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,6 +22,7 @@ import java.util.Map;
  */
 public class GitlabGraphQlClient {
 
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final int DEFAULT_PAGE_SIZE = 100; // GitLab's default pagination size
 
 	private final HttpClient httpClient;
@@ -134,28 +135,27 @@ public class GitlabGraphQlClient {
 					throw new RuntimeException("GitLab API error: " + response.body());
 				}
 
-				JSONObject jsonResponse = new JSONObject(response.body());
-				JSONObject data = jsonResponse.getJSONObject("data").getJSONObject(rootNode);
-				JSONObject pageInfo = data.getJSONObject("pageInfo");
+				// Parse JSON response using Jackson
+				JsonNode jsonResponse = MAPPER.readTree(response.body());
+				JsonNode data = jsonResponse.path("data").path(rootNode);
+				JsonNode pageInfo = data.path("pageInfo");
 
-				// Check if data uses "edges -> node" or "nodes"
+				// Handle both "edges -> node" and "nodes"
 				if (data.has("edges")) {
-					JSONArray edges = data.getJSONArray("edges");
-					for (int i = 0; i < edges.length(); i++) {
-						JSONObject node = edges.getJSONObject(i).getJSONObject("node");
-						allResults.add(parser.parse(node));
+					for (JsonNode edge : data.get("edges")) {
+						JsonNode node = edge.path("node");
+						allResults.add(parser.parse(node.toString())); // Convert node to JSON string for parsing
 					}
 				} else if (data.has("nodes")) {
-					JSONArray nodes = data.getJSONArray("nodes");
-					for (int i = 0; i < nodes.length(); i++) {
-						allResults.add(parser.parse(nodes.getJSONObject(i)));
+					for (JsonNode node : data.get("nodes")) {
+						allResults.add(parser.parse(node.toString())); // Convert node to JSON string for parsing
 					}
 				} else {
 					throw new RuntimeException("Unexpected response structure in " + rootNode);
 				}
 
-				cursor = pageInfo.optString("endCursor", null);
-				hasNextPage = pageInfo.optBoolean("hasNextPage", false);
+				cursor = pageInfo.path("endCursor").asText(null);
+				hasNextPage = pageInfo.path("hasNextPage").asBoolean(false);
 
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to fetch " + rootNode + " from GitLab GraphQL API", e);
@@ -183,13 +183,19 @@ public class GitlabGraphQlClient {
 				throw new RuntimeException("GitLab API error: " + response.body());
 			}
 
-			JSONObject jsonResponse = new JSONObject(response.body());
-			JSONArray nodes = jsonResponse.getJSONObject("data").getJSONObject(rootNode).getJSONArray("nodes");
+			// Parse JSON response using Jackson
+			JsonNode jsonResponse = MAPPER.readTree(response.body());
+
+			JsonNode dataNode = jsonResponse.path("data").path(rootNode).path("nodes");
+			if (!dataNode.isArray()) {
+				throw new RuntimeException("Unexpected response structure: " + response.body());
+			}
 
 			List<T> resultList = new ArrayList<>();
-			for (int i = 0; i < nodes.length(); i++) {
-				resultList.add(parser.parse(nodes.getJSONObject(i)));
+			for (JsonNode node : dataNode) {
+				resultList.add(parser.parse(node.toString())); // Convert JSON node to String and parse
 			}
+
 			return resultList;
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to fetch " + rootNode + " from GitLab GraphQL API", e);
@@ -197,14 +203,20 @@ public class GitlabGraphQlClient {
 	}
 
 	private String createJsonRequest(String query, Map<String, Object> variables) {
-		JSONObject json = new JSONObject();
-		json.put("query", query);
-		json.put("variables", new JSONObject(variables));
-		return json.toString();
+		try {
+			Map<String, Object> requestMap = Map.of(
+					"query", query,
+					"variables", variables
+			);
+
+			return MAPPER.writeValueAsString(requestMap);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to create JSON request", e);
+		}
 	}
 
 	@FunctionalInterface
 	interface JsonParser<T> {
-		T parse(JSONObject json);
+		T parse(String json);
 	}
 }

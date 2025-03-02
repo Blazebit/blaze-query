@@ -4,12 +4,15 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
+
+import static com.blazebit.query.connector.gitlab.Util.ISO_DATE_FORMAT;
+import static com.blazebit.query.connector.gitlab.Util.parseDate;
 
 /**
  * @author Martijn Sprengers
@@ -29,41 +32,37 @@ public record GitlabProject(
 		String defaultBranch, // repository.rootRef
 		List<GitlabBranchRule> branchRules
 ) {
-	public static GitlabProject fromJson(JSONObject json) {
-		return new GitlabProject(
-				json.getString("id"),
-				json.getString("name"),
-				json.optBoolean("archived", false),
-				json.optString("avatarUrl", null),
-				parseDate(json.optString("createdAt", null)),
-				json.optString("description", null),
-				parseDate(json.optString("lastActivityAt", null)),
-				json.optString("path", null),
-				parseDate(json.optString("updatedAt", null)),
-				json.optJSONObject("group") != null ? json.optJSONObject("group").optString("id", null) : null,
-				json.optJSONObject("repository") != null ? json.optJSONObject("repository").optString("rootRef", null) : null,
-				parseBranchRules(json.optJSONObject("branchRules"))
-		);
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+
+	public static GitlabProject fromJson(String jsonString) {
+		try {
+			JsonNode json = MAPPER.readTree(jsonString);
+
+			return new GitlabProject(
+					json.get("id").asText(),
+					json.get("name").asText(),
+					json.path("archived").asBoolean(false),
+					json.path("avatarUrl").asText(null),
+					parseDate(json.path("createdAt"), ISO_DATE_FORMAT),
+					json.path("description").asText(null),
+					parseDate(json.path("lastActivityAt"), ISO_DATE_FORMAT),
+					json.path("path").asText(null),
+					parseDate(json.path("updatedAt"), ISO_DATE_FORMAT),
+					json.has("group") ? json.get("group").path("id").asText(null) : null,
+					json.has("repository") ? json.get("repository").path("rootRef").asText(null) : null,
+					parseBranchRules(json.path("branchRules"))
+			);
+		} catch (Exception e) {
+			throw new RuntimeException("Error parsing JSON for GitlabProject", e);
+		}
 	}
 
-	private static List<GitlabBranchRule> parseBranchRules(JSONObject json) {
-		if (json == null || !json.has("edges")) {
+	private static List<GitlabBranchRule> parseBranchRules(JsonNode json) {
+		if (!json.has("edges")) {
 			return List.of();
 		}
-		JSONArray edges = json.optJSONArray("edges");
-		return IntStream.range(0, edges.length())
-				.mapToObj(i -> GitlabBranchRule.fromJson(edges.getJSONObject(i).optJSONObject("node")))
+		return StreamSupport.stream(json.get("edges").spliterator(), false)
+				.map(edge -> GitlabBranchRule.fromJson(edge.path("node").toString()))
 				.collect(Collectors.toList());
-	}
-
-	private static Date parseDate(String dateString) {
-		if (dateString == null || dateString.isEmpty()) {
-			return null; // Return null if no date is provided
-		}
-		try {
-			return new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").parse(dateString);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to parse date: " + dateString, e);
-		}
 	}
 }

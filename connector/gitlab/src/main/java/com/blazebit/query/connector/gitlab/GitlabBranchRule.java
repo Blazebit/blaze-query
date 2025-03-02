@@ -4,7 +4,8 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Martijn Sprengers
@@ -18,16 +19,23 @@ public record GitlabBranchRule(
 		Boolean allowForcePush,
 		Boolean codeOwnerApprovalRequired
 ) {
-	public static GitlabBranchRule fromJson(JSONObject json) {
-		JSONObject branchProtection = json.optJSONObject("branchProtection");
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-		return new GitlabBranchRule(
-				json.getString("id"),
-				json.getString("name"),
-				json.optBoolean("isDefault", false),
-				json.optBoolean("isProtected", false),
-				branchProtection != null && branchProtection.optBoolean("allowForcePush", false),
-				branchProtection != null && branchProtection.optBoolean("codeOwnerApprovalRequired", false)
-		);
+	public static GitlabBranchRule fromJson(String jsonString) {
+		try {
+			JsonNode json = MAPPER.readTree(jsonString);
+			JsonNode branchProtection = json.path("branchProtection");
+
+			return new GitlabBranchRule(
+					json.get("id").asText(),
+					json.get("name").asText(),
+					json.path("isDefault").asBoolean(false),
+					json.path("isProtected").asBoolean(false),
+					branchProtection.path("allowForcePush").asBoolean(false),
+					branchProtection.path("codeOwnerApprovalRequired").asBoolean(false)
+			);
+		} catch (Exception e) {
+			throw new RuntimeException("Error parsing JSON for GitlabBranchRule", e);
+		}
 	}
 }
