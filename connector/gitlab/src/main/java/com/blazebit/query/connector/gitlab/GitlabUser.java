@@ -48,32 +48,46 @@ public record GitlabUser(
 
 	public static GitlabUser fromJson(String jsonString) {
 		try {
-			JsonNode json = MAPPER.readTree(jsonString);
+			JsonNode userNode = MAPPER.readTree(jsonString);
+
+			// If the node is deeply nested, extract the "user" field if available
+			if (userNode.has("node")) {
+				userNode = userNode.path("node");
+			}
+			if (userNode.has("user")) {
+				userNode = userNode.path("user");
+			}
+
+			// If no valid user found, log warning and skip
+			if (userNode.path("id").asText().isEmpty()) {
+				System.out.println("⚠️ Skipping invalid user: " + jsonString);
+				return null;
+			}
 
 			return new GitlabUser(
-					json.get("id").asText(),
-					json.get("name").asText(),
-					json.get("username").asText(),
-					parseDate(json.path("lastActivityOn"), DATE_FORMAT),
-					json.get("active").asBoolean(),
-					json.has("avatarUrl") ? json.get("avatarUrl").asText() : null,
-					json.has("bio") ? json.get("bio").asText() : null,
-					json.get("bot").asBoolean(),
-					json.has("commitEmail") ? json.get("commitEmail").asText() : null,
-					parseDate(json.path("createdAt"),ISO_DATE_FORMAT),
-					json.has("discord") ? json.get("discord").asText() : null,
-					json.has("gitpodEnabled") && json.get("gitpodEnabled").asBoolean(false),
-					json.has("groupCount") ? json.get("groupCount").asInt(0) : 0,
-					json.has("human") && json.get("human").asBoolean(false),
-					json.has("jobTitle") ? json.get("jobTitle").asText() : null,
-					json.has("linkedin") ? json.get("linkedin").asText() : null,
-					json.has("location") ? json.get("location").asText() : null,
-					json.has("organization") ? json.get("organization").asText() : null,
-					json.has("pronouns") ? json.get("pronouns").asText() : null,
-					json.has("publicEmail") ? json.get("publicEmail").asText() : null,
-					json.has("twitter") ? json.get("twitter").asText() : null,
-					json.has("webPath") ? json.get("webPath").asText() : null,
-					json.has("webUrl") ? json.get("webUrl").asText() : null
+					userNode.path("id").asText(),
+					userNode.path("name").asText(),
+					userNode.path("username").asText(),
+					parseDate(userNode.path("lastActivityOn"), DATE_FORMAT),
+					userNode.path("active").asBoolean(),
+					userNode.has("avatarUrl") ? userNode.path("avatarUrl").asText() : null,
+					userNode.has("bio") ? userNode.path("bio").asText() : null,
+					userNode.path("bot").asBoolean(),
+					userNode.has("commitEmail") ? userNode.path("commitEmail").asText() : null,
+					parseDate(userNode.path("createdAt"),ISO_DATE_FORMAT),
+					userNode.has("discord") ? userNode.path("discord").asText() : null,
+					userNode.has("gitpodEnabled") && userNode.path("gitpodEnabled").asBoolean(false),
+					userNode.has("groupCount") ? userNode.path("groupCount").asInt(0) : 0,
+					userNode.has("human") && userNode.path("human").asBoolean(false),
+					userNode.has("jobTitle") ? userNode.path("jobTitle").asText() : null,
+					userNode.has("linkedin") ? userNode.path("linkedin").asText() : null,
+					userNode.has("location") ? userNode.path("location").asText() : null,
+					userNode.has("organization") ? userNode.path("organization").asText() : null,
+					userNode.has("pronouns") ? userNode.path("pronouns").asText() : null,
+					userNode.has("publicEmail") ? userNode.path("publicEmail").asText() : null,
+					userNode.has("twitter") ? userNode.path("twitter").asText() : null,
+					userNode.has("webPath") ? userNode.path("webPath").asText() : null,
+					userNode.has("webUrl") ? userNode.path("webUrl").asText() : null
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GitlabUser", e);
