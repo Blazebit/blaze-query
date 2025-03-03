@@ -38,7 +38,8 @@ public class PostgreSqlFlexibleServerBackupDataFetcher implements DataFetcher<Az
 						list.add( new AzureResourcePostgreSqlFlexibleServerBackup(
 								resourceManager.getTenantId(),
 								postgreSqlFlexibleServerBackup.id(),
-								postgreSqlFlexibleServerBackup.innerModel()
+								postgreSqlFlexibleServerBackup.innerModel(),
+								postgreSqlFlexibleServer.innerModel().id()
 						) );
 					}
 

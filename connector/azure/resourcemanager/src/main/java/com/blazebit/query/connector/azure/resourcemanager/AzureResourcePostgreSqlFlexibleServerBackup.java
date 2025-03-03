@@ -11,12 +11,20 @@ import com.azure.resourcemanager.postgresqlflexibleserver.fluent.models.ServerBa
  * @since 1.0.4
  */
 public class AzureResourcePostgreSqlFlexibleServerBackup extends AzureResourceWrapper<ServerBackupInner> {
-	public AzureResourcePostgreSqlFlexibleServerBackup(String tenantId, String resourceId, ServerBackupInner payload) {
+
+	private final String flexibleServerId;
+
+	public AzureResourcePostgreSqlFlexibleServerBackup(String tenantId, String resourceId, ServerBackupInner payload, String flexibleServerId) {
 		super( tenantId, resourceId, payload );
+		this.flexibleServerId = flexibleServerId;
 	}
 
 	@Override
 	public ServerBackupInner getPayload() {
 		return super.getPayload();
+	}
+
+	public String getFlexibleServerId() {
+		return flexibleServerId;
 	}
 }
