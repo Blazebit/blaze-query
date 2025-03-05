@@ -31,7 +31,8 @@ public final class AzureResourceManagerSchemaProvider implements QuerySchemaProv
 				BlobServicePropertiesDataFetcher.INSTANCE,
 				DiskDataFetcher.INSTANCE,
 				PostgreSqlFlexibleServerDataFetcher.INSTANCE,
-				PostgreSqlFlexibleServerBackupDataFetcher.INSTANCE
+				PostgreSqlFlexibleServerBackupDataFetcher.INSTANCE,
+				PostgreSqlFlexibleServerParameterDataFetcher.INSTANCE
 		);
 	}
 }
