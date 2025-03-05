@@ -24,7 +24,6 @@ google-workspace-drive = "v3-rev20220815-2.0.0"
 gcp = "26.50.0"
 
 org-openapitools-jackson-databind-nullable = "0.2.6"
-org-json = "20250107"
 jersey = "3.1.1"
 com-github-scribejava-scribejava-apis = "8.3.3"
 com-google-code-findbugs-jsr305 = "3.0.2"
@@ -85,7 +84,6 @@ gcp-asset = { module = "com.google.cloud:google-cloud-asset" }
 gcp-storage = { module = "com.google.cloud:google-cloud-storage" }
 
 org-openapitools-jackson-databind-nullable = { module = "org.openapitools:jackson-databind-nullable", version.ref = "org-openapitools-jackson-databind-nullable" }
-org-json = { module = "org.json:json", version.ref = "org-json" }
 
 jersey-connectors-jersey-apache-connector = { module = "org.glassfish.jersey.connectors:jersey-apache-connector", version.ref = "jersey" }
 jersey-core-jersey-client = { module = "org.glassfish.jersey.core:jersey-client", version.ref = "jersey" }

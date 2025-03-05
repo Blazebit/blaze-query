@@ -28,21 +28,22 @@ public class GraphQlProjectDataFetcher implements DataFetcher<GitlabProject>, Se
 	@Override
 	public List<GitlabProject> fetch(DataFetchContext context) {
 		try {
-			List<GitlabGraphQlClient> gitlabClients = GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getAll(context);
+			List<GitlabGraphQlClient> gitlabClients = GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getAll( context );
 			List<GitlabProject> projectList = new ArrayList<>();
 
-			for ( GitlabGraphQlClient client : gitlabClients) {
-				projectList.addAll(client.fetchProjects(true));
+			for ( GitlabGraphQlClient client : gitlabClients ) {
+				projectList.addAll( client.fetchProjects( true ) );
 			}
 
 			return projectList;
-		} catch (RuntimeException e) {
-			throw new DataFetcherException("Could not fetch project list from GitLab GraphQL API", e);
+		}
+		catch (RuntimeException e) {
+			throw new DataFetcherException( "Could not fetch project list from GitLab GraphQL API", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention(GitlabProject.class, GitlabConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention( GitlabProject.class, GitlabConventionContext.INSTANCE );
 	}
 }
