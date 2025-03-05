@@ -4,10 +4,10 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import java.lang.reflect.Member;
-
 import com.blazebit.query.connector.base.ConventionContext;
 import org.gitlab4j.api.models.Project;
+
+import java.lang.reflect.Member;
 
 /**
  * A method filter to exclude internal and cyclic methods from the Gitlab4j models.
