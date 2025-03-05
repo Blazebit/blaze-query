@@ -24,7 +24,7 @@ public final class GitlabConnectorConfig {
 	 * Specifies the {@link GitlabGraphQlClient} to use for querying data.
 	 */
 	public static final DataFetcherConfig<GitlabGraphQlClient> GITLAB_GRAPHQL_CLIENT =
-			DataFetcherConfig.forPropertyName("gitlabGraphQLClient");
+			DataFetcherConfig.forPropertyName( "gitlabGraphQLClient" );
 
 	private GitlabConnectorConfig() {
 	}
