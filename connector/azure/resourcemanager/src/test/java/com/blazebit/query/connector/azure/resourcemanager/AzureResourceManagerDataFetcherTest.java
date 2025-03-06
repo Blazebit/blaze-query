@@ -27,6 +27,8 @@ public class AzureResourceManagerDataFetcherTest {
 		builder.registerSchemaObjectAlias( AzureResourceManagedCluster.class, "AzureManagedCluster" );
 		builder.registerSchemaObjectAlias( AzureResourceNetworkSecurityGroup.class, "AzureNetworkSecurityGroup" );
 		builder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class, "AzurePostgreSqlFlexibleServer" );
+		builder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerBackup.class, "AzurePostgreSqlFlexibleServerBackup" );
+
 		CONTEXT = builder.build();
 	}
 
@@ -66,6 +68,19 @@ public class AzureResourceManagerDataFetcherTest {
 					session.createQuery( "select server.payload.id from AzurePostgreSqlFlexibleServer server", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql" );
+		}
+	}
+
+	@Test
+	void should_return_postgresql_flexible_server_backup() {
+		try (var session = CONTEXT.createSession()) {
+			session.put(
+					AzureResourcePostgreSqlFlexibleServerBackup.class, List.of( AzureTestObjects.azureResourcePostgreSqlFlexibleServerBackup() ) );
+
+			var typedQuery =
+					session.createQuery( "select backup.payload.id from AzurePostgreSqlFlexibleServerBackup backup", new TypeReference<Map<String, Object>>() {} );
+
+			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql/backups/backup_638760196676440117" );
 		}
 	}
 }
