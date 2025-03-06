@@ -22,14 +22,14 @@ import java.util.Map;
  * @author Dimitar Prisadnikov
  * @since 1.0.4
  */
-public class PostgreSqlFlexibleServerParameterDataFetcher implements DataFetcher<AzureResourcePostgreSqlFlexibleServerWithParameters>, Serializable {
-	public static final PostgreSqlFlexibleServerParameterDataFetcher INSTANCE = new PostgreSqlFlexibleServerParameterDataFetcher();
+public class PostgreSqlFlexibleServerWithParametersDataFetcher implements DataFetcher<AzureResourcePostgreSqlFlexibleServerWithParameters>, Serializable {
+	public static final PostgreSqlFlexibleServerWithParametersDataFetcher INSTANCE = new PostgreSqlFlexibleServerWithParametersDataFetcher();
 
 	private static final List<String> PARAMETERS_TO_FETCH = Arrays.asList(
 			"ssl_min_protocol_version"
 	);
 
-	private PostgreSqlFlexibleServerParameterDataFetcher() {
+	private PostgreSqlFlexibleServerWithParametersDataFetcher() {
 	}
 
 	@Override
