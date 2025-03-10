@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -42,6 +46,19 @@ public final class DateUtils {
 		}
 		catch (ParseException e) {
 			throw new RuntimeException( "Failed to parse date: " + dateString, e );
+		}
+	}
+
+	public static OffsetDateTime parseOffsetDateTime(JsonNode dateNode) {
+		String dateString = dateNode.asText(null); // Returns null if the field is missing
+		if (dateString == null || dateNode.isMissingNode() || dateString.isEmpty()) {
+			return null; // Return null if the date is missing or empty
+		}
+		try {
+			LocalDate date = LocalDate.parse(dateString);
+			return date.atStartOfDay().atOffset( ZoneOffset.UTC);
+		} catch (DateTimeParseException e) {
+			throw new RuntimeException("Failed to parse date: " + dateString, e);
 		}
 	}
 }

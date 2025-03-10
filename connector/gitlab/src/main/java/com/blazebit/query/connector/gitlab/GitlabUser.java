@@ -8,11 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.DATE_FORMAT;
-import static com.blazebit.query.connector.gitlab.DateUtils.ISO_DATE_FORMAT;
-import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseOffsetDateTime;
+
 
 /**
  * @author Martijn Sprengers
@@ -23,13 +22,13 @@ public record GitlabUser(
 		String id,
 		String name,
 		String username,
-		Date lastActivityOn,
+		OffsetDateTime lastActivityOn,
 		boolean active,
 		String avatarUrl,
 		String bio,
 		boolean bot,
 		String commitEmail,
-		Date createdAt,
+		OffsetDateTime createdAt,
 		String discord,
 		boolean gitpodEnabled,
 		Integer groupCount,
@@ -68,13 +67,13 @@ public record GitlabUser(
 					userNode.path( "id" ).asText(),
 					userNode.path( "name" ).asText(),
 					userNode.path( "username" ).asText(),
-					parseDate( userNode.path( "lastActivityOn" ), DATE_FORMAT ),
+					parseOffsetDateTime( userNode.path( "lastActivityOn" ) ),
 					userNode.path( "active" ).asBoolean(),
 					userNode.has( "avatarUrl" ) ? userNode.path( "avatarUrl" ).asText() : null,
 					userNode.has( "bio" ) ? userNode.path( "bio" ).asText() : null,
 					userNode.path( "bot" ).asBoolean(),
 					userNode.has( "commitEmail" ) ? userNode.path( "commitEmail" ).asText() : null,
-					parseDate( userNode.path( "createdAt" ), ISO_DATE_FORMAT ),
+					parseOffsetDateTime( userNode.path( "createdAt" ) ),
 					userNode.has( "discord" ) ? userNode.path( "discord" ).asText() : null,
 					userNode.has( "gitpodEnabled" ) && userNode.path( "gitpodEnabled" ).asBoolean( false ),
 					userNode.has( "groupCount" ) ? userNode.path( "groupCount" ).asInt( 0 ) : 0,
