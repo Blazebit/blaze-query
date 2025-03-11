@@ -223,6 +223,7 @@ public class GitlabGraphQlClient {
 									updatedAt
 									group { id }
 									repository { rootRef }
+									mergeRequestsEnabled
 									branchRules {
 										edges {
 											node {
