@@ -31,6 +31,7 @@ public record GitlabProject(
 		Date updatedAt,
 		String groupId,
 		String defaultBranch, // repository.rootRef
+		Boolean mergeRequestsEnabled,
 		List<GitlabBranchRule> branchRules
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -51,6 +52,7 @@ public record GitlabProject(
 					parseDate( json.path( "updatedAt" ), ISO_DATE_FORMAT ),
 					json.has( "group" ) ? json.get( "group" ).path( "id" ).asText( null ) : null,
 					json.has( "repository" ) ? json.get( "repository" ).path( "rootRef" ).asText( null ) : null,
+					json.path( "mergeRequestsEnabled" ).asBoolean( false ),
 					parseBranchRules( json.path( "branchRules" ) )
 			);
 		}
