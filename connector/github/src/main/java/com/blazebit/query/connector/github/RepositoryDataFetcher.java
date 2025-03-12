@@ -14,14 +14,13 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class RepositoryDataFetcher implements DataFetcher<GHRepository>, Serializable {
+public class RepositoryDataFetcher implements DataFetcher<GHRepoWrapper>, Serializable {
 
 	public static final RepositoryDataFetcher INSTANCE = new RepositoryDataFetcher();
 
@@ -29,11 +28,17 @@ public class RepositoryDataFetcher implements DataFetcher<GHRepository>, Seriali
 	}
 
 	@Override
-	public List<GHRepository> fetch(DataFetchContext context) {
+	public List<GHRepoWrapper> fetch(DataFetchContext context) {
 		try {
-			List<GHRepository> list = new ArrayList<>();
-			for ( GHOrganization organization : context.getSession().getOrFetch( GHOrganization.class ) ) {
-				list.addAll( organization.listRepositories().toList() );
+			List<GitHub> gitHubs = GithubConnectorConfig.GITHUB.getAll( context );
+			List<GHRepoWrapper> list = new ArrayList<>();
+			for ( GitHub gitHub : gitHubs ) {
+				for( var organization : gitHub.getMyOrganizations().values() ) {
+					var repositories = organization.listRepositories().toList();
+					repositories.forEach(repository -> {
+						list.add( new GHRepoWrapper( repository ) );
+					});
+				}
 			}
 			return list;
 		}
@@ -44,6 +49,6 @@ public class RepositoryDataFetcher implements DataFetcher<GHRepository>, Seriali
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( GHRepository.class, GithubConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GHRepoWrapper.class, GithubConventionContext.INSTANCE );
 	}
 }

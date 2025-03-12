@@ -14,14 +14,13 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GitHub;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class OrganizationDataFetcher implements DataFetcher<GHOrganization>, Serializable {
+public class OrganizationDataFetcher implements DataFetcher<GHOrganizationWrapper>, Serializable {
 
 	public static final OrganizationDataFetcher INSTANCE = new OrganizationDataFetcher();
 
@@ -29,12 +28,16 @@ public class OrganizationDataFetcher implements DataFetcher<GHOrganization>, Ser
 	}
 
 	@Override
-	public List<GHOrganization> fetch(DataFetchContext context) {
+	public List<GHOrganizationWrapper> fetch(DataFetchContext context) {
 		try {
 			List<GitHub> gitHubs = GithubConnectorConfig.GITHUB.getAll( context );
-			List<GHOrganization> list = new ArrayList<>();
+			List<GHOrganizationWrapper> list = new ArrayList<>();
 			for ( GitHub gitHub : gitHubs ) {
-				list.addAll( gitHub.getMyOrganizations().values() );
+				var organizations = gitHub.getMyOrganizations().values();
+				organizations.forEach(organization -> {
+					list.add( new GHOrganizationWrapper( organization ) );
+				});
+//				list.addAll( gitHub.getMyOrganizations().values() );
 			}
 			return list;
 		}
@@ -45,6 +48,6 @@ public class OrganizationDataFetcher implements DataFetcher<GHOrganization>, Ser
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( GHOrganization.class, GithubConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GHOrganizationWrapper.class, GithubConventionContext.INSTANCE );
 	}
 }
