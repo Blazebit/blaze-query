@@ -11,12 +11,14 @@ import com.azure.resourcemanager.compute.fluent.models.VirtualMachineInner;
 import com.azure.resourcemanager.containerservice.fluent.models.ManagedClusterInner;
 import com.azure.resourcemanager.keyvault.fluent.models.VaultInner;
 import com.azure.resourcemanager.network.fluent.models.NetworkSecurityGroupInner;
+import com.azure.resourcemanager.postgresqlflexibleserver.fluent.models.ServerBackupInner;
 import com.azure.resourcemanager.postgresqlflexibleserver.fluent.models.ServerInner;
 import com.azure.resourcemanager.storage.fluent.models.BlobServicePropertiesInner;
 import com.azure.resourcemanager.storage.fluent.models.StorageAccountInner;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class AzureTestObjects {
 
@@ -125,6 +127,35 @@ public class AzureTestObjects {
 					"123",
 					postgresqlServerInner.id(),
 					postgresqlServerInner );
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static AzureResourcePostgreSqlFlexibleServerBackup azureResourcePostgreSqlFlexibleServerBackup() {
+		try {
+			ServerBackupInner postgresqlServerBackupInner = ServerBackupInner.fromJson( jsonReader(
+					"src/test/resources/resource-definitions/azure/databases/postgresql-flexible-server/flexible-server-backup.json" ) );
+			return new AzureResourcePostgreSqlFlexibleServerBackup(
+					"123",
+					postgresqlServerBackupInner.id(),
+					postgresqlServerBackupInner,
+					"flexibleServerId123");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static AzureResourcePostgreSqlFlexibleServerWithParameters azureResourcePostgreSqlFlexibleServerWithParameters() {
+		try {
+			ServerInner postgresqlServerInner = ServerInner.fromJson( jsonReader(
+					"src/test/resources/resource-definitions/azure/databases/postgresql-flexible-server/flexible-server.json" ) );
+			Map<String, String> parameters = Map.of("someParameterKey", "someParameterValue");
+			return new AzureResourcePostgreSqlFlexibleServerWithParameters(
+					"123",
+					postgresqlServerInner.id(),
+					postgresqlServerInner,
+					parameters);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

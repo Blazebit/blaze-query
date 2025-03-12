@@ -1,0 +1,10 @@
+{
+  "type:": "Microsoft.DBforPostgreSQL/flexibleServers/backups",
+  "name": "backup_638760196676440117",
+  "id": "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql/backups/backup_638760196676440117",
+  "properties": {
+    "backupType": "Full",
+    "source": "Automatic",
+    "completedTime": "2025-02-24T18:47:48.644011700Z"
+  }
+}
