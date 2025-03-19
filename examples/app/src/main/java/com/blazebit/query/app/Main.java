@@ -52,6 +52,8 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCl
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
@@ -168,6 +170,7 @@ public class Main {
 			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
 			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
 					Main::createPostgreSqlManagers );
+			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
@@ -191,6 +194,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualNetwork.class, "AzureVirtualNetwork" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVault.class, "AzureVault" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class,"AzurePostgreSqlFlexibleServer" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerBackup.class,"AzurePostgreSqlFlexibleServerBackup" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerWithParameters.class,"AzurePostgreSqlFlexibleServerWithParameters" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
@@ -787,6 +792,19 @@ public class Main {
 		System.out.println( "PostgreSqlFlexibleServers" );
 		print( postgreSqlFlexibleServerResult );
 
+		TypedQuery<Object[]> postgreSqlFlexibleServerBackupQuery =
+				session.createQuery("select b.* from AzurePostgreSqlFlexibleServerBackup b");
+		List<Object[]> postgreSqlFlexibleServerBackupQueryResult =
+				postgreSqlFlexibleServerBackupQuery.getResultList();
+		System.out.println("PostgreSqlFlexibleServersBackups");
+		print(postgreSqlFlexibleServerBackupQueryResult);
+
+		TypedQuery<Object[]> postgreSqlFlexibleServerWithParametersQuery =
+				session.createQuery("select s.* from AzurePostgreSqlFlexibleServerWithParameters s");
+		List<Object[]> postgreSqlFlexibleServerWithParametersQueryResult =
+				postgreSqlFlexibleServerWithParametersQuery.getResultList();
+		System.out.println("PostgreSqlFlexibleServersWithParameters");
+		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
 	private static AwsConnectorConfig.Account createAwsAccount() {
