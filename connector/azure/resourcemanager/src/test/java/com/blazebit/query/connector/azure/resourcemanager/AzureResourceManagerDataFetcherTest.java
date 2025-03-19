@@ -81,7 +81,7 @@ public class AzureResourceManagerDataFetcherTest {
 			var typedQuery =
 					session.createQuery( "select backup.payload.id from AzurePostgreSqlFlexibleServerBackup backup", new TypeReference<Map<String, Object>>() {});
 
-			assertThat(typedQuery.getResultList()).extracting(result -> result.get("id")).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql/backups/backup_638760196676440117");
+			assertThat(typedQuery.getResultList()).extracting(result -> result.get("id")).containsExactly( "/subscriptions/ff07f866-b67e-4e34-9991-8daed8db473f/resourceGroups/databases/providers/Microsoft.DBforPostgreSQL/flexibleServers/flexiblepostgresql/backups/backup_708900948995599394");
 		}
 	}
 
