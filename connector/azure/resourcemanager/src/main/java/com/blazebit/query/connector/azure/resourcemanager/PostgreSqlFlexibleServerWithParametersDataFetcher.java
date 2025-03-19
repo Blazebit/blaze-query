@@ -13,7 +13,6 @@ import com.blazebit.query.spi.DataFormat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +24,6 @@ import java.util.Map;
 public class PostgreSqlFlexibleServerWithParametersDataFetcher implements DataFetcher<AzureResourcePostgreSqlFlexibleServerWithParameters>, Serializable {
 	public static final PostgreSqlFlexibleServerWithParametersDataFetcher INSTANCE = new PostgreSqlFlexibleServerWithParametersDataFetcher();
 
-	private static final List<String> PARAMETERS_TO_FETCH = Arrays.asList(
-			"ssl_min_protocol_version"
-	);
-
 	private PostgreSqlFlexibleServerWithParametersDataFetcher() {
 	}
 
@@ -38,38 +33,43 @@ public class PostgreSqlFlexibleServerWithParametersDataFetcher implements DataFe
 			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers =
 					AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getAll(context);
 
+			List<String> parametersToFetch = AzureResourceManagerPostgreSqlManagerConnectorConfig.PARAMETERS_TO_FETCH.getAll(context);
+
 			List<AzureResourcePostgreSqlFlexibleServerWithParameters> serverParametersList = new ArrayList<>();
 
+		if (!parametersToFetch.isEmpty()) {
 			for (AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers) {
-				for (Server postgreSqlFlexibleServer : resourceManager.getManager().servers().list()) {
-					Map<String, String> serverParameters = new HashMap<>();
+			for (Server postgreSqlFlexibleServer : resourceManager.getManager().servers().list()) {
+				Map<String, String> serverParameters = new HashMap<>();
 
-					for (String parameterName : PARAMETERS_TO_FETCH) {
-						try {
-							Object parameterValue = resourceManager.getManager().configurations().get(
-									postgreSqlFlexibleServer.resourceGroupName(),
-									postgreSqlFlexibleServer.name(),
-									parameterName
-							).value();
+				for (String parameterName : parametersToFetch) {
+				try {
+					Object parameterValue =
+						resourceManager
+							.getManager()
+							.configurations()
+							.get(
+								postgreSqlFlexibleServer.resourceGroupName(),
+								postgreSqlFlexibleServer.name(),
+								parameterName)
+							.value();
 
-							serverParameters.put(
-									parameterName,
-									parameterValue != null ? parameterValue.toString() : null
-							);
-						} catch (Exception e) {
-							serverParameters.put(parameterName, null);
-						}
-					}
-
-					serverParametersList.add(new AzureResourcePostgreSqlFlexibleServerWithParameters(
-							resourceManager.getTenantId(),
-							postgreSqlFlexibleServer.id(),
-							postgreSqlFlexibleServer.innerModel(),
-							serverParameters
-					));
+					serverParameters.put(
+						parameterName, parameterValue != null ? parameterValue.toString() : null);
+				} catch (Exception e) {
+					serverParameters.put(parameterName, null);
 				}
-			}
+				}
 
+				serverParametersList.add(
+					new AzureResourcePostgreSqlFlexibleServerWithParameters(
+						resourceManager.getTenantId(),
+						postgreSqlFlexibleServer.id(),
+						postgreSqlFlexibleServer.innerModel(),
+						serverParameters));
+			}
+			}
+		}
 			return serverParametersList;
 		}
 		catch (RuntimeException e) {
