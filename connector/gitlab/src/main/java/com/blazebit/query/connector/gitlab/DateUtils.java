@@ -49,7 +49,7 @@ public final class DateUtils {
 		}
 	}
 
-	public static OffsetDateTime parseOffsetDateTime(JsonNode dateNode) {
+	public static OffsetDateTime parseDateOnly(JsonNode dateNode) {
 		String dateString = dateNode.asText(null); // Returns null if the field is missing
 		if (dateString == null || dateNode.isMissingNode() || dateString.isEmpty()) {
 			return null; // Return null if the date is missing or empty
@@ -59,6 +59,18 @@ public final class DateUtils {
 			return date.atStartOfDay().atOffset( ZoneOffset.UTC);
 		} catch (DateTimeParseException e) {
 			throw new RuntimeException("Failed to parse date: " + dateString, e);
+		}
+	}
+
+	public static OffsetDateTime parseISODateTime(JsonNode dateTimeNode) {
+		String dateTimeString = dateTimeNode.asText(null); // Returns null if the field is missing
+		if (dateTimeString == null || dateTimeNode.isMissingNode() || dateTimeString.isEmpty()) {
+			return null; // Return null if the date is missing or empty
+		}
+		try {
+			return OffsetDateTime.parse(dateTimeString);
+		} catch (DateTimeParseException e) {
+			throw new RuntimeException("Failed to parse ISO datetime: " + dateTimeString, e);
 		}
 	}
 }
