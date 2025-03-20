@@ -8,10 +8,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.ISO_DATE_FORMAT;
-import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseISODateTime;
 
 /**
  * @author Martijn Sprengers
@@ -19,8 +18,8 @@ import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GitlabGroup(String id, String name, String path, boolean requireTwoFactorAuthentication,
-						int twoFactorGracePeriod, Date createdAt, String description, String fullName,
-						String projectCreationLevel, Date updatedAt, String visibility) {
+						int twoFactorGracePeriod, OffsetDateTime createdAt, String description, String fullName,
+						String projectCreationLevel, OffsetDateTime updatedAt, String visibility) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
 	public static GitlabGroup fromJson(String jsonString) {
@@ -33,11 +32,11 @@ public record GitlabGroup(String id, String name, String path, boolean requireTw
 					json.get( "path" ).asText(),
 					json.path( "requireTwoFactorAuthentication" ).asBoolean( false ),
 					json.path( "twoFactorGracePeriod" ).asInt( 0 ),
-					parseDate( json.path( "createdAt" ), ISO_DATE_FORMAT ),
+					parseISODateTime( json.path( "createdAt" ) ),
 					json.path( "description" ).asText( null ),
 					json.path( "fullName" ).asText( null ),
 					json.path( "projectCreationLevel" ).asText( null ),
-					parseDate( json.path( "updatedAt" ), ISO_DATE_FORMAT ),
+					parseISODateTime( json.path( "updatedAt" ) ),
 					json.path( "visibility" ).asText( null )
 			);
 		}
