@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.parseOffsetDateTime;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseDateOnly;
 
 
 /**
@@ -67,13 +67,13 @@ public record GitlabUser(
 					userNode.path( "id" ).asText(),
 					userNode.path( "name" ).asText(),
 					userNode.path( "username" ).asText(),
-					parseOffsetDateTime( userNode.path( "lastActivityOn" ) ),
+					parseDateOnly( userNode.path( "lastActivityOn" ) ),
 					userNode.path( "active" ).asBoolean(),
 					userNode.has( "avatarUrl" ) ? userNode.path( "avatarUrl" ).asText() : null,
 					userNode.has( "bio" ) ? userNode.path( "bio" ).asText() : null,
 					userNode.path( "bot" ).asBoolean(),
 					userNode.has( "commitEmail" ) ? userNode.path( "commitEmail" ).asText() : null,
-					parseOffsetDateTime( userNode.path( "createdAt" ) ),
+					parseDateOnly( userNode.path( "createdAt" ) ),
 					userNode.has( "discord" ) ? userNode.path( "discord" ).asText() : null,
 					userNode.has( "gitpodEnabled" ) && userNode.path( "gitpodEnabled" ).asBoolean( false ),
 					userNode.has( "groupCount" ) ? userNode.path( "groupCount" ).asInt( 0 ) : 0,
