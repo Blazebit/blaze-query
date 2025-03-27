@@ -2,7 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
-package com.blazebit.query.connector.gitlab;
+
+package com.blazebit.query.connector.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
