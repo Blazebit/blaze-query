@@ -1,0 +1,12 @@
+plugins {
+    id 'blaze-query.java-conventions'
+}
+
+dependencies {
+    api project(':blaze-query-core-api')
+    api project(':blaze-query-connector-base')
+    api project(':blaze-query-connector-utils')
+    api libs.github.api
+}
+
+description = 'blaze-query-connector-github-graphql'
