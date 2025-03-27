@@ -6,31 +6,17 @@ package com.blazebit.query.connector.gitlab;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.TimeZone;
 
 /**
  * @author Martijn Sprengers
  * @since 1.0.4
  */
 public final class DateUtils {
-
-	public static final DateFormat DATE_FORMAT;
-	public static final DateFormat ISO_DATE_FORMAT;
-
-	static {
-		DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" ); // Format for lastActivityOn
-		DATE_FORMAT.setTimeZone( TimeZone.getTimeZone( "UTC" ) );
-
-		ISO_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssX" );
-		ISO_DATE_FORMAT.setTimeZone( TimeZone.getTimeZone( "UTC" ) );
-	}
 
 	private DateUtils() {
 	}
