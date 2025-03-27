@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
