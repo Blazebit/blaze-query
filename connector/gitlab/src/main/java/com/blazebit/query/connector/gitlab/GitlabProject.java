@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 /**
  * @author Martijn Sprengers
@@ -45,11 +46,11 @@ public record GitlabProject(
 					json.get( "name" ).asText(),
 					json.path( "archived" ).asBoolean( false ),
 					json.path( "avatarUrl" ).asText( null ),
-					parseDate( json.path( "createdAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
+					parseDate( json.path( "createdAt" ), ISO_OFFSET_DATE_TIME ),
 					json.path( "description" ).asText( null ),
-					parseDate( json.path( "lastActivityAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
+					parseDate( json.path( "lastActivityAt" ), ISO_OFFSET_DATE_TIME ),
 					json.path( "path" ).asText( null ),
-					parseDate( json.path( "updatedAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
+					parseDate( json.path( "updatedAt" ), ISO_OFFSET_DATE_TIME ),
 					json.has( "group" ) ? json.get( "group" ).path( "id" ).asText( null ) : null,
 					json.has( "repository" ) ? json.get( "repository" ).path( "rootRef" ).asText( null ) : null,
 					json.path( "mergeRequestsEnabled" ).asBoolean( false ),
