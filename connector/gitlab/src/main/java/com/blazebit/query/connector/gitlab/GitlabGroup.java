@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.parseISODateTime;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
 
 /**
  * @author Martijn Sprengers
@@ -32,11 +33,11 @@ public record GitlabGroup(String id, String name, String path, boolean requireTw
 					json.get( "path" ).asText(),
 					json.path( "requireTwoFactorAuthentication" ).asBoolean( false ),
 					json.path( "twoFactorGracePeriod" ).asInt( 0 ),
-					parseISODateTime( json.path( "createdAt" ) ),
+					parseDate( json.path( "createdAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					json.path( "description" ).asText( null ),
 					json.path( "fullName" ).asText( null ),
 					json.path( "projectCreationLevel" ).asText( null ),
-					parseISODateTime( json.path( "updatedAt" ) ),
+					parseDate( json.path( "updatedAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					json.path( "visibility" ).asText( null )
 			);
 		}

@@ -8,11 +8,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.parseISODateTime;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
 
 /**
  * @author Martijn Sprengers
@@ -44,11 +45,11 @@ public record GitlabProject(
 					json.get( "name" ).asText(),
 					json.path( "archived" ).asBoolean( false ),
 					json.path( "avatarUrl" ).asText( null ),
-					parseISODateTime( json.path( "createdAt" ) ),
+					parseDate( json.path( "createdAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					json.path( "description" ).asText( null ),
-					parseISODateTime( json.path( "lastActivityAt" ) ),
+					parseDate( json.path( "lastActivityAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					json.path( "path" ).asText( null ),
-					parseISODateTime( json.path( "updatedAt" ) ),
+					parseDate( json.path( "updatedAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					json.has( "group" ) ? json.get( "group" ).path( "id" ).asText( null ) : null,
 					json.has( "repository" ) ? json.get( "repository" ).path( "rootRef" ).asText( null ) : null,
 					json.path( "mergeRequestsEnabled" ).asBoolean( false ),

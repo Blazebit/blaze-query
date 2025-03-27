@@ -7,13 +7,12 @@ package com.blazebit.query.connector.gitlab;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -36,41 +35,22 @@ public final class DateUtils {
 	private DateUtils() {
 	}
 
-	public static Date parseDate(JsonNode dateNode, DateFormat dateFormat) {
-		String dateString = dateNode.asText( null ); // Returns null if the field is missing
-		if ( dateString == null || dateNode.isMissingNode() || dateNode.asText().isEmpty() ) {
-			return null; // Return null if the date is missing or empty
-		}
-		try {
-			return dateFormat.parse( dateString );
-		}
-		catch (ParseException e) {
-			throw new RuntimeException( "Failed to parse date: " + dateString, e );
-		}
-	}
-
-	public static OffsetDateTime parseDateOnly(JsonNode dateNode) {
-		String dateString = dateNode.asText(null); // Returns null if the field is missing
-		if (dateString == null || dateNode.isMissingNode() || dateString.isEmpty()) {
-			return null; // Return null if the date is missing or empty
-		}
-		try {
-			LocalDate date = LocalDate.parse(dateString);
-			return date.atStartOfDay().atOffset( ZoneOffset.UTC);
-		} catch (DateTimeParseException e) {
-			throw new RuntimeException("Failed to parse date: " + dateString, e);
-		}
-	}
-
-	public static OffsetDateTime parseISODateTime(JsonNode dateTimeNode) {
+	public static OffsetDateTime parseDate(JsonNode dateTimeNode, DateTimeFormatter dtf) {
 		String dateTimeString = dateTimeNode.asText(null); // Returns null if the field is missing
 		if (dateTimeString == null || dateTimeNode.isMissingNode() || dateTimeString.isEmpty()) {
 			return null; // Return null if the date is missing or empty
 		}
 		try {
-			return OffsetDateTime.parse(dateTimeString);
+			// if the formatter is for date only, parse it as LocalDate and convert to OffsetDateTime
+			if( dtf == DateTimeFormatter.ISO_LOCAL_DATE || dtf == DateTimeFormatter.BASIC_ISO_DATE){
+				LocalDate date = LocalDate.parse(dateTimeString, dtf);
+				return date.atStartOfDay().atOffset(ZoneOffset.UTC);
+			}
+
+			// else parse it as OffsetDateTime
+			return OffsetDateTime.parse(dateTimeString, dtf);
 		} catch (DateTimeParseException e) {
-			throw new RuntimeException("Failed to parse ISO datetime: " + dateTimeString, e);
+			throw new RuntimeException("Failed to parse datetime: " + dateTimeString, e);
 		}
 	}
 }

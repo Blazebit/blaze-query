@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.parseDateOnly;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
 
 
 /**
@@ -67,13 +68,13 @@ public record GitlabUser(
 					userNode.path( "id" ).asText(),
 					userNode.path( "name" ).asText(),
 					userNode.path( "username" ).asText(),
-					parseDateOnly( userNode.path( "lastActivityOn" ) ),
+					parseDate( userNode.path( "lastActivityOn" ), DateTimeFormatter.ISO_LOCAL_DATE ),
 					userNode.path( "active" ).asBoolean(),
 					userNode.has( "avatarUrl" ) ? userNode.path( "avatarUrl" ).asText() : null,
 					userNode.has( "bio" ) ? userNode.path( "bio" ).asText() : null,
 					userNode.path( "bot" ).asBoolean(),
 					userNode.has( "commitEmail" ) ? userNode.path( "commitEmail" ).asText() : null,
-					parseDateOnly( userNode.path( "createdAt" ) ),
+					parseDate( userNode.path( "createdAt" ), DateTimeFormatter.ISO_OFFSET_DATE_TIME ),
 					userNode.has( "discord" ) ? userNode.path( "discord" ).asText() : null,
 					userNode.has( "gitpodEnabled" ) && userNode.path( "gitpodEnabled" ).asBoolean( false ),
 					userNode.has( "groupCount" ) ? userNode.path( "groupCount" ).asInt( 0 ) : 0,
