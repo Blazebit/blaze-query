@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.gitlab;
 
+import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -14,6 +14,7 @@ dependencies {
     api libs.gitlab4j.api
     api libs.jackson.annotations
     api libs.jackson.databind
+    api project(':blaze-query-connector-utils')
     testImplementation project(':blaze-query-core-impl')
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj.core

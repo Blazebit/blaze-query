@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.gitlab;
 
+import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,8 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.ISO_DATE_FORMAT;
-import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
+import static com.blazebit.query.connector.utils.DateUtils.ISO_DATE_FORMAT;
+import static com.blazebit.query.connector.utils.DateUtils.parseDate;
 
 /**
  * @author Martijn Sprengers
