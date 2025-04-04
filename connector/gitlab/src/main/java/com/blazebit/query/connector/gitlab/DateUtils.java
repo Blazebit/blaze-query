@@ -4,11 +4,10 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -21,22 +20,29 @@ public final class DateUtils {
 	private DateUtils() {
 	}
 
-	public static OffsetDateTime parseDate(JsonNode dateTimeNode, DateTimeFormatter dtf) {
-		String dateTimeString = dateTimeNode.asText(null); // Returns null if the field is missing
-		if (dateTimeString == null || dateTimeNode.isMissingNode() || dateTimeString.isEmpty()) {
-			return null; // Return null if the date is missing or empty
-		}
+	public static @Nullable OffsetDateTime parseIsoOffsetDateTime(@Nullable String dateTime) {
 		try {
-			// if the formatter is for date only, parse it as LocalDate and convert to OffsetDateTime
-			if( dtf == DateTimeFormatter.ISO_LOCAL_DATE || dtf == DateTimeFormatter.BASIC_ISO_DATE){
-				LocalDate date = LocalDate.parse(dateTimeString, dtf);
-				return date.atStartOfDay().atOffset(ZoneOffset.UTC);
+			if ( dateTime == null ) {
+				return null;
 			}
 
-			// else parse it as OffsetDateTime
-			return OffsetDateTime.parse(dateTimeString, dtf);
-		} catch (DateTimeParseException e) {
-			throw new RuntimeException("Failed to parse datetime: " + dateTimeString, e);
+			return OffsetDateTime.parse( dateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME );
+		}
+		catch (DateTimeParseException e) {
+			throw new RuntimeException( "Failed to parse datetime: " + dateTime, e );
+		}
+	}
+
+	public static @Nullable LocalDate parseIsoLocalDate(@Nullable String dateTime) {
+		try {
+			if ( dateTime == null ) {
+				return null;
+			}
+
+			return LocalDate.parse( dateTime, DateTimeFormatter.ISO_LOCAL_DATE );
+		}
+		catch (DateTimeParseException e) {
+			throw new RuntimeException( "Failed to parse datetime: " + dateTime, e );
 		}
 	}
 }
