@@ -67,6 +67,7 @@ public class GitHubGraphQlClient {
 						isEmpty
 						isPrivate
 						createdAt
+						visibility
 						defaultBranchRef {
 							id
 							name
@@ -247,6 +248,7 @@ public class GitHubGraphQlClient {
 				baseRepo.isInOrganization(),
 				baseRepo.isEmpty(),
 				baseRepo.isPrivate(),
+				baseRepo.visibility(),
 				baseRepo.createdAt(),
 				baseRepo.defaultBranchRef(),
 				rulesets,

@@ -30,6 +30,7 @@ public record GitHubRepository(
 		boolean isInOrganization,
 		boolean isEmpty,
 		boolean isPrivate,
+		Visibility visibility,
 		Date createdAt,
 		DefaultBranch defaultBranchRef,
 		List<GitHubRuleset> rulesets,
@@ -50,7 +51,7 @@ public record GitHubRepository(
 					json.path("isInOrganization").asBoolean(false),
 					json.path("isEmpty").asBoolean(false),
 					json.path("isPrivate").asBoolean(false),
-					parseDate(json.path("createdAt"), ISO_DATE_FORMAT),
+					Visibility.valueOf(json.path("visibility").asText().toUpperCase()),					parseDate(json.path("createdAt"), ISO_DATE_FORMAT),
 					parseDefaultBranch(json.path("defaultBranchRef")),
 					parseRulesets(json.path("rulesets")),
 					parseBranchProtectionRules(json.path("branchProtectionRules"))
@@ -91,4 +92,10 @@ public record GitHubRepository(
 	}
 
 	public record DefaultBranch(String id, String name) {}
+
+	public enum Visibility {
+		PRIVATE,
+		PUBLIC,
+		INTERNAL,
+	}
 }
