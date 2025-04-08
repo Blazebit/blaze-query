@@ -6,7 +6,6 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 
 /**
  * @author Martijn Sprengers
@@ -21,7 +20,7 @@ public final class TestObjects {
 				"gid://gitlab/User/31337",
 				"John Doe",
 				"johndoe",
-				LocalDate.of(2024, 5, 21).atStartOfDay().atOffset(ZoneOffset.UTC),
+				LocalDate.of(2024, 5, 21),
 				true,
 				"https://secure.gravatar.com/avatar/1c337a4619dfdc8e81cc4773148a68cae8e6cad9d9f6e97fda7b3ec1592a3a1e4?s=80&d=identicon",
 				"",
