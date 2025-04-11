@@ -8,14 +8,12 @@ import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.blazebit.query.connector.utils.DateUtils.ISO_DATE_FORMAT;
-import static com.blazebit.query.connector.utils.DateUtils.parseDate;
-
+import static com.blazebit.query.connector.utils.DateUtils.parseIsoOffsetDateTime;
 
 /**
  * @author Dimitar Prisadnikov
@@ -31,7 +29,7 @@ public record GitHubRepository(
 		boolean isEmpty,
 		boolean isPrivate,
 		Visibility visibility,
-		Date createdAt,
+		OffsetDateTime createdAt,
 		DefaultBranch defaultBranchRef,
 		List<GitHubRuleset> rulesets,
 		List<GitHubBranchProtectionRule> branchProtectionRules
@@ -51,7 +49,8 @@ public record GitHubRepository(
 					json.path("isInOrganization").asBoolean(false),
 					json.path("isEmpty").asBoolean(false),
 					json.path("isPrivate").asBoolean(false),
-					Visibility.valueOf(json.path("visibility").asText().toUpperCase()),					parseDate(json.path("createdAt"), ISO_DATE_FORMAT),
+					Visibility.valueOf(json.path("visibility").asText().toUpperCase()),
+					parseIsoOffsetDateTime(json.path("createdAt").asText()),
 					parseDefaultBranch(json.path("defaultBranchRef")),
 					parseRulesets(json.path("rulesets")),
 					parseBranchProtectionRules(json.path("branchProtectionRules"))
