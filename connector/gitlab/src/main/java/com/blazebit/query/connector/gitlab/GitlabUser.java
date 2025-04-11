@@ -4,14 +4,15 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import static com.blazebit.query.connector.utils.DateUtils.parseOffsetDateTime;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoLocalDate;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoOffsetDateTime;
 
 
 /**
@@ -23,7 +24,7 @@ public record GitlabUser(
 		String id,
 		String name,
 		String username,
-		OffsetDateTime lastActivityOn,
+		LocalDate lastActivityOn,
 		boolean active,
 		String avatarUrl,
 		String bio,
@@ -68,13 +69,13 @@ public record GitlabUser(
 					userNode.path( "id" ).asText(),
 					userNode.path( "name" ).asText(),
 					userNode.path( "username" ).asText(),
-					parseOffsetDateTime( userNode.path( "lastActivityOn" ) ),
+					parseIsoLocalDate( userNode.path( "lastActivityOn" ).asText(null) ),
 					userNode.path( "active" ).asBoolean(),
 					userNode.has( "avatarUrl" ) ? userNode.path( "avatarUrl" ).asText() : null,
 					userNode.has( "bio" ) ? userNode.path( "bio" ).asText() : null,
 					userNode.path( "bot" ).asBoolean(),
 					userNode.has( "commitEmail" ) ? userNode.path( "commitEmail" ).asText() : null,
-					parseOffsetDateTime( userNode.path( "createdAt" ) ),
+					parseIsoOffsetDateTime( userNode.path( "createdAt" ).asText(null) ),
 					userNode.has( "discord" ) ? userNode.path( "discord" ).asText() : null,
 					userNode.has( "gitpodEnabled" ) && userNode.path( "gitpodEnabled" ).asBoolean( false ),
 					userNode.has( "groupCount" ) ? userNode.path( "groupCount" ).asInt( 0 ) : 0,
