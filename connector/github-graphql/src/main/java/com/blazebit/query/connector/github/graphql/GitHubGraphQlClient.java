@@ -47,7 +47,7 @@ public class GitHubGraphQlClient {
 
 	private List<GitHubRepository> fetchRepositoriesBasic() {
 		Map<String, Object> variables = new HashMap<>();
-		variables.put("ownerAffiliation", "ORGANIZATION_MEMBER"); //todo
+		variables.put("ownerAffiliation", "OWNER");
 
 		String query = """
 		query($ownerAffiliation: RepositoryAffiliation!, $first: Int, $cursor: String) {
@@ -85,7 +85,6 @@ public class GitHubGraphQlClient {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 
-		//todo: remove first:10 and get all
 		String query = """
 		query($repositoryId: ID!, $first: Int, $cursor: String) {
 			node(id: $repositoryId) {
@@ -103,7 +102,7 @@ public class GitHubGraphQlClient {
 									include
 								}
 							}
-							rules(first: 10) {
+							rules(first: 100) {
 								nodes {
 									type
 									parameters {
@@ -128,7 +127,6 @@ public class GitHubGraphQlClient {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 
-		//todo: remove first:10 and get all
 		String query = """
 		query($repositoryId: ID!, $first: Int, $cursor: String) {
 			node(id: $repositoryId) {
@@ -142,7 +140,7 @@ public class GitHubGraphQlClient {
 							id
 							allowsForcePushes
 							requiresCodeOwnerReviews
-							matchingRefs(first: 10) {
+							matchingRefs(first: 100) {
 								nodes {
 									id
 									name
