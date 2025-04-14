@@ -7,6 +7,9 @@ dependencies {
     api project(':blaze-query-connector-base')
     api project(':blaze-query-connector-utils')
     api libs.github.api
+    testImplementation project(':blaze-query-core-impl')
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
 }
 
 description = 'blaze-query-connector-github-graphql'
