@@ -26,6 +26,7 @@ public class GitHubGraphQlTestObjects {
 				true,
 				true,
 				false,
+				true,
 				GitHubRepository.Visibility.INTERNAL,
 				OffsetDateTime.of(2025, 1, 1, 9, 30, 0, 0, ZoneOffset.UTC),
 				new GitHubRepository.DefaultBranch("REF_someId123", "main"),

@@ -66,6 +66,7 @@ public class GitHubGraphQlClient {
 						isInOrganization
 						isEmpty
 						isPrivate
+						forkingAllowed
 						createdAt
 						visibility
 						defaultBranchRef {
@@ -246,6 +247,7 @@ public class GitHubGraphQlClient {
 				baseRepo.isInOrganization(),
 				baseRepo.isEmpty(),
 				baseRepo.isPrivate(),
+				baseRepo.forkingAllowed(),
 				baseRepo.visibility(),
 				baseRepo.createdAt(),
 				baseRepo.defaultBranchRef(),
