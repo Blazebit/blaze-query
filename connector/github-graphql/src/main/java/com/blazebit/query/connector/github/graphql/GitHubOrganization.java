@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.5
+ * @since 1.0.6
  */
 public record GitHubOrganization(String id, String name, Boolean requiresTwoFactorAuthentication) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();

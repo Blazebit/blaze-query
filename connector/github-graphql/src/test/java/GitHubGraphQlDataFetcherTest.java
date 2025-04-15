@@ -15,6 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Dimitar Prisadnikov
+ * @since 1.0.6
+ */
 public class GitHubGraphQlDataFetcherTest {
 	private static final QueryContext CONTEXT;
 

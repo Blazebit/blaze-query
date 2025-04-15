@@ -11,10 +11,8 @@ import com.blazebit.query.spi.QuerySchemaProvider;
 import java.util.Set;
 
 /**
- * The schema provider for the GitHub connector.
- *
- * @author Christian Beikov
- * @since 1.0.0
+ * @author Dimitar Prisadnikov
+ * @since 1.0.6
  */
 public final class GitHubSchemaProvider implements QuerySchemaProvider {
 	@Override

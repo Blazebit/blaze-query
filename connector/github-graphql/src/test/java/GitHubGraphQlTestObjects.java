@@ -12,6 +12,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
+/**
+ * @author Dimitar Prisadnikov
+ * @since 1.0.6
+ */
 public class GitHubGraphQlTestObjects {
 	private GitHubGraphQlTestObjects() {
 	}

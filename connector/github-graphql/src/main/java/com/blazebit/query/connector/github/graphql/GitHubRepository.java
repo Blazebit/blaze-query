@@ -17,7 +17,7 @@ import static com.blazebit.query.connector.utils.DateUtils.parseIsoOffsetDateTim
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.5
+ * @since 1.0.6
  */
 public record GitHubRepository(
 		String id,

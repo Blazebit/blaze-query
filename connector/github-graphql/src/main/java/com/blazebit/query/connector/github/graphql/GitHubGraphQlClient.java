@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.5
+ * @since 1.0.6
  */
 public class GitHubGraphQlClient {
 

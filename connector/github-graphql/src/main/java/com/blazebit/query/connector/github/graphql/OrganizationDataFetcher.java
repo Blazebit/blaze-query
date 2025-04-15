@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.5
+ * @since 1.0.6
  */
 public class OrganizationDataFetcher implements DataFetcher<GitHubOrganization>, Serializable {
 
