@@ -59,6 +59,10 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
+import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
+import com.blazebit.query.connector.github.graphql.GitHubOrganization;
+import com.blazebit.query.connector.github.graphql.GitHubRepository;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
@@ -184,6 +188,7 @@ public class Main {
 			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
+			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
@@ -257,6 +262,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GHBranch.class, "GitHubBranch" );
 			queryContextBuilder.registerSchemaObjectAlias( GHProject.class, "GitHubProject" );
 			queryContextBuilder.registerSchemaObjectAlias( GHTeam.class, "GitHubTeam" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubOrganization.class, "GraphQlGitHubOrganization" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRepository.class, "GraphQlGitHubRepository" );
 
 			// GitHub OpenAPI
 			queryContextBuilder.registerSchemaObjectAlias( OrganizationSimple.class, "OpenAPIGitHubOrganization" );
@@ -521,6 +528,16 @@ public class Main {
 		List<Object[]> gitHubTeamResult = gitHubTeamQuery.getResultList();
 		System.out.println( "GitHubTeams" );
 		print( gitHubTeamResult );
+		TypedQuery<Object[]> gitHubGraphQlOrganizationQuery = session.createQuery(
+				"select o.* from GraphQlGitHubOrganization o" );
+		List<Object[]> gitHubGraphQlOrganizationResult = gitHubGraphQlOrganizationQuery.getResultList();
+		System.out.println( "GitHubOrganizations" );
+		print( gitHubGraphQlOrganizationResult );
+		TypedQuery<Object[]> gitHubGraphQlRepositoryQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRepository r" );
+		List<Object[]> gitHubGraphQlRepositoryResult = gitHubGraphQlRepositoryQuery.getResultList();
+		System.out.println( "GitHubRepositories" );
+		print( gitHubGraphQlRepositoryResult );
 	}
 
 	private static void testGitHubOpenAPI(QuerySession session) {
@@ -828,6 +845,11 @@ public class Main {
 	private static GitlabGraphQlClient createGitlabGraphQLClient() {
 		// Initialize GraphQL client with host and token
 		return new GitlabGraphQlClient(GITLAB_HOST, GITLAB_KEY);
+	}
+
+	private static GitHubGraphQlClient createGitHubGraphQLClient() {
+		// Initialize GraphQL client with host and token
+		return new GitHubGraphQlClient(GITHUB_KEY);
 	}
 
 	private static GitHub createGithub() {
