@@ -146,6 +146,17 @@ public class GitHubGraphQlClient {
 							id
 							allowsForcePushes
 							requiresCodeOwnerReviews
+							allowsDeletions
+							isAdminEnforced
+							requireLastPushApproval
+							requiredApprovingReviewCount
+							requiresConversationResolution
+							restrictsReviewDismissals
+							requiresCommitSignatures
+							requiresStatusChecks
+							requiresStrictStatusChecks
+							dismissesStaleReviews
+							requiresApprovingReviews
 							matchingRefs(first: 100) {
 								nodes {
 									id

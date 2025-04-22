@@ -55,7 +55,22 @@ public class GitHubGraphQlTestObjects {
 		GitHubBranchProtectionRule.MatchingRef matchingRef =
 				new GitHubBranchProtectionRule.MatchingRef("REF_someId123", "main");
 		GitHubBranchProtectionRule rule =
-				new GitHubBranchProtectionRule("BPR_anotherId321", false, true, List.of(matchingRef));
+				new GitHubBranchProtectionRule(
+						"BPR_anotherId321",
+						false,
+						true,
+						false,
+						true,
+						true,
+						1,
+						true,
+						true,
+						true,
+						true,
+						true,
+						true,
+						true,
+						List.of(matchingRef));
 
 		return List.of(rule);
 	}
