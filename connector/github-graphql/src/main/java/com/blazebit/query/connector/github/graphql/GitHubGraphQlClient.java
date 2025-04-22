@@ -69,6 +69,11 @@ public class GitHubGraphQlClient {
 						forkingAllowed
 						createdAt
 						visibility
+						owner {
+							__typename
+							id
+							login
+						}
 						defaultBranchRef {
 							id
 							name
@@ -251,6 +256,7 @@ public class GitHubGraphQlClient {
 				baseRepo.visibility(),
 				baseRepo.createdAt(),
 				baseRepo.defaultBranchRef(),
+				baseRepo.owner(),
 				rulesets,
 				branchProtectionRules
 		);

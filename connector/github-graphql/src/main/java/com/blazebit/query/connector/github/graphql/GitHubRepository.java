@@ -32,6 +32,7 @@ public record GitHubRepository(
 		Visibility visibility,
 		OffsetDateTime createdAt,
 		DefaultBranch defaultBranchRef,
+		Owner owner,
 		List<GitHubRuleset> rulesets,
 		List<GitHubBranchProtectionRule> branchProtectionRules
 ) {
@@ -54,6 +55,7 @@ public record GitHubRepository(
 					Visibility.valueOf(json.path("visibility").asText().toUpperCase()),
 					parseIsoOffsetDateTime(json.path("createdAt").asText()),
 					parseDefaultBranch(json.path("defaultBranchRef")),
+					parseOwner(json.path("owner")),
 					parseRulesets(json.path("rulesets")),
 					parseBranchProtectionRules(json.path("branchProtectionRules"))
 			);
@@ -92,7 +94,25 @@ public record GitHubRepository(
 				.collect(Collectors.toList());
 	}
 
+	private static Owner parseOwner(JsonNode json) {
+		if (json.isMissingNode() || json.isNull()) {
+			return null;
+		}
+		return new Owner(
+				json.path("id").asText(),
+				json.path("login").asText(),
+				OwnerType.valueOf(json.path("__typename").asText().toUpperCase())
+		);
+	}
+
+	public record Owner(String id, String login, OwnerType type) {}
+
 	public record DefaultBranch(String id, String name) {}
+
+	public enum OwnerType {
+		USER,
+		ORGANIZATION,
+	}
 
 	public enum Visibility {
 		PRIVATE,
