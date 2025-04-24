@@ -84,7 +84,7 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static GitHubOrganization organization() {
-		return new GitHubOrganization("org_123", "My Organization", true);
+		return new GitHubOrganization("org_123", "My Organization", true, rulesets());
 	}
 
 }
