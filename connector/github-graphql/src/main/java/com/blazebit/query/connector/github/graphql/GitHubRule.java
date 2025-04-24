@@ -21,39 +21,76 @@ public record GitHubRule(
 	public static GitHubRule fromJson(String jsonString) {
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
+			String ruleType = json.path("type").asText();
 
 			return new GitHubRule(
-					json.path("type").asText(),
-					parseRuleParameters(json.path("parameters"))
+					ruleType,
+					parseRuleParameters(ruleType, json.path("parameters"))
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRule", e);
 		}
 	}
 
-	private static RuleParameters parseRuleParameters(JsonNode json) {
+	/**
+	 * <p>GitHub's GraphQL API exposes rulesets with a mix of parameterized and non-parameterized types.
+	 * For example, rules like {@code PULL_REQUEST} expose detailed boolean parameters such as:
+	 *
+	 * <ul>
+	 *   <li>{@code requireCodeOwnerReview}</li>
+	 *   <li>{@code dismissStaleReviewsOnPush}</li>
+	 *   <li>{@code requiredReviewThreadResolution}</li>
+	 * </ul>
+	 *
+	 * <p>However, other rules like {@code REQUIRED_SIGNATURES} or {@code NON_FAST_FORWARD} appear only by type name
+	 * if enabled and are omitted entirely if disabled. These rules do not include parameters.
+	 */
+	private static RuleParameters parseRuleParameters(String ruleType, JsonNode json) {
 		if (json.isMissingNode() || json.isNull()) {
 			return null;
 		}
-		return new RuleParameters(
-				json.path("requireCodeOwnerReview").asBoolean(false),
-				json.path("requiredApprovingReviewCount").asInt(0),
-				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
-				json.path("dismissStaleReviewsOnPush").asBoolean(false),
-				json.path("requireLastPushApproval").asBoolean(false),
-				json.path("requiredReviewThreadResolution").asBoolean(false),
-				json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
-		);
+
+		return switch (ruleType) {
+			case "PULL_REQUEST" -> new PullRequestParameters(
+					json.path("requireCodeOwnerReview").asBoolean(false),
+					json.path("requiredApprovingReviewCount").asInt(0),
+					json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
+					json.path("dismissStaleReviewsOnPush").asBoolean(false),
+					json.path("requireLastPushApproval").asBoolean(false),
+					json.path("requiredReviewThreadResolution").asBoolean(false)
+			);
+			case "REQUIRED_STATUS_CHECKS" -> new RequiredStatusChecksParameters(
+					json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
+			);
+			default -> null; // No parameters for other rule types
+		};
 	}
 
-	public record RuleParameters(
+	/**
+	 * Base interface for all rule parameters
+	 */
+	public sealed interface RuleParameters
+			permits PullRequestParameters, RequiredStatusChecksParameters {
+	}
+
+	/**
+	 * Parameters specific to PULL_REQUEST rule type
+	 */
+	public record PullRequestParameters(
 			boolean requireCodeOwnerReview,
 			int requiredApprovingReviewCount,
 			boolean automaticCopilotCodeReviewEnabled,
 			boolean dismissStaleReviewsOnPush,
 			boolean requireLastPushApproval,
-			boolean requiredReviewThreadResolution,
-			boolean strictRequiredStatusChecksPolicy
+			boolean requiredReviewThreadResolution
+	) implements RuleParameters {
+	}
 
-	) {}
+	/**
+	 * Parameters specific to REQUIRED_STATUS_CHECKS rule type
+	 */
+	public record RequiredStatusChecksParameters(
+			boolean strictRequiredStatusChecksPolicy
+	) implements RuleParameters {
+	}
 }
