@@ -36,10 +36,8 @@ public class GitHubGraphQlClient {
 	}
 
 	public List<GitHubRepository> fetchRepositoriesWithDetails() {
-		// First, fetch repositories with minimal nested details
 		List<GitHubRepository> repositories = fetchRepositoriesBasic();
 
-		// Then, fetch detailed rulesets and branch protection rules separately
 		return repositories.stream()
 				.map(this::enrichRepositoryDetails)
 				.collect( Collectors.toList());
@@ -253,14 +251,10 @@ public class GitHubGraphQlClient {
 	}
 
 	private GitHubRepository enrichRepositoryDetails(GitHubRepository baseRepo) {
-		// Fetch rulesets for this specific repository
 		List<GitHubRuleset> rulesets = fetchRepositoryRulesets(baseRepo.id());
-
-		// Fetch branch protection rules for this repository
 		List<GitHubBranchProtectionRule> branchProtectionRules =
 				fetchRepositoryBranchProtectionRules(baseRepo.id());
 
-		// Create a new repository with enriched details
 		return new GitHubRepository(
 				baseRepo.id(),
 				baseRepo.name(),
@@ -291,7 +285,6 @@ public class GitHubGraphQlClient {
 		boolean hasNextPage;
 
 		do {
-			// Reset cursor and set page size for each iteration
 			variables.put("cursor", cursor);
 			variables.put("first", DEFAULT_PAGE_SIZE);
 
@@ -313,7 +306,6 @@ public class GitHubGraphQlClient {
 
 				JsonNode jsonResponse = MAPPER.readTree(response.body());
 
-				// Check for errors in the response
 				JsonNode errors = jsonResponse.path("errors");
 				if (errors.isArray() && !errors.isEmpty() ) {
 					throw new RuntimeException("GitHub GraphQL error: " + errors );
@@ -328,7 +320,6 @@ public class GitHubGraphQlClient {
 
 				JsonNode pageInfo = data.path("pageInfo");
 
-				// Use the provided extractor function to get results
 				List<T> extractedResults = extractor.extract(data);
 				allResults.addAll(extractedResults);
 
