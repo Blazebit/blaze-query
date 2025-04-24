@@ -37,12 +37,23 @@ public record GitHubRule(
 		}
 		return new RuleParameters(
 				json.path("requireCodeOwnerReview").asBoolean(false),
-				json.path("requiredApprovingReviewCount").asInt(0)
+				json.path("requiredApprovingReviewCount").asInt(0),
+				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
+				json.path("dismissStaleReviewsOnPush").asBoolean(false),
+				json.path("requireLastPushApproval").asBoolean(false),
+				json.path("requiredReviewThreadResolution").asBoolean(false),
+				json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
 		);
 	}
 
 	public record RuleParameters(
 			boolean requireCodeOwnerReview,
-			int requiredApprovingReviewCount
+			int requiredApprovingReviewCount,
+			boolean automaticCopilotCodeReviewEnabled,
+			boolean dismissStaleReviewsOnPush,
+			boolean requireLastPushApproval,
+			boolean requiredReviewThreadResolution,
+			boolean strictRequiredStatusChecksPolicy
+
 	) {}
 }
