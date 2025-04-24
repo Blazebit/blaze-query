@@ -74,7 +74,7 @@ public record GitHubRepository(
 		);
 	}
 
-	private static List<GitHubRuleset> parseRulesets(JsonNode json) {
+	static List<GitHubRuleset> parseRulesets(JsonNode json) {
 		JsonNode nodesArray = json.path("nodes");
 		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
 			return List.of();

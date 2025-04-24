@@ -193,6 +193,24 @@ public class GitHubGraphQlClient {
 						id
 						name
 						requiresTwoFactorAuthentication
+						rules(first: $first) {
+						nodes {
+							type
+							parameters {
+								... on PullRequestParameters {
+									requireCodeOwnerReview
+									requiredApprovingReviewCount
+									automaticCopilotCodeReviewEnabled
+									dismissStaleReviewsOnPush
+									requireLastPushApproval
+									requiredReviewThreadResolution
+								}
+								... on RequiredStatusChecksParameters {
+									strictRequiredStatusChecksPolicy
+								}
+							}
+						}
+					}
 					}
 				}
 			}
