@@ -41,7 +41,15 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static List<GitHubRuleset> rulesets() {
-		GitHubRule.RuleParameters prParams = new GitHubRule.RuleParameters(true, 0);
+		GitHubRule.RuleParameters prParams = new GitHubRule.RuleParameters(
+				true,
+				0,
+				false,
+				true,
+				true,
+				true,
+				true
+		);
 		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", prParams);
 
 		GitHubRuleset.RulesetConditions conditions1 = new GitHubRuleset.RulesetConditions(List.of());
