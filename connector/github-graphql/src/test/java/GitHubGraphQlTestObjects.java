@@ -40,6 +40,22 @@ public class GitHubGraphQlTestObjects {
 				branchProtectionRules());
 	}
 
+
+	/**
+	 * Example ruleset used for testing.
+	 *
+	 * <p>GitHub's GraphQL API exposes rulesets with a mix of parameterized and non-parameterized types.
+	 * For example, rules like {@code PULL_REQUEST} expose detailed boolean parameters such as:
+	 *
+	 * <ul>
+	 *   <li>{@code requireCodeOwnerReview}</li>
+	 *   <li>{@code dismissStaleReviewsOnPush}</li>
+	 *   <li>{@code requiredReviewThreadResolution}</li>
+	 * </ul>
+	 *
+	 * <p>However, other rules like {@code REQUIRED_SIGNATURES} or {@code NON_FAST_FORWARD} appear only by type name
+	 * if enabled and are omitted entirely if disabled. These rules do not include parameters.
+	 */
 	public static List<GitHubRuleset> rulesets() {
 		GitHubRule.RuleParameters prParams = new GitHubRule.RuleParameters(
 				true,
