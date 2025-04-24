@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class GitHubGraphQlClient {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
-	private static final int DEFAULT_PAGE_SIZE = 100;
+	private static final int DEFAULT_PAGE_SIZE = 100; // Must be within the range of 1-100
 	private static final String GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
 
 	private final HttpClient httpClient;
