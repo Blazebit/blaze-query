@@ -108,13 +108,20 @@ public class GitHubGraphQlClient {
 									include
 								}
 							}
-							rules(first: 100) {
+							rules(first: $first) {
 								nodes {
 									type
 									parameters {
 										... on PullRequestParameters {
 											requireCodeOwnerReview
 											requiredApprovingReviewCount
+											automaticCopilotCodeReviewEnabled
+											dismissStaleReviewsOnPush
+											requireLastPushApproval
+											requiredReviewThreadResolution
+										}
+										... on RequiredStatusChecksParameters {
+											strictRequiredStatusChecksPolicy
 										}
 									}
 								}
@@ -157,7 +164,7 @@ public class GitHubGraphQlClient {
 							requiresStrictStatusChecks
 							dismissesStaleReviews
 							requiresApprovingReviews
-							matchingRefs(first: 100) {
+							matchingRefs(first: $first) {
 								nodes {
 									id
 									name
