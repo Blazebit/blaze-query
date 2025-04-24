@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Dimitar Prisadnikov
  * @since 1.0.6
  */
-public class GitHubGraphQlDataFetcherTest {
+public class GitHubGraphQlDataQueryTest {
 	private static final QueryContext CONTEXT;
 
 	static {
