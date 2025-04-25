@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public record GitHubRule(
 		String type,
-		RuleParameters parameters
+		PullRequestParameters pullRequestParameters,
+		RequiredStatusChecksParameters requiredStatusChecksParameters
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -25,7 +26,8 @@ public record GitHubRule(
 
 			return new GitHubRule(
 					ruleType,
-					parseRuleParameters(ruleType, json.path("parameters"))
+					parseRuleParameters( json.path( "parameters" ) ),
+					parseRequiredStatusChecksParameters( json.path( "parameters" ) )
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRule", e);
@@ -45,37 +47,31 @@ public record GitHubRule(
 	 * <p>However, other rules like {@code REQUIRED_SIGNATURES} or {@code NON_FAST_FORWARD} appear only by type name
 	 * if enabled and are omitted entirely if disabled. These rules do not include parameters.
 	 */
-	private static RuleParameters parseRuleParameters(String ruleType, JsonNode json) {
+	private static PullRequestParameters parseRuleParameters(JsonNode json) {
 		if (json.isMissingNode() || json.isNull()) {
 			return null;
 		}
 
-		return switch (ruleType) {
-			case "PULL_REQUEST" -> new PullRequestParameters(
-					json.path("requireCodeOwnerReview").asBoolean(false),
-					json.path("requiredApprovingReviewCount").asInt(0),
-					json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
-					json.path("dismissStaleReviewsOnPush").asBoolean(false),
-					json.path("requireLastPushApproval").asBoolean(false),
-					json.path("requiredReviewThreadResolution").asBoolean(false)
-			);
-			case "REQUIRED_STATUS_CHECKS" -> new RequiredStatusChecksParameters(
-					json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
-			);
-			default -> null; // No parameters for other rule types
-		};
+		return new PullRequestParameters(
+				json.path("requireCodeOwnerReview").asBoolean(false),
+				json.path("requiredApprovingReviewCount").asInt(0),
+				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
+				json.path("dismissStaleReviewsOnPush").asBoolean(false),
+				json.path("requireLastPushApproval").asBoolean(false),
+				json.path("requiredReviewThreadResolution").asBoolean(false)
+		);
 	}
 
-	/**
-	 * Base interface for all rule parameters
-	 */
-	public sealed interface RuleParameters
-			permits PullRequestParameters, RequiredStatusChecksParameters {
+	private static RequiredStatusChecksParameters parseRequiredStatusChecksParameters(JsonNode json) {
+		if (json.isMissingNode() || json.isNull()) {
+			return null;
+		}
+
+		return new RequiredStatusChecksParameters(
+				json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
+		);
 	}
 
-	/**
-	 * Parameters specific to PULL_REQUEST rule type
-	 */
 	public record PullRequestParameters(
 			boolean requireCodeOwnerReview,
 			int requiredApprovingReviewCount,
@@ -83,14 +79,11 @@ public record GitHubRule(
 			boolean dismissStaleReviewsOnPush,
 			boolean requireLastPushApproval,
 			boolean requiredReviewThreadResolution
-	) implements RuleParameters {
+	) {
 	}
 
-	/**
-	 * Parameters specific to REQUIRED_STATUS_CHECKS rule type
-	 */
 	public record RequiredStatusChecksParameters(
 			boolean strictRequiredStatusChecksPolicy
-	) implements RuleParameters {
+	) {
 	}
 }

@@ -42,20 +42,20 @@ public class GitHubGraphQlTestObjects {
 
 
 	public static List<GitHubRuleset> rulesets() {
-		GitHubRule.PullRequestParameters prParams = new GitHubRule.PullRequestParameters(
-				true,
-				0,
-				false,
-				true,
-				true,
-				true
-		);
-		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", prParams);
+		GitHubRule.PullRequestParameters pullRequestParameters =
+				new GitHubRule.PullRequestParameters(
+						false,
+						0,
+						false,
+						false,
+						false,
+						false
+				);
 
+		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
 		GitHubRuleset.RulesetConditions conditions1 = new GitHubRuleset.RulesetConditions(List.of());
 		GitHubRuleset ruleset =
 				new GitHubRuleset("BRANCH", "ACTIVE", conditions1, List.of(pullRequestRule));
-
 		return List.of(ruleset);
 	}
 
