@@ -178,46 +178,85 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
-	public List<GitHubOrganization> fetchOrganizations() {
+	public List<GitHubOrganization> fetchOrganizationsWithDetails() {
+		List<GitHubOrganization> organizations = fetchOrganizationsBasic();
+
+		return organizations.stream()
+				.map(this::enrichOrganizationDetails)
+				.collect(Collectors.toList());
+	}
+
+	private List<GitHubOrganization> fetchOrganizationsBasic() {
 		Map<String, Object> variables = new HashMap<>();
 
 		String query = """
-		query($first: Int, $cursor: String) {
-			viewer {
-				organizations(first: $first, after: $cursor) {
+	query($first: Int, $cursor: String) {
+		viewer {
+			organizations(first: $first, after: $cursor) {
+				pageInfo {
+					endCursor
+					hasNextPage
+				}
+				nodes {
+					id
+					name
+					requiresTwoFactorAuthentication
+				}
+			}
+		}
+	}
+	""";
+
+		return executePaginatedQuery(query, variables, "viewer.organizations", GitHubGraphQlClient::extractOrganizationsBasic);
+	}
+
+	private List<GitHubRuleset> fetchOrganizationRulesets(String organizationId) {
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("organizationId", organizationId);
+
+		String query = """
+	query($organizationId: ID!, $first: Int, $cursor: String) {
+		node(id: $organizationId) {
+			... on Organization {
+				rulesets(first: $first, after: $cursor) {
 					pageInfo {
 						endCursor
 						hasNextPage
 					}
 					nodes {
-						id
-						name
-						requiresTwoFactorAuthentication
+						target
+						enforcement
+						conditions {
+							refName {
+								include
+							}
+						}
 						rules(first: $first) {
-						nodes {
-							type
-							parameters {
-								... on PullRequestParameters {
-									requireCodeOwnerReview
-									requiredApprovingReviewCount
-									automaticCopilotCodeReviewEnabled
-									dismissStaleReviewsOnPush
-									requireLastPushApproval
-									requiredReviewThreadResolution
-								}
-								... on RequiredStatusChecksParameters {
-									strictRequiredStatusChecksPolicy
+							nodes {
+								type
+								parameters {
+									... on PullRequestParameters {
+										requireCodeOwnerReview
+										requiredApprovingReviewCount
+										automaticCopilotCodeReviewEnabled
+										dismissStaleReviewsOnPush
+										requireLastPushApproval
+										requiredReviewThreadResolution
+									}
+									... on RequiredStatusChecksParameters {
+										strictRequiredStatusChecksPolicy
+									}
 								}
 							}
 						}
 					}
-					}
 				}
 			}
 		}
-		""";
+	}
+	""";
 
-		return executePaginatedQuery(query, variables, "viewer.organizations", GitHubGraphQlClient::extractOrganizations);
+		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
 
 	private List<GitHubRepository> extractRepositoriesBasic(JsonNode rootNode) {
@@ -256,18 +295,28 @@ public class GitHubGraphQlClient {
 		return rules;
 	}
 
-	private static List<GitHubOrganization> extractOrganizations(JsonNode rootNode) {
+	private static List<GitHubOrganization> extractOrganizationsBasic(JsonNode rootNode) {
 		List<GitHubOrganization> organizations = new ArrayList<>();
 
-		for (JsonNode repoNode : rootNode.path("nodes")) {
-			if (!repoNode.isMissingNode()) {
-				organizations.add( GitHubOrganization.fromJson(repoNode.toString()));
+		for (JsonNode orgNode : rootNode.path("nodes")) {
+			if (!orgNode.isMissingNode()) {
+				organizations.add(GitHubOrganization.fromJson(orgNode.toString()));
 			}
 		}
 
 		return organizations;
 	}
 
+	private GitHubOrganization enrichOrganizationDetails(GitHubOrganization baseOrg) {
+		List<GitHubRuleset> rulesets = fetchOrganizationRulesets(baseOrg.id());
+
+		return new GitHubOrganization(
+				baseOrg.id(),
+				baseOrg.name(),
+				baseOrg.requiresTwoFactorAuthentication(),
+				rulesets
+		);
+	}
 	private GitHubRepository enrichRepositoryDetails(GitHubRepository baseRepo) {
 		List<GitHubRuleset> rulesets = fetchRepositoryRulesets(baseRepo.id());
 		List<GitHubBranchProtectionRule> branchProtectionRules =

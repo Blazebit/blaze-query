@@ -33,7 +33,7 @@ public class OrganizationDataFetcher implements DataFetcher<GitHubOrganization>,
 			List<GitHubOrganization> organizationList = new ArrayList<>();
 
 			for ( GitHubGraphQlClient client : githubClient) {
-				organizationList.addAll(client.fetchOrganizations());
+				organizationList.addAll(client.fetchOrganizationsWithDetails());
 			}
 
 			return organizationList;
