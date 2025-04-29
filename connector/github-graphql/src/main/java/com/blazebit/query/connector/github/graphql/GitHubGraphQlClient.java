@@ -215,36 +215,37 @@ public class GitHubGraphQlClient {
 		variables.put("organizationId", organizationId);
 
 		String query = """
-	query($organizationId: ID!, $first: Int, $cursor: String) {
-		node(id: $organizationId) {
-			... on Organization {
-				rulesets(first: $first, after: $cursor) {
-					pageInfo {
-						endCursor
-						hasNextPage
-					}
-					nodes {
-						target
-						enforcement
-						conditions {
-							refName {
-								include
-							}
+		query($organizationId: ID!, $first: Int, $cursor: String) {
+			node(id: $organizationId) {
+				... on Organization {
+					rulesets(first: $first, after: $cursor) {
+						pageInfo {
+							endCursor
+							hasNextPage
 						}
-						rules(first: $first) {
-							nodes {
-								type
-								parameters {
-									... on PullRequestParameters {
-										requireCodeOwnerReview
-										requiredApprovingReviewCount
-										automaticCopilotCodeReviewEnabled
-										dismissStaleReviewsOnPush
-										requireLastPushApproval
-										requiredReviewThreadResolution
-									}
-									... on RequiredStatusChecksParameters {
-										strictRequiredStatusChecksPolicy
+						nodes {
+							target
+							enforcement
+							conditions {
+								refName {
+									include
+								}
+							}
+							rules(first: $first) {
+								nodes {
+									type
+									parameters {
+										... on PullRequestParameters {
+											requireCodeOwnerReview
+											requiredApprovingReviewCount
+											automaticCopilotCodeReviewEnabled
+											dismissStaleReviewsOnPush
+											requireLastPushApproval
+											requiredReviewThreadResolution
+										}
+										... on RequiredStatusChecksParameters {
+											strictRequiredStatusChecksPolicy
+										}
 									}
 								}
 							}
@@ -253,8 +254,7 @@ public class GitHubGraphQlClient {
 				}
 			}
 		}
-	}
-	""";
+		""";
 
 		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
