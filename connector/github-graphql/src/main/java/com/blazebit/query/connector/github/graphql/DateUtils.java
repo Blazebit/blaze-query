@@ -6,7 +6,6 @@ package com.blazebit.query.connector.github.graphql;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
