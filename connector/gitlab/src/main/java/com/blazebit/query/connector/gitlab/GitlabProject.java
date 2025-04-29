@@ -14,7 +14,6 @@ import java.util.stream.StreamSupport;
 
 import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoOffsetDateTime;
 
-
 /**
  * @author Martijn Sprengers
  * @since 1.0.4
