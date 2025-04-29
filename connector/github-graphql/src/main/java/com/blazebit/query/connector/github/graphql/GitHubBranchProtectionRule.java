@@ -4,7 +4,6 @@
  */
 package com.blazebit.query.connector.github.graphql;
 
-import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

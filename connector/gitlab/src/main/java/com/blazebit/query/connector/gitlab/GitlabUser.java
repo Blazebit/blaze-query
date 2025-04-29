@@ -4,7 +4,6 @@
  */
 package com.blazebit.query.connector.gitlab;
 
-import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import static com.blazebit.query.connector.utils.DateUtils.parseIsoLocalDate;
-import static com.blazebit.query.connector.utils.DateUtils.parseIsoOffsetDateTime;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoLocalDate;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoOffsetDateTime;
 
 
 /**

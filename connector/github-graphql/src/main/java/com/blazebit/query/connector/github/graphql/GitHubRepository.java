@@ -4,7 +4,6 @@
  */
 package com.blazebit.query.connector.github.graphql;
 
-import com.blazebit.query.connector.utils.ObjectMappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.blazebit.query.connector.utils.DateUtils.parseIsoOffsetDateTime;
+import static com.blazebit.query.connector.github.graphql.DateUtils.parseIsoOffsetDateTime;
 
 /**
  * @author Dimitar Prisadnikov
