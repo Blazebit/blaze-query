@@ -16,9 +16,12 @@ import static com.blazebit.query.connector.github.graphql.DateUtils.parseIsoOffs
  */
 public record GitHubPullRequest(
 		String id,
+		String title,
+		OffsetDateTime createdAt,
 		boolean closed,
 		OffsetDateTime closedAt,
 		boolean merged,
+		OffsetDateTime mergedAt,
 		State state,
 		ReviewDecision reviewDecision,
 		Ref baseRef
@@ -31,9 +34,12 @@ public record GitHubPullRequest(
 
 			return new GitHubPullRequest(
 					json.path("id").asText(),
+					json.path( "title").asText(),
+					parseIsoOffsetDateTime(json.path("createdAt").asText()),
 					json.path("closed").asBoolean(false),
 					parseIsoOffsetDateTime(json.path("closedAt").asText()),
 					json.path("merged").asBoolean(false),
+					parseIsoOffsetDateTime(json.path("mergedAt").asText()),
 					State.valueOf(json.path("state").asText().toUpperCase()),
 					ReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
 					parseRef(json.path("baseRef"))

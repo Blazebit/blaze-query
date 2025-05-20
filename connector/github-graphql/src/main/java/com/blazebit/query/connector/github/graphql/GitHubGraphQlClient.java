@@ -178,28 +178,37 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
-	private List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId) {
+	private List<GitHubPullRequest> fetchRepositoryRecentlyMergedDefaultBranchPullRequests(String repositoryId, String defaultBranchName) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
+		variables.put("defaultBranchName", defaultBranchName);
 
 		String query = """
-		query($repositoryId: ID!, $first: Int, $cursor: String) {
+		query($repositoryId: ID!, $first: Int, $cursor: String, $defaultBranchName: String!) {
 			node(id: $repositoryId) {
 				... on Repository {
-					pullRequests(first: $first, after: $cursor) {
-					nodes {
-					id
-					closed
-					closedAt
-					merged
-					state
-					reviewDecision
-					baseRef {
-						id
-						name
+					pullRequests(
+						first: $first,
+						after: $cursor,
+						states: [MERGED],
+						baseRefName: $defaultBranchName,
+						orderBy: {field: CREATED_AT, direction: DESC}) {
+							nodes {
+							id
+							title
+							createdAt
+							closed
+							closedAt
+							merged
+							mergedAt
+							state
+							reviewDecision
+							baseRef {
+								id
+								name
+							}
+						}
 					}
-					}
-				}
 				}
 			}
 		}
@@ -364,7 +373,10 @@ public class GitHubGraphQlClient {
 		List<GitHubRuleset> rulesets = fetchRepositoryRulesets(baseRepo.id());
 		List<GitHubBranchProtectionRule> branchProtectionRules =
 				fetchRepositoryBranchProtectionRules(baseRepo.id());
-		List<GitHubPullRequest> pullRequests = fetchRepositoryPullRequests(baseRepo.id());
+		List<GitHubPullRequest> pullRequests = fetchRepositoryRecentlyMergedDefaultBranchPullRequests(
+				baseRepo.id(),
+				baseRepo.defaultBranchRef().name()
+		);
 
 		return new GitHubRepository(
 				baseRepo.id(),

@@ -90,9 +90,13 @@ public class GitHubGraphQlTestObjects {
 
 		GitHubPullRequest pullRequest = new GitHubPullRequest(
 				"PR_someId456",
+				"Refactor the function",
+				OffsetDateTime.of( 2024, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC ),
+
 				true,
 				OffsetDateTime.of( 2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC ),
 				true,
+				OffsetDateTime.of( 2024, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC ),
 				GitHubPullRequest.State.MERGED,
 				GitHubPullRequest.ReviewDecision.APPROVED,
 				baseRef
