@@ -178,6 +178,37 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
+	private List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId) {
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("repositoryId", repositoryId);
+
+		String query = """
+		query($repositoryId: ID!, $first: Int, $cursor: String) {
+			node(id: $repositoryId) {
+				... on Repository {
+					pullRequests(first: $first, after: $cursor) {
+					nodes {
+					id
+					closed
+					closedAt
+					merged
+					state
+					reviewDecision
+					baseRef {
+						id
+						name
+					}
+					}
+				}
+				}
+			}
+		}
+		""";
+
+		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests);
+	}
+
+
 	public List<GitHubOrganization> fetchOrganizationsWithDetails() {
 		List<GitHubOrganization> organizations = fetchOrganizationsBasic();
 
@@ -295,6 +326,18 @@ public class GitHubGraphQlClient {
 		return rules;
 	}
 
+	private List<GitHubPullRequest> extractPullRequests(JsonNode rootNode) {
+		List<GitHubPullRequest> rules = new ArrayList<>();
+
+		for (JsonNode ruleNode : rootNode.path("nodes")) {
+			if (!ruleNode.isMissingNode()) {
+				rules.add( GitHubPullRequest.fromJson(ruleNode.toString()));
+			}
+		}
+
+		return rules;
+	}
+
 	private static List<GitHubOrganization> extractOrganizationsBasic(JsonNode rootNode) {
 		List<GitHubOrganization> organizations = new ArrayList<>();
 
@@ -321,6 +364,7 @@ public class GitHubGraphQlClient {
 		List<GitHubRuleset> rulesets = fetchRepositoryRulesets(baseRepo.id());
 		List<GitHubBranchProtectionRule> branchProtectionRules =
 				fetchRepositoryBranchProtectionRules(baseRepo.id());
+		List<GitHubPullRequest> pullRequests = fetchRepositoryPullRequests(baseRepo.id());
 
 		return new GitHubRepository(
 				baseRepo.id(),
@@ -336,6 +380,7 @@ public class GitHubGraphQlClient {
 				baseRepo.createdAt(),
 				baseRepo.defaultBranchRef(),
 				baseRepo.owner(),
+				pullRequests,
 				rulesets,
 				branchProtectionRules
 		);
