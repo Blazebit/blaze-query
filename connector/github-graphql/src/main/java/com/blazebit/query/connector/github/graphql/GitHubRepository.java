@@ -32,6 +32,7 @@ public record GitHubRepository(
 		OffsetDateTime createdAt,
 		DefaultBranch defaultBranchRef,
 		Owner owner,
+		List<GitHubPullRequest> pullRequests,
 		List<GitHubRuleset> rulesets,
 		List<GitHubBranchProtectionRule> branchProtectionRules
 ) {
@@ -55,6 +56,7 @@ public record GitHubRepository(
 					parseIsoOffsetDateTime(json.path("createdAt").asText()),
 					parseDefaultBranch(json.path("defaultBranchRef")),
 					parseOwner(json.path("owner")),
+					parsePullRequests(json.path("pullRequests")),
 					parseRulesets(json.path("rulesets")),
 					parseBranchProtectionRules(json.path("branchProtectionRules"))
 			);
@@ -90,6 +92,16 @@ public record GitHubRepository(
 		}
 		return StreamSupport.stream(nodesArray.spliterator(), false)
 				.map(node -> GitHubBranchProtectionRule.fromJson(node.toString()))
+				.collect(Collectors.toList());
+	}
+
+	private static List<GitHubPullRequest> parsePullRequests(JsonNode json) {
+		JsonNode nodesArray = json.path("nodes");
+		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
+			return List.of();
+		}
+		return StreamSupport.stream(nodesArray.spliterator(), false)
+				.map(node -> GitHubPullRequest.fromJson(node.toString()))
 				.collect(Collectors.toList());
 	}
 

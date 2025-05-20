@@ -4,6 +4,7 @@
  */
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
 import com.blazebit.query.connector.github.graphql.GitHubRepository;
 import com.blazebit.query.connector.github.graphql.GitHubRule;
 import com.blazebit.query.connector.github.graphql.GitHubRuleset;
@@ -36,6 +37,7 @@ public class GitHubGraphQlTestObjects {
 				new GitHubRepository.DefaultBranch("REF_someId123", "main"),
 				new GitHubRepository.Owner("org_123", "My Organization",
 						GitHubRepository.OwnerType.ORGANIZATION),
+				pullRequests(),
 				rulesets(),
 				branchProtectionRules());
 	}
@@ -81,6 +83,21 @@ public class GitHubGraphQlTestObjects {
 						List.of(matchingRef));
 
 		return List.of(rule);
+	}
+
+	public static List<GitHubPullRequest> pullRequests(){
+		GitHubPullRequest.Ref baseRef = new GitHubPullRequest.Ref( "REF_someId123", "main" );
+
+		GitHubPullRequest pullRequest = new GitHubPullRequest(
+				"PR_someId456",
+				true,
+				OffsetDateTime.of( 2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC ),
+				true,
+				GitHubPullRequest.State.MERGED,
+				GitHubPullRequest.ReviewDecision.APPROVED,
+				baseRef
+		);
+		return List.of( pullRequest );
 	}
 
 	public static GitHubOrganization organization() {
