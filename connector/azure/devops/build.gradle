@@ -1,0 +1,13 @@
+plugins {
+    id 'blaze-query.java-conventions'
+}
+
+dependencies {
+    api project(':blaze-query-core-api')
+    api project(':blaze-query-connector-base')
+    testImplementation project(':blaze-query-core-impl')
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
+}
+
+description = 'blaze-query-connector-azure-devops'
