@@ -1,0 +1,60 @@
+plugins {
+    id 'blaze-query.java-conventions'
+    id 'org.openapi.generator'
+}
+
+dependencies {
+    api project(':blaze-query-core-api')
+    api project(':blaze-query-connector-base')
+    api libs.com.google.code.findbugs.jsr305
+    api libs.jersey.core.jersey.client
+    api libs.jersey.inject.jersey.hk2
+    api libs.jersey.media.jersey.media.multipart
+    api libs.jersey.media.jersey.media.json.jackson
+    api libs.jackson.core
+    api libs.jackson.annotations
+    api libs.jackson.databind
+    api libs.org.openapitools.jackson.databind.nullable
+    api libs.jackson.datatype.jsr310
+    api libs.com.github.scribejava.scribejava.apis
+    api libs.jersey.connectors.jersey.apache.connector
+    testImplementation libs.junit.jupiter
+    testImplementation project(':blaze-query-core-impl')
+    testImplementation libs.assertj.core
+    compileOnly libs.jakarta.annotation.api
+}
+
+description = 'blaze-query-connector-azure-devops-jersey3'
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "${project.buildDir}/generated"
+        }
+    }
+}
+
+openApiGenerate {
+    generatorName.set("java")
+    inputSpec.set("${project.projectDir}/src/main/resources/azure-devops-7.2-swagger.json")
+    skipValidateSpec.set(true)
+    outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
+    apiPackage.set("com.blazebit.query.connector.azure.devops.api")
+    invokerPackage.set("com.blazebit.query.connector.azure.devops.invoker")
+    modelPackage.set("com.blazebit.query.connector.azure.devops.model")
+    library.set("jersey3")
+    generateModelTests.set(false)
+    generateModelDocumentation.set(false)
+    generateApiTests.set(false)
+    generateApiDocumentation.set(false)
+    ignoreFileOverride.set("${project.projectDir}/.openapi-generator-ignore")
+    configOptions.put("sourceFolder", "/")
+    configOptions.put("serializationLibrary", "jackson")
+    configOptions.put("useJakartaEe", "true")
+}
+
+tasks.openApiGenerate.inputs.file("${project.projectDir}/.openapi-generator-ignore")
+
+tasks.compileJava.dependsOn tasks.openApiGenerate
+tasks.sourcesJar.dependsOn tasks.compileJava
+tasks.sourcesJar.dependsOn tasks.openApiGenerate
