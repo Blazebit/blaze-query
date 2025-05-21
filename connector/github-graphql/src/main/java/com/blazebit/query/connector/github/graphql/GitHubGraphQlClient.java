@@ -193,7 +193,11 @@ public class GitHubGraphQlClient {
 						states: [MERGED],
 						baseRefName: $defaultBranchName,
 						orderBy: {field: CREATED_AT, direction: DESC}) {
-							nodes {
+						pageInfo {
+							endCursor
+							hasNextPage
+						}
+						nodes {
 							id
 							title
 							createdAt
@@ -212,11 +216,10 @@ public class GitHubGraphQlClient {
 				}
 			}
 		}
-		""";
+	""";
 
 		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests);
 	}
-
 
 	public List<GitHubOrganization> fetchOrganizationsWithDetails() {
 		List<GitHubOrganization> organizations = fetchOrganizationsBasic();
@@ -431,8 +434,8 @@ public class GitHubGraphQlClient {
 				JsonNode jsonResponse = MAPPER.readTree(response.body());
 
 				JsonNode errors = jsonResponse.path("errors");
-				if (errors.isArray() && !errors.isEmpty() ) {
-					throw new RuntimeException("GitHub GraphQL error: " + errors );
+				if (errors.isArray() && !errors.isEmpty()) {
+					throw new RuntimeException("GitHub GraphQL error: " + errors);
 				}
 
 				JsonNode data = jsonResponse.path("data");
