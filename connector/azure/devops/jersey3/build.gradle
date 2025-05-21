@@ -36,7 +36,7 @@ sourceSets {
 
 openApiGenerate {
     generatorName.set("java")
-    inputSpec.set("${project.projectDir}/src/main/resources/azure-devops-7.2-swagger.json")
+    inputSpec.set("${project.projectDir}/src/main/resources/azure-devops-7.1-openapi-spec.json")
     skipValidateSpec.set(true)
     outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
     apiPackage.set("com.blazebit.query.connector.azure.devops.api")
