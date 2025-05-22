@@ -4,11 +4,13 @@
  */
 package com.blazebit.query.connector.azure.devops;
 
-import com.blazebit.query.connector.azure.devops.api.AccountsApi;
-import com.blazebit.query.connector.azure.devops.invoker.ApiClient;
-import com.blazebit.query.connector.azure.devops.invoker.ApiException;
-import com.blazebit.query.connector.azure.devops.model.Account;
+
 import com.blazebit.query.connector.base.DataFormats;
+import com.blazebit.query.connector.devops.api.AccountsApi;
+import com.blazebit.query.connector.devops.api.ProfilesApi;
+import com.blazebit.query.connector.devops.invoker.ApiClient;
+import com.blazebit.query.connector.devops.invoker.ApiException;
+import com.blazebit.query.connector.devops.model.Account;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
@@ -37,10 +39,12 @@ public class AccountDataFetcher implements DataFetcher<Account>, Serializable {
 			List<Account> list = new ArrayList<>();
 			for ( ApiClient apiClient : apiClients ) {
 				AccountsApi accountsApi = new AccountsApi( apiClient );
+				ProfilesApi profilesApi = new ProfilesApi( apiClient );
+
 
 				//TODO: Pagination?
 				List<Account> organizations = accountsApi.accountsList(
-						"7.1", UUID.randomUUID(), UUID.randomUUID(), "todo"
+						"7.1", null, UUID.fromString( "9d78628b-49ee-6375-8e74-009485f60bfd"), null
 				);
 				list.addAll( organizations );
 				if ( organizations.size() != 100 ) {

@@ -25,7 +25,7 @@ dependencies {
     api libs.azure.core
     api project(':blaze-query-connector-azure-resourcemanager')
     api project(':blaze-query-connector-azure-graph')
-    api project(':blaze-query-connector-azure-devops-jersey3')
+    api project(':blaze-query-connector-azure-devops')
 
     api libs.azure.identity
     api libs.microsoft.graph.core

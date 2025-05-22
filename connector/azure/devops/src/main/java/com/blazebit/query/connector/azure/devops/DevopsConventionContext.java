@@ -4,8 +4,8 @@
  */
 package com.blazebit.query.connector.azure.devops;
 
-import com.blazebit.query.connector.azure.devops.model.AbstractOpenApiSchema;
 import com.blazebit.query.connector.base.ConventionContext;
+import com.blazebit.query.connector.devops.model.AbstractOpenApiSchema;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;

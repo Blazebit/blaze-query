@@ -24,7 +24,7 @@ dependencies {
     compileOnly libs.jakarta.annotation.api
 }
 
-description = 'blaze-query-connector-azure-devops-jersey3'
+description = 'blaze-query-connector-azure-devops'
 
 sourceSets {
     main {
@@ -39,9 +39,9 @@ openApiGenerate {
     inputSpec.set("${project.projectDir}/src/main/resources/azure-devops-7.1-openapi-spec.json")
     skipValidateSpec.set(true)
     outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
-    apiPackage.set("com.blazebit.query.connector.azure.devops.api")
-    invokerPackage.set("com.blazebit.query.connector.azure.devops.invoker")
-    modelPackage.set("com.blazebit.query.connector.azure.devops.model")
+    apiPackage.set("com.blazebit.query.connector.devops.api")
+    invokerPackage.set("com.blazebit.query.connector.devops.invoker")
+    modelPackage.set("com.blazebit.query.connector.devops.model")
     library.set("jersey3")
     generateModelTests.set(false)
     generateModelDocumentation.set(false)

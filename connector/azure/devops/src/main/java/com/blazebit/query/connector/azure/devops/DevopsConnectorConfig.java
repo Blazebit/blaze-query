@@ -4,7 +4,7 @@
  */
 package com.blazebit.query.connector.azure.devops;
 
-import com.blazebit.query.connector.azure.devops.invoker.ApiClient;
+import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.spi.DataFetcherConfig;
 
 /**
