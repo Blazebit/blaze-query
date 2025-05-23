@@ -14,26 +14,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * @author Dimitar Prisadnikov
  * @since 1.0.6
  */
-public class OrganizationDataFetcher implements DataFetcher<GitHubOrganization>, Serializable {
+public class GitHubOrganizationDataFetcher implements DataFetcher<GitHubOrganization>, Serializable {
 
-	public static final OrganizationDataFetcher INSTANCE = new OrganizationDataFetcher();
+	public static final GitHubOrganizationDataFetcher INSTANCE = new GitHubOrganizationDataFetcher();
 
-	private OrganizationDataFetcher() {
+	private GitHubOrganizationDataFetcher() {
 	}
 
 	@Override
 	public List<GitHubOrganization> fetch(DataFetchContext context) {
 		try {
-			List<GitHubGraphQlClient> githubClient = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
+			List<GitHubGraphQlClient> githubClients = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
 			List<GitHubOrganization> organizationList = new ArrayList<>();
 
-			for ( GitHubGraphQlClient client : githubClient) {
-				organizationList.addAll(client.fetchOrganizationsWithDetails());
+			for ( GitHubGraphQlClient client : githubClients) {
+				organizationList.addAll(client.fetchOrganizations());
 			}
 
 			return organizationList;

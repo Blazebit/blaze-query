@@ -18,8 +18,11 @@ public final class GitHubSchemaProvider implements QuerySchemaProvider {
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				RepositoryDataFetcher.INSTANCE,
-				OrganizationDataFetcher.INSTANCE
+				GitHubRepositoryDataFetcher.INSTANCE,
+				GitHubOrganizationDataFetcher.INSTANCE,
+				GitHubPullRequestDataFetcher.INSTANCE,
+				GitHubRulesetDataFetcher.INSTANCE,
+				GitHubBranchProtectionRuleDataFetcher.INSTANCE
 		);
 	}
 }
