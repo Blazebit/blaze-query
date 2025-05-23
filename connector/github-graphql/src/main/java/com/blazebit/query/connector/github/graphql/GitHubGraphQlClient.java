@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Dimitar Prisadnikov
@@ -35,15 +34,7 @@ public class GitHubGraphQlClient {
 		this.authToken = authToken;
 	}
 
-	public List<GitHubRepository> fetchRepositoriesWithDetails() {
-		List<GitHubRepository> repositories = fetchRepositoriesBasic();
-
-		return repositories.stream()
-				.map(this::enrichRepositoryDetails)
-				.collect( Collectors.toList());
-	}
-
-	private List<GitHubRepository> fetchRepositoriesBasic() {
+	public List<GitHubRepository> fetchRepositories() {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("ownerAffiliation", "OWNER");
 
@@ -82,10 +73,34 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "viewer.repositories", this::extractRepositoriesBasic);
+		return executePaginatedQuery(query, variables, "viewer.repositories", this::extractRepositories);
 	}
 
-	private List<GitHubRuleset> fetchRepositoryRulesets(String repositoryId) {
+	public List<GitHubOrganization> fetchOrganizations() {
+		Map<String, Object> variables = new HashMap<>();
+
+		String query = """
+		query($first: Int, $cursor: String) {
+			viewer {
+				organizations(first: $first, after: $cursor) {
+					pageInfo {
+						endCursor
+						hasNextPage
+					}
+					nodes {
+						id
+						name
+						requiresTwoFactorAuthentication
+					}
+				}
+			}
+		}
+		""";
+
+		return executePaginatedQuery(query, variables, "viewer.organizations", GitHubGraphQlClient::extractOrganizations);
+	}
+
+	public List<GitHubRuleset> fetchRepositoryRulesets(String repositoryId) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 
@@ -134,7 +149,7 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
 
-	private List<GitHubBranchProtectionRule> fetchRepositoryBranchProtectionRules(String repositoryId) {
+	public List<GitHubBranchProtectionRule> fetchRepositoryBranchProtectionRules(String repositoryId) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 
@@ -178,7 +193,7 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
-	private List<GitHubPullRequest> fetchRepositoryRecentlyMergedDefaultBranchPullRequests(String repositoryId, String defaultBranchName) {
+	public List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String defaultBranchName) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 		variables.put("defaultBranchName", defaultBranchName);
@@ -207,6 +222,10 @@ public class GitHubGraphQlClient {
 							mergedAt
 							state
 							reviewDecision
+							repository {
+								id
+								name
+							}
 							baseRef {
 								id
 								name
@@ -216,44 +235,12 @@ public class GitHubGraphQlClient {
 				}
 			}
 		}
-	""";
+		""";
 
 		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests);
 	}
 
-	public List<GitHubOrganization> fetchOrganizationsWithDetails() {
-		List<GitHubOrganization> organizations = fetchOrganizationsBasic();
-
-		return organizations.stream()
-				.map(this::enrichOrganizationDetails)
-				.collect(Collectors.toList());
-	}
-
-	private List<GitHubOrganization> fetchOrganizationsBasic() {
-		Map<String, Object> variables = new HashMap<>();
-
-		String query = """
-	query($first: Int, $cursor: String) {
-		viewer {
-			organizations(first: $first, after: $cursor) {
-				pageInfo {
-					endCursor
-					hasNextPage
-				}
-				nodes {
-					id
-					name
-					requiresTwoFactorAuthentication
-				}
-			}
-		}
-	}
-	""";
-
-		return executePaginatedQuery(query, variables, "viewer.organizations", GitHubGraphQlClient::extractOrganizationsBasic);
-	}
-
-	private List<GitHubRuleset> fetchOrganizationRulesets(String organizationId) {
+	public List<GitHubRuleset> fetchOrganizationRulesets(String organizationId) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("organizationId", organizationId);
 
@@ -302,12 +289,12 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
 
-	private List<GitHubRepository> extractRepositoriesBasic(JsonNode rootNode) {
+	private List<GitHubRepository> extractRepositories(JsonNode rootNode) {
 		List<GitHubRepository> repositories = new ArrayList<>();
 
 		for (JsonNode repoNode : rootNode.path("nodes")) {
 			if (!repoNode.isMissingNode()) {
-				repositories.add( GitHubRepository.fromJson(repoNode.toString()));
+				repositories.add(GitHubRepository.fromJson(repoNode.toString()));
 			}
 		}
 
@@ -319,7 +306,7 @@ public class GitHubGraphQlClient {
 
 		for (JsonNode rulesetNode : rootNode.path("nodes")) {
 			if (!rulesetNode.isMissingNode()) {
-				rulesets.add( GitHubRuleset.fromJson(rulesetNode.toString()));
+				rulesets.add(GitHubRuleset.fromJson(rulesetNode.toString()));
 			}
 		}
 
@@ -331,7 +318,7 @@ public class GitHubGraphQlClient {
 
 		for (JsonNode ruleNode : rootNode.path("nodes")) {
 			if (!ruleNode.isMissingNode()) {
-				rules.add( GitHubBranchProtectionRule.fromJson(ruleNode.toString()));
+				rules.add(GitHubBranchProtectionRule.fromJson(ruleNode.toString()));
 			}
 		}
 
@@ -339,18 +326,18 @@ public class GitHubGraphQlClient {
 	}
 
 	private List<GitHubPullRequest> extractPullRequests(JsonNode rootNode) {
-		List<GitHubPullRequest> rules = new ArrayList<>();
+		List<GitHubPullRequest> pullRequests = new ArrayList<>();
 
-		for (JsonNode ruleNode : rootNode.path("nodes")) {
-			if (!ruleNode.isMissingNode()) {
-				rules.add( GitHubPullRequest.fromJson(ruleNode.toString()));
+		for (JsonNode prNode : rootNode.path("nodes")) {
+			if (!prNode.isMissingNode()) {
+				pullRequests.add(GitHubPullRequest.fromJson(prNode.toString()));
 			}
 		}
 
-		return rules;
+		return pullRequests;
 	}
 
-	private static List<GitHubOrganization> extractOrganizationsBasic(JsonNode rootNode) {
+	private static List<GitHubOrganization> extractOrganizations(JsonNode rootNode) {
 		List<GitHubOrganization> organizations = new ArrayList<>();
 
 		for (JsonNode orgNode : rootNode.path("nodes")) {
@@ -360,45 +347,6 @@ public class GitHubGraphQlClient {
 		}
 
 		return organizations;
-	}
-
-	private GitHubOrganization enrichOrganizationDetails(GitHubOrganization baseOrg) {
-		List<GitHubRuleset> rulesets = fetchOrganizationRulesets(baseOrg.id());
-
-		return new GitHubOrganization(
-				baseOrg.id(),
-				baseOrg.name(),
-				baseOrg.requiresTwoFactorAuthentication(),
-				rulesets
-		);
-	}
-	private GitHubRepository enrichRepositoryDetails(GitHubRepository baseRepo) {
-		List<GitHubRuleset> rulesets = fetchRepositoryRulesets(baseRepo.id());
-		List<GitHubBranchProtectionRule> branchProtectionRules =
-				fetchRepositoryBranchProtectionRules(baseRepo.id());
-		List<GitHubPullRequest> pullRequests = fetchRepositoryRecentlyMergedDefaultBranchPullRequests(
-				baseRepo.id(),
-				baseRepo.defaultBranchRef().name()
-		);
-
-		return new GitHubRepository(
-				baseRepo.id(),
-				baseRepo.name(),
-				baseRepo.description(),
-				baseRepo.isArchived(),
-				baseRepo.isDisabled(),
-				baseRepo.isInOrganization(),
-				baseRepo.isEmpty(),
-				baseRepo.isPrivate(),
-				baseRepo.forkingAllowed(),
-				baseRepo.visibility(),
-				baseRepo.createdAt(),
-				baseRepo.defaultBranchRef(),
-				baseRepo.owner(),
-				pullRequests,
-				rulesets,
-				branchProtectionRules
-		);
 	}
 
 	public <T> List<T> executePaginatedQuery(
