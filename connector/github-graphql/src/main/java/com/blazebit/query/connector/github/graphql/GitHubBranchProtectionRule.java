@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * @author Dimitar Prisadnikov
@@ -30,7 +28,7 @@ public record GitHubBranchProtectionRule(
 		boolean requiresStrictStatusChecks,
 		boolean dismissesStaleReviews,
 		boolean requiresApprovingReviews,
-		List<MatchingRef> matchingRefs
+		List<GitHubBranchProtectionRuleMatchingRef> matchingRefs
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -53,25 +51,10 @@ public record GitHubBranchProtectionRule(
 					json.path("requiresStrictStatusChecks").asBoolean(false),
 					json.path("dismissesStaleReviews").asBoolean(false),
 					json.path("requiresApprovingReviews").asBoolean(false),
-					parseMatchingRefs(json.path("matchingRefs"))
+					GitHubBranchProtectionRuleMatchingRef.parseMatchingRefs(json.path("matchingRefs"))
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubBranchProtectionRule", e);
 		}
 	}
-
-	private static List<MatchingRef> parseMatchingRefs(JsonNode json) {
-		JsonNode nodesArray = json.path("nodes");
-		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(nodesArray.spliterator(), false)
-				.map(node -> new MatchingRef(
-						node.path("id").asText(),
-						node.path("name").asText()
-				))
-				.collect(Collectors.toList());
-	}
-
-	public record MatchingRef(String id, String name) {}
 }

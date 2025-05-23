@@ -3,6 +3,7 @@
  * Copyright Blazebit
  */
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
+import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRuleMatchingRef;
 import com.blazebit.query.connector.github.graphql.GitHubBranchRef;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
@@ -67,8 +68,8 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static List<GitHubBranchProtectionRule> branchProtectionRules() {
-		GitHubBranchProtectionRule.MatchingRef matchingRef =
-				new GitHubBranchProtectionRule.MatchingRef("REF_someId123", "main");
+		GitHubBranchProtectionRuleMatchingRef matchingRef =
+				new GitHubBranchProtectionRuleMatchingRef("REF_someId123", "main");
 		GitHubBranchProtectionRule rule =
 				new GitHubBranchProtectionRule(
 						"BPR_anotherId321",
