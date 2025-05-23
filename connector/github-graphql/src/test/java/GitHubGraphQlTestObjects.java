@@ -3,11 +3,19 @@
  * Copyright Blazebit
  */
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
+import com.blazebit.query.connector.github.graphql.GitHubBranchRef;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequestReviewDecision;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequestState;
 import com.blazebit.query.connector.github.graphql.GitHubRepository;
+import com.blazebit.query.connector.github.graphql.GitHubRepositoryMinimal;
+import com.blazebit.query.connector.github.graphql.GitHubRepositoryOwner;
+import com.blazebit.query.connector.github.graphql.GitHubRepositoryOwnerType;
+import com.blazebit.query.connector.github.graphql.GitHubRepositoryVisibility;
 import com.blazebit.query.connector.github.graphql.GitHubRule;
 import com.blazebit.query.connector.github.graphql.GitHubRuleset;
+import com.blazebit.query.connector.github.graphql.GitHubRulesetCondition;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -32,14 +40,11 @@ public class GitHubGraphQlTestObjects {
 				true,
 				false,
 				true,
-				GitHubRepository.Visibility.INTERNAL,
+				GitHubRepositoryVisibility.INTERNAL,
 				OffsetDateTime.of(2025, 1, 1, 9, 30, 0, 0, ZoneOffset.UTC),
-				new GitHubRepository.DefaultBranch("REF_someId123", "main"),
-				new GitHubRepository.Owner("org_123", "My Organization",
-						GitHubRepository.OwnerType.ORGANIZATION),
-				pullRequests(),
-				rulesets(),
-				branchProtectionRules());
+				new GitHubBranchRef("REF_someId123", "main"),
+				new GitHubRepositoryOwner("org_123", "My Organization",
+						GitHubRepositoryOwnerType.ORGANIZATION));
 	}
 
 
@@ -55,9 +60,9 @@ public class GitHubGraphQlTestObjects {
 				);
 
 		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
-		GitHubRuleset.RulesetConditions conditions1 = new GitHubRuleset.RulesetConditions(List.of());
+		GitHubRulesetCondition condition1 = new GitHubRulesetCondition(List.of());
 		GitHubRuleset ruleset =
-				new GitHubRuleset("BRANCH", "ACTIVE", conditions1, List.of(pullRequestRule));
+				new GitHubRuleset("BRANCH", "ACTIVE", condition1, List.of(pullRequestRule));
 		return List.of(ruleset);
 	}
 
@@ -86,19 +91,20 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static List<GitHubPullRequest> pullRequests(){
-		GitHubPullRequest.Ref baseRef = new GitHubPullRequest.Ref( "REF_someId123", "main" );
+		GitHubBranchRef baseRef = new GitHubBranchRef( "REF_someId123", "main" );
+		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( "123", "My Repository" );
 
 		GitHubPullRequest pullRequest = new GitHubPullRequest(
 				"PR_someId456",
 				"Refactor the function",
 				OffsetDateTime.of( 2024, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC ),
-
 				true,
 				OffsetDateTime.of( 2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC ),
 				true,
 				OffsetDateTime.of( 2024, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC ),
-				GitHubPullRequest.State.MERGED,
-				GitHubPullRequest.ReviewDecision.APPROVED,
+				GitHubPullRequestState.MERGED,
+				GitHubPullRequestReviewDecision.APPROVED,
+				repository,
 				baseRef
 		);
 		return List.of( pullRequest );
