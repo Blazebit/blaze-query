@@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
 public record GitHubRuleset(
 		String target,
 		String enforcement,
-		RulesetConditions conditions,
+		GitHubRulesetCondition conditions,
 		List<GitHubRule> rules
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -30,41 +30,21 @@ public record GitHubRuleset(
 			return new GitHubRuleset(
 					json.path("target").asText(),
 					json.path("enforcement").asText(),
-					parseRulesetConditions(json.path("conditions")),
-					parseRules(json.path("rules"))
+					GitHubRulesetCondition.parseRulesetConditions(json.path("conditions")),
+					GitHubRule.parseRules(json.path("rules"))
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRuleset", e);
 		}
 	}
 
-	private static RulesetConditions parseRulesetConditions(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-		return new RulesetConditions(
-				parseRefNameIncludes(json.path("refName").path("include"))
-		);
-	}
-
-	private static List<String> parseRefNameIncludes(JsonNode json) {
-		if (json.isMissingNode() || !json.isArray() || json.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(json.spliterator(), false)
-				.map(JsonNode::asText)
-				.collect(Collectors.toList());
-	}
-
-	private static List<GitHubRule> parseRules(JsonNode json) {
+	public static List<GitHubRuleset> parseRulesets(JsonNode json) {
 		JsonNode nodesArray = json.path("nodes");
 		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
 			return List.of();
 		}
 		return StreamSupport.stream(nodesArray.spliterator(), false)
-				.map(node -> GitHubRule.fromJson(node.toString()))
+				.map(node -> GitHubRuleset.fromJson(node.toString()))
 				.collect(Collectors.toList());
 	}
-
-	public record RulesetConditions(List<String> refNameIncludes) {}
 }

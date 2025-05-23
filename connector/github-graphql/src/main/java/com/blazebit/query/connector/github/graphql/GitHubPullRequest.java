@@ -22,9 +22,10 @@ public record GitHubPullRequest(
 		OffsetDateTime closedAt,
 		boolean merged,
 		OffsetDateTime mergedAt,
-		State state,
-		ReviewDecision reviewDecision,
-		Ref baseRef
+		GitHubPullRequestState state,
+		GitHubPullRequestReviewDecision reviewDecision,
+		GitHubRepositoryMinimal repository,
+		GitHubBranchRef baseRef
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -40,36 +41,13 @@ public record GitHubPullRequest(
 					parseIsoOffsetDateTime(json.path("closedAt").asText()),
 					json.path("merged").asBoolean(false),
 					parseIsoOffsetDateTime(json.path("mergedAt").asText()),
-					State.valueOf(json.path("state").asText().toUpperCase()),
-					ReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
-					parseRef(json.path("baseRef"))
+					GitHubPullRequestState.valueOf(json.path("state").asText().toUpperCase()),
+					GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
+					GitHubRepositoryMinimal.parseRepositoryMinimal(json.path("repository")),
+					GitHubBranchRef.parseBranchRef(json.path("baseRef"))
 					);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubBranchProtectionRule", e);
 		}
-	}
-
-	private static Ref parseRef(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-		return new Ref(
-				json.path("id").asText(),
-				json.path("name").asText()
-		);
-	}
-
-	public record Ref(String id, String name) {}
-
-	public enum State {
-		OPEN,
-		CLOSED,
-		MERGED
-	}
-
-	public enum ReviewDecision {
-		CHANGES_REQUESTED,
-		APPROVED,
-		REVIEW_REQUIRED,
 	}
 }
