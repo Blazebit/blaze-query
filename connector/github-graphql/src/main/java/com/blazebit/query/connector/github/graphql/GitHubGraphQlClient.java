@@ -177,6 +177,10 @@ public class GitHubGraphQlClient {
 							requiresStrictStatusChecks
 							dismissesStaleReviews
 							requiresApprovingReviews
+							repository {
+								id
+								name
+							}
 							matchingRefs(first: $first) {
 								nodes {
 									id

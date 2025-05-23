@@ -28,6 +28,7 @@ public record GitHubBranchProtectionRule(
 		boolean requiresStrictStatusChecks,
 		boolean dismissesStaleReviews,
 		boolean requiresApprovingReviews,
+		GitHubRepositoryMinimal repository,
 		List<GitHubBranchProtectionRuleMatchingRef> matchingRefs
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -51,6 +52,7 @@ public record GitHubBranchProtectionRule(
 					json.path("requiresStrictStatusChecks").asBoolean(false),
 					json.path("dismissesStaleReviews").asBoolean(false),
 					json.path("requiresApprovingReviews").asBoolean(false),
+					GitHubRepositoryMinimal.parseRepositoryMinimal(json.path("repository")),
 					GitHubBranchProtectionRuleMatchingRef.parseMatchingRefs(json.path("matchingRefs"))
 			);
 		} catch (Exception e) {

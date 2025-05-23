@@ -70,6 +70,8 @@ public class GitHubGraphQlTestObjects {
 	public static List<GitHubBranchProtectionRule> branchProtectionRules() {
 		GitHubBranchProtectionRuleMatchingRef matchingRef =
 				new GitHubBranchProtectionRuleMatchingRef("REF_someId123", "main");
+		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal("123", "My Repository");
+
 		GitHubBranchProtectionRule rule =
 				new GitHubBranchProtectionRule(
 						"BPR_anotherId321",
@@ -86,6 +88,7 @@ public class GitHubGraphQlTestObjects {
 						true,
 						true,
 						true,
+						repository,
 						List.of(matchingRef));
 
 		return List.of(rule);
