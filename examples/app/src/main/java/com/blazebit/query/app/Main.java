@@ -59,10 +59,13 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
 import com.blazebit.query.connector.github.graphql.GitHubRepository;
+import com.blazebit.query.connector.github.graphql.GitHubRuleset;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
@@ -264,6 +267,9 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GHTeam.class, "GitHubTeam" );
 			queryContextBuilder.registerSchemaObjectAlias( GitHubOrganization.class, "GraphQlGitHubOrganization" );
 			queryContextBuilder.registerSchemaObjectAlias( GitHubRepository.class, "GraphQlGitHubRepository" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRuleset.class, "GraphQlGitHubRuleset" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubBranchProtectionRule.class, "GraphQlGitHubBranchProtectionRule" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubPullRequest.class, "GraphQlGitHubPullRequest" );
 
 			// GitHub OpenAPI
 			queryContextBuilder.registerSchemaObjectAlias( OrganizationSimple.class, "OpenAPIGitHubOrganization" );
@@ -538,6 +544,21 @@ public class Main {
 		List<Object[]> gitHubGraphQlRepositoryResult = gitHubGraphQlRepositoryQuery.getResultList();
 		System.out.println( "GitHubRepositories" );
 		print( gitHubGraphQlRepositoryResult );
+		TypedQuery<Object[]> gitHubGraphQlRulesetQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRuleset r" );
+		List<Object[]> gitHubGraphQlRulesetResult = gitHubGraphQlRulesetQuery.getResultList();
+		System.out.println( "GitHubRulesets" );
+		print( gitHubGraphQlRulesetResult );
+		TypedQuery<Object[]> gitHubGraphQlPullRequestQuery = session.createQuery(
+				"select p.* from GraphQlGitHubPullRequest p" );
+		List<Object[]> gitHubGraphQlPullRequestResult = gitHubGraphQlPullRequestQuery.getResultList();
+		System.out.println( "GitHubPullRequests" );
+		print( gitHubGraphQlPullRequestResult );
+		TypedQuery<Object[]> gitHubGraphQlBranchProtectionRuleQuery = session.createQuery(
+				"select r.* from GraphQlGitHubBranchProtectionRule r" );
+		List<Object[]> gitHubGraphQlBranchProtectionRuleResult = gitHubGraphQlBranchProtectionRuleQuery.getResultList();
+		System.out.println( "GitHubBranchProtectionRules" );
+		print( gitHubGraphQlBranchProtectionRuleResult );
 	}
 
 	private static void testGitHubOpenAPI(QuerySession session) {
