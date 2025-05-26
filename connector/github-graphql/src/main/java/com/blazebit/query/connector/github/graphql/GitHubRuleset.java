@@ -16,6 +16,7 @@ import java.util.stream.StreamSupport;
  * @since 1.0.6
  */
 public record GitHubRuleset(
+		String id,
 		String target,
 		String enforcement,
 		GitHubRulesetCondition conditions,
@@ -28,6 +29,7 @@ public record GitHubRuleset(
 			JsonNode json = MAPPER.readTree(jsonString);
 
 			return new GitHubRuleset(
+					json.path("id").asText(),
 					json.path("target").asText(),
 					json.path("enforcement").asText(),
 					GitHubRulesetCondition.parseRulesetConditions(json.path("conditions")),

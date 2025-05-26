@@ -114,6 +114,7 @@ public class GitHubGraphQlClient {
 							hasNextPage
 						}
 						nodes {
+							id
 							target
 							enforcement
 							conditions {
