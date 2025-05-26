@@ -28,8 +28,6 @@ public class GitHubRepositoryDataFetcher implements DataFetcher<GitHubRepository
 	@Override
 	public List<GitHubRepository> fetch(DataFetchContext context) {
 		try {
-
-			//getorgetch
 			List<GitHubGraphQlClient> githubClients = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
 			List<GitHubRepository> repositoryList = new ArrayList<>();
 

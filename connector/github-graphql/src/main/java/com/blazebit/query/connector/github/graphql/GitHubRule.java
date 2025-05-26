@@ -17,8 +17,8 @@ import java.util.stream.StreamSupport;
  */
 public record GitHubRule(
 		String type,
-		PullRequestParameters pullRequestParameters,
-		RequiredStatusChecksParameters requiredStatusChecksParameters
+		GitHubPullRequestParameters pullRequestParameters,
+		GitHubRequiredStatusChecksParameters requiredStatusChecksParameters
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -29,8 +29,8 @@ public record GitHubRule(
 
 			return new GitHubRule(
 					ruleType,
-					parseRuleParameters( json.path( "parameters" ) ),
-					parseRequiredStatusChecksParameters( json.path( "parameters" ) )
+					GitHubPullRequestParameters.parseRuleParameters( json.path( "parameters" ) ),
+					GitHubRequiredStatusChecksParameters.parseRequiredStatusChecksParameters( json.path( "parameters" ) )
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRule", e);
@@ -45,58 +45,5 @@ public record GitHubRule(
 		return StreamSupport.stream(nodesArray.spliterator(), false)
 				.map(node -> GitHubRule.fromJson(node.toString()))
 				.collect( Collectors.toList());
-	}
-
-	/**
-	 * <p>GitHub's GraphQL API exposes rulesets with a mix of parameterized and non-parameterized types.
-	 * For example, rules like {@code PULL_REQUEST} expose detailed boolean parameters such as:
-	 *
-	 * <ul>
-	 *   <li>{@code requireCodeOwnerReview}</li>
-	 *   <li>{@code dismissStaleReviewsOnPush}</li>
-	 *   <li>{@code requiredReviewThreadResolution}</li>
-	 * </ul>
-	 *
-	 * <p>However, other rules like {@code REQUIRED_SIGNATURES} or {@code NON_FAST_FORWARD} appear only by type name
-	 * if enabled and are omitted entirely if disabled. These rules do not include parameters.
-	 */
-	private static PullRequestParameters parseRuleParameters(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-
-		return new PullRequestParameters(
-				json.path("requireCodeOwnerReview").asBoolean(false),
-				json.path("requiredApprovingReviewCount").asInt(0),
-				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
-				json.path("dismissStaleReviewsOnPush").asBoolean(false),
-				json.path("requireLastPushApproval").asBoolean(false),
-				json.path("requiredReviewThreadResolution").asBoolean(false)
-		);
-	}
-
-	private static RequiredStatusChecksParameters parseRequiredStatusChecksParameters(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-
-		return new RequiredStatusChecksParameters(
-				json.path("strictRequiredStatusChecksPolicy").asBoolean(false)
-		);
-	}
-
-	public record PullRequestParameters(
-			boolean requireCodeOwnerReview,
-			int requiredApprovingReviewCount,
-			boolean automaticCopilotCodeReviewEnabled,
-			boolean dismissStaleReviewsOnPush,
-			boolean requireLastPushApproval,
-			boolean requiredReviewThreadResolution
-	) {
-	}
-
-	public record RequiredStatusChecksParameters(
-			boolean strictRequiredStatusChecksPolicy
-	) {
 	}
 }
