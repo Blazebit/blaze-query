@@ -63,7 +63,7 @@ public class GitHubGraphQlTestObjects {
 		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
 		GitHubRulesetCondition condition1 = new GitHubRulesetCondition(List.of());
 		GitHubRuleset ruleset =
-				new GitHubRuleset("BRANCH", "ACTIVE", condition1, List.of(pullRequestRule));
+				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", condition1, List.of(pullRequestRule));
 		return List.of(ruleset);
 	}
 
