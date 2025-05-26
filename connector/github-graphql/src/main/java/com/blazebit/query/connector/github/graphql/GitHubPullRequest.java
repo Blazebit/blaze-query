@@ -42,7 +42,9 @@ public record GitHubPullRequest(
 					json.path("merged").asBoolean(false),
 					parseIsoOffsetDateTime(json.path("mergedAt").asText()),
 					GitHubPullRequestState.valueOf(json.path("state").asText().toUpperCase()),
-					GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
+					json.path("reviewDecision").isNull() || json.path("reviewDecision").asText().isEmpty()
+							? null
+							: GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
 					GitHubRepositoryMinimal.parseRepositoryMinimal(json.path("repository")),
 					GitHubBranchRef.parseBranchRef(json.path("baseRef"))
 					);
