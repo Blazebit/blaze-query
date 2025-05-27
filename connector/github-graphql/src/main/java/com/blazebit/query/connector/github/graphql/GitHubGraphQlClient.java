@@ -198,7 +198,7 @@ public class GitHubGraphQlClient {
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
-	public List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String defaultBranchName) {
+	public List<GitHubPullRequest> fetchRepositoryPullRequestsForDefaultBranch(String repositoryId, String defaultBranchName) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 		variables.put("defaultBranchName", defaultBranchName);

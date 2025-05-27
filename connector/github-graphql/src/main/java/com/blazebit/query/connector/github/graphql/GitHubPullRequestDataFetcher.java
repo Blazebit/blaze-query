@@ -34,7 +34,7 @@ public class GitHubPullRequestDataFetcher implements DataFetcher<GitHubPullReque
 			for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
 				for (GitHubGraphQlClient client : githubClients) {
 					pullRequestList.addAll(
-							client.fetchRepositoryPullRequests(repository.id(), repository.defaultBranchRef().name()));
+							client.fetchRepositoryPullRequestsForDefaultBranch(repository.id(), repository.defaultBranchRef().name()));
 				}
 			}
 
