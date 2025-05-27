@@ -31,6 +31,37 @@ public class GitHubGraphQlTestObjects {
 	private GitHubGraphQlTestObjects() {
 	}
 
+	public static GitHubOrganization organization() {
+		return new GitHubOrganization("org_123", "My Organization", true);
+	}
+
+	public static GitHubBranchRef branch() {
+		return new GitHubBranchRef("br_123", "main");
+	}
+
+	public static GitHubBranchProtectionRuleMatchingRef branchProtectionRuleMatchingRef() {
+		return new GitHubBranchProtectionRuleMatchingRef( branch().id(), branch().name() );
+	}
+
+	public static GitHubRulesetCondition rulesetCondition() {
+		return new GitHubRulesetCondition(List.of("main"), List.of("dev"), List.of(
+				repository().id()), List.of( repository().name()), List.of());
+	}
+
+	public static GitHubRule pullRequestRule() {
+		GitHubPullRequestParameters pullRequestParameters =
+				new GitHubPullRequestParameters(
+						false,
+						0,
+						false,
+						false,
+						false,
+						false
+				);
+
+		return new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
+	}
+
 	public static GitHubRepository repository() {
 		return new GitHubRepository(
 				"123",
@@ -45,35 +76,21 @@ public class GitHubGraphQlTestObjects {
 				true,
 				GitHubRepositoryVisibility.INTERNAL,
 				OffsetDateTime.of(2025, 1, 1, 9, 30, 0, 0, ZoneOffset.UTC),
-				new GitHubBranchRef("REF_someId123", "main"),
-				new GitHubRepositoryOwner("org_123", "My Organization",
+				branch(),
+				new GitHubRepositoryOwner( organization().id(), organization().name(),
 						GitHubRepositoryOwnerType.ORGANIZATION));
 	}
 
 
 	public static List<GitHubRuleset> rulesets() {
-		GitHubPullRequestParameters pullRequestParameters =
-				new GitHubPullRequestParameters(
-						false,
-						0,
-						false,
-						false,
-						false,
-						false
-				);
-
-		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
-		GitHubRulesetCondition condition1 = new GitHubRulesetCondition(List.of("main"), List.of("dev"), List.of(
-				repository().id()), List.of( repository().name()), List.of());
 		GitHubRuleset ruleset =
-				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", condition1, repository().id(),null, List.of(pullRequestRule));
+				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", rulesetCondition(), repository().id(),null, List.of(pullRequestRule()));
+
 		return List.of(ruleset);
 	}
 
 	public static List<GitHubBranchProtectionRule> branchProtectionRules() {
-		GitHubBranchProtectionRuleMatchingRef matchingRef =
-				new GitHubBranchProtectionRuleMatchingRef("REF_someId123", "main");
-		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal("123", "My Repository");
+		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( repository().id(), repository().name());
 
 		GitHubBranchProtectionRule rule =
 				new GitHubBranchProtectionRule(
@@ -92,14 +109,13 @@ public class GitHubGraphQlTestObjects {
 						true,
 						true,
 						repository,
-						List.of(matchingRef));
+						List.of(branchProtectionRuleMatchingRef()));
 
 		return List.of(rule);
 	}
 
 	public static List<GitHubPullRequest> pullRequests(){
-		GitHubBranchRef baseRef = new GitHubBranchRef( "REF_someId123", "main" );
-		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( "123", "My Repository" );
+		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( repository().id(), repository().name());
 
 		GitHubPullRequest pullRequest = new GitHubPullRequest(
 				"PR_someId456",
@@ -112,13 +128,8 @@ public class GitHubGraphQlTestObjects {
 				GitHubPullRequestState.MERGED,
 				GitHubPullRequestReviewDecision.APPROVED,
 				repository,
-				baseRef
+				branch()
 		);
 		return List.of( pullRequest );
 	}
-
-	public static GitHubOrganization organization() {
-		return new GitHubOrganization("org_123", "My Organization", true);
-	}
-
 }
