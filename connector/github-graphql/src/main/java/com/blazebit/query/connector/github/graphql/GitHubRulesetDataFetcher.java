@@ -31,10 +31,9 @@ public class GitHubRulesetDataFetcher implements DataFetcher<GitHubRuleset >, Se
 			List<GitHubGraphQlClient> githubClients = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
 			List<GitHubRuleset > rulesetList = new ArrayList<>();
 
-			for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
-				for (GitHubGraphQlClient client : githubClients) {
-					rulesetList.addAll(
-							client.fetchRepositoryRulesets(repository.id()));
+			for (GitHubGraphQlClient client : githubClients) {
+				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
+					rulesetList.addAll(client.fetchRepositoryRulesets(repository.id()));
 				}
 			}
 
