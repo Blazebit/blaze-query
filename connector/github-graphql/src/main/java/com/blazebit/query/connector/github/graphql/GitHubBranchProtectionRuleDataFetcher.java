@@ -33,8 +33,7 @@ public class GitHubBranchProtectionRuleDataFetcher implements DataFetcher<GitHub
 
 			for (GitHubGraphQlClient client : githubClients) {
 				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
-				branchProtectionRuleList.addAll(
-						client.fetchRepositoryBranchProtectionRules(repository.id()));
+				branchProtectionRuleList.addAll(client.fetchRepositoryBranchProtectionRules(repository.id()));
 				}
 			}
 
