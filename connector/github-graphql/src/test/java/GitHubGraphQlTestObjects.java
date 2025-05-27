@@ -41,6 +41,7 @@ public class GitHubGraphQlTestObjects {
 				true,
 				true,
 				false,
+				false,
 				true,
 				GitHubRepositoryVisibility.INTERNAL,
 				OffsetDateTime.of(2025, 1, 1, 9, 30, 0, 0, ZoneOffset.UTC),

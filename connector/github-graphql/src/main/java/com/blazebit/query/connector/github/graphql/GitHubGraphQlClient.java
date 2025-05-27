@@ -55,6 +55,7 @@ public class GitHubGraphQlClient {
 						isInOrganization
 						isEmpty
 						isPrivate
+						isFork
 						forkingAllowed
 						createdAt
 						visibility
