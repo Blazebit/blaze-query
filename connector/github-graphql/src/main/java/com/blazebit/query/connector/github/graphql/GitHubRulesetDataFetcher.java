@@ -35,6 +35,10 @@ public class GitHubRulesetDataFetcher implements DataFetcher<GitHubRuleset >, Se
 				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
 					rulesetList.addAll(client.fetchRepositoryRulesets(repository.id()));
 				}
+
+				for (GitHubOrganization organization : context.getSession().getOrFetch(GitHubOrganization.class)) {
+					rulesetList.addAll(client.fetchOrganizationRulesets(organization.id()));
+				}
 			}
 
 			return rulesetList;
