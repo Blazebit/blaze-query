@@ -62,9 +62,10 @@ public class GitHubGraphQlTestObjects {
 				);
 
 		GitHubRule pullRequestRule = new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
-		GitHubRulesetCondition condition1 = new GitHubRulesetCondition(List.of());
+		GitHubRulesetCondition condition1 = new GitHubRulesetCondition(List.of("main"), List.of("dev"), List.of(
+				repository().id()), List.of( repository().name()), List.of());
 		GitHubRuleset ruleset =
-				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", condition1, List.of(pullRequestRule));
+				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", condition1, repository().id(),null, List.of(pullRequestRule));
 		return List.of(ruleset);
 	}
 
@@ -116,7 +117,7 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static GitHubOrganization organization() {
-		return new GitHubOrganization("org_123", "My Organization", true, rulesets());
+		return new GitHubOrganization("org_123", "My Organization", true);
 	}
 
 }

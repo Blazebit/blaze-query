@@ -10,22 +10,36 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public record GitHubRulesetCondition(List<String> refNameIncludes) {
+/**
+ * @author Dimitar Prisadnikov
+ * @since 1.0.7
+ */
+public record GitHubRulesetCondition(
+		List<String> refNameIncludes,
+		List<String> refNameExcludes,
+		List<String> repositoryIds,
+		List<String> repositoryNameIncludes,
+		List<String> repositoryNameExcludes
+) {
 	public static GitHubRulesetCondition parseRulesetConditions(JsonNode json) {
 		if (json.isMissingNode() || json.isNull()) {
 			return null;
 		}
 		return new GitHubRulesetCondition(
-				parseRefNameIncludes(json.path("refName").path("include"))
+				parseStringList(json.path("refName").path("include")),
+				parseStringList(json.path("refName").path("exclude")),
+				parseStringList(json.path("repositoryId").path("repositoryIds")),
+				parseStringList(json.path("repositoryName").path("include")),
+				parseStringList(json.path("repositoryName").path("exclude"))
 		);
 	}
 
-	private static List<String> parseRefNameIncludes(JsonNode json) {
+	private static List<String> parseStringList(JsonNode json) {
 		if (json.isMissingNode() || !json.isArray() || json.isEmpty()) {
 			return List.of();
 		}
 		return StreamSupport.stream(json.spliterator(), false)
 				.map(JsonNode::asText)
-				.collect( Collectors.toList());
+				.collect(Collectors.toList());
 	}
 }

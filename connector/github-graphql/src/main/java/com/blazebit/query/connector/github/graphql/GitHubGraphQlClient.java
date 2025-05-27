@@ -120,6 +120,14 @@ public class GitHubGraphQlClient {
 							conditions {
 								refName {
 									include
+									exclude
+								}
+								repositoryId {
+									repositoryIds
+								}
+								repositoryName {
+									exclude
+									include
 								}
 							}
 							rules(first: $first) {
@@ -147,7 +155,8 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
+		return executePaginatedQuery(query, variables, "node.rulesets",
+				rootNode -> extractRulesets(rootNode, repositoryId, null));
 	}
 
 	public List<GitHubBranchProtectionRule> fetchRepositoryBranchProtectionRules(String repositoryId) {
@@ -264,6 +273,14 @@ public class GitHubGraphQlClient {
 							conditions {
 								refName {
 									include
+									exclude
+								}
+								repositoryId {
+									repositoryIds
+								}
+								repositoryName {
+									exclude
+									include
 								}
 							}
 							rules(first: $first) {
@@ -291,7 +308,8 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
+		return executePaginatedQuery(query, variables, "node.rulesets",
+				rootNode -> extractRulesets(rootNode, null, organizationId));
 	}
 
 	private List<GitHubRepository> extractRepositories(JsonNode rootNode) {
@@ -306,12 +324,12 @@ public class GitHubGraphQlClient {
 		return repositories;
 	}
 
-	private List<GitHubRuleset> extractRulesets(JsonNode rootNode) {
+	private List<GitHubRuleset> extractRulesets(JsonNode rootNode, String repositoryId, String organizationId) {
 		List<GitHubRuleset> rulesets = new ArrayList<>();
 
 		for (JsonNode rulesetNode : rootNode.path("nodes")) {
 			if (!rulesetNode.isMissingNode()) {
-				rulesets.add(GitHubRuleset.fromJson(rulesetNode.toString()));
+				rulesets.add(GitHubRuleset.fromJson(rulesetNode.toString(), repositoryId, organizationId));
 			}
 		}
 
