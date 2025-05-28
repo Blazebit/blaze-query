@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author Dimitar Prisadnikov
  * @since 1.0.7
  */
-public record GitHubPullRequestParameters(
+public record GitHubRulePullRequestParameters(
 		boolean requireCodeOwnerReview,
 		int requiredApprovingReviewCount,
 		boolean automaticCopilotCodeReviewEnabled,
@@ -31,12 +31,12 @@ public record GitHubPullRequestParameters(
 	 * <p>However, other rules like {@code REQUIRED_SIGNATURES} or {@code NON_FAST_FORWARD} appear only by type name
 	 * if enabled and are omitted entirely if disabled. These rules do not include parameters.
 	 */
-	public static GitHubPullRequestParameters parseRuleParameters(JsonNode json) {
+	public static GitHubRulePullRequestParameters parseRuleParameters(JsonNode json) {
 		if (json.isMissingNode() || json.isNull()) {
 			return null;
 		}
 
-		return new GitHubPullRequestParameters(
+		return new GitHubRulePullRequestParameters(
 				json.path("requireCodeOwnerReview").asBoolean(false),
 				json.path("requiredApprovingReviewCount").asInt(0),
 				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),

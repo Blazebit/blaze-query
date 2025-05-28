@@ -7,7 +7,7 @@ import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRuleMat
 import com.blazebit.query.connector.github.graphql.GitHubBranchRef;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
-import com.blazebit.query.connector.github.graphql.GitHubPullRequestParameters;
+import com.blazebit.query.connector.github.graphql.GitHubRulePullRequestParameters;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequestReviewDecision;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequestState;
 import com.blazebit.query.connector.github.graphql.GitHubRepository;
@@ -48,8 +48,8 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static GitHubRule pullRequestRule() {
-		GitHubPullRequestParameters pullRequestParameters =
-				new GitHubPullRequestParameters(
+		GitHubRulePullRequestParameters pullRequestParameters =
+				new GitHubRulePullRequestParameters(
 						false,
 						0,
 						false,
