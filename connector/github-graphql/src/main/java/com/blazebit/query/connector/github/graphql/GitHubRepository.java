@@ -8,9 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.blazebit.query.connector.github.graphql.DateUtils.parseIsoOffsetDateTime;
 
@@ -27,13 +24,12 @@ public record GitHubRepository(
 		boolean isInOrganization,
 		boolean isEmpty,
 		boolean isPrivate,
+		boolean isFork,
 		boolean forkingAllowed,
-		Visibility visibility,
+		GitHubRepositoryVisibility visibility,
 		OffsetDateTime createdAt,
-		DefaultBranch defaultBranchRef,
-		Owner owner,
-		List<GitHubRuleset> rulesets,
-		List<GitHubBranchProtectionRule> branchProtectionRules
+		GitHubRef defaultBranchRef,
+		GitHubRepositoryOwner owner
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -50,72 +46,15 @@ public record GitHubRepository(
 					json.path("isInOrganization").asBoolean(false),
 					json.path("isEmpty").asBoolean(false),
 					json.path("isPrivate").asBoolean(false),
+					json.path("isFork").asBoolean(false),
 					json.path("forkingAllowed").asBoolean(false),
-					Visibility.valueOf(json.path("visibility").asText().toUpperCase()),
+					GitHubRepositoryVisibility.valueOf(json.path("visibility").asText().toUpperCase()),
 					parseIsoOffsetDateTime(json.path("createdAt").asText()),
-					parseDefaultBranch(json.path("defaultBranchRef")),
-					parseOwner(json.path("owner")),
-					parseRulesets(json.path("rulesets")),
-					parseBranchProtectionRules(json.path("branchProtectionRules"))
+					GitHubRef.parseBranchRef(json.path("defaultBranchRef")),
+					GitHubRepositoryOwner.parseOwner(json.path("owner"))
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GraphQlRepository", e);
 		}
-	}
-
-	private static DefaultBranch parseDefaultBranch(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-		return new DefaultBranch(
-				json.path("id").asText(),
-				json.path("name").asText()
-		);
-	}
-
-	static List<GitHubRuleset> parseRulesets(JsonNode json) {
-		JsonNode nodesArray = json.path("nodes");
-		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(nodesArray.spliterator(), false)
-				.map(node -> GitHubRuleset.fromJson(node.toString()))
-				.collect(Collectors.toList());
-	}
-
-	private static List<GitHubBranchProtectionRule> parseBranchProtectionRules(JsonNode json) {
-		JsonNode nodesArray = json.path("nodes");
-		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(nodesArray.spliterator(), false)
-				.map(node -> GitHubBranchProtectionRule.fromJson(node.toString()))
-				.collect(Collectors.toList());
-	}
-
-	private static Owner parseOwner(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-		return new Owner(
-				json.path("id").asText(),
-				json.path("login").asText(),
-				OwnerType.valueOf(json.path("__typename").asText().toUpperCase())
-		);
-	}
-
-	public record Owner(String id, String login, OwnerType type) {}
-
-	public record DefaultBranch(String id, String name) {}
-
-	public enum OwnerType {
-		USER,
-		ORGANIZATION,
-	}
-
-	public enum Visibility {
-		PRIVATE,
-		PUBLIC,
-		INTERNAL,
 	}
 }
