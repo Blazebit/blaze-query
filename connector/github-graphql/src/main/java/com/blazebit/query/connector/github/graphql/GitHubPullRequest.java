@@ -29,7 +29,7 @@ public record GitHubPullRequest(
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
-	public static GitHubPullRequest fromJson(String jsonString, String repositoryId) {
+	public static GitHubPullRequest fromJson(String jsonString) {
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
 
@@ -45,7 +45,7 @@ public record GitHubPullRequest(
 					json.path("reviewDecision").isNull() || json.path("reviewDecision").asText().isEmpty()
 							? null
 							: GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
-					repositoryId,
+					json.path("repository").path("id").asText(),
 					GitHubBranchRef.parseBranchRef(json.path("baseRef"))
 					);
 		} catch (Exception e) {

@@ -205,8 +205,7 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.branchProtectionRules",
-				rootNode -> extractBranchProtectionRules(rootNode, repositoryId));
+		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
 	}
 
 	public List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String defaultBranchName) {
@@ -253,8 +252,7 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.pullRequests",
-				rootNode -> extractPullRequests(rootNode, repositoryId));
+		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests);
 	}
 
 	public List<GitHubRuleset> fetchOrganizationRulesets(String organizationId) {
@@ -339,24 +337,24 @@ public class GitHubGraphQlClient {
 		return rulesets;
 	}
 
-	private List<GitHubBranchProtectionRule> extractBranchProtectionRules(JsonNode rootNode, String repositoryId) {
+	private List<GitHubBranchProtectionRule> extractBranchProtectionRules(JsonNode rootNode) {
 		List<GitHubBranchProtectionRule> rules = new ArrayList<>();
 
 		for (JsonNode ruleNode : rootNode.path("nodes")) {
 			if (!ruleNode.isMissingNode()) {
-				rules.add(GitHubBranchProtectionRule.fromJson(ruleNode.toString(), repositoryId));
+				rules.add(GitHubBranchProtectionRule.fromJson(ruleNode.toString()));
 			}
 		}
 
 		return rules;
 	}
 
-	private List<GitHubPullRequest> extractPullRequests(JsonNode rootNode, String repositoryId) {
+	private List<GitHubPullRequest> extractPullRequests(JsonNode rootNode) {
 		List<GitHubPullRequest> pullRequests = new ArrayList<>();
 
 		for (JsonNode prNode : rootNode.path("nodes")) {
 			if (!prNode.isMissingNode()) {
-				pullRequests.add(GitHubPullRequest.fromJson(prNode.toString(), repositoryId));
+				pullRequests.add(GitHubPullRequest.fromJson(prNode.toString()));
 			}
 		}
 
