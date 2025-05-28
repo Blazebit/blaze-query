@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * such as a branch or tag. In the GitHub GraphQL API, a {@code Ref} object contains multiple fields,
  * but this implementation focuses on {@code id} and {@code name}.</p>
  *
- * <p>This class is used throughout the GitHub connector to represent branch references
+ * <p>This record is used throughout the GitHub connector to represent branch references
  * in various contexts such as pull requests (baseRef, headRef), repositories (defaultBranchRef),
  * and when querying branch information directly.</p>
  *
