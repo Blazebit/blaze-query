@@ -11,7 +11,6 @@ import com.blazebit.query.connector.github.graphql.GitHubPullRequestParameters;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequestReviewDecision;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequestState;
 import com.blazebit.query.connector.github.graphql.GitHubRepository;
-import com.blazebit.query.connector.github.graphql.GitHubRepositoryMinimal;
 import com.blazebit.query.connector.github.graphql.GitHubRepositoryOwner;
 import com.blazebit.query.connector.github.graphql.GitHubRepositoryOwnerType;
 import com.blazebit.query.connector.github.graphql.GitHubRepositoryVisibility;
@@ -90,8 +89,6 @@ public class GitHubGraphQlTestObjects {
 	}
 
 	public static List<GitHubBranchProtectionRule> branchProtectionRules() {
-		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( repository().id(), repository().name());
-
 		GitHubBranchProtectionRule rule =
 				new GitHubBranchProtectionRule(
 						"BPR_anotherId321",
@@ -108,15 +105,13 @@ public class GitHubGraphQlTestObjects {
 						true,
 						true,
 						true,
-						repository,
+						repository().id(),
 						List.of(branchProtectionRuleMatchingRef()));
 
 		return List.of(rule);
 	}
 
 	public static List<GitHubPullRequest> pullRequests(){
-		GitHubRepositoryMinimal repository = new GitHubRepositoryMinimal( repository().id(), repository().name());
-
 		GitHubPullRequest pullRequest = new GitHubPullRequest(
 				"PR_someId456",
 				"Refactor the function",
@@ -127,7 +122,7 @@ public class GitHubGraphQlTestObjects {
 				OffsetDateTime.of( 2024, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC ),
 				GitHubPullRequestState.MERGED,
 				GitHubPullRequestReviewDecision.APPROVED,
-				repository,
+				repository().id(),
 				branch()
 		);
 		return List.of( pullRequest );

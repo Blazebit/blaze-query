@@ -28,12 +28,12 @@ public record GitHubBranchProtectionRule(
 		boolean requiresStrictStatusChecks,
 		boolean dismissesStaleReviews,
 		boolean requiresApprovingReviews,
-		GitHubRepositoryMinimal repository,
+		String repositoryId,
 		List<GitHubBranchProtectionRuleMatchingRef> matchingRefs
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
-	public static GitHubBranchProtectionRule fromJson(String jsonString) {
+	public static GitHubBranchProtectionRule fromJson(String jsonString, String repositoryId) {
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
 
@@ -52,7 +52,7 @@ public record GitHubBranchProtectionRule(
 					json.path("requiresStrictStatusChecks").asBoolean(false),
 					json.path("dismissesStaleReviews").asBoolean(false),
 					json.path("requiresApprovingReviews").asBoolean(false),
-					GitHubRepositoryMinimal.parseRepositoryMinimal(json.path("repository")),
+					repositoryId,
 					GitHubBranchProtectionRuleMatchingRef.parseMatchingRefs(json.path("matchingRefs"))
 			);
 		} catch (Exception e) {

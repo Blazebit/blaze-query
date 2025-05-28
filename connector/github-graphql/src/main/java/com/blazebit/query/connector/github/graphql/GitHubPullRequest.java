@@ -24,12 +24,12 @@ public record GitHubPullRequest(
 		OffsetDateTime mergedAt,
 		GitHubPullRequestState state,
 		GitHubPullRequestReviewDecision reviewDecision,
-		GitHubRepositoryMinimal repository,
+		String repositoryId,
 		GitHubBranchRef baseRef
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
-	public static GitHubPullRequest fromJson(String jsonString) {
+	public static GitHubPullRequest fromJson(String jsonString, String repositoryId) {
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
 
@@ -45,7 +45,7 @@ public record GitHubPullRequest(
 					json.path("reviewDecision").isNull() || json.path("reviewDecision").asText().isEmpty()
 							? null
 							: GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
-					GitHubRepositoryMinimal.parseRepositoryMinimal(json.path("repository")),
+					repositoryId,
 					GitHubBranchRef.parseBranchRef(json.path("baseRef"))
 					);
 		} catch (Exception e) {
