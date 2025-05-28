@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * but this implementation focuses on {@code id} and {@code name}.</p>
  *
  * <p>This record is used throughout the GitHub connector to represent branch references
- * in various contexts such as pull requests (baseRef, headRef), repositories (defaultBranchRef),
- * and when querying branch information directly.</p>
+ * in various contexts such as pull requests ({@code baseRef}) and repositories ({@code defaultBranchRef}).</p>
  *
  * @author Dimitar Prisadnikov
  * @since 1.0.7
