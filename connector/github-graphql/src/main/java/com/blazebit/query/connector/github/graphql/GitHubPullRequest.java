@@ -25,7 +25,7 @@ public record GitHubPullRequest(
 		GitHubPullRequestState state,
 		GitHubPullRequestReviewDecision reviewDecision,
 		String repositoryId,
-		GitHubBranchRef baseRef
+		GitHubRef baseRef
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -46,7 +46,7 @@ public record GitHubPullRequest(
 							? null
 							: GitHubPullRequestReviewDecision.valueOf(json.path("reviewDecision").asText().toUpperCase()),
 					json.path("repository").path("id").asText(),
-					GitHubBranchRef.parseBranchRef(json.path("baseRef"))
+					GitHubRef.parseBranchRef(json.path("baseRef"))
 					);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubBranchProtectionRule", e);

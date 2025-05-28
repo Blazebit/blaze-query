@@ -4,7 +4,7 @@
  */
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRuleMatchingRef;
-import com.blazebit.query.connector.github.graphql.GitHubBranchRef;
+import com.blazebit.query.connector.github.graphql.GitHubRef;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
 import com.blazebit.query.connector.github.graphql.GitHubRulePullRequestParameters;
@@ -34,8 +34,8 @@ public class GitHubGraphQlTestObjects {
 		return new GitHubOrganization("org_123", "My Organization", true);
 	}
 
-	public static GitHubBranchRef branch() {
-		return new GitHubBranchRef("br_123", "main");
+	public static GitHubRef branch() {
+		return new GitHubRef("br_123", "main");
 	}
 
 	public static GitHubBranchProtectionRuleMatchingRef branchProtectionRuleMatchingRef() {

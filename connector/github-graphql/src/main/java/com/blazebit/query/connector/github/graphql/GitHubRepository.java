@@ -28,7 +28,7 @@ public record GitHubRepository(
 		boolean forkingAllowed,
 		GitHubRepositoryVisibility visibility,
 		OffsetDateTime createdAt,
-		GitHubBranchRef defaultBranchRef,
+		GitHubRef defaultBranchRef,
 		GitHubRepositoryOwner owner
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -50,7 +50,7 @@ public record GitHubRepository(
 					json.path("forkingAllowed").asBoolean(false),
 					GitHubRepositoryVisibility.valueOf(json.path("visibility").asText().toUpperCase()),
 					parseIsoOffsetDateTime(json.path("createdAt").asText()),
-					GitHubBranchRef.parseBranchRef(json.path("defaultBranchRef")),
+					GitHubRef.parseBranchRef(json.path("defaultBranchRef")),
 					GitHubRepositoryOwner.parseOwner(json.path("owner"))
 			);
 		} catch (Exception e) {
