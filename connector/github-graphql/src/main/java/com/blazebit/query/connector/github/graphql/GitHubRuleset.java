@@ -10,14 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 /**
- * This record maps to GitHub's {@code RepositoryRuleset} model with additional context fields. The original GitHub
- * one does not contain references to its parent repository or organization, making it difficult to trace back to
- * its origin. Unlike other GitHub objects such as {@code BranchProtectionRule} which includes a repository object,
- * {@code RepositoryRuleset} lack this contextual information.
+ * This record maps to GitHub's {@code RepositoryRuleset} GraphQL model with additional context fields.
  * <p>
- * To address this limitation, this implementation adds {@code repositoryId} and {@code organizationId}
- * fields, which store the parent context information when a ruleset is retrieved. These fields
- * are populated during deserialization when the parent context is known.
+ * In GitHub's GraphQL API, a {@code RepositoryRuleset} can be associated with one of three source types:
+ * {@code Repository}, {@code Organization}, or {@code Enterprise}. Each of these source types has a unique
+ * identifier. This class captures these source relationships through the {@code repositoryId},
+ * {@code organizationId}, and {@code enterpriseId} fields.
  *
  * @author Dimitar Prisadnikov
  * @since 1.0.6
@@ -29,13 +27,30 @@ public record GitHubRuleset(
 		GitHubRulesetCondition conditions,
 		String repositoryId,
 		String organizationId,
+		String enterpriseId,
 		List<GitHubRule> rules
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
-	public static GitHubRuleset fromJson(String jsonString, String repositoryId, String organizationId) {
+	public static GitHubRuleset fromJson(String jsonString) {
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
+
+			String repositoryId = null;
+			String organizationId = null;
+			String enterpriseId = null;
+
+			JsonNode sourceNode = json.path("source");
+			if (!sourceNode.isMissingNode()) {
+				String typeName = sourceNode.path("__typename").asText();
+				String id = sourceNode.path("id").asText();
+
+				switch (typeName) {
+					case "Repository" -> repositoryId = id;
+					case "Organization" -> organizationId = id;
+					case "Enterprise" -> enterpriseId = id;
+				}
+			}
 
 			return new GitHubRuleset(
 					json.path("id").asText(),
@@ -44,6 +59,7 @@ public record GitHubRuleset(
 					GitHubRulesetCondition.parseRulesetConditions(json.path("conditions")),
 					repositoryId,
 					organizationId,
+					enterpriseId,
 					GitHubRule.parseRules(json.path("rules"))
 			);
 		} catch (Exception e) {

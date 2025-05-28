@@ -83,7 +83,7 @@ public class GitHubGraphQlTestObjects {
 
 	public static List<GitHubRuleset> rulesets() {
 		GitHubRuleset ruleset =
-				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", rulesetCondition(), repository().id(),null, List.of(pullRequestRule()));
+				new GitHubRuleset("rs_123","BRANCH", "ACTIVE", rulesetCondition(), repository().id(),null, null, List.of(pullRequestRule()));
 
 		return List.of(ruleset);
 	}

@@ -118,6 +118,18 @@ public class GitHubGraphQlClient {
 							id
 							target
 							enforcement
+							source {
+								__typename
+								... on Repository{
+									id
+								}
+								... on Organization{
+									id
+								}
+								... on Enterprise{
+									id
+								}
+							}
 							conditions {
 								refName {
 									include
@@ -156,8 +168,7 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.rulesets",
-				rootNode -> extractRulesets(rootNode, repositoryId, null));
+		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
 
 	public List<GitHubBranchProtectionRule> fetchRepositoryBranchProtectionRules(String repositoryId) {
@@ -271,6 +282,18 @@ public class GitHubGraphQlClient {
 						nodes {
 							target
 							enforcement
+							source {
+								__typename
+								... on Repository{
+									id
+								}
+								... on Organization{
+									id
+								}
+								... on Enterprise{
+									id
+								}
+							}
 							conditions {
 								refName {
 									include
@@ -309,8 +332,7 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.rulesets",
-				rootNode -> extractRulesets(rootNode, null, organizationId));
+		return executePaginatedQuery(query, variables, "node.rulesets", this::extractRulesets);
 	}
 
 	private List<GitHubRepository> extractRepositories(JsonNode rootNode) {
@@ -325,12 +347,12 @@ public class GitHubGraphQlClient {
 		return repositories;
 	}
 
-	private List<GitHubRuleset> extractRulesets(JsonNode rootNode, String repositoryId, String organizationId) {
+	private List<GitHubRuleset> extractRulesets(JsonNode rootNode) {
 		List<GitHubRuleset> rulesets = new ArrayList<>();
 
 		for (JsonNode rulesetNode : rootNode.path("nodes")) {
 			if (!rulesetNode.isMissingNode()) {
-				rulesets.add(GitHubRuleset.fromJson(rulesetNode.toString(), repositoryId, organizationId));
+				rulesets.add(GitHubRuleset.fromJson(rulesetNode.toString()));
 			}
 		}
 
