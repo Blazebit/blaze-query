@@ -20,7 +20,7 @@ public final class GitHubSchemaProvider implements QuerySchemaProvider {
 		return Set.of(
 				GitHubRepositoryDataFetcher.INSTANCE,
 				GitHubOrganizationDataFetcher.INSTANCE,
-				GitHubPullRequestDataFetcher.INSTANCE,
+				GitHubDefaultBranchPullRequestDataFetcher.INSTANCE,
 				GitHubRulesetDataFetcher.INSTANCE,
 				GitHubBranchProtectionRuleDataFetcher.INSTANCE
 		);

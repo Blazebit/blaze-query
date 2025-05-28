@@ -18,11 +18,11 @@ import java.util.List;
  * @author Dimitar Prisadnikov
  * @since 1.0.7
  */
-public class GitHubPullRequestDataFetcher implements DataFetcher<GitHubPullRequest>, Serializable {
+public class GitHubDefaultBranchPullRequestDataFetcher implements DataFetcher<GitHubPullRequest>, Serializable {
 
-	public static final GitHubPullRequestDataFetcher INSTANCE = new GitHubPullRequestDataFetcher();
+	public static final GitHubDefaultBranchPullRequestDataFetcher INSTANCE = new GitHubDefaultBranchPullRequestDataFetcher();
 
-	private GitHubPullRequestDataFetcher() {
+	private GitHubDefaultBranchPullRequestDataFetcher() {
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class GitHubPullRequestDataFetcher implements DataFetcher<GitHubPullReque
 			for (GitHubGraphQlClient client : githubClients) {
 				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
 					pullRequestList.addAll(
-							client.fetchRepositoryPullRequestsForDefaultBranch(repository.id(), repository.defaultBranchRef().name()));
+							client.fetchRepositoryPullRequests(repository.id(), repository.defaultBranchRef().name()));
 				}
 			}
 
