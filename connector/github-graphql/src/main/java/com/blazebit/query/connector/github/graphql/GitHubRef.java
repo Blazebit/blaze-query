@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * <p>{@code GitHubRef} encapsulates a reference to a Git object in GitHub's system,
  * such as a branch or tag. In the GitHub GraphQL API, a {@code Ref} object contains multiple fields,
- * but this implementation focuses on the {@code id} and {@code name}</p>
+ * but this implementation focuses on {@code id} and {@code name}.</p>
  *
  * <p>This class is used throughout the GitHub connector to represent branch references
  * in various contexts such as pull requests (baseRef, headRef), repositories (defaultBranchRef),
