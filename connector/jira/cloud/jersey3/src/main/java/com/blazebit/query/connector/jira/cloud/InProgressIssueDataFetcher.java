@@ -8,6 +8,7 @@ import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.jira.cloud.api.IssueSearchApi;
 import com.blazebit.query.connector.jira.cloud.invoker.ApiClient;
 import com.blazebit.query.connector.jira.cloud.invoker.ApiException;
+import com.blazebit.query.connector.jira.cloud.model.IssueBean;
 import com.blazebit.query.connector.jira.cloud.model.SearchAndReconcileResults;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author Dimitar Prisadnikov
  * @since 1.0.8
  */
-public class InProgressIssueDataFetcher implements DataFetcher<SearchAndReconcileResults>, Serializable {
+public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Serializable {
 
 	public static final InProgressIssueDataFetcher INSTANCE = new InProgressIssueDataFetcher();
 
@@ -30,18 +31,20 @@ public class InProgressIssueDataFetcher implements DataFetcher<SearchAndReconcil
 	}
 
 	@Override
-	public List<SearchAndReconcileResults> fetch(DataFetchContext context) {
+	public List<IssueBean> fetch(DataFetchContext context) {
 		try {
 			List<ApiClient> apiClients = JiraCloudConnectorConfig.API_CLIENT.getAll( context );
 
-			List<SearchAndReconcileResults> list = new ArrayList<>();
+			List<IssueBean> issuesList = new ArrayList<>();
 			for ( ApiClient apiClient : apiClients ) {
 				IssueSearchApi api = new IssueSearchApi( apiClient );
 
 				SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql("statusCategory != Done", null, null, List.of("*all"), null, null, null, null, null);
-				list.add(result);
+
+				issuesList.addAll(result.getIssues());
 			}
-			return list;
+
+			return issuesList;
 		}
 		catch (ApiException e) {
 			throw new DataFetcherException( "Could not fetch issue list", e );
@@ -50,6 +53,6 @@ public class InProgressIssueDataFetcher implements DataFetcher<SearchAndReconcil
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( SearchAndReconcileResults.class, JiraCloudConventionContext.INSTANCE );
+		return DataFormats.beansConvention( IssueBean.class, JiraCloudConventionContext.INSTANCE );
 	}
 }
