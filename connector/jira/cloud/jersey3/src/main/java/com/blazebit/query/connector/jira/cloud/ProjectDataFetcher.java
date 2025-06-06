@@ -86,7 +86,6 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 		return allProjects;
 	}
 
-
 	@Override
 	public DataFormat getDataFormat() {
 		return DataFormats.beansConvention( Project.class, JiraCloudConventionContext.INSTANCE );

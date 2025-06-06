@@ -38,10 +38,7 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Seria
 			List<IssueBean> issuesList = new ArrayList<>();
 			for ( ApiClient apiClient : apiClients ) {
 				IssueSearchApi api = new IssueSearchApi( apiClient );
-
-				SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql("statusCategory != Done", null, null, List.of("*all"), null, null, null, null, null);
-
-				issuesList.addAll(result.getIssues());
+				issuesList.addAll(fetchAllInProgressIssuesWithPagination(api));
 			}
 
 			return issuesList;
@@ -49,6 +46,29 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Seria
 		catch (ApiException e) {
 			throw new DataFetcherException( "Could not fetch issue list", e );
 		}
+	}
+
+	private List<IssueBean> fetchAllInProgressIssuesWithPagination(IssueSearchApi api) throws ApiException {
+		String nextPageToken = null;
+		boolean hasMoreResults = true;
+		List<IssueBean> list = new ArrayList<>();
+
+		while ( hasMoreResults ) {
+			SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql( "statusCategory != Done", nextPageToken, null, List.of("*all"), null, null, null, null, null );
+
+			if ( result.getIssues() != null ) {
+				list.addAll(result.getIssues());
+			}
+
+			if ( result.getNextPageToken() == null ) {
+				hasMoreResults = false;
+			}
+			else {
+				nextPageToken = result.getNextPageToken();
+			}
+		}
+
+		return list;
 	}
 
 	@Override
