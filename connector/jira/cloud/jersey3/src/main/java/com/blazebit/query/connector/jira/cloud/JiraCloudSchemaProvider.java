@@ -30,7 +30,9 @@ public final class JiraCloudSchemaProvider implements QuerySchemaProvider {
 				PermissionDataFetcher.INSTANCE,
 				ProjectDataFetcher.INSTANCE,
 				GroupDataFetcher.INSTANCE,
-				MemberDataFetcher.INSTANCE
+				MemberDataFetcher.INSTANCE,
+				InProgressIssueDataFetcher.INSTANCE,
+				ServerInfoDataFetcher.INSTANCE
 		);
 	}
 }

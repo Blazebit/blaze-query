@@ -47,11 +47,11 @@ import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
@@ -78,6 +78,9 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.jira.cloud.JiraCloudConnectorConfig;
+import com.blazebit.query.connector.jira.cloud.model.IssueBean;
+import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
@@ -313,6 +316,9 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( IssueBean.class, "JiraCloudIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
+
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
@@ -741,6 +747,18 @@ public class Main {
 		List<Object[]> permissionResult = permissionQuery.getResultList();
 		System.out.println( "Permission" );
 		print( permissionResult );
+
+		TypedQuery<Object[]> issueQuery = session.createQuery(
+				"SELECT u.* FROM JiraCloudIssue u");
+		List<Object[]> issueResult = issueQuery.getResultList();
+		System.out.println( "Issue" );
+		print( issueResult );
+
+		TypedQuery<Object[]> serverInfoQuery = session.createQuery(
+				"select u.* from JiraCloudServerInfo u" );
+		List<Object[]> serverInfoResult = serverInfoQuery.getResultList();
+		System.out.println( "Server info" );
+		print( serverInfoResult );
 	}
 
 	private static void testEntityView(QuerySession session) {
