@@ -16,14 +16,16 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Dimitar Prisadnikov
  * @since 1.0.8
  */
-public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Serializable {
+public class InProgressIssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializable {
 
 	public static final InProgressIssueDataFetcher INSTANCE = new InProgressIssueDataFetcher();
 
@@ -31,20 +33,31 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Seria
 	}
 
 	@Override
-	public List<IssueBean> fetch(DataFetchContext context) {
+	public List<IssueBeanWrapper> fetch(DataFetchContext context) {
 		try {
-			List<ApiClient> apiClients = JiraCloudConnectorConfig.API_CLIENT.getAll( context );
+			List<ApiClient> apiClients = JiraCloudConnectorConfig.API_CLIENT.getAll(context);
 
 			List<IssueBean> issuesList = new ArrayList<>();
-			for ( ApiClient apiClient : apiClients ) {
-				IssueSearchApi api = new IssueSearchApi( apiClient );
+			for (ApiClient apiClient : apiClients) {
+				IssueSearchApi api = new IssueSearchApi(apiClient);
 				issuesList.addAll(fetchAllInProgressIssuesWithPagination(api));
 			}
 
-			return issuesList;
+			// Convert IssueBean instances to IssueBeanWrapper instances
+			return issuesList.stream()
+					.map(issueBean -> {
+						try {
+							return new IssueBeanWrapper(issueBean);
+						}
+						catch (URISyntaxException e) {
+							throw new RuntimeException( e );
+						}
+					})
+					.collect(Collectors.toList());
+
 		}
 		catch (ApiException e) {
-			throw new DataFetcherException( "Could not fetch issue list", e );
+			throw new DataFetcherException("Could not fetch issue list", e);
 		}
 	}
 
@@ -53,14 +66,24 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Seria
 		boolean hasMoreResults = true;
 		List<IssueBean> list = new ArrayList<>();
 
-		while ( hasMoreResults ) {
-			SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql( "statusCategory != Done", nextPageToken, null, List.of("*all"), null, null, null, null, null );
+		while (hasMoreResults) {
+			SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql(
+					"statusCategory != Done",
+					nextPageToken,
+					null,
+					List.of("*all"),
+					null,
+					null,
+					null,
+					null,
+					null
+			);
 
-			if ( result.getIssues() != null ) {
+			if (result.getIssues() != null) {
 				list.addAll(result.getIssues());
 			}
 
-			if ( result.getNextPageToken() == null ) {
+			if (result.getNextPageToken() == null) {
 				hasMoreResults = false;
 			}
 			else {
@@ -73,6 +96,6 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBean>, Seria
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( IssueBean.class, JiraCloudConventionContext.INSTANCE );
+		return DataFormats.beansConvention(IssueBeanWrapper.class, JiraCloudConventionContext.INSTANCE);
 	}
 }
