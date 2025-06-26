@@ -28,7 +28,7 @@ import java.util.List;
  * @author Dimitar Prisadnikov
  * @since 1.0.8
  */
-public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectoryUser>, Serializable {
+public class JiraCloudAdminUserDataFetcher implements DataFetcher<JiraCloudAdminUserWrapper>, Serializable {
 
 	public static final JiraCloudAdminUserDataFetcher INSTANCE = new JiraCloudAdminUserDataFetcher();
 
@@ -36,10 +36,10 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectory
 	}
 
 	@Override
-	public List<MultiDirectoryUser> fetch(DataFetchContext context) {
+	public List<JiraCloudAdminUserWrapper> fetch(DataFetchContext context) {
 		try {
 			List<ApiClient> apiClients = JiraCloudAdminConnectorConfig.API_CLIENT.getAll(context);
-			List<MultiDirectoryUser> userList = new ArrayList<>();
+			List<JiraCloudAdminUserWrapper> userList = new ArrayList<>();
 
 			for (ApiClient apiClient : apiClients) {
 				DirectoryApi directoryApi = new DirectoryApi(apiClient);
@@ -78,7 +78,18 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectory
 									);
 
 									if ( userPage.getData() != null ) {
-										userList.addAll( userPage.getData() );
+										for (MultiDirectoryUser user : userPage.getData()) {
+											userList.add(
+												new JiraCloudAdminUserWrapper(
+														user,
+														org.getId(),
+														org.getAttributes().getName(),
+														directory.getDirectoryId(),
+														directory.getName()
+												)
+											);
+										}
+
 									}
 
 									LinkPageCursor links = userPage.getLinks();
@@ -109,6 +120,6 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectory
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(MultiDirectoryUser.class, JiraCloudAdminConventionContext.INSTANCE);
+		return DataFormats.beansConvention(JiraCloudAdminUserWrapper.class, JiraCloudAdminConventionContext.INSTANCE);
 	}
 }
