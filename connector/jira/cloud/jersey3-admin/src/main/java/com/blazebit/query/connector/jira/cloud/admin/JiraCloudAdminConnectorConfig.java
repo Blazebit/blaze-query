@@ -19,7 +19,7 @@ public final class JiraCloudAdminConnectorConfig {
 	 * Specified the {@link ApiClient} to use for querying data.
 	 */
 	public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName(
-			"jiraCloudUserManagementApiClient" );
+			"jiraCloudAdminApiClient" );
 
 	private JiraCloudAdminConnectorConfig() {
 	}
