@@ -75,7 +75,11 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.jira.cloud.admin.model.MultiDirectoryUser;
+import com.blazebit.query.connector.jira.cloud.admin.model.MultiDirectoryUserDirectory;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminConnectorConfig;
+import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
@@ -154,6 +158,8 @@ public class Main {
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
 	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_ADMIN = "";
+
 
 	private Main() {
 	}
@@ -183,6 +189,7 @@ public class Main {
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
+			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
@@ -308,12 +315,18 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
 
+			// Jira Cloud Admin
+			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
+			queryContextBuilder.registerSchemaObjectAlias( MultiDirectoryUserDirectory.class, "JiraCloudAdminDirectory" );
+			queryContextBuilder.registerSchemaObjectAlias( MultiDirectoryUser.class, "JiraCloudAdminUser" );
+
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
 					QuerySession session = queryContext.createSession(
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
+					testJiraCloudAdmin( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
@@ -722,6 +735,26 @@ public class Main {
 		print( permissionResult );
 	}
 
+	private static void testJiraCloudAdmin(QuerySession session) {
+		TypedQuery<Object[]> orgQuery = session.createQuery(
+				"select o.* from JiraCloudAdminOrg o" );
+		List<Object[]> orgResult = orgQuery.getResultList();
+		System.out.println( "Org" );
+		print( orgResult );
+
+		TypedQuery<Object[]> directoryQuery = session.createQuery(
+				"select o.* from JiraCloudAdminDirectory o" );
+		List<Object[]> directoryResult = directoryQuery.getResultList();
+		System.out.println( "Directory" );
+		print( directoryResult );
+
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from JiraCloudAdminUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
+	}
+
 	private static void testEntityView(QuerySession session) {
 		TypedQuery<Object[]> entityViewQuery = session.createQuery(
 				"select t.id, e.text1 from " + name( TestEntityView.class ) + " t, unnest(t.elements) e" );
@@ -881,6 +914,12 @@ public class Main {
 		apiClient.setBasePath( JIRA_CLOUD_HOST );
 		apiClient.addDefaultHeader( "Authorization", "Basic " + Base64.getEncoder().encodeToString( (JIRA_CLOUD_USER + ":" + JIRA_CLOUD_TOKEN ).getBytes( StandardCharsets.UTF_8 ) ) );
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return apiClient;
+	}
+
+	private static com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient createJiraCloudAdminOrganizationApiClient() {
+		com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient();
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN );
 		return apiClient;
 	}
 
