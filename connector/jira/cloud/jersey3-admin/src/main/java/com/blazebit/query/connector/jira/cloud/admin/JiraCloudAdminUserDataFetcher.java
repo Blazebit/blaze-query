@@ -54,14 +54,14 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectory
 						MultiDirectoryUserDirectoryPage directoryPage = directoryApi.getDirectoriesForOrg( org.getId(), null, null, directoryCursor, null );
 
 						if ( directoryPage.getData() != null ) {
-							String userCursor = null;
-							boolean userHasMorePages = true;
+							for (MultiDirectoryUserDirectory directory : directoryPage.getData()) {
+								String userCursor = null;
+								boolean userHasMorePages = true;
 
-							while ( userHasMorePages ) {
-								for ( MultiDirectoryUserDirectory directoryUserPage : directoryPage.getData() ) {
+								while ( userHasMorePages ) {
 									MultiDirectoryUserPage userPage = usersApi.getDirectoryUsers(
 											org.getId(),
-											directoryUserPage.getDirectoryId(),
+											directory.getDirectoryId(),
 											userCursor,
 											null,
 											null,
@@ -93,10 +93,9 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<MultiDirectory
 						}
 
 						LinkPageCursor links = directoryPage.getLinks();
-						if ( links != null && links.getNext() != null ) {
+						if (links != null && links.getNext() != null) {
 							directoryCursor = links.getNext();
-						}
-						else {
+						} else {
 							directoryHasMorePages = false;
 						}
 					}
