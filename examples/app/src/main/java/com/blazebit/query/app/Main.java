@@ -54,15 +54,26 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCl
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
+import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
+import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
+import com.blazebit.query.connector.github.graphql.GitHubOrganization;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
+import com.blazebit.query.connector.github.graphql.GitHubRepository;
+import com.blazebit.query.connector.github.graphql.GitHubRuleset;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
+import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
+import com.blazebit.query.connector.gitlab.GitlabGraphQlConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
 import com.blazebit.query.connector.gitlab.GitlabProject;
 import com.blazebit.query.connector.gitlab.GitlabUser;
@@ -169,18 +180,20 @@ public class Main {
 			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
 			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
 					Main::createPostgreSqlManagers );
+			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
-//		queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
+//			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-//			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-//			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
+			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
+			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
@@ -192,6 +205,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualNetwork.class, "AzureVirtualNetwork" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVault.class, "AzureVault" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class,"AzurePostgreSqlFlexibleServer" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerBackup.class,"AzurePostgreSqlFlexibleServerBackup" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerWithParameters.class,"AzurePostgreSqlFlexibleServerWithParameters" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
@@ -254,6 +269,11 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GHBranch.class, "GitHubBranch" );
 			queryContextBuilder.registerSchemaObjectAlias( GHProject.class, "GitHubProject" );
 			queryContextBuilder.registerSchemaObjectAlias( GHTeam.class, "GitHubTeam" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubOrganization.class, "GraphQlGitHubOrganization" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRepository.class, "GraphQlGitHubRepository" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRuleset.class, "GraphQlGitHubRuleset" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubBranchProtectionRule.class, "GraphQlGitHubBranchProtectionRule" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubPullRequest.class, "GraphQlGitHubPullRequest" );
 
 			// GitHub OpenAPI
 			queryContextBuilder.registerSchemaObjectAlias( OrganizationSimple.class, "OpenAPIGitHubOrganization" );
@@ -518,6 +538,31 @@ public class Main {
 		List<Object[]> gitHubTeamResult = gitHubTeamQuery.getResultList();
 		System.out.println( "GitHubTeams" );
 		print( gitHubTeamResult );
+		TypedQuery<Object[]> gitHubGraphQlOrganizationQuery = session.createQuery(
+				"select o.* from GraphQlGitHubOrganization o" );
+		List<Object[]> gitHubGraphQlOrganizationResult = gitHubGraphQlOrganizationQuery.getResultList();
+		System.out.println( "GitHubOrganizations" );
+		print( gitHubGraphQlOrganizationResult );
+		TypedQuery<Object[]> gitHubGraphQlRepositoryQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRepository r" );
+		List<Object[]> gitHubGraphQlRepositoryResult = gitHubGraphQlRepositoryQuery.getResultList();
+		System.out.println( "GitHubRepositories" );
+		print( gitHubGraphQlRepositoryResult );
+		TypedQuery<Object[]> gitHubGraphQlRulesetQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRuleset r" );
+		List<Object[]> gitHubGraphQlRulesetResult = gitHubGraphQlRulesetQuery.getResultList();
+		System.out.println( "GitHubRulesets" );
+		print( gitHubGraphQlRulesetResult );
+		TypedQuery<Object[]> gitHubGraphQlPullRequestQuery = session.createQuery(
+				"select p.* from GraphQlGitHubPullRequest p" );
+		List<Object[]> gitHubGraphQlPullRequestResult = gitHubGraphQlPullRequestQuery.getResultList();
+		System.out.println( "GitHubPullRequests" );
+		print( gitHubGraphQlPullRequestResult );
+		TypedQuery<Object[]> gitHubGraphQlBranchProtectionRuleQuery = session.createQuery(
+				"select r.* from GraphQlGitHubBranchProtectionRule r" );
+		List<Object[]> gitHubGraphQlBranchProtectionRuleResult = gitHubGraphQlBranchProtectionRuleQuery.getResultList();
+		System.out.println( "GitHubBranchProtectionRules" );
+		print( gitHubGraphQlBranchProtectionRuleResult );
 	}
 
 	private static void testGitHubOpenAPI(QuerySession session) {
@@ -800,6 +845,19 @@ public class Main {
 		System.out.println( "PostgreSqlFlexibleServers" );
 		print( postgreSqlFlexibleServerResult );
 
+		TypedQuery<Object[]> postgreSqlFlexibleServerBackupQuery =
+				session.createQuery("select b.* from AzurePostgreSqlFlexibleServerBackup b");
+		List<Object[]> postgreSqlFlexibleServerBackupQueryResult =
+				postgreSqlFlexibleServerBackupQuery.getResultList();
+		System.out.println("PostgreSqlFlexibleServersBackups");
+		print(postgreSqlFlexibleServerBackupQueryResult);
+
+		TypedQuery<Object[]> postgreSqlFlexibleServerWithParametersQuery =
+				session.createQuery("select s.* from AzurePostgreSqlFlexibleServerWithParameters s");
+		List<Object[]> postgreSqlFlexibleServerWithParametersQueryResult =
+				postgreSqlFlexibleServerWithParametersQuery.getResultList();
+		System.out.println("PostgreSqlFlexibleServersWithParameters");
+		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
 	private static AwsConnectorConfig.Account createAwsAccount() {
@@ -822,6 +880,11 @@ public class Main {
 	private static GitlabGraphQlClient createGitlabGraphQLClient() {
 		// Initialize GraphQL client with host and token
 		return new GitlabGraphQlClient(GITLAB_HOST, GITLAB_KEY);
+	}
+
+	private static GitHubGraphQlClient createGitHubGraphQLClient() {
+		// Initialize GraphQL client with host and token
+		return new GitHubGraphQlClient(GITHUB_KEY);
 	}
 
 	private static GitHub createGithub() {

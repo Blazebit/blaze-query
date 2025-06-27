@@ -7,13 +7,12 @@ package com.blazebit.query.connector.gitlab;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.blazebit.query.connector.gitlab.DateUtils.ISO_DATE_FORMAT;
-import static com.blazebit.query.connector.gitlab.DateUtils.parseDate;
+import static com.blazebit.query.connector.gitlab.DateUtils.parseIsoOffsetDateTime;
 
 /**
  * @author Martijn Sprengers
@@ -24,13 +23,14 @@ public record GitlabProject(
 		String name,
 		Boolean archived,
 		String avatarUrl,
-		Date createdAt,
+		OffsetDateTime createdAt,
 		String description,
-		Date lastActivityAt,
+		OffsetDateTime lastActivityAt,
 		String path,
-		Date updatedAt,
+		OffsetDateTime updatedAt,
 		String groupId,
 		String defaultBranch, // repository.rootRef
+		Boolean mergeRequestsEnabled,
 		List<GitlabBranchRule> branchRules
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -44,13 +44,14 @@ public record GitlabProject(
 					json.get( "name" ).asText(),
 					json.path( "archived" ).asBoolean( false ),
 					json.path( "avatarUrl" ).asText( null ),
-					parseDate( json.path( "createdAt" ), ISO_DATE_FORMAT ),
+					parseIsoOffsetDateTime( json.path( "createdAt" ).asText(null) ),
 					json.path( "description" ).asText( null ),
-					parseDate( json.path( "lastActivityAt" ), ISO_DATE_FORMAT ),
+					parseIsoOffsetDateTime( json.path( "lastActivityAt" ).asText(null) ),
 					json.path( "path" ).asText( null ),
-					parseDate( json.path( "updatedAt" ), ISO_DATE_FORMAT ),
+					parseIsoOffsetDateTime( json.path( "updatedAt" ).asText(null) ),
 					json.has( "group" ) ? json.get( "group" ).path( "id" ).asText( null ) : null,
 					json.has( "repository" ) ? json.get( "repository" ).path( "rootRef" ).asText( null ) : null,
+					json.path( "mergeRequestsEnabled" ).asBoolean( false ),
 					parseBranchRules( json.path( "branchRules" ) )
 			);
 		}
