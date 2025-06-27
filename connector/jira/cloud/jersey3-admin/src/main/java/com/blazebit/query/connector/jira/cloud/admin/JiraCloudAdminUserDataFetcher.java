@@ -120,6 +120,6 @@ public class JiraCloudAdminUserDataFetcher implements DataFetcher<JiraCloudAdmin
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(JiraCloudAdminUserWrapper.class, JiraCloudAdminConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(JiraCloudAdminUserWrapper.class, JiraCloudAdminConventionContext.INSTANCE);
 	}
 }
