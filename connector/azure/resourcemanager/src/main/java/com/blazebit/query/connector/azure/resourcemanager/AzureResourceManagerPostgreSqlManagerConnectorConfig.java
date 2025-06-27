@@ -17,6 +17,9 @@ public class AzureResourceManagerPostgreSqlManagerConnectorConfig {
 	public static final DataFetcherConfig<AzureResourceManagerPostgreSqlManager> POSTGRESQL_MANAGER = DataFetcherConfig.forPropertyName(
 			"azureResourceManagerPostgreSqlManager" );
 
+	public static final DataFetcherConfig<String> PARAMETERS_TO_FETCH = DataFetcherConfig.forPropertyName(
+		"serverParameters" );
+
 	private AzureResourceManagerPostgreSqlManagerConnectorConfig() {
 	}
 }

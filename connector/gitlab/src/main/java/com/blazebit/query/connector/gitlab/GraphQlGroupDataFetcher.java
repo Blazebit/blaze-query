@@ -28,7 +28,7 @@ public class GraphQlGroupDataFetcher implements DataFetcher<GitlabGroup>, Serial
 	@Override
 	public List<GitlabGroup> fetch(DataFetchContext context) {
 		try {
-			List<GitlabGraphQlClient> gitlabClients = GitlabConnectorConfig.GITLAB_GRAPHQL_CLIENT.getAll( context );
+			List<GitlabGraphQlClient> gitlabClients = GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getAll( context );
 			List<GitlabGroup> groupList = new ArrayList<>();
 
 			for ( GitlabGraphQlClient client : gitlabClients ) {
