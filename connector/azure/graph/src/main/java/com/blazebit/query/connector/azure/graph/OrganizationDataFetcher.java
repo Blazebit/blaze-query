@@ -40,6 +40,7 @@ public class OrganizationDataFetcher implements DataFetcher<AzureGraphOrganizati
 				for ( Organization organization : accessor.getGraphServiceClient().organization().get().getValue() ) {
 					list.add( new AzureGraphOrganization( accessor.getTenantId(), organization ) );
 				}
+				var test = accessor.getGraphServiceClient().security().incidents().get().getValue();
 			}
 			return list;
 		}
