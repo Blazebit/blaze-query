@@ -21,6 +21,9 @@ public final class JiraCloudConnectorConfig {
 	public static final DataFetcherConfig<ApiClient> API_CLIENT = DataFetcherConfig.forPropertyName(
 			"jiraCloudApiClient" );
 
+	public static final DataFetcherConfig<String> JQL_QUERY = DataFetcherConfig.forPropertyName(
+			"jqlQuery" );
+
 	private JiraCloudConnectorConfig() {
 	}
 }

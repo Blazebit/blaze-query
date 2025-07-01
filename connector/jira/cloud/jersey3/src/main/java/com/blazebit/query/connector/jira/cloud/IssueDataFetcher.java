@@ -25,22 +25,23 @@ import java.util.stream.Collectors;
  * @author Dimitar Prisadnikov
  * @since 1.0.8
  */
-public class InProgressIssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializable {
+public class IssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializable {
 
-	public static final InProgressIssueDataFetcher INSTANCE = new InProgressIssueDataFetcher();
+	public static final IssueDataFetcher INSTANCE = new IssueDataFetcher();
 
-	private InProgressIssueDataFetcher() {
+	private IssueDataFetcher() {
 	}
 
 	@Override
 	public List<IssueBeanWrapper> fetch(DataFetchContext context) {
 		try {
 			List<ApiClient> apiClients = JiraCloudConnectorConfig.API_CLIENT.getAll(context);
+			String query = JiraCloudConnectorConfig.JQL_QUERY.get(context);
 
 			List<IssueBean> issuesList = new ArrayList<>();
 			for (ApiClient apiClient : apiClients) {
 				IssueSearchApi api = new IssueSearchApi(apiClient);
-				issuesList.addAll(fetchAllInProgressIssuesWithPagination(api));
+				issuesList.addAll( fetchAllIssuesWithPagination(api, query));
 			}
 
 			// Convert IssueBean instances to IssueBeanWrapper instances
@@ -61,14 +62,17 @@ public class InProgressIssueDataFetcher implements DataFetcher<IssueBeanWrapper>
 		}
 	}
 
-	private List<IssueBean> fetchAllInProgressIssuesWithPagination(IssueSearchApi api) throws ApiException {
+	private List<IssueBean> fetchAllIssuesWithPagination(IssueSearchApi api, String query) throws ApiException {
 		String nextPageToken = null;
 		boolean hasMoreResults = true;
 		List<IssueBean> list = new ArrayList<>();
 
+		// searchAndReconsileIssuesUsingJql requires a bounded query
+		String jqlQuery = query != null ? query : "statusCategory != Done";
+
 		while (hasMoreResults) {
 			SearchAndReconcileResults result = api.searchAndReconsileIssuesUsingJql(
-					"statusCategory != Done",
+					jqlQuery,
 					nextPageToken,
 					null,
 					List.of("*all"),
