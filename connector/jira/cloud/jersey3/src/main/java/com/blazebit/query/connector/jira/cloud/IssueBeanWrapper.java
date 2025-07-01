@@ -9,9 +9,12 @@ import com.blazebit.query.connector.jira.cloud.model.IssueBean;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.blazebit.query.connector.jira.cloud.DateUtils.parseIsoOffsetDateTime;
 
 /**
  * A wrapper for IssueBean that provides structured access to fields
@@ -30,11 +33,12 @@ public class IssueBeanWrapper implements Serializable {
 	private final Project project;
 	private final StatusCategory statusCategory;
 	private final Security security;
-	private final String created;
-	private final String dueDate;
-	private final String updated;
+	private final OffsetDateTime created;
+	private final OffsetDateTime dueDate;
+	private final OffsetDateTime updated;
+	private final OffsetDateTime resolutionDate;
 	private final Status status;
-	private final String resolutionDate;
+	private final Assignee assignee;
 
 	public IssueBeanWrapper(IssueBean issueBean) throws URISyntaxException {
 		this.issueBean = Objects.requireNonNull(issueBean, "issueBean cannot be null");
@@ -46,11 +50,12 @@ public class IssueBeanWrapper implements Serializable {
 		this.project = extractProject(fields);
 		this.statusCategory = extractStatusCategory(fields);
 		this.security = extractSecurity(fields);
-		this.created = extractStringField(fields, "created");
-		this.dueDate = extractStringField(fields, "duedate");
-		this.updated = extractStringField(fields, "updated");
+		this.created = parseIsoOffsetDateTime(extractStringField(fields, "created") );
+		this.dueDate = parseIsoOffsetDateTime(extractStringField(fields, "duedate") );
+		this.updated = parseIsoOffsetDateTime(extractStringField(fields, "updated") );
+		this.resolutionDate = parseIsoOffsetDateTime(extractStringField(fields, "resolutiondate") );
 		this.status = extractStatus(fields);
-		this.resolutionDate = extractStringField(fields, "resolutiondate");
+		this.assignee = extractAssignee(fields);
 	}
 
 	/**
@@ -217,6 +222,35 @@ public class IssueBeanWrapper implements Serializable {
 	}
 
 	/**
+	 * Extract assignee information from the fields map
+	 * @param fields the fields map
+	 * @return the Assignee object or null if not present
+	 */
+	private Assignee extractAssignee(Map<String, Object> fields) {
+		Map<String, Object> assigneeMap = extractMapField(fields, "assignee");
+		if (!assigneeMap.isEmpty()) {
+			Map<String, Object> avatarUrls = extractMapField(assigneeMap, "avatarUrls");
+
+			return new Assignee(
+					(String) assigneeMap.get("self"),
+					(String) assigneeMap.get("accountId"),
+					(String) assigneeMap.get("emailAddress"),
+					new AvatarUrls(
+							(String) avatarUrls.get("48x48"),
+							(String) avatarUrls.get("24x24"),
+							(String) avatarUrls.get("16x16"),
+							(String) avatarUrls.get("32x32")
+					),
+					(String) assigneeMap.get("displayName"),
+					Boolean.TRUE.equals(assigneeMap.get("active")),
+					(String) assigneeMap.get("timeZone"),
+					(String) assigneeMap.get("accountType")
+			);
+		}
+		return null;
+	}
+
+	/**
 	 * Get the wrapped IssueBean
 	 * @return the original IssueBean
 	 */
@@ -300,7 +334,7 @@ public class IssueBeanWrapper implements Serializable {
 	 * Get the created date
 	 * @return the created date as string
 	 */
-	public String getCreated() {
+	public OffsetDateTime getCreated() {
 		return created;
 	}
 
@@ -308,7 +342,7 @@ public class IssueBeanWrapper implements Serializable {
 	 * Get the due date
 	 * @return the due date as string
 	 */
-	public String getDueDate() {
+	public OffsetDateTime getDueDate() {
 		return dueDate;
 	}
 
@@ -316,7 +350,7 @@ public class IssueBeanWrapper implements Serializable {
 	 * Get the updated date
 	 * @return the updated date as string
 	 */
-	public String getUpdated() {
+	public OffsetDateTime getUpdated() {
 		return updated;
 	}
 
@@ -332,9 +366,18 @@ public class IssueBeanWrapper implements Serializable {
 	 * Get the resolution date
 	 * @return the resolution date as string
 	 */
-	public String getResolutionDate() {
+	public OffsetDateTime getResolutionDate() {
 		return resolutionDate;
 	}
+
+	/**
+	 * Get the assignee
+	 * @return the assignee information or null if not assigned
+	 */
+	public Assignee getAssignee() {
+		return assignee;
+	}
+
 
 	/**
 	 * Priority information for an issue
@@ -634,6 +677,64 @@ public class IssueBeanWrapper implements Serializable {
 
 		public StatusCategory getStatusCategory() {
 			return statusCategory;
+		}
+	}
+
+	/**
+	 * Assignee information
+	 */
+	public static class Assignee implements Serializable {
+		private final String self;
+		private final String accountId;
+		private final String emailAddress;
+		private final AvatarUrls avatarUrls;
+		private final String displayName;
+		private final boolean active;
+		private final String timeZone;
+		private final String accountType;
+
+		public Assignee(String self, String accountId, String emailAddress, AvatarUrls avatarUrls,
+						String displayName, boolean active, String timeZone, String accountType) {
+			this.self = self;
+			this.accountId = accountId;
+			this.emailAddress = emailAddress;
+			this.avatarUrls = avatarUrls;
+			this.displayName = displayName;
+			this.active = active;
+			this.timeZone = timeZone;
+			this.accountType = accountType;
+		}
+
+		public String getSelf() {
+			return self;
+		}
+
+		public String getAccountId() {
+			return accountId;
+		}
+
+		public String getEmailAddress() {
+			return emailAddress;
+		}
+
+		public AvatarUrls getAvatarUrls() {
+			return avatarUrls;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public boolean isActive() {
+			return active;
+		}
+
+		public String getTimeZone() {
+			return timeZone;
+		}
+
+		public String getAccountType() {
+			return accountType;
 		}
 	}
 }
