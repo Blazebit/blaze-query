@@ -21,7 +21,7 @@ import static com.blazebit.query.connector.jira.cloud.DateUtils.parseIsoOffsetDa
  * to avoid problems with Apache Calcite SQL when handling LinkedHashMap with mixed value types.
  *
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public class IssueBeanWrapper implements Serializable {
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public class ServerInfoDataFetcher implements DataFetcher<ServerInformation>, Serializable {
 
