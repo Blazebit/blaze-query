@@ -75,7 +75,6 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
-import com.blazebit.query.connector.jira.cloud.JiraCloudConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.model.IssueBean;
 import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
