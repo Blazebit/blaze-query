@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public class JiraCloudAdminOrgDataFetcher implements DataFetcher<OrgModel>, Serializable {
 

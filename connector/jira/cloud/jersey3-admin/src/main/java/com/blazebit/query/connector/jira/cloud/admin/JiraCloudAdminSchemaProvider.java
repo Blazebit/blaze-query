@@ -14,7 +14,7 @@ import java.util.Set;
  * The schema provider for the Jira Cloud User Management connector.
  *
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public final class JiraCloudAdminSchemaProvider implements QuerySchemaProvider {
 	/**

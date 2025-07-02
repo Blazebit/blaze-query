@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * A method filter to exclude internal methods from the Jira models.
  *
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public class JiraCloudAdminConventionContext implements ConventionContext {
 

@@ -11,7 +11,7 @@ import com.blazebit.query.spi.DataFetcherConfig;
  * The configuration properties for the Jira Cloud User Management connector.
  *
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public final class JiraCloudAdminConnectorConfig {
 

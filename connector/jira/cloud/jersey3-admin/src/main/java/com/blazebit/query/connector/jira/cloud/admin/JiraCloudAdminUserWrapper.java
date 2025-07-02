@@ -17,7 +17,7 @@ import com.blazebit.query.connector.jira.cloud.admin.model.MultiDirectoryUser;
  * @param directoryName The name of the directory the user belongs to
  *
  * @author Dimitar Prisadnikov
- * @since 1.0.8
+ * @since 1.0.9
  */
 public record JiraCloudAdminUserWrapper(
 		MultiDirectoryUser user,
