@@ -38,10 +38,12 @@ import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
 import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
@@ -214,6 +216,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphManagedDevice.class, "AzureManagedDevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphOrganization.class, "AzureOrganization" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
 			// IAM
 			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
@@ -323,13 +327,13 @@ public class Main {
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
-					testGitlab( session );
+//					testGitlab( session );
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
 //					testEntityView( session );
-//					testAzureGraph( session );
-					testAzureResourceManager( session );
+					testAzureGraph( session );
+//					testAzureResourceManager( session );
 				}
 			}
 		}
@@ -757,17 +761,17 @@ public class Main {
 		System.out.println( "User" );
 		print( userResult );
 
-		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-				"select c.* from AzureConditionalAccessPolicy c" );
-		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
-		System.out.println( "Conditional access policies" );
-		print( conditionalAccessPolicyResult );
-
-		TypedQuery<Object[]> applicationQuery = session.createQuery(
-				"select a.* from AzureApplication a" );
-		List<Object[]> applicationResult = applicationQuery.getResultList();
-		System.out.println( "Applications" );
-		print( applicationResult );
+//		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+//				"select c.* from AzureConditionalAccessPolicy c" );
+//		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+//		System.out.println( "Conditional access policies" );
+//		print( conditionalAccessPolicyResult );
+//
+//		TypedQuery<Object[]> applicationQuery = session.createQuery(
+//				"select a.* from AzureApplication a" );
+//		List<Object[]> applicationResult = applicationQuery.getResultList();
+//		System.out.println( "Applications" );
+//		print( applicationResult );
 
 //		TypedQuery<Object[]> managedDevices = session.createQuery(
 //				"select a.* from AzureManagedDevice a" );
@@ -780,6 +784,16 @@ public class Main {
 		List<Object[]> organizationResult = organizationQuery.getResultList();
 		System.out.println( "Organizations" );
 		print( organizationResult );
+
+		TypedQuery<Object[]> alertQuery = session.createQuery( "select a.payload.severity from AzureAlert a" );
+		List<Object[]> alertResult = alertQuery.getResultList();
+		System.out.println( "Alerts" );
+		print( alertResult );
+
+		TypedQuery<Object[]> incidentQuery = session.createQuery("select i.payload.* from AzureIncident i");
+		List<Object[]> incidentResult = incidentQuery.getResultList();
+		System.out.println( "Incidents" );
+		print( incidentResult );
 
 //		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
 //				"select s.* from AzureAvailableServicePlan s" );
