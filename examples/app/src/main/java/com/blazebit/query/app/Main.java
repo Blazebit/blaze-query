@@ -310,7 +310,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
-			queryContextBuilder.registerSchemaObjectAlias( IssueBean.class, "JiraCloudIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( IssueBeanWrapper.class, "JiraCloudIssue" );
 			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
 
 
