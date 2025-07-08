@@ -104,7 +104,6 @@ public class GitlabGraphQlClient {
 
 		JsonNode projectsNodes = rootNode.path("nodes");
 		for (JsonNode projectNode : projectsNodes) {
-			String projectName = projectNode.path("name").asText();
 			JsonNode mergeRequestsNode = projectNode.path("mergeRequests");
 
 			for (JsonNode mergeRequestNode : mergeRequestsNode.path("nodes")) {
@@ -302,10 +301,26 @@ public class GitlabGraphQlClient {
 							mergeRequests(state: $state, first: $first, after: $cursor) {
 								pageInfo { endCursor hasNextPage }
 								nodes {
+								id
+								name
+								title
+								state
+								approved
+								approvalsRequired
+								createdAt
+								mergedAt
+								targetBranch
+									targetProjectId
+								author{
 									id
 									name
-									state
-									approved
+								}
+								approvedBy{
+									nodes{
+									id
+									name
+									}
+								}
 								}
 							}
 						}
