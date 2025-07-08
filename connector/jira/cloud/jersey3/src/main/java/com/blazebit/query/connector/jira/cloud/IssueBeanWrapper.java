@@ -30,7 +30,7 @@ public class IssueBeanWrapper implements Serializable {
 	private final Priority priority;
 	private final URI self;
 	private final IssueType issueType;
-	private final Project project;
+	private final String projectId;
 	private final StatusCategory statusCategory;
 	private final Security security;
 	private final OffsetDateTime created;
@@ -47,7 +47,7 @@ public class IssueBeanWrapper implements Serializable {
 		this.summary = extractStringField(fields, "summary");
 		this.priority = extractPriority(fields);
 		this.issueType = extractIssueType(fields);
-		this.project = extractProject(fields);
+		this.projectId = extractProjectId(fields);
 		this.statusCategory = extractStatusCategory(fields);
 		this.security = extractSecurity(fields);
 		this.created = parseIsoOffsetDateTime(extractStringField(fields, "created") );
@@ -147,6 +147,21 @@ public class IssueBeanWrapper implements Serializable {
 							(String) avatarUrls.get("32x32")
 					)
 			);
+		}
+		return null;
+	}
+
+	/**
+	 * Extract just the project ID from the fields map
+	 * Note: Project IDs are not globally unique, but they are unique within a single Jira site (instance)
+	 *
+	 * @param fields the fields map
+	 * @return the project ID or null if not present
+	 */
+	private String extractProjectId(Map<String, Object> fields) {
+		Map<String, Object> projectMap = extractMapField(fields, "project");
+		if (!projectMap.isEmpty()) {
+			return (String) projectMap.get("id");
 		}
 		return null;
 	}
@@ -307,11 +322,11 @@ public class IssueBeanWrapper implements Serializable {
 	}
 
 	/**
-	 * Get the project
-	 * @return the project information
+	 * Get the project ID string
+	 * @return the project ID
 	 */
-	public Project getProject() {
-		return project;
+	public String getProjectId() {
+		return projectId;
 	}
 
 	/**
