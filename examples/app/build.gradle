@@ -41,6 +41,7 @@ dependencies {
     api project(':blaze-query-connector-aws-route53')
     api project(':blaze-query-connector-gitlab')
     api project(':blaze-query-connector-github')
+    api project(':blaze-query-connector-github-graphql')
     api project(':blaze-query-connector-github-openapi-jersey3')
     api project(':blaze-query-connector-kandji-jersey3')
     api project(':blaze-query-connector-jira-cloud-jersey3')

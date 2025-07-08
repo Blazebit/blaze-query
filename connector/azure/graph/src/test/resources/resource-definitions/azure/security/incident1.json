@@ -1,0 +1,23 @@
+{
+  "id": "31",
+  "tenantId": "19ed3d8f-b009-433e-bd88-8924a8665c48",
+  "status": "resolved",
+  "incidentWebUrl": "https://security.microsoft.com/incident2/31/overview?tid=19ed3d8f-b009-433e-bd88-8924a8665c48",
+  "redirectIncidentId": null,
+  "displayName": "Anonymous IP address involving one user",
+  "createdDateTime": "2025-06-11T07:26:06.74Z",
+  "lastUpdateDateTime": "2025-06-11T07:26:06.98Z",
+  "assignedTo": null,
+  "classification": "unknown",
+  "determination": "unknown",
+  "severity": "medium",
+  "customTags": [],
+  "systemTags": [],
+  "description": null,
+  "recommendedActions": null,
+  "lastModifiedBy": "Microsoft 365 Defender-IncidentCreation",
+  "resolvingComment": null,
+  "summary": null,
+  "comments": [],
+  "recommendedHuntingQueries": []
+}

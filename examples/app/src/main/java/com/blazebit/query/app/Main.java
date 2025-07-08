@@ -38,10 +38,12 @@ import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
 import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
@@ -59,6 +61,13 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
+import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
+import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
+import com.blazebit.query.connector.github.graphql.GitHubOrganization;
+import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
+import com.blazebit.query.connector.github.graphql.GitHubRepository;
+import com.blazebit.query.connector.github.graphql.GitHubRuleset;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
@@ -184,6 +193,7 @@ public class Main {
 			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
+			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
@@ -206,6 +216,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphManagedDevice.class, "AzureManagedDevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphOrganization.class, "AzureOrganization" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
 			// IAM
 			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
@@ -257,6 +269,11 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GHBranch.class, "GitHubBranch" );
 			queryContextBuilder.registerSchemaObjectAlias( GHProject.class, "GitHubProject" );
 			queryContextBuilder.registerSchemaObjectAlias( GHTeam.class, "GitHubTeam" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubOrganization.class, "GraphQlGitHubOrganization" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRepository.class, "GraphQlGitHubRepository" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubRuleset.class, "GraphQlGitHubRuleset" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubBranchProtectionRule.class, "GraphQlGitHubBranchProtectionRule" );
+			queryContextBuilder.registerSchemaObjectAlias( GitHubPullRequest.class, "GraphQlGitHubPullRequest" );
 
 			// GitHub OpenAPI
 			queryContextBuilder.registerSchemaObjectAlias( OrganizationSimple.class, "OpenAPIGitHubOrganization" );
@@ -310,13 +327,13 @@ public class Main {
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
-					testGitlab( session );
+//					testGitlab( session );
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
 //					testEntityView( session );
-//					testAzureGraph( session );
-					testAzureResourceManager( session );
+					testAzureGraph( session );
+//					testAzureResourceManager( session );
 				}
 			}
 		}
@@ -521,6 +538,31 @@ public class Main {
 		List<Object[]> gitHubTeamResult = gitHubTeamQuery.getResultList();
 		System.out.println( "GitHubTeams" );
 		print( gitHubTeamResult );
+		TypedQuery<Object[]> gitHubGraphQlOrganizationQuery = session.createQuery(
+				"select o.* from GraphQlGitHubOrganization o" );
+		List<Object[]> gitHubGraphQlOrganizationResult = gitHubGraphQlOrganizationQuery.getResultList();
+		System.out.println( "GitHubOrganizations" );
+		print( gitHubGraphQlOrganizationResult );
+		TypedQuery<Object[]> gitHubGraphQlRepositoryQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRepository r" );
+		List<Object[]> gitHubGraphQlRepositoryResult = gitHubGraphQlRepositoryQuery.getResultList();
+		System.out.println( "GitHubRepositories" );
+		print( gitHubGraphQlRepositoryResult );
+		TypedQuery<Object[]> gitHubGraphQlRulesetQuery = session.createQuery(
+				"select r.* from GraphQlGitHubRuleset r" );
+		List<Object[]> gitHubGraphQlRulesetResult = gitHubGraphQlRulesetQuery.getResultList();
+		System.out.println( "GitHubRulesets" );
+		print( gitHubGraphQlRulesetResult );
+		TypedQuery<Object[]> gitHubGraphQlPullRequestQuery = session.createQuery(
+				"select p.* from GraphQlGitHubPullRequest p" );
+		List<Object[]> gitHubGraphQlPullRequestResult = gitHubGraphQlPullRequestQuery.getResultList();
+		System.out.println( "GitHubPullRequests" );
+		print( gitHubGraphQlPullRequestResult );
+		TypedQuery<Object[]> gitHubGraphQlBranchProtectionRuleQuery = session.createQuery(
+				"select r.* from GraphQlGitHubBranchProtectionRule r" );
+		List<Object[]> gitHubGraphQlBranchProtectionRuleResult = gitHubGraphQlBranchProtectionRuleQuery.getResultList();
+		System.out.println( "GitHubBranchProtectionRules" );
+		print( gitHubGraphQlBranchProtectionRuleResult );
 	}
 
 	private static void testGitHubOpenAPI(QuerySession session) {
@@ -719,17 +761,17 @@ public class Main {
 		System.out.println( "User" );
 		print( userResult );
 
-		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-				"select c.* from AzureConditionalAccessPolicy c" );
-		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
-		System.out.println( "Conditional access policies" );
-		print( conditionalAccessPolicyResult );
-
-		TypedQuery<Object[]> applicationQuery = session.createQuery(
-				"select a.* from AzureApplication a" );
-		List<Object[]> applicationResult = applicationQuery.getResultList();
-		System.out.println( "Applications" );
-		print( applicationResult );
+//		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+//				"select c.* from AzureConditionalAccessPolicy c" );
+//		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+//		System.out.println( "Conditional access policies" );
+//		print( conditionalAccessPolicyResult );
+//
+//		TypedQuery<Object[]> applicationQuery = session.createQuery(
+//				"select a.* from AzureApplication a" );
+//		List<Object[]> applicationResult = applicationQuery.getResultList();
+//		System.out.println( "Applications" );
+//		print( applicationResult );
 
 //		TypedQuery<Object[]> managedDevices = session.createQuery(
 //				"select a.* from AzureManagedDevice a" );
@@ -742,6 +784,16 @@ public class Main {
 		List<Object[]> organizationResult = organizationQuery.getResultList();
 		System.out.println( "Organizations" );
 		print( organizationResult );
+
+		TypedQuery<Object[]> alertQuery = session.createQuery( "select a.payload.severity from AzureAlert a" );
+		List<Object[]> alertResult = alertQuery.getResultList();
+		System.out.println( "Alerts" );
+		print( alertResult );
+
+		TypedQuery<Object[]> incidentQuery = session.createQuery("select i.payload.* from AzureIncident i");
+		List<Object[]> incidentResult = incidentQuery.getResultList();
+		System.out.println( "Incidents" );
+		print( incidentResult );
 
 //		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
 //				"select s.* from AzureAvailableServicePlan s" );
@@ -828,6 +880,11 @@ public class Main {
 	private static GitlabGraphQlClient createGitlabGraphQLClient() {
 		// Initialize GraphQL client with host and token
 		return new GitlabGraphQlClient(GITLAB_HOST, GITLAB_KEY);
+	}
+
+	private static GitHubGraphQlClient createGitHubGraphQLClient() {
+		// Initialize GraphQL client with host and token
+		return new GitHubGraphQlClient(GITHUB_KEY);
 	}
 
 	private static GitHub createGithub() {
