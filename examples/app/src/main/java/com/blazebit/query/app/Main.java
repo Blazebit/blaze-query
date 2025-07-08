@@ -75,8 +75,8 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
-import com.blazebit.query.connector.jira.cloud.admin.model.MultiDirectoryUser;
-import com.blazebit.query.connector.jira.cloud.admin.model.MultiDirectoryUserDirectory;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
@@ -317,8 +317,8 @@ public class Main {
 
 			// Jira Cloud Admin
 			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
-			queryContextBuilder.registerSchemaObjectAlias( MultiDirectoryUserDirectory.class, "JiraCloudAdminDirectory" );
-			queryContextBuilder.registerSchemaObjectAlias( MultiDirectoryUser.class, "JiraCloudAdminUser" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
