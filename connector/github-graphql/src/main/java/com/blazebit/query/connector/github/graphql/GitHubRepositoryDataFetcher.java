@@ -18,21 +18,21 @@ import java.util.List;
  * @author Dimitar Prisadnikov
  * @since 1.0.6
  */
-public class RepositoryDataFetcher implements DataFetcher<GitHubRepository>, Serializable {
+public class GitHubRepositoryDataFetcher implements DataFetcher<GitHubRepository>, Serializable {
 
-	public static final RepositoryDataFetcher INSTANCE = new RepositoryDataFetcher();
+	public static final GitHubRepositoryDataFetcher INSTANCE = new GitHubRepositoryDataFetcher();
 
-	private RepositoryDataFetcher() {
+	private GitHubRepositoryDataFetcher() {
 	}
 
 	@Override
 	public List<GitHubRepository> fetch(DataFetchContext context) {
 		try {
-			List<GitHubGraphQlClient> githubClient = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
+			List<GitHubGraphQlClient> githubClients = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
 			List<GitHubRepository> repositoryList = new ArrayList<>();
 
-			for ( GitHubGraphQlClient client : githubClient) {
-				repositoryList.addAll(client.fetchRepositoriesWithDetails());
+			for ( GitHubGraphQlClient client : githubClients) {
+				repositoryList.addAll(client.fetchRepositories());
 			}
 
 			return repositoryList;

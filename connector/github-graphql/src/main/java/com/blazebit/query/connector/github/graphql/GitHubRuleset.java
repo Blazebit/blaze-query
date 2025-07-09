@@ -8,17 +8,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
+ * This record maps to GitHub's {@code RepositoryRuleset} GraphQL model with additional context fields.
+ * <p>
+ * In GitHub's GraphQL API, a {@code RepositoryRuleset} can be associated with one of three source types:
+ * {@code Repository}, {@code Organization}, or {@code Enterprise}. Each of these source types has a unique
+ * identifier. This class captures these source relationships through the {@code repositoryId},
+ * {@code organizationId}, and {@code enterpriseId} fields.
+ *
  * @author Dimitar Prisadnikov
  * @since 1.0.6
  */
 public record GitHubRuleset(
+		String id,
 		String target,
 		String enforcement,
-		RulesetConditions conditions,
+		GitHubRulesetCondition conditions,
+		String repositoryId,
+		String organizationId,
+		String enterpriseId,
 		List<GitHubRule> rules
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
@@ -27,44 +36,34 @@ public record GitHubRuleset(
 		try {
 			JsonNode json = MAPPER.readTree(jsonString);
 
+			String repositoryId = null;
+			String organizationId = null;
+			String enterpriseId = null;
+
+			JsonNode sourceNode = json.path("source");
+			if (!sourceNode.isMissingNode()) {
+				String typeName = sourceNode.path("__typename").asText();
+				String id = sourceNode.path("id").asText();
+
+				switch (typeName) {
+					case "Repository" -> repositoryId = id;
+					case "Organization" -> organizationId = id;
+					case "Enterprise" -> enterpriseId = id;
+				}
+			}
+
 			return new GitHubRuleset(
+					json.path("id").asText(),
 					json.path("target").asText(),
 					json.path("enforcement").asText(),
-					parseRulesetConditions(json.path("conditions")),
-					parseRules(json.path("rules"))
+					GitHubRulesetCondition.parseRulesetConditions(json.path("conditions")),
+					repositoryId,
+					organizationId,
+					enterpriseId,
+					GitHubRule.parseRules(json.path("rules"))
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRuleset", e);
 		}
 	}
-
-	private static RulesetConditions parseRulesetConditions(JsonNode json) {
-		if (json.isMissingNode() || json.isNull()) {
-			return null;
-		}
-		return new RulesetConditions(
-				parseRefNameIncludes(json.path("refName").path("include"))
-		);
-	}
-
-	private static List<String> parseRefNameIncludes(JsonNode json) {
-		if (json.isMissingNode() || !json.isArray() || json.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(json.spliterator(), false)
-				.map(JsonNode::asText)
-				.collect(Collectors.toList());
-	}
-
-	private static List<GitHubRule> parseRules(JsonNode json) {
-		JsonNode nodesArray = json.path("nodes");
-		if (nodesArray.isMissingNode() || !nodesArray.isArray() || nodesArray.isEmpty()) {
-			return List.of();
-		}
-		return StreamSupport.stream(nodesArray.spliterator(), false)
-				.map(node -> GitHubRule.fromJson(node.toString()))
-				.collect(Collectors.toList());
-	}
-
-	public record RulesetConditions(List<String> refNameIncludes) {}
 }

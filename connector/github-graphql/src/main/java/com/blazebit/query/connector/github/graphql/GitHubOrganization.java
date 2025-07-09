@@ -7,15 +7,12 @@ package com.blazebit.query.connector.github.graphql;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
-import static com.blazebit.query.connector.github.graphql.GitHubRepository.parseRulesets;
 
 /**
  * @author Dimitar Prisadnikov
  * @since 1.0.6
  */
-public record GitHubOrganization(String id, String name, Boolean requiresTwoFactorAuthentication, List<GitHubRuleset> rulesets) {
+public record GitHubOrganization(String id, String name, Boolean requiresTwoFactorAuthentication) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
 	public static GitHubOrganization fromJson(String jsonString) {
@@ -25,10 +22,8 @@ public record GitHubOrganization(String id, String name, Boolean requiresTwoFact
 			return new GitHubOrganization(
 					json.get("id").asText(),
 					json.get("name").asText(),
-					json.path("requiresTwoFactorAuthentication").asBoolean(false),
-					parseRulesets(json.path("rulesets"))
-
-					);
+					json.path("requiresTwoFactorAuthentication").asBoolean(false)
+			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GraphQlRepository", e);
 		}

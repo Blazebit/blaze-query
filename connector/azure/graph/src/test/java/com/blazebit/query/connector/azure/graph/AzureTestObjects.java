@@ -7,6 +7,8 @@ package com.blazebit.query.connector.azure.graph;
 import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.Organization;
 import com.microsoft.graph.beta.models.User;
+import com.microsoft.graph.beta.models.security.Alert;
+import com.microsoft.graph.beta.models.security.Incident;
 
 import java.io.File;
 
@@ -82,5 +84,33 @@ public final class AzureTestObjects {
 				Organization.class,
 				new File(
 						"src/test/resources/resource-definitions/azure/organization/hybrid-organization.json"));
+	}
+
+	public static AzureGraphAlert alertLow() {
+		var alert = TestObject.fromJson(
+				Alert.class,
+				new File("src/test/resources/resource-definitions/azure/security/alert1.json"));
+		return new AzureGraphAlert( "123", alert );
+	}
+
+	public static AzureGraphAlert alertMedium() {
+		var alert = TestObject.fromJson(
+				Alert.class,
+				new File("src/test/resources/resource-definitions/azure/security/alert2.json"));
+		return new AzureGraphAlert( "123", alert );
+	}
+
+	public static AzureGraphIncident incidentInformational() {
+		var incident = TestObject.fromJson(
+				Incident.class,
+				new File("src/test/resources/resource-definitions/azure/security/incident2.json"));
+		return new AzureGraphIncident( "123", incident );
+	}
+
+	public static AzureGraphIncident incidentMedium() {
+		var incident = TestObject.fromJson(
+				Incident.class,
+				new File("src/test/resources/resource-definitions/azure/security/incident1.json"));
+		return new AzureGraphIncident( "123", incident );
 	}
 }

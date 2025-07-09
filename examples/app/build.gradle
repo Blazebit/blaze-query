@@ -43,6 +43,7 @@ dependencies {
     api project(':blaze-query-connector-github-openapi-jersey3')
     api project(':blaze-query-connector-kandji-jersey3')
     api project(':blaze-query-connector-jira-cloud-jersey3')
+    api project(':blaze-query-connector-jira-cloud-jersey3-admin')
     api project(':blaze-query-connector-jira-datacenter-jersey3')
     api project(':blaze-query-connector-google-workspace-directory')
     api project(':blaze-query-connector-google-workspace-drive')
