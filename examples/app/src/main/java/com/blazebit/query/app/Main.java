@@ -197,7 +197,7 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
-			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
+//			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
@@ -330,7 +330,6 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( IssueBeanWrapper.class, "JiraCloudIssue" );
 			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
 
-
 			// Jira Cloud Admin
 			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
@@ -342,7 +341,7 @@ public class Main {
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
-					testJiraCloudAdmin( session );
+//					testJiraCloudAdmin( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
