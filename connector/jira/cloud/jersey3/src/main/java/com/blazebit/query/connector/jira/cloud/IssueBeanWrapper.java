@@ -128,9 +128,10 @@ public class IssueBeanWrapper implements Serializable {
 	/**
 	 * Extract project ID from the fields map.
 	 * <p>
-	 * Note that Jira project IDs are not globally unique across different Jira instances,
-	 * but they are guaranteed to be unique within a single Jira site (instance).
-	 * For cross-instance identification, the project self URI should be used.
+	 * Note that project IDs are unique among projects within the same Jira site (instance),
+	 * but not globally across different instances.
+	 * Also, Jira uses separate ID spaces for different entity types — meaning the same numeric ID
+	 * may be used for a project, issue, or other entity type within the same site without conflict.
 	 *
 	 * @param fields the fields map
 	 * @return the project ID or null if not present
