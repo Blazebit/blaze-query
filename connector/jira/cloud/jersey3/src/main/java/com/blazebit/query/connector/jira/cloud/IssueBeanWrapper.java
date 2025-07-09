@@ -31,6 +31,7 @@ public class IssueBeanWrapper implements Serializable {
 	private final URI self;
 	private final IssueType issueType;
 	private final String projectId;
+	private final URI projectSelf;
 	private final StatusCategory statusCategory;
 	private final Security security;
 	private final OffsetDateTime created;
@@ -48,6 +49,7 @@ public class IssueBeanWrapper implements Serializable {
 		this.priority = extractPriority(fields);
 		this.issueType = extractIssueType(fields);
 		this.projectId = extractProjectId(fields);
+		this.projectSelf = extractProjectSelfUri(fields);
 		this.statusCategory = extractStatusCategory(fields);
 		this.security = extractSecurity(fields);
 		this.created = parseIsoOffsetDateTime(extractStringField(fields, "created") );
@@ -124,8 +126,11 @@ public class IssueBeanWrapper implements Serializable {
 	}
 
 	/**
-	 * Extract just the project ID from the fields map
-	 * Note: Project IDs are not globally unique, but they are unique within a single Jira site (instance)
+	 * Extract project ID from the fields map.
+	 * <p>
+	 * Note that Jira project IDs are not globally unique across different Jira instances,
+	 * but they are guaranteed to be unique within a single Jira site (instance).
+	 * For cross-instance identification, the project self URI should be used.
 	 *
 	 * @param fields the fields map
 	 * @return the project ID or null if not present
@@ -134,6 +139,29 @@ public class IssueBeanWrapper implements Serializable {
 		Map<String, Object> projectMap = extractMapField(fields, "project");
 		if (!projectMap.isEmpty()) {
 			return (String) projectMap.get("id");
+		}
+		return null;
+	}
+
+	/**
+	 * Extract project self URI from the fields map.
+	 * <p>
+	 * The self URI provides a globally unique identifier for the project,
+	 * as it contains both the Jira instance URL and the project's path.
+	 * This is necessary because project IDs are only unique within a single
+	 * Jira site (instance), not across different Jira installations.
+	 *
+	 * @param fields the fields map
+	 * @return the project self URI or null if not present
+	 */
+	private URI extractProjectSelfUri(Map<String, Object> fields) {
+		Map<String, Object> projectMap = extractMapField(fields, "project");
+		if (!projectMap.isEmpty() && projectMap.get("self") != null) {
+			try {
+				return new URI(projectMap.get("self").toString());
+			} catch (URISyntaxException e) {
+				return null;
+			}
 		}
 		return null;
 	}
@@ -299,6 +327,14 @@ public class IssueBeanWrapper implements Serializable {
 	 */
 	public String getProjectId() {
 		return projectId;
+	}
+
+	/**
+	 * Get the project self URI
+	 * @return the project URI
+	 */
+	public URI getProjectSelf() {
+		return projectSelf;
 	}
 
 	/**
