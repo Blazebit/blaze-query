@@ -85,7 +85,6 @@ import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
-import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
