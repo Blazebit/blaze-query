@@ -159,11 +159,11 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
-	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_DATACENTER_HOST = "";
+	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
-	private static final String JIRA_DATACENTER_TOKEN = "";
 	private static final String JIRA_CLOUD_ADMIN = "";
 
 
