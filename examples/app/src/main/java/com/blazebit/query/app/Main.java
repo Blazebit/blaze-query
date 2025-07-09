@@ -49,11 +49,11 @@ import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
@@ -80,10 +80,11 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
+import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
-import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
@@ -158,12 +159,12 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
-	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_DATACENTER_HOST = "";
+	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
-	private static final String JIRA_DATACENTER_TOKEN = "";
-	private static final String JIRA_CLOUD_ADMIN = "";
+	private static final String JIRA_CLOUD_ADMIN_API_KEY = "";
 
 
 	private Main() {
@@ -194,7 +195,8 @@ public class Main {
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
-			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
+//			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
+//			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
@@ -324,6 +326,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( IssueBeanWrapper.class, "JiraCloudIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
 
 			// Jira Cloud Admin
 			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
@@ -336,7 +340,7 @@ public class Main {
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
-					testJiraCloudAdmin( session );
+//					testJiraCloudAdmin( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
@@ -758,6 +762,18 @@ public class Main {
 		List<Object[]> permissionResult = permissionQuery.getResultList();
 		System.out.println( "Permission" );
 		print( permissionResult );
+
+		TypedQuery<Object[]> issueQuery = session.createQuery(
+				"SELECT u.* FROM JiraCloudIssue u");
+		List<Object[]> issueResult = issueQuery.getResultList();
+		System.out.println( "Issue" );
+		print( issueResult );
+
+		TypedQuery<Object[]> serverInfoQuery = session.createQuery(
+				"select u.* from JiraCloudServerInfo u" );
+		List<Object[]> serverInfoResult = serverInfoQuery.getResultList();
+		System.out.println( "Server info" );
+		print( serverInfoResult );
 	}
 
 	private static void testJiraCloudAdmin(QuerySession session) {
@@ -954,7 +970,7 @@ public class Main {
 
 	private static com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient createJiraCloudAdminOrganizationApiClient() {
 		com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient();
-		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN );
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN_API_KEY );
 		return apiClient;
 	}
 
