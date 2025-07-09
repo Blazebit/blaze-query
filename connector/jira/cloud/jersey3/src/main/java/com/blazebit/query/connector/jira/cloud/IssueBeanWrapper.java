@@ -7,8 +7,6 @@ package com.blazebit.query.connector.jira.cloud;
 import com.blazebit.query.connector.jira.cloud.model.IssueBean;
 
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Map;
@@ -24,14 +22,13 @@ import static com.blazebit.query.connector.jira.cloud.DateUtils.parseIsoOffsetDa
  * @since 1.0.9
  */
 public class IssueBeanWrapper implements Serializable {
-
 	private final IssueBean issueBean;
 	private final String summary;
 	private final Priority priority;
-	private final URI self;
+	private final String selfUri;
 	private final IssueType issueType;
 	private final String projectId;
-	private final URI projectSelf;
+	private final String projectSelfUri;
 	private final StatusCategory statusCategory;
 	private final Security security;
 	private final OffsetDateTime created;
@@ -41,15 +38,15 @@ public class IssueBeanWrapper implements Serializable {
 	private final Status status;
 	private final Assignee assignee;
 
-	public IssueBeanWrapper(IssueBean issueBean) throws URISyntaxException {
+	public IssueBeanWrapper(IssueBean issueBean) {
 		this.issueBean = Objects.requireNonNull(issueBean, "issueBean cannot be null");
 		Map<String, Object> fields = issueBean.getFields();
-		this.self = new URI(issueBean.getSelf().toString());
+		this.selfUri = issueBean.getSelf() != null ? issueBean.getSelf().toString() : null;
 		this.summary = extractStringField(fields, "summary");
 		this.priority = extractPriority(fields);
 		this.issueType = extractIssueType(fields);
 		this.projectId = extractProjectId(fields);
-		this.projectSelf = extractProjectSelfUri(fields);
+		this.projectSelfUri = extractProjectSelfUri(fields);
 		this.statusCategory = extractStatusCategory(fields);
 		this.security = extractSecurity(fields);
 		this.created = parseIsoOffsetDateTime(extractStringField(fields, "created") );
@@ -153,16 +150,12 @@ public class IssueBeanWrapper implements Serializable {
 	 * Jira site (instance), not across different Jira installations.
 	 *
 	 * @param fields the fields map
-	 * @return the project self URI or null if not present
+	 * @return the project self URI as a string or null if not present
 	 */
-	private URI extractProjectSelfUri(Map<String, Object> fields) {
+	private String extractProjectSelfUri(Map<String, Object> fields) {
 		Map<String, Object> projectMap = extractMapField(fields, "project");
 		if (!projectMap.isEmpty() && projectMap.get("self") != null) {
-			try {
-				return new URI(projectMap.get("self").toString());
-			} catch (URISyntaxException e) {
-				return null;
-			}
+			return projectMap.get("self").toString();
 		}
 		return null;
 	}
@@ -266,138 +259,70 @@ public class IssueBeanWrapper implements Serializable {
 		return null;
 	}
 
-	/**
-	 * Get the wrapped IssueBean
-	 * @return the original IssueBean
-	 */
 	public IssueBean getIssueBean() {
 		return issueBean;
 	}
 
-	/**
-	 * Get the issue key
-	 * @return the issue key
-	 */
 	public String getKey() {
 		return issueBean.getKey();
 	}
 
-	/**
-	 * Get the issue id
-	 * @return the issue id
-	 */
 	public String getId() {
 		return issueBean.getId();
 	}
 
-	/**
-	 * Get the issue self URL
-	 * @return the self URL
-	 */
-	public URI getSelf() {
-		return self;
+	public String getSelfUri() {
+		return selfUri;
 	}
 
-	/**
-	 * Get the issue summary
-	 * @return the summary field value
-	 */
 	public String getSummary() {
 		return summary;
 	}
 
-	/**
-	 * Get the issue priority
-	 * @return the priority information
-	 */
 	public Priority getPriority() {
 		return priority;
 	}
 
-	/**
-	 * Get the issue type
-	 * @return the issue type information
-	 */
 	public IssueType getIssueType() {
 		return issueType;
 	}
 
-	/**
-	 * Get the project ID string
-	 * @return the project ID
-	 */
 	public String getProjectId() {
 		return projectId;
 	}
 
-	/**
-	 * Get the project self URI
-	 * @return the project URI
-	 */
-	public URI getProjectSelf() {
-		return projectSelf;
+	public String getProjectSelfUri() {
+		return projectSelfUri;
 	}
 
-	/**
-	 * Get the status category
-	 * @return the status category information
-	 */
 	public StatusCategory getStatusCategory() {
 		return statusCategory;
 	}
 
-	/**
-	 * Get the security
-	 * @return the security information
-	 */
 	public Security getSecurity() {
 		return security;
 	}
 
-	/**
-	 * Get the created date
-	 * @return the created date as string
-	 */
 	public OffsetDateTime getCreated() {
 		return created;
 	}
 
-	/**
-	 * Get the due date
-	 * @return the due date as string
-	 */
 	public OffsetDateTime getDueDate() {
 		return dueDate;
 	}
 
-	/**
-	 * Get the updated date
-	 * @return the updated date as string
-	 */
 	public OffsetDateTime getUpdated() {
 		return updated;
 	}
 
-	/**
-	 * Get the status
-	 * @return the status information
-	 */
 	public Status getStatus() {
 		return status;
 	}
 
-	/**
-	 * Get the resolution date
-	 * @return the resolution date as string
-	 */
 	public OffsetDateTime getResolutionDate() {
 		return resolutionDate;
 	}
 
-	/**
-	 * Get the assignee
-	 * @return the assignee information or null if not assigned
-	 */
 	public Assignee getAssignee() {
 		return assignee;
 	}
@@ -406,61 +331,306 @@ public class IssueBeanWrapper implements Serializable {
 	/**
 	 * Priority information for an issue
 	 */
-		public record Priority(String self, String iconUrl, String name, String id) implements Serializable {
+	public static class Priority implements Serializable {
+		private final String self;
+		private final String iconUrl;
+		private final String name;
+		private final String id;
 
+		public Priority(String self, String iconUrl, String name, String id) {
+			this.self = self;
+			this.iconUrl = iconUrl;
+			this.name = name;
+			this.id = id;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getIconUrl() {
+			return iconUrl;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getId() {
+			return id;
+		}
 	}
 
 	/**
 	 * Issue type information
 	 */
-		public record IssueType(String self, String id, String description, String iconUrl, String name, boolean subtask,
-								String avatarId, String entityId, int hierarchyLevel) implements Serializable {
+	public static class IssueType implements Serializable {
+		private final String self;
+		private final String id;
+		private final String description;
+		private final String iconUrl;
+		private final String name;
+		private final boolean subtask;
+		private final String avatarId;
+		private final String entityId;
+		private final int hierarchyLevel;
 
+		public IssueType(String self, String id, String description, String iconUrl, String name, boolean subtask,
+						String avatarId, String entityId, int hierarchyLevel) {
+			this.self = self;
+			this.id = id;
+			this.description = description;
+			this.iconUrl = iconUrl;
+			this.name = name;
+			this.subtask = subtask;
+			this.avatarId = avatarId;
+			this.entityId = entityId;
+			this.hierarchyLevel = hierarchyLevel;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public String getIconUrl() {
+			return iconUrl;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public boolean isSubtask() {
+			return subtask;
+		}
+
+		public String getAvatarId() {
+			return avatarId;
+		}
+
+		public String getEntityId() {
+			return entityId;
+		}
+
+		public int getHierarchyLevel() {
+			return hierarchyLevel;
+		}
 	}
 
 	/**
 	 * Avatar URLs
 	 */
-		public record AvatarUrls(String large, String small, String xsmall, String medium) implements Serializable {
+	public static class AvatarUrls implements Serializable {
+		private final String large;
+		private final String small;
+		private final String xsmall;
+		private final String medium;
 
+		public AvatarUrls(String large, String small, String xsmall, String medium) {
+			this.large = large;
+			this.small = small;
+			this.xsmall = xsmall;
+			this.medium = medium;
+		}
 
+		public String getLarge() {
+			return large;
+		}
+
+		public String getSmall() {
+			return small;
+		}
+
+		public String getXsmall() {
+			return xsmall;
+		}
+
+		public String getMedium() {
+			return medium;
+		}
 	}
 
 	/**
 	 * Status category information
 	 */
-		public record StatusCategory(String self, String id, String key, String colorName, String name)
-			implements Serializable {
+	public static class StatusCategory implements Serializable {
+		private final String self;
+		private final String id;
+		private final String key;
+		private final String colorName;
+		private final String name;
 
+		public StatusCategory(String self, String id, String key, String colorName, String name) {
+			this.self = self;
+			this.id = id;
+			this.key = key;
+			this.colorName = colorName;
+			this.name = name;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getColorName() {
+			return colorName;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	/**
 	 * Security information
 	 */
-		public record Security(String self, String id, String description, String name) implements Serializable {
+	public static class Security implements Serializable {
+		private final String self;
+		private final String id;
+		private final String description;
+		private final String name;
 
+		public Security(String self, String id, String description, String name) {
+			this.self = self;
+			this.id = id;
+			this.description = description;
+			this.name = name;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	/**
 	 * Status information
 	 */
-		public record Status(String self, String description, String iconUrl, String name, String id,
-							StatusCategory statusCategory) implements Serializable {
+	public static class Status implements Serializable {
+		private final String self;
+		private final String description;
+		private final String iconUrl;
+		private final String name;
+		private final String id;
+		private final StatusCategory statusCategory;
 
+		public Status(String self, String description, String iconUrl, String name, String id,
+					StatusCategory statusCategory) {
+			this.self = self;
+			this.description = description;
+			this.iconUrl = iconUrl;
+			this.name = name;
+			this.id = id;
+			this.statusCategory = statusCategory;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public String getIconUrl() {
+			return iconUrl;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public StatusCategory getStatusCategory() {
+			return statusCategory;
+		}
 	}
 
 	/**
 	 * Assignee information
 	 */
-		public record Assignee(String self, String accountId, String emailAddress, AvatarUrls avatarUrls,
-							String displayName, boolean active, String timeZone, String accountType)
-			implements Serializable {
+	public static class Assignee implements Serializable {
+		private final String self;
+		private final String accountId;
+		private final String emailAddress;
+		private final AvatarUrls avatarUrls;
+		private final String displayName;
+		private final boolean active;
+		private final String timeZone;
+		private final String accountType;
 
+		public Assignee(String self, String accountId, String emailAddress, AvatarUrls avatarUrls,
+						String displayName, boolean active, String timeZone, String accountType) {
+			this.self = self;
+			this.accountId = accountId;
+			this.emailAddress = emailAddress;
+			this.avatarUrls = avatarUrls;
+			this.displayName = displayName;
+			this.active = active;
+			this.timeZone = timeZone;
+			this.accountType = accountType;
+		}
 
+		public String getSelf() {
+			return self;
+		}
+
+		public String getAccountId() {
+			return accountId;
+		}
+
+		public String getEmailAddress() {
+			return emailAddress;
+		}
+
+		public AvatarUrls getAvatarUrls() {
+			return avatarUrls;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public boolean isActive() {
+			return active;
+		}
+
+		public String getTimeZone() {
+			return timeZone;
+		}
+
+		public String getAccountType() {
+			return accountType;
+		}
 	}
 }
