@@ -164,7 +164,7 @@ public class Main {
 	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
-	private static final String JIRA_CLOUD_ADMIN = "";
+	private static final String JIRA_CLOUD_ADMIN_API_KEY = "";
 
 
 	private Main() {
@@ -970,7 +970,7 @@ public class Main {
 
 	private static com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient createJiraCloudAdminOrganizationApiClient() {
 		com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient();
-		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN );
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN_API_KEY );
 		return apiClient;
 	}
 
