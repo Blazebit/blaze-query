@@ -38,6 +38,7 @@ include(':blaze-query-connector-kandji-jersey3')
 include(':blaze-query-connector-jira')
 include(':blaze-query-connector-jira-cloud')
 include(':blaze-query-connector-jira-cloud-jersey3')
+include(':blaze-query-connector-jira-cloud-jersey3-admin')
 include(':blaze-query-connector-jira-datacenter')
 include(':blaze-query-connector-jira-datacenter-jersey3')
 
@@ -90,6 +91,7 @@ project(":blaze-query-connector-kandji-jersey3").projectDir = file('connector/ka
 project(":blaze-query-connector-jira").projectDir = file('connector/jira')
 project(":blaze-query-connector-jira-cloud").projectDir = file('connector/jira/cloud')
 project(":blaze-query-connector-jira-cloud-jersey3").projectDir = file('connector/jira/cloud/jersey3')
+project(":blaze-query-connector-jira-cloud-jersey3-admin").projectDir = file('connector/jira/cloud/jersey3-admin')
 project(":blaze-query-connector-jira-datacenter").projectDir = file('connector/jira/datacenter')
 project(":blaze-query-connector-jira-datacenter-jersey3").projectDir = file('connector/jira/datacenter/jersey3')
 
