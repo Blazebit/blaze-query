@@ -25,7 +25,7 @@ import java.util.Objects;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
+public class ProjectDataFetcher implements DataFetcher<ProjectWrapper>, Serializable {
 
 	public static final ProjectDataFetcher INSTANCE = new ProjectDataFetcher();
 
@@ -33,13 +33,15 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 	}
 
 	@Override
-	public List<Project> fetch(DataFetchContext context) {
+	public List<ProjectWrapper> fetch(DataFetchContext context) {
 		try {
 			List<ApiClient> apiClients = JiraCloudConnectorConfig.API_CLIENT.getAll( context );
-			List<Project> list = new ArrayList<>();
+			List<ProjectWrapper> list = new ArrayList<>();
 			for ( ApiClient apiClient : apiClients ) {
 				ProjectsApi api = new ProjectsApi( apiClient );
-				list.addAll( fetchAllProjectsWithPagination(api) );
+				for(Project project : fetchAllProjectsWithPagination(api)){
+					list.add( new ProjectWrapper(project));
+				}
 			}
 			return list;
 		} catch (ApiException e) {
@@ -88,6 +90,6 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Project.class, JiraCloudConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( ProjectWrapper.class, JiraCloudConventionContext.INSTANCE );
 	}
 }

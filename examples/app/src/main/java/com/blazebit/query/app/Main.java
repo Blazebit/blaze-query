@@ -81,6 +81,7 @@ import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
 import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
+import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
 import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
 import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
@@ -321,7 +322,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( PermissionGrantBean.class, "JiraDatacenterPermission" );
 
 			// Jira Cloud
-			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.Project.class, "JiraCloudProject" );
+			queryContextBuilder.registerSchemaObjectAlias( ProjectWrapper.class, "JiraCloudProject" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.User.class, "JiraCloudUser" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
