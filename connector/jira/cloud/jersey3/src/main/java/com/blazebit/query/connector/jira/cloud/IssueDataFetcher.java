@@ -92,6 +92,6 @@ public class IssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializ
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(IssueBeanWrapper.class, JiraCloudConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(IssueBeanWrapper.class, JiraCloudConventionContext.INSTANCE);
 	}
 }
