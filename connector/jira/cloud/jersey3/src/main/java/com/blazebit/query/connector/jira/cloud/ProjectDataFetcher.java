@@ -40,7 +40,7 @@ public class ProjectDataFetcher implements DataFetcher<ProjectWrapper>, Serializ
 			for ( ApiClient apiClient : apiClients ) {
 				ProjectsApi api = new ProjectsApi( apiClient );
 				for(Project project : fetchAllProjectsWithPagination(api)){
-					list.add( new ProjectWrapper(project) );
+					list.add( new ProjectWrapper(project));
 				}
 			}
 			return list;
@@ -90,6 +90,6 @@ public class ProjectDataFetcher implements DataFetcher<ProjectWrapper>, Serializ
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( ProjectWrapper.class, JiraCloudConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( ProjectWrapper.class, JiraCloudConventionContext.INSTANCE );
 	}
 }
