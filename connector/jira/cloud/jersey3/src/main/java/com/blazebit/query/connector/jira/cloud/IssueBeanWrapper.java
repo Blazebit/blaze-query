@@ -25,7 +25,7 @@ public record IssueBeanWrapper(
 		String summary,
 		Priority priority,
 		String self,
-		IssueType issueType,
+		IssueType type,
 		String projectId,
 		String projectSelf,
 		StatusCategory statusCategory,
