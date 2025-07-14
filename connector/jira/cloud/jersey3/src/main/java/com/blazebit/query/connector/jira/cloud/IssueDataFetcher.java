@@ -16,7 +16,6 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,14 +45,7 @@ public class IssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializ
 
 			// Convert IssueBean instances to IssueBeanWrapper instances
 			return issuesList.stream()
-					.map(issueBean -> {
-						try {
-							return new IssueBeanWrapper(issueBean);
-						}
-						catch (URISyntaxException e) {
-							throw new RuntimeException( e );
-						}
-					})
+					.map( IssueBeanWrapper::new )
 					.collect(Collectors.toList());
 
 		}
@@ -100,6 +92,6 @@ public class IssueDataFetcher implements DataFetcher<IssueBeanWrapper>, Serializ
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention(IssueBeanWrapper.class, JiraCloudConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention(IssueBeanWrapper.class, JiraCloudConventionContext.INSTANCE);
 	}
 }
