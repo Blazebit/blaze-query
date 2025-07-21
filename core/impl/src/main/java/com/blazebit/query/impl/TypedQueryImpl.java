@@ -4,18 +4,24 @@
  */
 package com.blazebit.query.impl;
 
-import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
+
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Christian Beikov
@@ -61,7 +67,48 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 	public TypedQueryImpl<T> setParameter(int position, Object value) {
 		checkClosed();
 		try {
-			preparedStatement.setObject( position, value );
+			if ( value instanceof String stringValue ) {
+				preparedStatement.setString( position, stringValue );
+			}
+			else if ( value instanceof Long longValue ) {
+				preparedStatement.setLong( position, longValue );
+			}
+			else if ( value instanceof Integer integerValue ) {
+				preparedStatement.setInt( position, integerValue );
+			}
+			else if ( value instanceof Short shortValue ) {
+				preparedStatement.setShort( position, shortValue );
+			}
+			else if ( value instanceof Byte byteValue ) {
+				preparedStatement.setByte( position, byteValue );
+			}
+			else if ( value instanceof Float floatValue ) {
+				preparedStatement.setFloat( position, floatValue );
+			}
+			else if ( value instanceof Double doubleValue ) {
+				preparedStatement.setDouble( position, doubleValue );
+			}
+			else if ( value instanceof Boolean booleanValue ) {
+				preparedStatement.setBoolean( position, booleanValue );
+			}
+			else if ( value instanceof LocalDateTime localDateTime ) {
+				preparedStatement.setTimestamp( position, Timestamp.valueOf( localDateTime ) );
+			}
+			else if ( value instanceof Instant instant ) {
+				preparedStatement.setTimestamp( position, Timestamp.from(  instant ) );
+			}
+			else if ( value instanceof OffsetDateTime offsetDateTime ) {
+				preparedStatement.setTimestamp( position, Timestamp.from( offsetDateTime.toInstant() ) );
+			}
+			else if ( value instanceof ZonedDateTime zonedDateTime ) {
+				preparedStatement.setTimestamp( position, Timestamp.from( zonedDateTime.toInstant() ) );
+			}
+			else if ( value instanceof BigDecimal bigDecimalValue ) {
+				preparedStatement.setBigDecimal( position, bigDecimalValue );
+			}
+			else {
+				preparedStatement.setObject( position, value );
+			}
 		}
 		catch (SQLException e) {
 			throw new IllegalArgumentException( e );
