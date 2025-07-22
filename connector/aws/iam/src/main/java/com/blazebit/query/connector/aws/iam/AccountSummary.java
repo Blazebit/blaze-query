@@ -84,6 +84,10 @@ public class AccountSummary {
 		this.groupsQuota = summaryKeyTypeIntegerMap.get( SummaryKeyType.GROUPS_QUOTA );
 	}
 
+	public String getAccountId() {
+		return accountId;
+	}
+
 	public int groupPolicySizeQuota() {
 		return groupPolicySizeQuota;
 	}
