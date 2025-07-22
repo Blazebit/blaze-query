@@ -258,6 +258,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabProject.class, "GitlabGraphQlProject" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabMergeRequest.class, "GitlabGraphQlMergeRequest" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -497,15 +498,10 @@ public class Main {
 		System.out.println( "GitlabGraphQlUsers" );
 		print( gitlabGraphqlUserResult );
 
-		List<Object[]> gitlabGraphqlGroupResult = session.createQuery(
-				"select g.* from GitlabGraphQlGroup g" ).getResultList();
-		System.out.println( "GitlabGraphQlGroups" );
-		print( gitlabGraphqlGroupResult );
-
-		List<Object[]> gitlabGraphqlProjectResult = session.createQuery(
-				"select g.* from GitlabGraphQlProject g" ).getResultList();
-		System.out.println( "GitlabGraphQlProjects" );
-		print( gitlabGraphqlProjectResult );
+		List<Object[]> gitlabGraphqlMergeRequestResult = session.createQuery(
+				"select g.* from GitlabGraphQlMergeRequest g" ).getResultList();
+		System.out.println( "GitlabGraphQlMergeRequests" );
+		print( gitlabGraphqlMergeRequestResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
