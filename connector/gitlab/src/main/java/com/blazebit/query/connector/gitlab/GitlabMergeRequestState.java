@@ -6,7 +6,7 @@ package com.blazebit.query.connector.gitlab;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.10
+ * @since 1.0.12
  */
 public enum GitlabMergeRequestState {
 	merged,

@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * @author Dimitar Prisadnikov
- * @since 1.0.10
+ * @since 1.0.12
  */
 public class GraphQlMergeRequestDataFetcher implements DataFetcher<GitlabMergeRequest>, Serializable {
 
