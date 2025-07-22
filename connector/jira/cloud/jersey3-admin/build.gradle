@@ -22,7 +22,7 @@ dependencies {
     compileOnly libs.jakarta.annotation.api
 }
 
-description = 'blaze-query-connector-jira-cloud-jersey3'
+description = 'blaze-query-connector-jira-cloud-jersey3-admin'
 
 sourceSets {
     main {
@@ -35,11 +35,11 @@ sourceSets {
 openApiGenerate {
     generatorName.set("java")
     inputSpec.set("${project.projectDir}/swagger.v3.json")
-//    remoteInputSpec.set("https://dac-static.atlassian.com/cloud/jira/platform/swagger-v3.v3.json?_v=1.7951.0-0.1324.0")
+//    remoteInputSpec.set("https://dac-static.atlassian.com/cloud/admin/organization/swagger.v3.json?_v=1.234.109")
     outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
-    apiPackage.set("com.blazebit.query.connector.jira.cloud.api")
-    invokerPackage.set("com.blazebit.query.connector.jira.cloud.invoker")
-    modelPackage.set("com.blazebit.query.connector.jira.cloud.model")
+    apiPackage.set("com.blazebit.query.connector.jira.cloud.admin.api")
+    invokerPackage.set("com.blazebit.query.connector.jira.cloud.admin.invoker")
+    modelPackage.set("com.blazebit.query.connector.jira.cloud.admin.model")
     library.set("jersey3")
     generateModelTests.set(false)
     generateModelDocumentation.set(false)
