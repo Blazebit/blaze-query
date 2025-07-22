@@ -75,6 +75,7 @@ import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
+import com.blazebit.query.connector.gitlab.GitlabMergeRequest;
 import com.blazebit.query.connector.gitlab.GitlabProject;
 import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
@@ -200,7 +201,7 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
+			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
 			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
@@ -272,6 +273,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabProject.class, "GitlabGraphQlProject" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabMergeRequest.class, "GitlabGraphQlMergeRequest" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -519,15 +521,10 @@ public class Main {
 		System.out.println( "GitlabGraphQlUsers" );
 		print( gitlabGraphqlUserResult );
 
-		List<Object[]> gitlabGraphqlGroupResult = session.createQuery(
-				"select g.* from GitlabGraphQlGroup g" ).getResultList();
-		System.out.println( "GitlabGraphQlGroups" );
-		print( gitlabGraphqlGroupResult );
-
-		List<Object[]> gitlabGraphqlProjectResult = session.createQuery(
-				"select g.* from GitlabGraphQlProject g" ).getResultList();
-		System.out.println( "GitlabGraphQlProjects" );
-		print( gitlabGraphqlProjectResult );
+		List<Object[]> gitlabGraphqlMergeRequestResult = session.createQuery(
+				"select g.* from GitlabGraphQlMergeRequest g" ).getResultList();
+		System.out.println( "GitlabGraphQlMergeRequests" );
+		print( gitlabGraphqlMergeRequestResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
