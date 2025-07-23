@@ -8,14 +8,20 @@ import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
+import org.apache.calcite.avatica.util.ArrayImpl;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.sql.Array;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -67,6 +73,12 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 	public TypedQueryImpl<T> setParameter(int position, Object value) {
 		checkClosed();
 		try {
+			if ( value == null ) {
+				preparedStatement.setNull( position, java.sql.Types.NULL );
+			}
+			if ( value instanceof Character characterValue ) {
+				preparedStatement.setString( position, String.valueOf( characterValue ) );
+			}
 			if ( value instanceof String stringValue ) {
 				preparedStatement.setString( position, stringValue );
 			}
@@ -94,8 +106,14 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 			else if ( value instanceof LocalDateTime localDateTime ) {
 				preparedStatement.setTimestamp( position, Timestamp.valueOf( localDateTime ) );
 			}
+			else if ( value instanceof LocalDate localDate ) {
+				preparedStatement.setDate( position, Date.valueOf( localDate ) );
+			}
+			else if ( value instanceof LocalTime localTime ) {
+				preparedStatement.setTime( position, Time.valueOf( localTime ) );
+			}
 			else if ( value instanceof Instant instant ) {
-				preparedStatement.setTimestamp( position, Timestamp.from(  instant ) );
+				preparedStatement.setTimestamp( position, Timestamp.from( instant ) );
 			}
 			else if ( value instanceof OffsetDateTime offsetDateTime ) {
 				preparedStatement.setTimestamp( position, Timestamp.from( offsetDateTime.toInstant() ) );
@@ -105,6 +123,9 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 			}
 			else if ( value instanceof BigDecimal bigDecimalValue ) {
 				preparedStatement.setBigDecimal( position, bigDecimalValue );
+			}
+			else if ( value instanceof byte[] bytes ) {
+				preparedStatement.setBytes( position, bytes );
 			}
 			else {
 				preparedStatement.setObject( position, value );
