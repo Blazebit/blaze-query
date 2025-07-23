@@ -1,5 +1,5 @@
 [versions]
-calcite = "1.37.0"
+calcite = "1.39.0"
 
 blaze-persistence = "1.6.11"
 
