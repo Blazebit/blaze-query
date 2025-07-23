@@ -66,7 +66,7 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
 		javaTypeMappings.put( LocalDate.class, SqlTypeName.DATE );
 		javaTypeMappings.put( OffsetTime.class, SqlTypeName.TIME );
 		javaTypeMappings.put( LocalTime.class, SqlTypeName.TIME );
-		javaTypeMappings.put( UUID.class, SqlTypeName.VARCHAR );
+		javaTypeMappings.put( UUID.class, SqlTypeName.UUID );
 		javaTypeMappings.put( Duration.class, SqlTypeName.INTERVAL_DAY_SECOND );
 		javaTypeMappings.put( Period.class, SqlTypeName.INTERVAL_YEAR_MONTH );
 		JAVA_TYPE_MAPPINGS = javaTypeMappings;
@@ -119,15 +119,13 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
 	}
 
 	private static RelDataType deduceType(JavaTypeFactory typeFactory, DataFormat format) {
-		if ( format instanceof MapDataFormat ) {
-			MapDataFormat mapFormat = (MapDataFormat) format;
+		if ( format instanceof MapDataFormat mapFormat ) {
 			RelDataType keyRelDataType = deduceType( typeFactory, mapFormat.getKeyFormat() );
 			RelDataType elementRelDataType = deduceType( typeFactory, mapFormat.getElementFormat() );
 			return typeFactory.createTypeWithNullability(
 					typeFactory.createMapType( keyRelDataType, elementRelDataType ), true );
 		}
-		else if ( format instanceof CollectionDataFormat ) {
-			CollectionDataFormat collectionFormat = (CollectionDataFormat) format;
+		else if ( format instanceof CollectionDataFormat collectionFormat ) {
 			RelDataType elementRelDataType = deduceType( typeFactory, collectionFormat.getElementFormat() );
 			return typeFactory.createTypeWithNullability( typeFactory.createArrayType( elementRelDataType, -1L ),
 					true );

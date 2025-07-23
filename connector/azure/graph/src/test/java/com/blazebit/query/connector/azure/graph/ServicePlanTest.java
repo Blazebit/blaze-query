@@ -67,8 +67,8 @@ class ServicePlanTest {
 
 			var typedQuery =
 					session.createQuery( "select s.* from AzureServicePlan s where s.id = ? or s.parentId = ?", new TypeReference<Map<String, Object>>() {} );
-			typedQuery.setParameter( 1, aadPremium.getServicePlanId().toString() );
-			typedQuery.setParameter( 2, aadPremium.getServicePlanId().toString() );
+			typedQuery.setParameter( 1, aadPremium.getServicePlanId() );
+			typedQuery.setParameter( 2, aadPremium.getServicePlanId() );
 
 			assertThat( typedQuery.getResultList() ).size().isEqualTo( 60 );
 		}
