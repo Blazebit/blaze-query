@@ -8,11 +8,9 @@ import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
-import org.apache.calcite.avatica.util.ArrayImpl;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
