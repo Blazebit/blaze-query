@@ -109,7 +109,7 @@ public class ConverterTest {
 								"  and m.theDuration = interval '1 9:8:7.123456' day to second" +
 //								"  and m.theDuration = interval '1 9:8:7.123456789' day to second" +
 								"  and m.thePeriod = interval '1-5' year to month" +
-								"  and m.theUuid = uuid '53886a8a-7082-4879-b430-25cb94415be8'" +
+//								"  and m.theUuid = uuid '53886a8a-7082-4879-b430-25cb94415be8'" +
 								"  and m.theEnum = 'VALUE1'" +
 								"  and m.theCustomEnum = 'VALUE1'"
 				);

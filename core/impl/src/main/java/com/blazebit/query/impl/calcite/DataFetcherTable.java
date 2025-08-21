@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.blazebit.query.QuerySession;
@@ -66,7 +65,6 @@ public class DataFetcherTable<T> extends AbstractTable implements ScannableTable
 		javaTypeMappings.put( LocalDate.class, SqlTypeName.DATE );
 		javaTypeMappings.put( OffsetTime.class, SqlTypeName.TIME );
 		javaTypeMappings.put( LocalTime.class, SqlTypeName.TIME );
-		javaTypeMappings.put( UUID.class, SqlTypeName.UUID );
 		javaTypeMappings.put( Duration.class, SqlTypeName.INTERVAL_DAY_SECOND );
 		javaTypeMappings.put( Period.class, SqlTypeName.INTERVAL_YEAR_MONTH );
 		JAVA_TYPE_MAPPINGS = javaTypeMappings;
