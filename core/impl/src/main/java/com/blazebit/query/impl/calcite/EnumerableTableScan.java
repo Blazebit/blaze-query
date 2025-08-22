@@ -4,26 +4,10 @@
  */
 package com.blazebit.query.impl.calcite;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.blazebit.query.connector.base.FieldFieldAccessor;
 import com.blazebit.query.connector.base.LaxMethodFieldAccessor;
 import com.blazebit.query.connector.base.MethodFieldAccessor;
+import com.blazebit.query.impl.calcite.converter.ComparableListConverter;
 import com.blazebit.query.impl.calcite.converter.Converter;
 import com.blazebit.query.impl.calcite.converter.DurationConverter;
 import com.blazebit.query.impl.calcite.converter.EnumConverter;
@@ -76,6 +60,24 @@ import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.util.BuiltInMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -189,29 +191,29 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 		else {
 			throw new IllegalArgumentException( "Unsupported field accessor: " + accessor );
 		}
-		Class<?> converter;
+		final Expression e0;
 		if ( dataFormatField.getFormat().isEnum() ) {
 			final Type type = dataFormatField.getFormat().getType();
-			converter = type instanceof Class<?> && ((Class<?>) type).isEnum() ? EnumConverter.class
-					: EnumToStringConverter.class;
+			if ( type instanceof Class<?> && ((Class<?>) type).isEnum() ) {
+				e0 = Expressions.call( Expressions.field( null, EnumConverter.class, "INSTANCE" ), "convert",
+						Expressions.convert_( e, Enum.class ) );
+			} else {
+				e0 = Expressions.call( Expressions.field( null, EnumToStringConverter.class, "INSTANCE" ), "convert",
+						Expressions.convert_( e, Object.class ) );
+			}
+		}
+		else if ( dataFormatField.getFormat() instanceof CollectionDataFormat ) {
+			e0 = Expressions.call( Expressions.field( null, ComparableListConverter.class, "INSTANCE" ), "convert",
+					Expressions.convert_( e, Collection.class ) );
 		}
 		else {
-			converter = CONVERTERS.get( rawClass( dataFormatField.getFormat().getType() ) );
-		}
-		final Expression e0;
-		if ( converter == null ) {
-			e0 = e;
-		}
-		else if ( converter == EnumConverter.class ) {
-			e0 = Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert",
-					Expressions.convert_( e, Enum.class ) );
-		}
-		else if ( converter == EnumToStringConverter.class ) {
-			e0 = Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert",
-					Expressions.convert_( e, Object.class ) );
-		}
-		else {
-			e0 = Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert", e );
+			Class<?> converter = CONVERTERS.get( rawClass( dataFormatField.getFormat().getType() ) );
+			if ( converter == null ) {
+				e0 = e;
+			}
+			else {
+				e0 = Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert", e );
+			}
 		}
 		switch ( relFieldType.getSqlTypeName() ) {
 			case ARRAY:
