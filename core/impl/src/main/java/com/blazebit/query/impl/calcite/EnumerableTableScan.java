@@ -7,7 +7,6 @@ package com.blazebit.query.impl.calcite;
 import com.blazebit.query.connector.base.FieldFieldAccessor;
 import com.blazebit.query.connector.base.LaxMethodFieldAccessor;
 import com.blazebit.query.connector.base.MethodFieldAccessor;
-import com.blazebit.query.impl.calcite.converter.ComparableListConverter;
 import com.blazebit.query.impl.calcite.converter.Converter;
 import com.blazebit.query.impl.calcite.converter.DurationConverter;
 import com.blazebit.query.impl.calcite.converter.EnumConverter;
@@ -90,6 +89,7 @@ import static java.util.Objects.requireNonNull;
 public class EnumerableTableScan extends TableScan implements EnumerableRel {
 	private static final Method GET_DATA;
 	private static final Map<Class<?>, Class<? extends Converter<?, ?>>> CONVERTERS;
+	private static final Method COLLECTION_CONVERT_METHOD;
 
 	static {
 		try {
@@ -109,6 +109,12 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 		converters.put( Duration.class, DurationConverter.class );
 		converters.put( Period.class, PeriodConverter.class );
 		CONVERTERS = converters;
+		try {
+			COLLECTION_CONVERT_METHOD = FakeComparableList.class.getMethod( "convert", Collection.class, Converter.class );
+		}
+		catch (NoSuchMethodException e) {
+			throw new RuntimeException( e );
+		}
 	}
 
 	private final DataFormat elementType;
@@ -191,30 +197,7 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 		else {
 			throw new IllegalArgumentException( "Unsupported field accessor: " + accessor );
 		}
-		final Expression e0;
-		if ( dataFormatField.getFormat().isEnum() ) {
-			final Type type = dataFormatField.getFormat().getType();
-			if ( type instanceof Class<?> && ((Class<?>) type).isEnum() ) {
-				e0 = Expressions.call( Expressions.field( null, EnumConverter.class, "INSTANCE" ), "convert",
-						Expressions.convert_( e, Enum.class ) );
-			} else {
-				e0 = Expressions.call( Expressions.field( null, EnumToStringConverter.class, "INSTANCE" ), "convert",
-						Expressions.convert_( e, Object.class ) );
-			}
-		}
-		else if ( dataFormatField.getFormat() instanceof CollectionDataFormat ) {
-			e0 = Expressions.call( Expressions.field( null, ComparableListConverter.class, "INSTANCE" ), "convert",
-					Expressions.convert_( e, Collection.class ) );
-		}
-		else {
-			Class<?> converter = CONVERTERS.get( rawClass( dataFormatField.getFormat().getType() ) );
-			if ( converter == null ) {
-				e0 = e;
-			}
-			else {
-				e0 = Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert", e );
-			}
-		}
+		final Expression e0 = convertExpression( e, dataFormatField.getFormat() );
 		switch ( relFieldType.getSqlTypeName() ) {
 			case ARRAY:
 			case MULTISET:
@@ -277,6 +260,45 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 					return resultVar;
 				}
 				return e0;
+		}
+	}
+
+	private Expression convertExpression(Expression e, DataFormat dataFormat) {
+		if ( dataFormat.isEnum() ) {
+			final Type type = dataFormat.getType();
+			if ( type instanceof Class<?> && ((Class<?>) type).isEnum() ) {
+				return Expressions.call( Expressions.field( null, EnumConverter.class, "INSTANCE" ), "convert",
+						Expressions.convert_( e, Enum.class ) );
+			} else {
+				return Expressions.call( Expressions.field( null, EnumToStringConverter.class, "INSTANCE" ), "convert",
+						Expressions.convert_( e, Object.class ) );
+			}
+		}
+		else if ( dataFormat instanceof CollectionDataFormat collectionDataFormat ) {
+			Class<?> converter;
+			if ( collectionDataFormat.getElementFormat().isEnum() ) {
+				final Type type = collectionDataFormat.getElementFormat().getType();
+				if ( type instanceof Class<?> && ((Class<?>) type).isEnum() ) {
+					converter = EnumConverter.class;
+				} else {
+					converter = EnumToStringConverter.class;
+				}
+			} else {
+				converter = CONVERTERS.get( rawClass( collectionDataFormat.getElementFormat().getType() ) );
+			}
+			final Expression converterExpression = converter == null
+					? Expressions.constant( null )
+					: Expressions.field( null, converter, "INSTANCE" );
+			return Expressions.call( COLLECTION_CONVERT_METHOD, Expressions.convert_( e, Collection.class ), converterExpression );
+		}
+		else {
+			Class<?> converter = CONVERTERS.get( rawClass( dataFormat.getType() ) );
+			if ( converter == null ) {
+				return e;
+			}
+			else {
+				return Expressions.call( Expressions.field( null, converter, "INSTANCE" ), "convert", e );
+			}
 		}
 	}
 
