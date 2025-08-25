@@ -62,7 +62,7 @@ public record GitlabMergeRequest(
 					json.get("name").asText(),
 					json.path("title").asText(""),
 					json.path("approved").asBoolean(false),
-					GitlabMergeRequestState.valueOf(json.get("state").asText()),
+					GitlabMergeRequestState.valueOf(json.get("state").asText().toUpperCase()),
 					json.path("approvalsRequired").asInt(0),
 					createdAt,
 					mergedAt,

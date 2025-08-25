@@ -290,7 +290,7 @@ public class GitlabGraphQlClient {
 	public List<GitlabMergeRequest> fetchMergeRequestsFromProjects(GitlabMergeRequestState state) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("membership", true);
-		variables.put("state", state);
+		variables.put("state", state.toString().toLowerCase());
 
 		String query = """
 				query ($membership: Boolean, $state: MergeRequestState, $first: Int, $cursor: String) {
