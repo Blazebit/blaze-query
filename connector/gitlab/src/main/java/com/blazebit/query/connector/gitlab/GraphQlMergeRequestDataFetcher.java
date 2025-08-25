@@ -32,7 +32,7 @@ public class GraphQlMergeRequestDataFetcher implements DataFetcher<GitlabMergeRe
 			List<GitlabMergeRequest> mergeRequestList = new ArrayList<>();
 
 			for ( GitlabGraphQlClient client : gitlabClients ) {
-				mergeRequestList.addAll( client.fetchMergeRequestsFromProjects( GitlabMergeRequestState.all ) );
+				mergeRequestList.addAll( client.fetchMergeRequestsFromProjects( GitlabMergeRequestState.ALL ) );
 			}
 
 			return mergeRequestList;

@@ -9,9 +9,9 @@ package com.blazebit.query.connector.gitlab;
  * @since 1.0.12
  */
 public enum GitlabMergeRequestState {
-	merged,
-	opened,
-	closed,
-	locked,
-	all
+	MERGED,
+	OPENED,
+	CLOSED,
+	LOCKED,
+	ALL
 }
