@@ -99,6 +99,22 @@ public class GitlabGraphQlClient {
 		return groups;
 	}
 
+	private static List<GitlabMergeRequest> extractMergeRequestsFromProjects(JsonNode rootNode) {
+		List<GitlabMergeRequest> mergeRequests = new ArrayList<>();
+
+		JsonNode projectsNodes = rootNode.path("nodes");
+		for (JsonNode projectNode : projectsNodes) {
+			JsonNode mergeRequestsNode = projectNode.path("mergeRequests");
+
+			for (JsonNode mergeRequestNode : mergeRequestsNode.path("nodes")) {
+				if (!mergeRequestNode.isMissingNode()) {
+					mergeRequests.add(GitlabMergeRequest.fromJson(mergeRequestNode.toString()));
+				}
+			}
+		}
+		return mergeRequests;
+	}
+
 	public List<GitlabUser> fetchUsers(List<String> userIds) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put( "ids", userIds );
@@ -269,6 +285,50 @@ public class GitlabGraphQlClient {
 				""";
 
 		return executePaginatedQuery( query, variables, "groups", GitlabGraphQlClient::extractGroups );
+	}
+
+	public List<GitlabMergeRequest> fetchMergeRequestsFromProjects(GitlabMergeRequestState state) {
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("membership", true);
+		variables.put("state", state.toString().toLowerCase());
+
+		String query = """
+				query ($membership: Boolean, $state: MergeRequestState, $first: Int, $cursor: String) {
+					projects(membership: $membership, first: $first, after: $cursor) {
+						pageInfo { endCursor hasNextPage }
+						nodes {
+							name
+							mergeRequests(state: $state, first: $first, after: $cursor) {
+								pageInfo { endCursor hasNextPage }
+								nodes {
+								id
+								name
+								title
+								state
+								approved
+								approvalsRequired
+								createdAt
+								mergedAt
+								targetBranch
+									targetProjectId
+								author{
+									id
+									name
+								}
+								approvedBy{
+									nodes{
+									id
+									name
+									}
+								}
+								}
+							}
+						}
+					}
+				}
+			""";
+
+		return executePaginatedQuery(query, variables, "projects", GitlabGraphQlClient::extractMergeRequestsFromProjects);
 	}
 
 	private <T> List<T> executePaginatedQuery(
