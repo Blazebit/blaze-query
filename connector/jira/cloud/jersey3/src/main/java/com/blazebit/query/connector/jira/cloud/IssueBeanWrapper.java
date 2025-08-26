@@ -6,11 +6,13 @@ package com.blazebit.query.connector.jira.cloud;
 
 import com.blazebit.query.connector.jira.cloud.model.IssueBean;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.blazebit.query.connector.jira.cloud.DateUtils.parseIsoLocalDate;
 import static com.blazebit.query.connector.jira.cloud.DateUtils.parseIsoOffsetDateTime;
 
 /**
@@ -31,7 +33,7 @@ public record IssueBeanWrapper(
 		StatusCategory statusCategory,
 		Security security,
 		OffsetDateTime created,
-		OffsetDateTime dueDate,
+		LocalDate dueDate,
 		OffsetDateTime updated,
 		OffsetDateTime resolutionDate,
 		Status status,
@@ -50,7 +52,7 @@ public record IssueBeanWrapper(
 				extractStatusCategory(issueBean.getFields()),
 				extractSecurity(issueBean.getFields()),
 				parseIsoOffsetDateTime(extractStringField(issueBean.getFields(), "created")),
-				parseIsoOffsetDateTime(extractStringField(issueBean.getFields(), "duedate")),
+				parseIsoLocalDate(extractStringField(issueBean.getFields(), "duedate")),
 				parseIsoOffsetDateTime(extractStringField(issueBean.getFields(), "updated")),
 				parseIsoOffsetDateTime(extractStringField(issueBean.getFields(), "resolutiondate")),
 				extractStatus(issueBean.getFields()),
