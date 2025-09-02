@@ -31,3 +31,4 @@
 **/WorkflowReadResponse.java
 **/WorkflowUpdateResponse.java
 **/WorkflowsApi.java
+**/WorkflowSearchResponse.java

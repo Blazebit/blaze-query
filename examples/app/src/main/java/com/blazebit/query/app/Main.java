@@ -38,20 +38,22 @@ import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
 import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
@@ -73,12 +75,19 @@ import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
+import com.blazebit.query.connector.gitlab.GitlabMergeRequest;
 import com.blazebit.query.connector.gitlab.GitlabProject;
 import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
+import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
+import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
+import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
@@ -152,11 +161,13 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
-	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_DATACENTER_HOST = "";
+	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
-	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_ADMIN_API_KEY = "";
+
 
 	private Main() {
 	}
@@ -186,9 +197,11 @@ public class Main {
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
+//			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
+//			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
+			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
 			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
@@ -214,6 +227,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphManagedDevice.class, "AzureManagedDevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphOrganization.class, "AzureOrganization" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
 			// IAM
 			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
@@ -258,6 +273,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabProject.class, "GitlabGraphQlProject" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabMergeRequest.class, "GitlabGraphQlMergeRequest" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -308,11 +324,18 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( PermissionGrantBean.class, "JiraDatacenterPermission" );
 
 			// Jira Cloud
-			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.Project.class, "JiraCloudProject" );
+			queryContextBuilder.registerSchemaObjectAlias( ProjectWrapper.class, "JiraCloudProject" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.User.class, "JiraCloudUser" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( IssueBeanWrapper.class, "JiraCloudIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
+
+			// Jira Cloud Admin
+			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
@@ -320,16 +343,17 @@ public class Main {
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
+//					testJiraCloudAdmin( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
-					testGitlab( session );
+//					testGitlab( session );
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
 //					testEntityView( session );
-//					testAzureGraph( session );
-					testAzureResourceManager( session );
+					testAzureGraph( session );
+//					testAzureResourceManager( session );
 				}
 			}
 		}
@@ -497,15 +521,10 @@ public class Main {
 		System.out.println( "GitlabGraphQlUsers" );
 		print( gitlabGraphqlUserResult );
 
-		List<Object[]> gitlabGraphqlGroupResult = session.createQuery(
-				"select g.* from GitlabGraphQlGroup g" ).getResultList();
-		System.out.println( "GitlabGraphQlGroups" );
-		print( gitlabGraphqlGroupResult );
-
-		List<Object[]> gitlabGraphqlProjectResult = session.createQuery(
-				"select g.* from GitlabGraphQlProject g" ).getResultList();
-		System.out.println( "GitlabGraphQlProjects" );
-		print( gitlabGraphqlProjectResult );
+		List<Object[]> gitlabGraphqlMergeRequestResult = session.createQuery(
+				"select g.* from GitlabGraphQlMergeRequest g" ).getResultList();
+		System.out.println( "GitlabGraphQlMergeRequests" );
+		print( gitlabGraphqlMergeRequestResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
@@ -741,6 +760,38 @@ public class Main {
 		List<Object[]> permissionResult = permissionQuery.getResultList();
 		System.out.println( "Permission" );
 		print( permissionResult );
+
+		TypedQuery<Object[]> issueQuery = session.createQuery(
+				"SELECT u.* FROM JiraCloudIssue u");
+		List<Object[]> issueResult = issueQuery.getResultList();
+		System.out.println( "Issue" );
+		print( issueResult );
+
+		TypedQuery<Object[]> serverInfoQuery = session.createQuery(
+				"select u.* from JiraCloudServerInfo u" );
+		List<Object[]> serverInfoResult = serverInfoQuery.getResultList();
+		System.out.println( "Server info" );
+		print( serverInfoResult );
+	}
+
+	private static void testJiraCloudAdmin(QuerySession session) {
+		TypedQuery<Object[]> orgQuery = session.createQuery(
+				"select o.* from JiraCloudAdminOrg o" );
+		List<Object[]> orgResult = orgQuery.getResultList();
+		System.out.println( "Org" );
+		print( orgResult );
+
+		TypedQuery<Object[]> directoryQuery = session.createQuery(
+				"select o.* from JiraCloudAdminDirectory o" );
+		List<Object[]> directoryResult = directoryQuery.getResultList();
+		System.out.println( "Directory" );
+		print( directoryResult );
+
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from JiraCloudAdminUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
 	}
 
 	private static void testEntityView(QuerySession session) {
@@ -757,17 +808,17 @@ public class Main {
 		System.out.println( "User" );
 		print( userResult );
 
-		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-				"select c.* from AzureConditionalAccessPolicy c" );
-		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
-		System.out.println( "Conditional access policies" );
-		print( conditionalAccessPolicyResult );
-
-		TypedQuery<Object[]> applicationQuery = session.createQuery(
-				"select a.* from AzureApplication a" );
-		List<Object[]> applicationResult = applicationQuery.getResultList();
-		System.out.println( "Applications" );
-		print( applicationResult );
+//		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+//				"select c.* from AzureConditionalAccessPolicy c" );
+//		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+//		System.out.println( "Conditional access policies" );
+//		print( conditionalAccessPolicyResult );
+//
+//		TypedQuery<Object[]> applicationQuery = session.createQuery(
+//				"select a.* from AzureApplication a" );
+//		List<Object[]> applicationResult = applicationQuery.getResultList();
+//		System.out.println( "Applications" );
+//		print( applicationResult );
 
 //		TypedQuery<Object[]> managedDevices = session.createQuery(
 //				"select a.* from AzureManagedDevice a" );
@@ -780,6 +831,16 @@ public class Main {
 		List<Object[]> organizationResult = organizationQuery.getResultList();
 		System.out.println( "Organizations" );
 		print( organizationResult );
+
+		TypedQuery<Object[]> alertQuery = session.createQuery( "select a.payload.severity from AzureAlert a" );
+		List<Object[]> alertResult = alertQuery.getResultList();
+		System.out.println( "Alerts" );
+		print( alertResult );
+
+		TypedQuery<Object[]> incidentQuery = session.createQuery("select i.payload.* from AzureIncident i");
+		List<Object[]> incidentResult = incidentQuery.getResultList();
+		System.out.println( "Incidents" );
+		print( incidentResult );
 
 //		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
 //				"select s.* from AzureAvailableServicePlan s" );
@@ -902,6 +963,12 @@ public class Main {
 		apiClient.setBasePath( JIRA_CLOUD_HOST );
 		apiClient.addDefaultHeader( "Authorization", "Basic " + Base64.getEncoder().encodeToString( (JIRA_CLOUD_USER + ":" + JIRA_CLOUD_TOKEN ).getBytes( StandardCharsets.UTF_8 ) ) );
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return apiClient;
+	}
+
+	private static com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient createJiraCloudAdminOrganizationApiClient() {
+		com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient();
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN_API_KEY );
 		return apiClient;
 	}
 

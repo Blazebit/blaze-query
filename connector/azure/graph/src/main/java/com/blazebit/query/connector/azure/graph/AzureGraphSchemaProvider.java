@@ -27,7 +27,9 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
 				UserLastSignInActivityDataFetcher.INSTANCE,
 				OrganizationDataFetcher.INSTANCE,
 				ServicePlanDataFetcher.INSTANCE,
-				ServicePlanInfoDataFetcher.INSTANCE
+				ServicePlanInfoDataFetcher.INSTANCE,
+				AlertDataFetcher.INSTANCE,
+				IncidentDataFetcher.INSTANCE
 		);
 	}
 }

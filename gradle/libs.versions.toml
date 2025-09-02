@@ -1,5 +1,5 @@
 [versions]
-calcite = "1.37.0"
+calcite = "1.39.0"
 
 blaze-persistence = "1.6.11"
 
@@ -8,7 +8,7 @@ azure-identity = "1.11.0"
 azure-resourcemanager = "2.44.0"
 azure-resourcemanager-postgresqlflexibleserver = "1.1.0"
 
-gitlab4j = "6.0.0-rc.5"
+gitlab4j = "6.0.0"
 
 github-api = "1.323"
 

@@ -524,7 +524,7 @@ public final class DataFormats {
 			TreeMap<String, Method> attributeMap = new TreeMap<>();
 			do {
 				for ( Method method : clazz.getDeclaredMethods() ) {
-					if ( isAccessor( method ) ) {
+					if ( isAccessor( method ) && !isToStringOrHashCode( method ) ) {
 						String attributeName = getAttributeName( method );
 						if ( attributeName != null ) {
 							attributeMap.putIfAbsent( attributeName, method );
@@ -538,6 +538,10 @@ public final class DataFormats {
 			}
 			while ( clazz != null && clazz != Object.class );
 			return attributeMap;
+		}
+
+		private static boolean isToStringOrHashCode(Method method) {
+			return "toString".equals( method.getName() ) || "hashCode".equals( method.getName() );
 		}
 
 		@Override
