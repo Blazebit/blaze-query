@@ -8,6 +8,7 @@ import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypeReference;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.spi.DataFetchContext;
+import org.apache.calcite.sql.type.SqlTypeName;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -16,15 +17,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -32,6 +37,40 @@ import java.util.stream.Stream;
  * @since 1.0.0
  */
 public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
+
+	private static final Map<Class<?>, SqlTypeName> JAVA_TYPE_MAPPINGS;
+
+	static {
+		Map<Class<?>, SqlTypeName> javaTypeMappings = new HashMap<>();
+		javaTypeMappings.put( Instant.class, SqlTypeName.TIMESTAMP );
+		javaTypeMappings.put( ZonedDateTime.class, SqlTypeName.TIMESTAMP );
+		javaTypeMappings.put( OffsetDateTime.class, SqlTypeName.TIMESTAMP );
+		javaTypeMappings.put( LocalDateTime.class, SqlTypeName.TIMESTAMP );
+		javaTypeMappings.put( LocalDate.class, SqlTypeName.DATE );
+		javaTypeMappings.put( OffsetTime.class, SqlTypeName.TIME );
+		javaTypeMappings.put( LocalTime.class, SqlTypeName.TIME );
+		javaTypeMappings.put( Duration.class, SqlTypeName.INTERVAL_DAY_SECOND );
+		javaTypeMappings.put( Period.class, SqlTypeName.INTERVAL_YEAR_MONTH );
+		javaTypeMappings.put( UUID.class, SqlTypeName.UUID );
+		javaTypeMappings.put( String.class, SqlTypeName.VARCHAR );
+		javaTypeMappings.put( boolean.class, SqlTypeName.BOOLEAN );
+		javaTypeMappings.put( Boolean.class, SqlTypeName.BOOLEAN );
+		javaTypeMappings.put( byte.class, SqlTypeName.TINYINT );
+		javaTypeMappings.put( Byte.class, SqlTypeName.TINYINT );
+		javaTypeMappings.put( short.class, SqlTypeName.SMALLINT );
+		javaTypeMappings.put( Short.class, SqlTypeName.SMALLINT );
+		javaTypeMappings.put( int.class, SqlTypeName.INTEGER );
+		javaTypeMappings.put( Integer.class, SqlTypeName.INTEGER );
+		javaTypeMappings.put( long.class, SqlTypeName.BIGINT );
+		javaTypeMappings.put( Long.class, SqlTypeName.BIGINT );
+		javaTypeMappings.put( float.class, SqlTypeName.REAL );
+		javaTypeMappings.put( Float.class, SqlTypeName.REAL );
+		javaTypeMappings.put( double.class, SqlTypeName.DOUBLE );
+		javaTypeMappings.put( Double.class, SqlTypeName.DOUBLE );
+		javaTypeMappings.put( Date.class, SqlTypeName.TIMESTAMP );
+		javaTypeMappings.put( byte[].class, SqlTypeName.VARBINARY );
+		JAVA_TYPE_MAPPINGS = javaTypeMappings;
+	}
 
 	private final QuerySessionImpl querySession;
 	private final String queryString;
@@ -125,6 +164,12 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 			else if ( value instanceof byte[] bytes ) {
 				preparedStatement.setBytes( position, bytes );
 			}
+			else if ( value instanceof Object[] objectArray ) {
+				var typeName = determineType( value.getClass().getComponentType() );
+				var convertedArray = convertArray( objectArray );
+				preparedStatement.setArray( position,
+						querySession.connection().createArrayOf( typeName, convertedArray ) );
+			}
 			else {
 				preparedStatement.setObject( position, value );
 			}
@@ -202,5 +247,75 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 			return (C) preparedStatement;
 		}
 		throw new IllegalArgumentException( "Can't unwrap to: " + cls.getName() );
+	}
+
+	private String determineType(Class<?> componentType) {
+		var type = JAVA_TYPE_MAPPINGS.get( componentType );
+		if ( type == null ) {
+			throw new IllegalArgumentException( "Unsupported type: " + componentType.getName() );
+		}
+		return type.getSpaceName();
+	}
+
+	private Object[] convertArray(Object[] objectArray) {
+		var componentType = objectArray.getClass().getComponentType();
+
+		if ( componentType.equals( Character.class ) ) {
+			var newArray = new String[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = String.valueOf( objectArray[i] );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( LocalTime.class ) ) {
+			var newArray = new Time[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Time.valueOf( (LocalTime) objectArray[i] );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( LocalDate.class ) ) {
+			var newArray = new Date[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Date.valueOf( (LocalDate) objectArray[i] );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( LocalDateTime.class ) ) {
+			var newArray = new Timestamp[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Timestamp.valueOf( (LocalDateTime) objectArray[i] );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( Instant.class ) ) {
+			var newArray = new Timestamp[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Timestamp.from( (Instant) objectArray[i] );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( OffsetDateTime.class ) ) {
+			var newArray = new Timestamp[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Timestamp.from( ((OffsetDateTime) objectArray[i]).toInstant() );
+			}
+			return newArray;
+		}
+
+		if ( componentType.equals( ZonedDateTime.class ) ) {
+			var newArray = new Timestamp[objectArray.length];
+			for ( int i = 0; i < newArray.length; i++ ) {
+				newArray[i] = Timestamp.from( ((ZonedDateTime) objectArray[i]).toInstant() );
+			}
+			return newArray;
+		}
+
+		return objectArray;
 	}
 }
