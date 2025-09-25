@@ -16,7 +16,6 @@ import org.apache.calcite.jdbc.CalciteFactory;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.Driver;
-import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
 import org.apache.calcite.plan.Convention;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptPlanner;
@@ -72,7 +71,7 @@ public class CalciteDataSource extends Driver implements DataSource {
 				}
 			};
 		}
-		this.typeFactory = new JavaTypeFactoryImpl( typeSystem );
+		this.typeFactory = new CustomJavaTypeFactory( typeSystem );
 		this.rootSchema = CalciteSchema.createRootSchema( true );
 	}
 
