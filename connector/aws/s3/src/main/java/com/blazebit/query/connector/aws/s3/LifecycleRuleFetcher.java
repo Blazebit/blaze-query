@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.s3;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -20,24 +16,31 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationRequest;
+import software.amazon.awssdk.services.s3.model.LifecycleRule;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class BucketDataFetcher implements DataFetcher<AwsBucket>, Serializable {
+public class LifecycleRuleFetcher implements DataFetcher<AwsLifeCycleRule>, Serializable {
 
-	public static final BucketDataFetcher INSTANCE = new BucketDataFetcher();
+	public static final LifecycleRuleFetcher INSTANCE = new LifecycleRuleFetcher();
 
-	private BucketDataFetcher() {
+	private LifecycleRuleFetcher() {
 	}
 
 	@Override
-	public List<AwsBucket> fetch(DataFetchContext context) {
+	public List<AwsLifeCycleRule> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsBucket> list = new ArrayList<>();
+			List<AwsLifeCycleRule> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					S3ClientBuilder s3ClientBuilder = S3Client.builder()
@@ -48,25 +51,38 @@ public class BucketDataFetcher implements DataFetcher<AwsBucket>, Serializable {
 					}
 					try (S3Client client = s3ClientBuilder.build()) {
 						for ( Bucket bucket : client.listBuckets().buckets() ) {
-							list.add( new AwsBucket(
-									account.getAccountId(),
-									region.id(),
-									bucket.name(),
-									bucket
-							) );
+							try {
+								var bucketLifecycleConfiguration = client.getBucketLifecycleConfiguration(
+										GetBucketLifecycleConfigurationRequest.builder().bucket( bucket.name() )
+												.build() );
+								for ( LifecycleRule lifecycleRule : bucketLifecycleConfiguration.rules() ) {
+									list.add( new AwsLifeCycleRule(
+											account.getAccountId(),
+											region.id(),
+											bucket.name(),
+											lifecycleRule
+									) );
+								}
+							}
+							catch (S3Exception e) {
+								if ( "NoSuchLifecycleConfiguration".equals( e.awsErrorDetails().errorCode() ) ) {
+									continue;
+								}
+								throw e;
+							}
 						}
 					}
 				}
 			}
 			return list;
 		}
-		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch public access block configuration list", e );
+		catch (Exception e) {
+			throw new DataFetcherException( "Could not fetch life cycle rule list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsBucket.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsLifeCycleRule.class, AwsConventionContext.INSTANCE );
 	}
 }

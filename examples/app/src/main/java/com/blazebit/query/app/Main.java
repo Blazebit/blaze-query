@@ -37,6 +37,7 @@ import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
+import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
 import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
@@ -261,6 +262,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsHealthCheck.class, "AwsHealthCheck" );
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
 
 			// Gitlab
 			queryContextBuilder.registerSchemaObjectAlias( Project.class, "GitlabProject" );
@@ -482,6 +484,12 @@ public class Main {
 		List<Object[]> awsBucketResult = awsBucketQuery.getResultList();
 		System.out.println("AwsBuckets");
 		print(awsBucketResult);
+
+		TypedQuery<Object[]> awsLifeCycleRuleQuery = session.createQuery(
+				"select f.* from AwsLifeCycleRule f" );
+		List<Object[]> awsLifeCycleRuleResult = awsLifeCycleRuleQuery.getResultList();
+		System.out.println("AwsLifeCycleRule");
+		print(awsLifeCycleRuleResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
