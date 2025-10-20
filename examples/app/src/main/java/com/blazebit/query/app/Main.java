@@ -38,6 +38,7 @@ import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
+import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
 import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
@@ -263,6 +264,8 @@ public class Main {
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
+
 
 			// Gitlab
 			queryContextBuilder.registerSchemaObjectAlias( Project.class, "GitlabProject" );
@@ -490,6 +493,12 @@ public class Main {
 		List<Object[]> awsLifeCycleRuleResult = awsLifeCycleRuleQuery.getResultList();
 		System.out.println("AwsLifeCycleRule");
 		print(awsLifeCycleRuleResult);
+
+		TypedQuery<Object[]> awsPublicAccessBlockConfigurationQuery = session.createQuery(
+				"select f.* from AwsPublicAccessBlockConfiguration f" );
+		List<Object[]> awsPublicAccessBlockConfigurationResult = awsPublicAccessBlockConfigurationQuery.getResultList();
+		System.out.println("AwsPublicAccessBlockConfiguration");
+		print(awsPublicAccessBlockConfigurationResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
