@@ -23,7 +23,6 @@ public final class AwsS3SchemaProvider implements QuerySchemaProvider {
 				BucketDataFetcher.INSTANCE,
 				LifecycleRuleFetcher.INSTANCE,
 				PublicAccessBlockConfigurationFetcher.INSTANCE
-
 		);
 	}
 }
