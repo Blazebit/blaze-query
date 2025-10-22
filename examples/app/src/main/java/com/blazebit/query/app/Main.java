@@ -37,7 +37,7 @@ import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
-import com.blazebit.query.connector.aws.s3.AwsGrant;
+import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
 import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
 import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
@@ -267,7 +267,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsHealthCheck.class, "AwsHealthCheck" );
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsGrant.class, "AwsGrant" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsObjectLockConfiguration.class, "AwsObjectLockConfiguration" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
@@ -497,11 +497,11 @@ public class Main {
 		System.out.println("AwsBuckets");
 		print(awsBucketResult);
 
-		TypedQuery<Object[]> awsGrantQuery = session.createQuery(
-				"select f.* from AwsGrant f" );
-		List<Object[]> awsGrantResult = awsGrantQuery.getResultList();
-		System.out.println("AwsGrant");
-		print(awsGrantResult);
+		TypedQuery<Object[]> awsBucketAclQuery = session.createQuery(
+				"select f.* from AwsBucketAcl f" );
+		List<Object[]> awsBucketAclResult = awsBucketAclQuery.getResultList();
+		System.out.println("AwsBucketAcl");
+		print(awsBucketAclResult);
 
 		TypedQuery<Object[]> awsLoggingEnabledQuery = session.createQuery(
 				"select f.* from AwsLoggingEnabled f" );

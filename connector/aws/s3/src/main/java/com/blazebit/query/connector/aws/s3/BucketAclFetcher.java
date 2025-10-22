@@ -17,7 +17,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.GetBucketAclRequest;
-import software.amazon.awssdk.services.s3.model.Grant;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,19 +26,19 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class GrantFetcher implements DataFetcher<AwsGrant>, Serializable {
+public class BucketAclFetcher implements DataFetcher<AwsBucketAcl>, Serializable {
 
-	public static final GrantFetcher INSTANCE = new GrantFetcher();
+	public static final BucketAclFetcher INSTANCE = new BucketAclFetcher();
 
-	private GrantFetcher() {
+	private BucketAclFetcher() {
 	}
 
 	@Override
-	public List<AwsGrant> fetch(DataFetchContext context) {
+	public List<AwsBucketAcl> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsGrant> list = new ArrayList<>();
+			List<AwsBucketAcl> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					S3ClientBuilder s3ClientBuilder = S3Client.builder()
@@ -53,14 +52,12 @@ public class GrantFetcher implements DataFetcher<AwsGrant>, Serializable {
 							var bucketAcl = client.getBucketAcl(
 									GetBucketAclRequest.builder().bucket( bucket.name() )
 											.build() );
-							for ( Grant grant : bucketAcl.grants() ) {
-								list.add( new AwsGrant(
-										account.getAccountId(),
-										region.id(),
-										bucket.name(),
-										grant
-								) );
-							}
+							list.add( new AwsBucketAcl(
+									account.getAccountId(),
+									region.id(),
+									bucket.name(),
+									bucketAcl
+							) );
 						}
 					}
 				}
@@ -68,12 +65,12 @@ public class GrantFetcher implements DataFetcher<AwsGrant>, Serializable {
 			return list;
 		}
 		catch (Exception e) {
-			throw new DataFetcherException( "Could not fetch grant list", e );
+			throw new DataFetcherException( "Could not fetch bucket acl list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsGrant.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsBucketAcl.class, AwsConventionContext.INSTANCE );
 	}
 }
