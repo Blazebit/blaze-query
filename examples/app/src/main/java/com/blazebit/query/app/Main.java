@@ -37,8 +37,13 @@ import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
+import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
+import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
+import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
+import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
 import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.aws.s3.AwsServerSideEncryptionRule;
 import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
@@ -262,7 +267,13 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsHealthCheck.class, "AwsHealthCheck" );
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsObjectLockConfiguration.class, "AwsObjectLockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsServerSideEncryptionRule.class, "AwsServerSideEncryptionRule" );
+
 
 
 			// Gitlab
@@ -486,11 +497,41 @@ public class Main {
 		System.out.println("AwsBuckets");
 		print(awsBucketResult);
 
+		TypedQuery<Object[]> awsBucketAclQuery = session.createQuery(
+				"select f.* from AwsBucketAcl f" );
+		List<Object[]> awsBucketAclResult = awsBucketAclQuery.getResultList();
+		System.out.println("AwsBucketAcl");
+		print(awsBucketAclResult);
+
+		TypedQuery<Object[]> awsLoggingEnabledQuery = session.createQuery(
+				"select f.* from AwsLoggingEnabled f" );
+		List<Object[]> awsLoggingEnabledResult = awsLoggingEnabledQuery.getResultList();
+		System.out.println("AwsLoggingEnabled");
+		print(awsLoggingEnabledResult);
+
+		TypedQuery<Object[]> awsObjectLockConfigurationQuery = session.createQuery(
+				"select f.* from AwsObjectLockConfiguration f" );
+		List<Object[]> awsObjectLockConfigurationResult = awsObjectLockConfigurationQuery.getResultList();
+		System.out.println("AwsObjectLockConfiguration");
+		print(awsObjectLockConfigurationResult);
+
+		TypedQuery<Object[]> awsPolicyStatusQuery = session.createQuery(
+				"select f.* from AwsPolicyStatus f" );
+		List<Object[]> awsPolicyStatusResult = awsPolicyStatusQuery.getResultList();
+		System.out.println("AwsPolicyStatus");
+		print(awsPolicyStatusResult);
+
 		TypedQuery<Object[]> awsPublicAccessBlockConfigurationQuery = session.createQuery(
 				"select f.* from AwsPublicAccessBlockConfiguration f" );
 		List<Object[]> awsPublicAccessBlockConfigurationResult = awsPublicAccessBlockConfigurationQuery.getResultList();
 		System.out.println("AwsPublicAccessBlockConfiguration");
 		print(awsPublicAccessBlockConfigurationResult);
+
+		TypedQuery<Object[]> awsServerSideEncryptionRuleQuery = session.createQuery(
+				"select f.* from AwsServerSideEncryptionRule f" );
+		List<Object[]> awsServerSideEncryptionRuleResult = awsServerSideEncryptionRuleQuery.getResultList();
+		System.out.println("AwsServerSideEncryptionConfiguration");
+		print(awsServerSideEncryptionRuleResult);
 	}
 
 	private static void testGitlab(QuerySession session) {

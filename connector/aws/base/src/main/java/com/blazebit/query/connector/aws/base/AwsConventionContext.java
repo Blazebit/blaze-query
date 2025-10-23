@@ -27,6 +27,8 @@ public class AwsConventionContext implements ConventionContext {
 			case "sdkFields":
 			case "toBuilder":
 			case "serializableBuilderClass":
+			case "getValueForField":
+			case "sdkHttpResponse":
 				return null;
 			default:
 				return this;
