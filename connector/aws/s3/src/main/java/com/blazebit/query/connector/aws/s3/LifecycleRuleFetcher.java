@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Donghwi Kim
@@ -65,7 +66,8 @@ public class LifecycleRuleFetcher implements DataFetcher<AwsLifeCycleRule>, Seri
 								}
 							}
 							catch (S3Exception e) {
-								if ( "NoSuchLifecycleConfiguration".equals( e.awsErrorDetails().errorCode() ) ) {
+								if ( Objects.equals( e.awsErrorDetails().errorCode(),
+										"NoSuchLifecycleConfiguration" ) ) {
 									continue;
 								}
 								throw e;

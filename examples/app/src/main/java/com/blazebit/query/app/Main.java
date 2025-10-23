@@ -41,10 +41,7 @@ import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
 import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
 import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
-import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
-import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
-import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
-import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
+import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
 import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
 import com.blazebit.query.connector.aws.s3.AwsServerSideEncryptionRule;
@@ -358,8 +355,8 @@ public class Main {
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
-					 QuerySession session = queryContext.createSession(
-							 Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
+					QuerySession session = queryContext.createSession(
+							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
