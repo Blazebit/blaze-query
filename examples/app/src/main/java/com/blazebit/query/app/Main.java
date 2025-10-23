@@ -41,6 +41,7 @@ import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
 import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
 import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
+import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
 import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
 import com.blazebit.query.connector.aws.s3.AwsServerSideEncryptionRule;
@@ -268,6 +269,7 @@ public class Main {
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsObjectLockConfiguration.class, "AwsObjectLockConfiguration" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
@@ -520,6 +522,12 @@ public class Main {
 		List<Object[]> awsPolicyStatusResult = awsPolicyStatusQuery.getResultList();
 		System.out.println("AwsPolicyStatus");
 		print(awsPolicyStatusResult);
+
+		TypedQuery<Object[]> awsLifeCycleRuleQuery = session.createQuery(
+				"select f.* from AwsLifeCycleRule f" );
+		List<Object[]> awsLifeCycleRuleResult = awsLifeCycleRuleQuery.getResultList();
+		System.out.println("AwsLifeCycleRule");
+		print(awsLifeCycleRuleResult);
 
 		TypedQuery<Object[]> awsPublicAccessBlockConfigurationQuery = session.createQuery(
 				"select f.* from AwsPublicAccessBlockConfiguration f" );
