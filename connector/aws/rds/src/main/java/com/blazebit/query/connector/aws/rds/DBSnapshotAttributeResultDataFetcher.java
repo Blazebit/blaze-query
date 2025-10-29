@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.rds;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -19,25 +15,30 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DBSnapshot;
+import software.amazon.awssdk.services.rds.model.DescribeDbSnapshotAttributesRequest;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class DBSnapshotAttributeResultDataFetcher implements DataFetcher<AwsDBSnapshotAttributeResult>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final DBSnapshotAttributeResultDataFetcher INSTANCE = new DBSnapshotAttributeResultDataFetcher();
 
-	private DBInstanceDataFetcher() {
+	private DBSnapshotAttributeResultDataFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsDBSnapshotAttributeResult> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsDBSnapshotAttributeResult> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
@@ -47,8 +48,11 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						for ( DBSnapshot dbInstance : client.describeDBSnapshots().dbSnapshots() ) {
+							var bucketPolicy = client.describeDBSnapshotAttributes(
+									DescribeDbSnapshotAttributesRequest.builder().dbSnapshotIdentifier(dbInstance.dbSnapshotIdentifier() )
+											.build() );
+							list.add( new AwsDBSnapshotAttributeResult( dbInstance.dbSnapshotArn(), bucketPolicy.dbSnapshotAttributesResult() ) );
 						}
 					}
 				}
@@ -62,6 +66,6 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsDBSnapshotAttributeResult.class, AwsConventionContext.INSTANCE );
 	}
 }
