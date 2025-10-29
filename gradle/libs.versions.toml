@@ -66,6 +66,7 @@ awssdk-lambda = { module = "software.amazon.awssdk:lambda", version.ref = "aws" 
 awssdk-rds = { module = "software.amazon.awssdk:rds", version.ref = "aws" }
 awssdk-route53 = { module = "software.amazon.awssdk:route53", version.ref = "aws" }
 awssdk-s3 = { module = "software.amazon.awssdk:s3", version.ref = "aws" }
+awssdk-kms = { module = "software.amazon.awssdk:kms", version.ref = "aws" }
 
 microsoft-graph-beta = { module = "com.microsoft.graph:microsoft-graph-beta", version.ref = "microsoft-graph-beta" }
 microsoft-graph-core = { module = "com.microsoft.graph:microsoft-graph-core", version.ref = "microsoft-graph-core" }
