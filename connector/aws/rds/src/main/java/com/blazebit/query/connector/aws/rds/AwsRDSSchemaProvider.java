@@ -20,7 +20,8 @@ public final class AwsRDSSchemaProvider implements QuerySchemaProvider {
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				DBInstanceDataFetcher.INSTANCE
+				DBInstanceDataFetcher.INSTANCE,
+				DBSnapshotAttributeResultDataFetcher.INSTANCE
 		);
 	}
 }
