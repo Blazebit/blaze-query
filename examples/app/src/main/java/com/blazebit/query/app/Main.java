@@ -34,6 +34,7 @@ import com.blazebit.query.connector.aws.iam.AwsMFADevice;
 import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
 import com.blazebit.query.connector.aws.iam.AwsUser;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
+import com.blazebit.query.connector.aws.rds.AwsDBCluster;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
@@ -253,6 +254,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsNetworkAcl" );
 			// RDS
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBInstance.class, "AwsDBInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBCluster.class, "AwsDBCluster" );
 			// EFS
 			queryContextBuilder.registerSchemaObjectAlias( AwsFileSystem.class, "AwsFileSystem" );
 			// ECR
@@ -444,6 +446,12 @@ public class Main {
 		List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
 		System.out.println("AwsDbInstances");
 		print(awsDbInstanceResult);
+
+		TypedQuery<Object[]> awsDbClusterQuery = session.createQuery(
+				"select i.* from AwsDBCluster i" );
+		List<Object[]> awsDbClusterResult = awsDbClusterQuery.getResultList();
+		System.out.println("AwsDBCluster");
+		print(awsDbClusterResult);
 
 		// EFS
 		TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
