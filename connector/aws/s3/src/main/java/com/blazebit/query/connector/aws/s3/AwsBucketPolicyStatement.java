@@ -14,16 +14,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public record AwsBucketPolicyStatement(
 		String principalJsonValue,
 		String effect,
-		String conditionJsonValue
+		String conditionJsonValue,
+		String resourceJsonValue
+
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
 	public static AwsBucketPolicyStatement fromJson(String payload) {
 		try {
 			JsonNode json = MAPPER.readTree( payload );
+			// TODO check nullability/ add resource field
 			return new AwsBucketPolicyStatement(
 					json.get( "Principal" ).toString(), json.get( "Effect" ).asText( "" ),
-					json.has( "Condition" ) ? json.get( "Condition" ).toString() : ""
+					json.has( "Condition" ) ? json.get( "Condition" ).toString() : "",
+					json.has( "Resource" ) ? json.get( "Resource" ).toString() : ""
 			);
 		}
 		catch (Exception e) {
