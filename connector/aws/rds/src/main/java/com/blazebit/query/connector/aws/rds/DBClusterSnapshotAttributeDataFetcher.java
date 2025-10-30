@@ -15,29 +15,31 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
+import software.amazon.awssdk.services.rds.model.DBClusterSnapshotAttribute;
+import software.amazon.awssdk.services.rds.model.DescribeDbClusterSnapshotAttributesRequest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class DBClusterSnapshotAttributeDataFetcher implements DataFetcher<AwsDBClusterSnapshotAttribute>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final DBClusterSnapshotAttributeDataFetcher INSTANCE = new DBClusterSnapshotAttributeDataFetcher();
 
-	private DBInstanceDataFetcher() {
+	private DBClusterSnapshotAttributeDataFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsDBClusterSnapshotAttribute> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsDBClusterSnapshotAttribute> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
@@ -47,8 +49,17 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						for ( DBClusterSnapshot dbInstance : client.describeDBClusterSnapshots().dbClusterSnapshots() ) {
+							var bucketPolicy = client.describeDBClusterSnapshotAttributes(
+									DescribeDbClusterSnapshotAttributesRequest.builder()
+											.dbClusterSnapshotIdentifier( dbInstance.dbClusterSnapshotIdentifier() )
+											.build() );
+							for ( DBClusterSnapshotAttribute snapshotAttribute : bucketPolicy.dbClusterSnapshotAttributesResult()
+									.dbClusterSnapshotAttributes() ) {
+								list.add( new AwsDBClusterSnapshotAttribute( dbInstance.dbClusterSnapshotArn(),
+										snapshotAttribute ) );
+							}
+
 						}
 					}
 				}
@@ -56,12 +67,13 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch db instance list", e );
+			throw new DataFetcherException( "Could not fetch db cluster snapshot attribute list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsDBClusterSnapshotAttribute.class,
+				AwsConventionContext.INSTANCE );
 	}
 }

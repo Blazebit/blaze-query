@@ -34,7 +34,12 @@ import com.blazebit.query.connector.aws.iam.AwsMFADevice;
 import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
 import com.blazebit.query.connector.aws.iam.AwsUser;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
+import com.blazebit.query.connector.aws.rds.AwsDBCluster;
+import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshot;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshotAttribute;
+import com.blazebit.query.connector.aws.rds.AwsEventSubscription;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
@@ -252,7 +257,12 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsSecurityGroup.class, "AwsSecurityGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsNetworkAcl" );
 			// RDS
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBCluster.class, "AwsDBCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBClusterSnapshot.class, "AwsDBClusterSnapshot" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBInstance.class, "AwsDBInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshot.class, "AwsDBSnapshot" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshotAttribute.class, "AwsDBSnapshotAttribute" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEventSubscription.class, "AwsEventSubscription" );
 			// EFS
 			queryContextBuilder.registerSchemaObjectAlias( AwsFileSystem.class, "AwsFileSystem" );
 			// ECR
@@ -439,11 +449,42 @@ public class Main {
 		print(awsNetworkAclResult);
 
 		// RDS
+		TypedQuery<Object[]> awsDbClusterQuery = session.createQuery(
+				"select i.* from AwsDBCluster i" );
+		List<Object[]> awsDbClusterResult = awsDbClusterQuery.getResultList();
+		System.out.println("AwsDBCluster");
+		print(awsDbClusterResult);
+
+		TypedQuery<Object[]> awsDbClusterSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBClusterSnapshot i" );
+		List<Object[]> awsDbClusterSnapshotResult = awsDbClusterSnapshotQuery.getResultList();
+		System.out.println("AwsDBClusterSnapshot");
+		print(awsDbClusterSnapshotResult);
+
 		TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
 				"select i.* from AwsDBInstance i" );
 		List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
-		System.out.println("AwsDbInstances");
+		System.out.println("AwsDBInstance");
 		print(awsDbInstanceResult);
+
+		TypedQuery<Object[]> awsDBSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBSnapshot i" );
+		List<Object[]> awsDBSnapshotResult = awsDBSnapshotQuery.getResultList();
+		System.out.println("AwsDBSnapshot");
+		print(awsDBSnapshotResult);
+
+		TypedQuery<Object[]> awsDBSnapshotAttributeQuery = session.createQuery(
+				"select i.* from AwsDBSnapshotAttribute i" );
+		List<Object[]> awsDBSnapshotAttributeResult = awsDBSnapshotAttributeQuery.getResultList();
+		System.out.println("AwsDBSnapshotAttribute");
+		print(awsDBSnapshotAttributeResult);
+
+		TypedQuery<Object[]> awsEventSubscriptionQuery = session.createQuery(
+				"select i.* from AwsEventSubscription i" );
+		List<Object[]> awsEventSubscriptionResult = awsEventSubscriptionQuery.getResultList();
+		System.out.println("AwsEventSubscription");
+		print(awsEventSubscriptionResult);
+
 
 		// EFS
 		TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
