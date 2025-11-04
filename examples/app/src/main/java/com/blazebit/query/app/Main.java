@@ -26,6 +26,8 @@ import com.blazebit.query.connector.aws.ec2.AwsVolume;
 import com.blazebit.query.connector.aws.ec2.AwsVpc;
 import com.blazebit.query.connector.aws.ecr.AwsRepository;
 import com.blazebit.query.connector.aws.ecs.AwsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsService;
+import com.blazebit.query.connector.aws.ecs.AwsTaskDefinition;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
@@ -259,6 +261,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsRepository.class, "AwsRepository" );
 			// ECS
 			queryContextBuilder.registerSchemaObjectAlias( AwsCluster.class, "AwsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsService.class, "AwsService" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsTaskDefinition.class, "AwsTaskDefinition" );
 			// ELB
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoadBalancer.class, "AwsLoadBalancer" );
 			// Lambda
@@ -465,6 +469,19 @@ public class Main {
 		List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
 		System.out.println("AwsClusters");
 		print(awsClusterResult);
+
+		TypedQuery<Object[]> awsServiceQuery = session.createQuery(
+				"select f.* from AwsService f" );
+		List<Object[]> awsServiceResult = awsServiceQuery.getResultList();
+		System.out.println("AwsServices");
+		print(awsServiceResult);
+
+		TypedQuery<Object[]> awsTaskDefinitionQuery = session.createQuery(
+				"select f.* from AwsTaskDefinition f" );
+		List<Object[]> awsTaskDefinitionResult = awsTaskDefinitionQuery.getResultList();
+		System.out.println("AwsTaskDefinitions");
+		print(awsTaskDefinitionResult);
+
 
 		// ELB
 		TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
