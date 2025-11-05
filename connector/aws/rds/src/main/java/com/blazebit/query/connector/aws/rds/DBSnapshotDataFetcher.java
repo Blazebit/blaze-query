@@ -15,29 +15,29 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DBSnapshot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi KIm
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class DBSnapshotDataFetcher implements DataFetcher<AwsDBSnapshot>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final DBSnapshotDataFetcher INSTANCE = new DBSnapshotDataFetcher();
 
-	private DBInstanceDataFetcher() {
+	private DBSnapshotDataFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsDBSnapshot> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsDBSnapshot> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
@@ -47,8 +47,8 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						for ( DBSnapshot snapshot : client.describeDBSnapshots().dbSnapshots() ) {
+							list.add( new AwsDBSnapshot( snapshot.dbSnapshotArn(), snapshot ) );
 						}
 					}
 				}
@@ -56,12 +56,12 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch db instance list", e );
+			throw new DataFetcherException( "Could not fetch db snapshot list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsDBSnapshot.class, AwsConventionContext.INSTANCE );
 	}
 }
