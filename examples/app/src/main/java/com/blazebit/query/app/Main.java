@@ -33,6 +33,8 @@ import com.blazebit.query.connector.aws.iam.AccountSummary;
 import com.blazebit.query.connector.aws.iam.AwsMFADevice;
 import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
 import com.blazebit.query.connector.aws.iam.AwsUser;
+import com.blazebit.query.connector.aws.kms.AwsKey;
+import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBCluster;
 import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
@@ -285,7 +287,9 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsServerSideEncryptionRule.class, "AwsServerSideEncryptionRule" );
-
+			// KMS
+			queryContextBuilder.registerSchemaObjectAlias( AwsKey.class, "AwsKey" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKeyAlias.class, "AwsKeyAlias" );
 
 
 			// Gitlab
@@ -581,6 +585,19 @@ public class Main {
 		List<Object[]> awsServerSideEncryptionRuleResult = awsServerSideEncryptionRuleQuery.getResultList();
 		System.out.println("AwsServerSideEncryptionConfiguration");
 		print(awsServerSideEncryptionRuleResult);
+
+		// KMS
+		TypedQuery<Object[]> awsKeyQuery = session.createQuery(
+				"select f.* from AwsKey f" );
+		List<Object[]> awsKeyResult = awsKeyQuery.getResultList();
+		System.out.println("AwsKey");
+		print(awsKeyResult);
+
+		TypedQuery<Object[]> awsKeyAliasQuery = session.createQuery(
+				"select f.* from AwsKeyAlias f" );
+		List<Object[]> awsKeyAliasResult = awsKeyAliasQuery.getResultList();
+		System.out.println("AwsKeyAlias");
+		print(awsKeyAliasResult);
 	}
 
 	private static void testGitlab(QuerySession session) {

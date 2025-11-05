@@ -35,6 +35,7 @@ dependencies {
     api project(':blaze-query-connector-aws-s3')
     api project(':blaze-query-connector-aws-ecr')
     api project(':blaze-query-connector-aws-ecs')
+    api project(':blaze-query-connector-aws-kms')
     api project(':blaze-query-connector-aws-lambda')
     api project(':blaze-query-connector-aws-route53')
     api project(':blaze-query-connector-gitlab')
