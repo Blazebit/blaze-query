@@ -15,29 +15,29 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DBCluster;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class DBClusterDataFetcher implements DataFetcher<AwsDBCluster>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final DBClusterDataFetcher INSTANCE = new DBClusterDataFetcher();
 
-	private DBInstanceDataFetcher() {
+	private DBClusterDataFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsDBCluster> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsDBCluster> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
@@ -47,8 +47,8 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						for ( DBCluster dbCluster : client.describeDBClusters().dbClusters() ) {
+							list.add( new AwsDBCluster( dbCluster.dbClusterArn(), dbCluster ) );
 						}
 					}
 				}
@@ -56,12 +56,12 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch db instance list", e );
+			throw new DataFetcherException( "Could not fetch db cluster list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsDBCluster.class, AwsConventionContext.INSTANCE );
 	}
 }

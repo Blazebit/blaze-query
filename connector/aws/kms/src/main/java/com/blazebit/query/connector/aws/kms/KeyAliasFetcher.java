@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
-package com.blazebit.query.connector.aws.rds;
+package com.blazebit.query.connector.aws.kms;
 
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
@@ -13,42 +13,47 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.rds.RdsClient;
-import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.KmsClientBuilder;
+import software.amazon.awssdk.services.kms.model.AliasListEntry;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class KeyAliasFetcher implements DataFetcher<AwsKeyAlias>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final KeyAliasFetcher INSTANCE = new KeyAliasFetcher();
 
-	private DBInstanceDataFetcher() {
+	private KeyAliasFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsKeyAlias> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsKeyAlias> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
-					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
+					KmsClientBuilder kmsClientBuilder = KmsClient.builder()
 							.region( region )
 							.credentialsProvider( account.getCredentialsProvider() );
 					if ( sdkHttpClient != null ) {
-						rdsClientBuilder.httpClient( sdkHttpClient );
+						kmsClientBuilder.httpClient( sdkHttpClient );
 					}
-					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+					try (KmsClient client = kmsClientBuilder.build()) {
+						for ( AliasListEntry aliasListEntry : client.listAliases().aliases() ) {
+							list.add( new AwsKeyAlias(
+									account.getAccountId(),
+									region.id(),
+									aliasListEntry.targetKeyId(),
+									aliasListEntry )
+							);
 						}
 					}
 				}
@@ -56,12 +61,12 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch db instance list", e );
+			throw new DataFetcherException( "Could not fetch key alias list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsKeyAlias.class, AwsConventionContext.INSTANCE );
 	}
 }

@@ -15,29 +15,29 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.EventSubscription;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serializable {
+public class EventSubscriptionDataFetcher implements DataFetcher<AwsEventSubscription>, Serializable {
 
-	public static final DBInstanceDataFetcher INSTANCE = new DBInstanceDataFetcher();
+	public static final EventSubscriptionDataFetcher INSTANCE = new EventSubscriptionDataFetcher();
 
-	private DBInstanceDataFetcher() {
+	private EventSubscriptionDataFetcher() {
 	}
 
 	@Override
-	public List<AwsDBInstance> fetch(DataFetchContext context) {
+	public List<AwsEventSubscription> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsDBInstance> list = new ArrayList<>();
+			List<AwsEventSubscription> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
@@ -47,8 +47,10 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (RdsClient client = rdsClientBuilder.build()) {
-						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
-							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
+						for ( EventSubscription eventSubscription : client.describeEventSubscriptions()
+								.eventSubscriptionsList() ) {
+							list.add( new AwsEventSubscription( eventSubscription.eventSubscriptionArn(),
+									eventSubscription ) );
 						}
 					}
 				}
@@ -56,12 +58,12 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch db instance list", e );
+			throw new DataFetcherException( "Could not fetch event subscription list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsDBInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEventSubscription.class, AwsConventionContext.INSTANCE );
 	}
 }
