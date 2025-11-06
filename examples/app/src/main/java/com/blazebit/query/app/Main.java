@@ -45,6 +45,7 @@ import com.blazebit.query.connector.aws.rds.AwsEventSubscription;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
 import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
+import com.blazebit.query.connector.aws.s3.AwsBucketVersioning;
 import com.blazebit.query.connector.aws.s3.AwsBucketPolicy;
 import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
 import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
@@ -282,6 +283,7 @@ public class Main {
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketVersioning.class, "AwsBucketVersioning" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucketPolicy.class, "AwsBucketPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
@@ -552,7 +554,13 @@ public class Main {
 		System.out.println("AwsBucketAcl");
 		print(awsBucketAclResult);
 
-		TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
+		TypedQuery<Object[]> awsBucketVersioningQuery = session.createQuery(
+				"select f.* from AwsBucketVersioning f" );
+		List<Object[]> awsBucketVersioningResult = awsBucketVersioningQuery.getResultList();
+		System.out.println("AwsBucketVersioning");
+		print(awsBucketVersioningResult);
+
+	TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
 				"select f.* from AwsBucketPolicy f" );
 		List<Object[]> awsBucketPolicyResult = awsBucketPolicyQuery.getResultList();
 		System.out.println("AwsBucketPolicy");
