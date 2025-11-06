@@ -560,7 +560,7 @@ public class Main {
 		System.out.println("AwsBucketVersioning");
 		print(awsBucketVersioningResult);
 
-    TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
+	TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
 				"select f.* from AwsBucketPolicy f" );
 		List<Object[]> awsBucketPolicyResult = awsBucketPolicyQuery.getResultList();
 		System.out.println("AwsBucketPolicy");
