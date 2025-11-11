@@ -1,7 +1,7 @@
 [versions]
-calcite = "1.39.0"
+calcite = "1.41.0"
 
-blaze-persistence = "1.6.11"
+blaze-persistence = "1.6.17"
 
 azure-core = "1.49.1"
 azure-identity = "1.11.0"
