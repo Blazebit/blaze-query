@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Martijn Sprengers
@@ -58,7 +59,7 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsMFADevice>, Serializ
 				}
 				try (IamClient client = iamClientBuilder.build()) {
 					for ( AwsUser user : users ) {
-						if ( user.getAccountId().equals( account.getAccountId() ) ) {
+						if ( Objects.equals( user.getAccountId(),  account.getAccountId()) ) {
 							try {
 								ListMfaDevicesRequest request = ListMfaDevicesRequest.builder()
 										.userName( user.getPayload().userName() )
