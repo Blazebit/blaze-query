@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ecs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -22,6 +18,10 @@ import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.DescribeServicesRequest;
 import software.amazon.awssdk.services.ecs.model.DescribeServicesResponse;
 import software.amazon.awssdk.services.ecs.model.Service;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Donghwi Kim
@@ -51,7 +51,8 @@ public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable
 					try (EcsClient client = ecsClientBuilder.build()) {
 						List<String> clusterArns = client.listClusters().clusterArns();
 						for ( String clusterArn : clusterArns ) {
-							List<String> serviceArns = client.listServices( r -> r.cluster( clusterArn ) ).serviceArns();
+							List<String> serviceArns = client.listServices( r -> r.cluster( clusterArn ) )
+									.serviceArns();
 							if ( !serviceArns.isEmpty() ) {
 								DescribeServicesRequest request = DescribeServicesRequest.builder()
 										.cluster( clusterArn )

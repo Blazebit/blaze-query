@@ -22,7 +22,8 @@ public final class AwsECSSchemaProvider implements QuerySchemaProvider {
 		return Set.of(
 				ClusterDataFetcher.INSTANCE,
 				ServiceDataFetcher.INSTANCE,
-				TaskDefinitionDataFetcher.INSTANCE
+				TaskDefinitionDataFetcher.INSTANCE,
+				ContainerDefinitionDataFetcher.INSTANCE
 		);
 	}
 }
