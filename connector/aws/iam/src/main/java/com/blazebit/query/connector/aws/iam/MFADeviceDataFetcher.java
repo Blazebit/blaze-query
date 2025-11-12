@@ -59,7 +59,7 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsMFADevice>, Serializ
 				}
 				try (IamClient client = iamClientBuilder.build()) {
 					for ( AwsUser user : users ) {
-						if ( Objects.equals( user.getAccountId(),  account.getAccountId()) ) {
+						if ( Objects.equals( user.getAccountId(), account.getAccountId()) ) {
 							try {
 								ListMfaDevicesRequest request = ListMfaDevicesRequest.builder()
 										.userName( user.getPayload().userName() )
