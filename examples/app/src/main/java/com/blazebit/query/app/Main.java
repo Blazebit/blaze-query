@@ -276,9 +276,9 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsRepository.class, "AwsRepository" );
 			// ECS
 			queryContextBuilder.registerSchemaObjectAlias( AwsCluster.class, "AwsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsContainerDefinition.class, "AwsContainerDefinition" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsService.class, "AwsService" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsTaskDefinition.class, "AwsTaskDefinition" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsContainerDefinition.class, "AwsContainerDefinition" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsTaskSet.class, "AwsTaskSet" );
 			// ELB
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoadBalancer.class, "AwsLoadBalancer" );
@@ -521,6 +521,12 @@ public class Main {
 		System.out.println("AwsClusters");
 		print(awsClusterResult);
 
+		TypedQuery<Object[]> awsContainerDefinitionQuery = session.createQuery(
+				"select f.* from AwsContainerDefinition f" );
+		List<Object[]> awsContainerDefinitionResult = awsContainerDefinitionQuery.getResultList();
+		System.out.println("AwsContainerDefinitions");
+		print(awsContainerDefinitionResult);
+
 		TypedQuery<Object[]> awsServiceQuery = session.createQuery(
 				"select f.* from AwsService f" );
 		List<Object[]> awsServiceResult = awsServiceQuery.getResultList();
@@ -533,18 +539,11 @@ public class Main {
 		System.out.println("AwsTaskDefinitions");
 		print(awsTaskDefinitionResult);
 
-		TypedQuery<Object[]> awsContainerDefinitionQuery = session.createQuery(
-				"select f.* from AwsContainerDefinition f" );
-		List<Object[]> awsContainerDefinitionResult = awsContainerDefinitionQuery.getResultList();
-		System.out.println("AwsContainerDefinitions");
-		print(awsContainerDefinitionResult);
-
 		TypedQuery<Object[]> awsTaskSetQuery = session.createQuery(
 				"select f.* from AwsTaskSet f" );
 		List<Object[]> awsTaskSetResult = awsTaskSetQuery.getResultList();
 		System.out.println("AwsTaskSets");
 		print(awsTaskSetResult);
-
 
 		// ELB
 		TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
