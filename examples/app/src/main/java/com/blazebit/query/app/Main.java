@@ -535,6 +535,12 @@ public class Main {
 		System.out.println("AwsContainerDefinitions");
 		print(awsContainerDefinitionResult);
 
+		TypedQuery<Object[]> awsTaskSetQuery = session.createQuery(
+				"select f.* from AwsTaskSet f" );
+		List<Object[]> awsTaskSetResult = awsTaskSetQuery.getResultList();
+		System.out.println("AwsTaskSets");
+		print(awsTaskSetResult);
+
 
 		// ELB
 		TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
