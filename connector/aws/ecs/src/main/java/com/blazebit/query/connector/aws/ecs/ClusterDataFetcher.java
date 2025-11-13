@@ -4,6 +4,10 @@
  */
 package com.blazebit.query.connector.aws.ecs;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -18,10 +22,6 @@ import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersRequest;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Christian Beikov
