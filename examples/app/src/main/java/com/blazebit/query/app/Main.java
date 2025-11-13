@@ -26,8 +26,10 @@ import com.blazebit.query.connector.aws.ec2.AwsVolume;
 import com.blazebit.query.connector.aws.ec2.AwsVpc;
 import com.blazebit.query.connector.aws.ecr.AwsRepository;
 import com.blazebit.query.connector.aws.ecs.AwsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsContainerDefinition;
 import com.blazebit.query.connector.aws.ecs.AwsService;
 import com.blazebit.query.connector.aws.ecs.AwsTaskDefinition;
+import com.blazebit.query.connector.aws.ecs.AwsTaskSet;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
@@ -276,6 +278,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsCluster.class, "AwsCluster" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsService.class, "AwsService" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsTaskDefinition.class, "AwsTaskDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsContainerDefinition.class, "AwsContainerDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsTaskSet.class, "AwsTaskSet" );
 			// ELB
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoadBalancer.class, "AwsLoadBalancer" );
 			// Lambda
