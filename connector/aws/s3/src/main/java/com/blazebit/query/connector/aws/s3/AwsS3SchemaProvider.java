@@ -22,6 +22,7 @@ public final class AwsS3SchemaProvider implements QuerySchemaProvider {
 		return Set.of(
 				BucketDataFetcher.INSTANCE,
 				BucketAclFetcher.INSTANCE,
+				BucketVersioningFetcher.INSTANCE,
 				BucketPolicyFetcher.INSTANCE,
 				LifecycleRuleFetcher.INSTANCE,
 				LoggingEnabledFetcher.INSTANCE,
