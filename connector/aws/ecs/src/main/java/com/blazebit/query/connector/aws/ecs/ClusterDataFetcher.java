@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ecs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -20,8 +16,13 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.Cluster;
+import software.amazon.awssdk.services.ecs.model.ClusterField;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersRequest;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
@@ -51,6 +52,8 @@ public class ClusterDataFetcher implements DataFetcher<AwsCluster>, Serializable
 					try (EcsClient client = ec2ClientBuilder.build()) {
 						List<String> clusters = client.listClusters().clusterArns();
 						DescribeClustersRequest request = DescribeClustersRequest.builder().clusters( clusters )
+								.include( ClusterField.ATTACHMENTS, ClusterField.SETTINGS, ClusterField.STATISTICS,
+										ClusterField.TAGS, ClusterField.CONFIGURATIONS )
 								.build();
 						DescribeClustersResponse describeClustersResponse = client.describeClusters( request );
 						for ( Cluster cluster : describeClustersResponse.clusters() ) {

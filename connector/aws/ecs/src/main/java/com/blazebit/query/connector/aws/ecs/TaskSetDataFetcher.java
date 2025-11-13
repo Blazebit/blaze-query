@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.DescribeTaskSetsResponse;
 import software.amazon.awssdk.services.ecs.model.TaskSet;
+import software.amazon.awssdk.services.ecs.model.TaskSetField;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable
 							DescribeTaskSetsResponse response = client.describeTaskSets( r -> r
 									.cluster( service.getPayload().clusterArn() )
 									.service( service.getPayload().serviceArn() )
+									.include( TaskSetField.TAGS )
 							);
 							for ( TaskSet taskSet : response.taskSets() ) {
 								list.add( new AwsTaskSet( taskSet.taskSetArn(), taskSet ) );

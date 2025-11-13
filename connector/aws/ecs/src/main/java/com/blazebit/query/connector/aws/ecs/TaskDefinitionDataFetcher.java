@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionRequest;
 import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionResponse;
+import software.amazon.awssdk.services.ecs.model.TaskDefinitionField;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class TaskDefinitionDataFetcher implements DataFetcher<AwsTaskDefinition>
 						for ( String taskDefinitionArn : taskDefinitionArns ) {
 							DescribeTaskDefinitionRequest request = DescribeTaskDefinitionRequest.builder()
 									.taskDefinition( taskDefinitionArn )
+									.include( TaskDefinitionField.TAGS )
 									.build();
 							DescribeTaskDefinitionResponse response = client.describeTaskDefinition( request );
 							list.add(

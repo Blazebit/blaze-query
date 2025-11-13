@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.ecs.EcsClientBuilder;
 import software.amazon.awssdk.services.ecs.model.DescribeServicesRequest;
 import software.amazon.awssdk.services.ecs.model.DescribeServicesResponse;
 import software.amazon.awssdk.services.ecs.model.Service;
+import software.amazon.awssdk.services.ecs.model.ServiceField;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable
 								DescribeServicesRequest request = DescribeServicesRequest.builder()
 										.cluster( clusterArn )
 										.services( serviceArns )
+										.include( ServiceField.TAGS )
 										.build();
 								DescribeServicesResponse response = client.describeServices( request );
 								for ( Service service : response.services() ) {
