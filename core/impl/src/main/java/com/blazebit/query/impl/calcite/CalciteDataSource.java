@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.impl.calcite;
 
+import com.blazebit.query.impl.calcite.function.ArrayContainsFunction;
 import org.apache.calcite.adapter.enumerable.EnumerableConvention;
 import org.apache.calcite.adapter.enumerable.EnumerableRel;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
@@ -16,6 +17,7 @@ import org.apache.calcite.jdbc.CalciteFactory;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.Driver;
+import org.apache.calcite.linq4j.Queryable;
 import org.apache.calcite.plan.Convention;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptPlanner;
@@ -73,6 +75,8 @@ public class CalciteDataSource extends Driver implements DataSource {
 		}
 		this.typeFactory = new CustomJavaTypeFactory( typeSystem );
 		this.rootSchema = CalciteSchema.createRootSchema( true );
+		// Custom functions for Blaze-Query
+		this.rootSchema.plus().add( "array_contains", new ArrayContainsFunction());
 	}
 
 	public SchemaPlus getRootSchema() {
@@ -160,6 +164,19 @@ public class CalciteDataSource extends Driver implements DataSource {
 	}
 
 	private static class MyCalcitePrepareImpl extends CalcitePrepareImpl {
+
+		@Override public <T> CalciteSignature<T> prepareQueryable(Context context, Queryable<T> queryable) {
+			return super.prepareQueryable(wrapContext(context), queryable);
+		}
+
+		@Override public <T> CalciteSignature<T> prepareSql(Context context, Query<T> query, Type elementType, long maxRowCount) {
+			return super.prepareSql(wrapContext(context), query, elementType, maxRowCount);
+		}
+
+		private Context wrapContext(Context context) {
+			return context;
+		}
+
 		@Override
 		protected CalcitePreparingStmt getPreparingStmt(Context context, Type elementType, CalciteCatalogReader catalogReader, RelOptPlanner planner) {
 			final JavaTypeFactory typeFactory = context.getTypeFactory();
