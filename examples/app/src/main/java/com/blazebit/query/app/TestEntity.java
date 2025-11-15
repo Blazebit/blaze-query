@@ -23,15 +23,18 @@ public class TestEntity {
 	TestEmbeddable embedded;
 	@ElementCollection
 	Set<TestEmbeddable> elements;
+	@ElementCollection
+	Set<TestEnum> enums;
 
 	public TestEntity() {
 	}
 
-	public TestEntity(Long id, String name, TestEmbeddable embedded) {
+	public TestEntity(Long id, String name, TestEmbeddable embedded, Set<TestEnum> enums) {
 		this.id = id;
 		this.name = name;
 		this.embedded = embedded;
 		this.elements = new HashSet<>( Collections.singletonList( embedded ) );
+		this.enums = new HashSet<>( enums );
 	}
 
 	@Override

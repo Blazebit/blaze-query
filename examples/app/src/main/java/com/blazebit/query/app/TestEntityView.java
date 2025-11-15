@@ -19,4 +19,6 @@ public interface TestEntityView {
 	TestEmbeddableView getEmbedded();
 
 	Set<TestEmbeddableView> getElements();
+
+	Set<TestEnum> getEnums();
 }
