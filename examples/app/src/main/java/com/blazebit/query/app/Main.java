@@ -30,6 +30,7 @@ import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
 import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AccountSummary;
+import com.blazebit.query.connector.aws.iam.AwsLoginProfile;
 import com.blazebit.query.connector.aws.iam.AwsMFADevice;
 import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
 import com.blazebit.query.connector.aws.iam.AwsUser;
@@ -250,6 +251,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIamPasswordPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsMFADevice" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLoginProfile.class, "AwsLoginProfile" );
 			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
 			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
 					"AwsAccessKeyMetaDataLastUsed" );
@@ -418,6 +420,12 @@ public class Main {
 		List<Object[]> awsMFADeviceResult = awsMFADeviceQuery.getResultList();
 		System.out.println( "AwsMFADevices" );
 		print( awsMFADeviceResult );
+
+		TypedQuery<Object[]> awsLoginProfileQuery = session.createQuery(
+				"select l.* from AwsLoginProfile l" );
+		List<Object[]> awsLoginProfileResult = awsLoginProfileQuery.getResultList();
+		System.out.println( "AwsLoginProfiles" );
+		print( awsLoginProfileResult );
 
 		TypedQuery<Object[]> awsAccountSummaryQuery = session.createQuery(
 				"select a.* from AwsIamAccountSummary a" );
