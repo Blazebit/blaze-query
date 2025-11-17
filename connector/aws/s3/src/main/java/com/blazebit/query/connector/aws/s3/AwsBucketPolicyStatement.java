@@ -15,8 +15,8 @@ public record AwsBucketPolicyStatement(
 		String principalJsonValue,
 		String effect,
 		String conditionJsonValue,
-		String resourceJsonValue
-
+		String resourceJsonValue,
+		String actionJsonValue
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -26,7 +26,8 @@ public record AwsBucketPolicyStatement(
 			return new AwsBucketPolicyStatement(
 					json.get( "Principal" ).toString(), json.get( "Effect" ).asText( "" ),
 					json.has( "Condition" ) ? json.get( "Condition" ).toString() : "",
-					json.has( "Resource" ) ? json.get( "Resource" ).toString() : ""
+					json.has( "Resource" ) ? json.get( "Resource" ).toString() : "",
+					json.has( "Action" ) ? json.get( "Action" ).toString() : ""
 			);
 		}
 		catch (Exception e) {
