@@ -25,19 +25,19 @@ import java.util.StringTokenizer;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class UserDataFetcher implements DataFetcher<AwsUser>, Serializable {
+public class AwsIamUserDataFetcher implements DataFetcher<AwsIamUser>, Serializable {
 
-	public static final UserDataFetcher INSTANCE = new UserDataFetcher();
+	public static final AwsIamUserDataFetcher INSTANCE = new AwsIamUserDataFetcher();
 
-	private UserDataFetcher() {
+	private AwsIamUserDataFetcher() {
 	}
 
 	@Override
-	public List<AwsUser> fetch(DataFetchContext context) {
+	public List<AwsIamUser> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsUser> list = new ArrayList<>();
+			List<AwsIamUser> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -59,7 +59,7 @@ public class UserDataFetcher implements DataFetcher<AwsUser>, Serializable {
 						tokenizer.nextToken();
 						// resource id
 						String resourceId = tokenizer.nextToken();
-						list.add( new AwsUser(
+						list.add( new AwsIamUser(
 								account.getAccountId(),
 								resourceId,
 								user
@@ -76,6 +76,6 @@ public class UserDataFetcher implements DataFetcher<AwsUser>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsUser.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsIamUser.class, AwsConventionContext.INSTANCE );
 	}
 }

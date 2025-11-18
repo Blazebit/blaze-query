@@ -28,7 +28,7 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class MFADeviceDataFetcher implements DataFetcher<AwsMFADevice>, Serializable {
+public class MFADeviceDataFetcher implements DataFetcher<AwsIamMfaDevice>, Serializable {
 
 	public static final MFADeviceDataFetcher INSTANCE = new MFADeviceDataFetcher();
 	private static final Logger log = LoggerFactory.getLogger( MFADeviceDataFetcher.class );
@@ -38,16 +38,16 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsMFADevice>, Serializ
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsMFADevice.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsIamMfaDevice.class, AwsConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<AwsMFADevice> fetch(DataFetchContext context) {
+	public List<AwsIamMfaDevice> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<? extends AwsUser> users = context.getSession().getOrFetch( AwsUser.class );
-			List<AwsMFADevice> list = new ArrayList<>();
+			List<? extends AwsIamUser> users = context.getSession().getOrFetch( AwsIamUser.class );
+			List<AwsIamMfaDevice> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -57,14 +57,14 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsMFADevice>, Serializ
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					for ( AwsUser user : users ) {
+					for ( AwsIamUser user : users ) {
 						if ( user.getAccountId().equals( account.getAccountId() ) ) {
 							try {
 								ListMfaDevicesRequest request = ListMfaDevicesRequest.builder()
 										.userName( user.getPayload().userName() )
 										.build();
 								for ( MFADevice mfaDevice : client.listMFADevices( request ).mfaDevices() ) {
-									list.add( new AwsMFADevice(
+									list.add( new AwsIamMfaDevice(
 											account.getAccountId(),
 											null,
 											mfaDevice

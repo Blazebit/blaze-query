@@ -27,24 +27,24 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessKeyMetaDataLastUsed>, Serializable {
+public class AwsIamAccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AwsIamAccessKeyMetaDataLastUsed>, Serializable {
 
-	public static final AccessKeyMetaDataLastUsedDataFetcher INSTANCE = new AccessKeyMetaDataLastUsedDataFetcher();
+	public static final AwsIamAccessKeyMetaDataLastUsedDataFetcher INSTANCE = new AwsIamAccessKeyMetaDataLastUsedDataFetcher();
 
-	private AccessKeyMetaDataLastUsedDataFetcher() {
+	private AwsIamAccessKeyMetaDataLastUsedDataFetcher() {
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention(AccessKeyMetaDataLastUsed.class, AwsConventionContext.INSTANCE);
+		return DataFormats.componentMethodConvention( AwsIamAccessKeyMetaDataLastUsed.class, AwsConventionContext.INSTANCE);
 	}
 
 	@Override
-	public List<AccessKeyMetaDataLastUsed> fetch(DataFetchContext context) {
+	public List<AwsIamAccessKeyMetaDataLastUsed> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AccessKeyMetaDataLastUsed> list = new ArrayList<>();
+			List<AwsIamAccessKeyMetaDataLastUsed> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -67,7 +67,7 @@ public class AccessKeyMetaDataLastUsedDataFetcher implements DataFetcher<AccessK
 							ListAccessKeysResponse response = client.listAccessKeys( request );
 
 							for (AccessKeyMetadata accessKeyMetadata : response.accessKeyMetadata()) {
-								list.add(new AccessKeyMetaDataLastUsed(
+								list.add(new AwsIamAccessKeyMetaDataLastUsed(
 										account.getAccountId(),
 										user.userName(),
 										accessKeyMetadata,

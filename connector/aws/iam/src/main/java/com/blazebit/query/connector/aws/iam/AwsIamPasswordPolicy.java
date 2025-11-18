@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.iam.model.PasswordPolicy;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AwsPasswordPolicy extends AwsWrapper<PasswordPolicy> {
-	public AwsPasswordPolicy(String accountId, PasswordPolicy payload) {
+public class AwsIamPasswordPolicy extends AwsWrapper<PasswordPolicy> {
+	public AwsIamPasswordPolicy(String accountId, PasswordPolicy payload) {
 		super( accountId, null, null, payload );
 	}
 

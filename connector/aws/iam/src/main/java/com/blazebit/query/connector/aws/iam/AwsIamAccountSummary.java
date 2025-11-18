@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class AccountSummary {
+public class AwsIamAccountSummary {
 
 	private final String accountId;
 	private final int groupPolicySizeQuota;
@@ -49,7 +49,7 @@ public class AccountSummary {
 	 * @param accountId The account id
 	 * @param summaryKeyTypeIntegerMap The {@link GetAccountSummaryResponse#summaryMap()}
 	 */
-	public AccountSummary(String accountId, Map<SummaryKeyType, Integer> summaryKeyTypeIntegerMap) {
+	public AwsIamAccountSummary(String accountId, Map<SummaryKeyType, Integer> summaryKeyTypeIntegerMap) {
 		this.accountId = accountId;
 		this.groupPolicySizeQuota = summaryKeyTypeIntegerMap.get( SummaryKeyType.GROUP_POLICY_SIZE_QUOTA );
 		this.policies = summaryKeyTypeIntegerMap.get( SummaryKeyType.POLICIES );

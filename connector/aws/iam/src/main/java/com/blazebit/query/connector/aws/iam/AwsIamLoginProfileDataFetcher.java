@@ -26,11 +26,11 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>, Serializable {
+public class AwsIamLoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>, Serializable {
 
-	public static final LoginProfileDataFetcher INSTANCE = new LoginProfileDataFetcher();
+	public static final AwsIamLoginProfileDataFetcher INSTANCE = new AwsIamLoginProfileDataFetcher();
 
-	private LoginProfileDataFetcher() {
+	private AwsIamLoginProfileDataFetcher() {
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>,
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<? extends AwsUser> users = context.getSession().getOrFetch( AwsUser.class );
+			List<? extends AwsIamUser> users = context.getSession().getOrFetch( AwsIamUser.class );
 			List<AwsIamLoginProfile> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
@@ -54,7 +54,7 @@ public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>,
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					for ( AwsUser user : users ) {
+					for ( AwsIamUser user : users ) {
 						if ( user.getAccountId().equals( account.getAccountId() ) ) {
 							try {
 								GetLoginProfileRequest request = GetLoginProfileRequest.builder()
