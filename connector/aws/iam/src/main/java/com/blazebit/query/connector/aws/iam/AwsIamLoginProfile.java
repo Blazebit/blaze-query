@@ -8,7 +8,7 @@ import com.blazebit.query.connector.aws.base.AwsWrapper;
 import software.amazon.awssdk.services.iam.model.LoginProfile;
 
 /**
- * @author Donghwi KIm
+ * @author Donghwi Kim
  * @since 1.0.0
  */
 public class AwsIamLoginProfile extends AwsWrapper<LoginProfile> {
