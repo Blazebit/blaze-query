@@ -25,7 +25,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ArraysContainsAllFunction implements ScalarFunction, ImplementableFunction, CallImplementor {
+public class ArrayContainsAllFunction implements ScalarFunction, ImplementableFunction, CallImplementor {
 
 	private final Method basicMethod;
 	private final List<FunctionParameter> parameters = ImmutableList.of(
@@ -33,9 +33,9 @@ public class ArraysContainsAllFunction implements ScalarFunction, ImplementableF
 			new SimpleFunctionParameter( 1, "array1", List.class, false )
 	);
 
-	public ArraysContainsAllFunction() {
+	public ArrayContainsAllFunction() {
 		try {
-			this.basicMethod = ArraysContainsAllFunction.class.getDeclaredMethod( "arrayContainsAll", List.class,
+			this.basicMethod = ArrayContainsAllFunction.class.getDeclaredMethod( "arrayContainsAll", List.class,
 					List.class );
 		}
 		catch (NoSuchMethodException e) {
