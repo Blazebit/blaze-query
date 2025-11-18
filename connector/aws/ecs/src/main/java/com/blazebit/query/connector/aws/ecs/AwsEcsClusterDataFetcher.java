@@ -28,11 +28,11 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ClusterDataFetcher implements DataFetcher<AwsEcsCluster>, Serializable {
+public class AwsEcsClusterDataFetcher implements DataFetcher<AwsEcsCluster>, Serializable {
 
-	public static final ClusterDataFetcher INSTANCE = new ClusterDataFetcher();
+	public static final AwsEcsClusterDataFetcher INSTANCE = new AwsEcsClusterDataFetcher();
 
-	private ClusterDataFetcher() {
+	private AwsEcsClusterDataFetcher() {
 	}
 
 	@Override

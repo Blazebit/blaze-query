@@ -28,11 +28,11 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class ServiceDataFetcher implements DataFetcher<AwsEcsService>, Serializable {
+public class AwsEcsServiceDataFetcher implements DataFetcher<AwsEcsService>, Serializable {
 
-	public static final ServiceDataFetcher INSTANCE = new ServiceDataFetcher();
+	public static final AwsEcsServiceDataFetcher INSTANCE = new AwsEcsServiceDataFetcher();
 
-	private ServiceDataFetcher() {
+	private AwsEcsServiceDataFetcher() {
 	}
 
 	@Override

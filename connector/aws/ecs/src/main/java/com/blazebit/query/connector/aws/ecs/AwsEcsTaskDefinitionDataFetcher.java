@@ -15,9 +15,9 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.EcsClientBuilder;
-import software.amazon.awssdk.services.ecs.model.DescribeTaskSetsResponse;
-import software.amazon.awssdk.services.ecs.model.TaskSet;
-import software.amazon.awssdk.services.ecs.model.TaskSetField;
+import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionRequest;
+import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionResponse;
+import software.amazon.awssdk.services.ecs.model.TaskDefinitionField;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,20 +27,19 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class TaskSetDataFetcher implements DataFetcher<AwsEcsTaskSet>, Serializable {
+public class AwsEcsTaskDefinitionDataFetcher implements DataFetcher<AwsEcsTaskDefinition>, Serializable {
 
-	public static final TaskSetDataFetcher INSTANCE = new TaskSetDataFetcher();
+	public static final AwsEcsTaskDefinitionDataFetcher INSTANCE = new AwsEcsTaskDefinitionDataFetcher();
 
-	private TaskSetDataFetcher() {
+	private AwsEcsTaskDefinitionDataFetcher() {
 	}
 
 	@Override
-	public List<AwsEcsTaskSet> fetch(DataFetchContext context) {
+	public List<AwsEcsTaskDefinition> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<? extends AwsEcsService> services = context.getSession().getOrFetch( AwsEcsService.class );
-			List<AwsEcsTaskSet> list = new ArrayList<>();
+			List<AwsEcsTaskDefinition> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					EcsClientBuilder ecsClientBuilder = EcsClient.builder()
@@ -50,18 +49,16 @@ public class TaskSetDataFetcher implements DataFetcher<AwsEcsTaskSet>, Serializa
 						ecsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (EcsClient client = ecsClientBuilder.build()) {
-						for ( AwsEcsService service : services ) {
-							if ( service.getAccountId().equals( account.getAccountId() )
-									&& service.getRegionId().equals( region.id() ) ) {
-								DescribeTaskSetsResponse response = client.describeTaskSets( r -> r
-										.cluster( service.getPayload().clusterArn() )
-										.service( service.getPayload().serviceArn() )
-										.include( TaskSetField.TAGS )
-								);
-								for ( TaskSet taskSet : response.taskSets() ) {
-									list.add( new AwsEcsTaskSet( taskSet.taskSetArn(), taskSet ) );
-								}
-							}
+						List<String> taskDefinitionArns = client.listTaskDefinitions().taskDefinitionArns();
+						for ( String taskDefinitionArn : taskDefinitionArns ) {
+							DescribeTaskDefinitionRequest request = DescribeTaskDefinitionRequest.builder()
+									.taskDefinition( taskDefinitionArn )
+									.include( TaskDefinitionField.TAGS )
+									.build();
+							DescribeTaskDefinitionResponse response = client.describeTaskDefinition( request );
+							list.add(
+									new AwsEcsTaskDefinition( response.taskDefinition().taskDefinitionArn(),
+											response ) );
 						}
 					}
 				}
@@ -69,12 +66,12 @@ public class TaskSetDataFetcher implements DataFetcher<AwsEcsTaskSet>, Serializa
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch task set list", e );
+			throw new DataFetcherException( "Could not fetch task definition list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsEcsTaskSet.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEcsTaskDefinition.class, AwsConventionContext.INSTANCE );
 	}
 }
