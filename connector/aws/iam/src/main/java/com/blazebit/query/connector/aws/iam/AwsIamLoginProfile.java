@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.iam.model.LoginProfile;
  * @author Donghwi KIm
  * @since 1.0.0
  */
-public class AwsLoginProfile extends AwsWrapper<LoginProfile> {
-	public AwsLoginProfile(String accountId, String resourceId, LoginProfile payload) {
+public class AwsIamLoginProfile extends AwsWrapper<LoginProfile> {
+	public AwsIamLoginProfile(String accountId, String resourceId, LoginProfile payload) {
 		super( accountId, null, resourceId, payload );
 	}
 
