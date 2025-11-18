@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.ecs.model.Cluster;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AwsCluster extends AwsWrapper<Cluster> {
-	public AwsCluster(String arn, Cluster payload) {
+public class AwsEcsCluster extends AwsWrapper<Cluster> {
+	public AwsEcsCluster(String arn, Cluster payload) {
 		super( arn, payload );
 	}
 

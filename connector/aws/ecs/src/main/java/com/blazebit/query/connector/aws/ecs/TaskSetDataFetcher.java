@@ -27,7 +27,7 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable {
+public class TaskSetDataFetcher implements DataFetcher<AwsEcsTaskSet>, Serializable {
 
 	public static final TaskSetDataFetcher INSTANCE = new TaskSetDataFetcher();
 
@@ -35,12 +35,12 @@ public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable
 	}
 
 	@Override
-	public List<AwsTaskSet> fetch(DataFetchContext context) {
+	public List<AwsEcsTaskSet> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<? extends AwsService> services = context.getSession().getOrFetch( AwsService.class );
-			List<AwsTaskSet> list = new ArrayList<>();
+			List<? extends AwsEcsService> services = context.getSession().getOrFetch( AwsEcsService.class );
+			List<AwsEcsTaskSet> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					EcsClientBuilder ecsClientBuilder = EcsClient.builder()
@@ -50,7 +50,7 @@ public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable
 						ecsClientBuilder.httpClient( sdkHttpClient );
 					}
 				try (EcsClient client = ecsClientBuilder.build()) {
-					for ( AwsService service : services ) {
+					for ( AwsEcsService service : services ) {
 						if ( service.getAccountId().equals( account.getAccountId() )
 								&& service.getRegionId().equals( region.id() ) ) {
 							DescribeTaskSetsResponse response = client.describeTaskSets( r -> r
@@ -59,7 +59,7 @@ public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable
 									.include( TaskSetField.TAGS )
 							);
 							for ( TaskSet taskSet : response.taskSets() ) {
-								list.add( new AwsTaskSet( taskSet.taskSetArn(), taskSet ) );
+								list.add( new AwsEcsTaskSet( taskSet.taskSetArn(), taskSet ) );
 							}
 						}
 					}
@@ -75,6 +75,6 @@ public class TaskSetDataFetcher implements DataFetcher<AwsTaskSet>, Serializable
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsTaskSet.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEcsTaskSet.class, AwsConventionContext.INSTANCE );
 	}
 }

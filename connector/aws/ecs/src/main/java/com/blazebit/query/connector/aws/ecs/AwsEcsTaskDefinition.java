@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionResponse;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsTaskDefinition extends AwsWrapper<DescribeTaskDefinitionResponse> {
-	public AwsTaskDefinition(String arn, DescribeTaskDefinitionResponse payload) {
+public class AwsEcsTaskDefinition extends AwsWrapper<DescribeTaskDefinitionResponse> {
+	public AwsEcsTaskDefinition(String arn, DescribeTaskDefinitionResponse payload) {
 		super( arn, payload );
 	}
 

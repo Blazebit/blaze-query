@@ -28,7 +28,7 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable {
+public class ServiceDataFetcher implements DataFetcher<AwsEcsService>, Serializable {
 
 	public static final ServiceDataFetcher INSTANCE = new ServiceDataFetcher();
 
@@ -36,11 +36,11 @@ public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable
 	}
 
 	@Override
-	public List<AwsService> fetch(DataFetchContext context) {
+	public List<AwsEcsService> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsService> list = new ArrayList<>();
+			List<AwsEcsService> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					EcsClientBuilder ecsClientBuilder = EcsClient.builder()
@@ -62,7 +62,7 @@ public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable
 										.build();
 								DescribeServicesResponse response = client.describeServices( request );
 								for ( Service service : response.services() ) {
-									list.add( new AwsService( service.serviceArn(), service ) );
+									list.add( new AwsEcsService( service.serviceArn(), service ) );
 								}
 							}
 						}
@@ -78,6 +78,6 @@ public class ServiceDataFetcher implements DataFetcher<AwsService>, Serializable
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsService.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEcsService.class, AwsConventionContext.INSTANCE );
 	}
 }

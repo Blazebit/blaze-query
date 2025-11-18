@@ -28,7 +28,7 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class ContainerDefinitionDataFetcher implements DataFetcher<AwsContainerDefinition>, Serializable {
+public class ContainerDefinitionDataFetcher implements DataFetcher<AwsEcsContainerDefinition>, Serializable {
 
 	public static final ContainerDefinitionDataFetcher INSTANCE = new ContainerDefinitionDataFetcher();
 
@@ -36,11 +36,11 @@ public class ContainerDefinitionDataFetcher implements DataFetcher<AwsContainerD
 	}
 
 	@Override
-	public List<AwsContainerDefinition> fetch(DataFetchContext context) {
+	public List<AwsEcsContainerDefinition> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsContainerDefinition> list = new ArrayList<>();
+			List<AwsEcsContainerDefinition> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					EcsClientBuilder ecsClientBuilder = EcsClient.builder()
@@ -59,7 +59,7 @@ public class ContainerDefinitionDataFetcher implements DataFetcher<AwsContainerD
 							TaskDefinition taskDefinition = response.taskDefinition();
 							List<ContainerDefinition> containerDefinitions = taskDefinition.containerDefinitions();
 							for ( ContainerDefinition containerDefinition : containerDefinitions ) {
-								list.add( new AwsContainerDefinition( taskDefinition.taskDefinitionArn(),
+								list.add( new AwsEcsContainerDefinition( taskDefinition.taskDefinitionArn(),
 										containerDefinition.name(), containerDefinition ) );
 							}
 						}
@@ -75,6 +75,6 @@ public class ContainerDefinitionDataFetcher implements DataFetcher<AwsContainerD
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsContainerDefinition.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEcsContainerDefinition.class, AwsConventionContext.INSTANCE );
 	}
 }

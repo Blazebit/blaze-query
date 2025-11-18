@@ -27,7 +27,7 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class TaskDefinitionDataFetcher implements DataFetcher<AwsTaskDefinition>, Serializable {
+public class TaskDefinitionDataFetcher implements DataFetcher<AwsEcsTaskDefinition>, Serializable {
 
 	public static final TaskDefinitionDataFetcher INSTANCE = new TaskDefinitionDataFetcher();
 
@@ -35,11 +35,11 @@ public class TaskDefinitionDataFetcher implements DataFetcher<AwsTaskDefinition>
 	}
 
 	@Override
-	public List<AwsTaskDefinition> fetch(DataFetchContext context) {
+	public List<AwsEcsTaskDefinition> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsTaskDefinition> list = new ArrayList<>();
+			List<AwsEcsTaskDefinition> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					EcsClientBuilder ecsClientBuilder = EcsClient.builder()
@@ -57,7 +57,7 @@ public class TaskDefinitionDataFetcher implements DataFetcher<AwsTaskDefinition>
 									.build();
 							DescribeTaskDefinitionResponse response = client.describeTaskDefinition( request );
 							list.add(
-									new AwsTaskDefinition( response.taskDefinition().taskDefinitionArn(), response ) );
+									new AwsEcsTaskDefinition( response.taskDefinition().taskDefinitionArn(), response ) );
 						}
 					}
 				}
@@ -71,6 +71,6 @@ public class TaskDefinitionDataFetcher implements DataFetcher<AwsTaskDefinition>
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsTaskDefinition.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEcsTaskDefinition.class, AwsConventionContext.INSTANCE );
 	}
 }

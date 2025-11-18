@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.ecs.model.TaskSet;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsTaskSet extends AwsWrapper<TaskSet> {
-	public AwsTaskSet(String arn, TaskSet payload) {
+public class AwsEcsTaskSet extends AwsWrapper<TaskSet> {
+	public AwsEcsTaskSet(String arn, TaskSet payload) {
 		super( arn, payload );
 	}
 
