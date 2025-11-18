@@ -32,7 +32,7 @@ public class EnumArrayTest {
 		JiraCloudAdminUser model = new JiraCloudAdminUser(
 				"u1",
 				List.of( PlatformRole.ADMIN ),
-				List.of("u1", "admin")
+				List.of( "u1", "admin" )
 		);
 		QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
 		queryContextBuilder.registerSchemaObject( JiraCloudAdminUser.class, new DataFetcher<>() {
@@ -61,6 +61,37 @@ public class EnumArrayTest {
 				assertEquals( true, result.get( 0 )[1] );
 				assertEquals( false, result.get( 0 )[2] );
 				assertEquals( true, result.get( 0 )[3] );
+			}
+		}
+	}
+
+	@Test
+	public void arrayContainsAll() {
+		JiraCloudAdminUser model = new JiraCloudAdminUser(
+				"u1",
+				List.of( PlatformRole.ADMIN ),
+				List.of( "u1", "admin", "u2" )
+		);
+		QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
+		queryContextBuilder.registerSchemaObject( JiraCloudAdminUser.class, new DataFetcher<>() {
+			@Override
+			public DataFormat getDataFormat() {
+				return DataFormats.componentMethodConvention( JiraCloudAdminUser.class, ConventionContext.NO_FILTER );
+			}
+
+			@Override
+			public List<JiraCloudAdminUser> fetch(DataFetchContext context) {
+				return List.of( model );
+			}
+		} );
+		queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUser.class, "JiraCloudAdminUser" );
+		try (QueryContext queryContext = queryContextBuilder.build()) {
+			try (QuerySession session = queryContext.createSession()) {
+				TypedQuery<Object[]> query = session.createQuery(
+						"select array_contains_all(u.aliases, ?) from JiraCloudAdminUser u"
+				).setParameter( 1, List.of( PlatformRole.ADMIN.name().toLowerCase(), "u1" ) );
+				List<Object[]> result = query.getResultList();
+				assertEquals( true, result.get( 0 )[0] );
 			}
 		}
 	}

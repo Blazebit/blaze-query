@@ -5,6 +5,7 @@
 package com.blazebit.query.impl.calcite;
 
 import com.blazebit.query.impl.calcite.function.ArrayContainsFunction;
+import com.blazebit.query.impl.calcite.function.ArraysContainsAllFunction;
 import com.blazebit.query.impl.calcite.function.ArraysOverlapFunction;
 import org.apache.calcite.adapter.enumerable.EnumerableConvention;
 import org.apache.calcite.adapter.enumerable.EnumerableRel;
@@ -77,8 +78,10 @@ public class CalciteDataSource extends Driver implements DataSource {
 		this.typeFactory = new CustomJavaTypeFactory( typeSystem );
 		this.rootSchema = CalciteSchema.createRootSchema( true );
 		// Custom functions for Blaze-Query
-		this.rootSchema.plus().add( "array_contains", new ArrayContainsFunction());
-		this.rootSchema.plus().add( "arrays_overlap", new ArraysOverlapFunction());
+		var schemaPlus = this.rootSchema.plus();
+		schemaPlus.add( "array_contains", new ArrayContainsFunction());
+		schemaPlus.add( "array_contains_all", new ArraysContainsAllFunction());
+		schemaPlus.add( "arrays_overlap", new ArraysOverlapFunction());
 	}
 
 	public SchemaPlus getRootSchema() {
