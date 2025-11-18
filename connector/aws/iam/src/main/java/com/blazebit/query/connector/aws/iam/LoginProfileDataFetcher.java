@@ -11,19 +11,16 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
 import software.amazon.awssdk.services.iam.model.GetLoginProfileRequest;
 import software.amazon.awssdk.services.iam.model.GetLoginProfileResponse;
-import software.amazon.awssdk.services.iam.model.IamException;
+import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Donghwi Kim
@@ -32,7 +29,6 @@ import java.util.Objects;
 public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>, Serializable {
 
 	public static final LoginProfileDataFetcher INSTANCE = new LoginProfileDataFetcher();
-	private static final Logger log = LoggerFactory.getLogger( LoginProfileDataFetcher.class );
 
 	private LoginProfileDataFetcher() {
 	}
@@ -71,13 +67,8 @@ public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>,
 										response.loginProfile()
 								) );
 							}
-							catch (IamException e) {
-									// Ignore NoSuchEntity - not all users have login profiles for console access
-								if ( Objects.equals( e.awsErrorDetails().errorCode(),
-										"NoSuchEntity" ) ) {
-									continue;
-								}
-								throw e;
+							catch (NoSuchEntityException e) {
+								// Ignore NoSuchEntity - not all users have login profiles for console access
 							}
 						}
 					}
