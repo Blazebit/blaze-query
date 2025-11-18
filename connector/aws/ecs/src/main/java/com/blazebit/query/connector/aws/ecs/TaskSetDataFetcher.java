@@ -49,21 +49,21 @@ public class TaskSetDataFetcher implements DataFetcher<AwsEcsTaskSet>, Serializa
 					if ( sdkHttpClient != null ) {
 						ecsClientBuilder.httpClient( sdkHttpClient );
 					}
-				try (EcsClient client = ecsClientBuilder.build()) {
-					for ( AwsEcsService service : services ) {
-						if ( service.getAccountId().equals( account.getAccountId() )
-								&& service.getRegionId().equals( region.id() ) ) {
-							DescribeTaskSetsResponse response = client.describeTaskSets( r -> r
-									.cluster( service.getPayload().clusterArn() )
-									.service( service.getPayload().serviceArn() )
-									.include( TaskSetField.TAGS )
-							);
-							for ( TaskSet taskSet : response.taskSets() ) {
-								list.add( new AwsEcsTaskSet( taskSet.taskSetArn(), taskSet ) );
+					try (EcsClient client = ecsClientBuilder.build()) {
+						for ( AwsEcsService service : services ) {
+							if ( service.getAccountId().equals( account.getAccountId() )
+									&& service.getRegionId().equals( region.id() ) ) {
+								DescribeTaskSetsResponse response = client.describeTaskSets( r -> r
+										.cluster( service.getPayload().clusterArn() )
+										.service( service.getPayload().serviceArn() )
+										.include( TaskSetField.TAGS )
+								);
+								for ( TaskSet taskSet : response.taskSets() ) {
+									list.add( new AwsEcsTaskSet( taskSet.taskSetArn(), taskSet ) );
+								}
 							}
 						}
 					}
-				}
 				}
 			}
 			return list;

@@ -57,7 +57,8 @@ public class TaskDefinitionDataFetcher implements DataFetcher<AwsEcsTaskDefiniti
 									.build();
 							DescribeTaskDefinitionResponse response = client.describeTaskDefinition( request );
 							list.add(
-									new AwsEcsTaskDefinition( response.taskDefinition().taskDefinitionArn(), response ) );
+									new AwsEcsTaskDefinition( response.taskDefinition().taskDefinitionArn(),
+											response ) );
 						}
 					}
 				}
