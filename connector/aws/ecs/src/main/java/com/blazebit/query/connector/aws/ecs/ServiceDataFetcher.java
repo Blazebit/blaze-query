@@ -55,14 +55,20 @@ public class ServiceDataFetcher implements DataFetcher<AwsEcsService>, Serializa
 							List<String> serviceArns = client.listServices( r -> r.cluster( clusterArn ) )
 									.serviceArns();
 							if ( !serviceArns.isEmpty() ) {
-								DescribeServicesRequest request = DescribeServicesRequest.builder()
-										.cluster( clusterArn )
-										.services( serviceArns )
-										.include( ServiceField.TAGS )
-										.build();
-								DescribeServicesResponse response = client.describeServices( request );
-								for ( Service service : response.services() ) {
-									list.add( new AwsEcsService( service.serviceArn(), service ) );
+								// AWS DescribeServices API accepts up to 10 services per request
+								int batchSize = 10;
+								for ( int i = 0; i < serviceArns.size(); i += batchSize ) {
+									int end = Math.min( i + batchSize, serviceArns.size() );
+									List<String> batch = serviceArns.subList( i, end );
+									DescribeServicesRequest request = DescribeServicesRequest.builder()
+											.cluster( clusterArn )
+											.services( batch )
+											.include( ServiceField.TAGS )
+											.build();
+									DescribeServicesResponse response = client.describeServices( request );
+									for ( Service service : response.services() ) {
+										list.add( new AwsEcsService( service.serviceArn(), service ) );
+									}
 								}
 							}
 						}
