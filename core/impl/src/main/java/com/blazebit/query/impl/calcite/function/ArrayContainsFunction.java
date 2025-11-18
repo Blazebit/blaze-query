@@ -41,7 +41,7 @@ public class ArrayContainsFunction implements ScalarFunction, ImplementableFunct
 	private final Method decimalMethod;
 	private final Method comparatorMethod;
 	private final List<FunctionParameter> parameters = ImmutableList.of(
-			new SimpleFunctionParameter(0, "array", Object.class, false),
+			new SimpleFunctionParameter(0, "array", List.class, false),
 			new SimpleFunctionParameter(1, "element", Object.class, false)
 	);
 
@@ -108,7 +108,18 @@ public class ArrayContainsFunction implements ScalarFunction, ImplementableFunct
 	}
 
 	public static Boolean arrayContains(List<?> list, Object element) {
-		return list == null ? null : list.contains(element);
+		if (list == null) {
+			return null;
+		}
+		if (element instanceof List<?> list2) {
+			for (Object e : list2) {
+				if (!list.contains(e)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return list.contains(element);
 	}
 
 	public static Boolean arrayContains(List<BigDecimal> list, BigDecimal element) {
