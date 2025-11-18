@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Donghwi KIm
+ * @author Donghwi Kim
  * @since 1.0.0
  */
 public class LoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>, Serializable {
