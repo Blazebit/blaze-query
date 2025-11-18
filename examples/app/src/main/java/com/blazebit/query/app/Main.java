@@ -28,11 +28,12 @@ import com.blazebit.query.connector.aws.ecr.AwsRepository;
 import com.blazebit.query.connector.aws.ecs.AwsCluster;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
-import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
-import com.blazebit.query.connector.aws.iam.AccountSummary;
-import com.blazebit.query.connector.aws.iam.AwsMFADevice;
-import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
-import com.blazebit.query.connector.aws.iam.AwsUser;
+import com.blazebit.query.connector.aws.iam.AwsIamAccessKeyMetaDataLastUsed;
+import com.blazebit.query.connector.aws.iam.AwsIamAccountSummary;
+import com.blazebit.query.connector.aws.iam.AwsIamLoginProfile;
+import com.blazebit.query.connector.aws.iam.AwsIamMfaDevice;
+import com.blazebit.query.connector.aws.iam.AwsIamPasswordPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamUser;
 import com.blazebit.query.connector.aws.kms.AwsKey;
 import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
@@ -241,11 +242,12 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
 			// IAM
-			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIamPasswordPolicy" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsMFADevice" );
-			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
-			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUser.class, "AwsUser" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPasswordPolicy.class, "AwsIamPasswordPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamMfaDevice.class, "AwsMFADevice" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamLoginProfile.class, "AwsLoginProfile" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccountSummary.class, "AwsIamAccountSummary" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccessKeyMetaDataLastUsed.class,
 					"AwsAccessKeyMetaDataLastUsed" );
 
 			// EC2
@@ -412,6 +414,12 @@ public class Main {
 		List<Object[]> awsMFADeviceResult = awsMFADeviceQuery.getResultList();
 		System.out.println( "AwsMFADevices" );
 		print( awsMFADeviceResult );
+
+		TypedQuery<Object[]> awsLoginProfileQuery = session.createQuery(
+				"select l.* from AwsLoginProfile l" );
+		List<Object[]> awsLoginProfileResult = awsLoginProfileQuery.getResultList();
+		System.out.println( "AwsLoginProfiles" );
+		print( awsLoginProfileResult );
 
 		TypedQuery<Object[]> awsAccountSummaryQuery = session.createQuery(
 				"select a.* from AwsIamAccountSummary a" );

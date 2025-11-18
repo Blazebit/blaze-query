@@ -14,7 +14,7 @@ import java.time.Instant;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class AccessKeyMetaDataLastUsed implements Serializable {
+public class AwsIamAccessKeyMetaDataLastUsed implements Serializable {
 
 	private final String accountId;
 	private final String ownerUserName;
@@ -29,7 +29,7 @@ public class AccessKeyMetaDataLastUsed implements Serializable {
 	 * @param accessKeyMetadata the metadata of the access key
 	 * @param accessKeyLastUsed the last used information of the access key
 	 */
-	public AccessKeyMetaDataLastUsed(String accountId, String ownerUserName, AccessKeyMetadata accessKeyMetadata, AccessKeyLastUsed accessKeyLastUsed) {
+	public AwsIamAccessKeyMetaDataLastUsed(String accountId, String ownerUserName, AccessKeyMetadata accessKeyMetadata, AccessKeyLastUsed accessKeyLastUsed) {
 		this.accountId = accountId;
 		this.ownerUserName = ownerUserName;
 		this.accessKeyMetadata = accessKeyMetadata;

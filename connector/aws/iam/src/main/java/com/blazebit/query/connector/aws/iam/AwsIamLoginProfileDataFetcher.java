@@ -11,13 +11,11 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
-import software.amazon.awssdk.services.iam.model.ListMfaDevicesRequest;
-import software.amazon.awssdk.services.iam.model.MFADevice;
+import software.amazon.awssdk.services.iam.model.GetLoginProfileRequest;
+import software.amazon.awssdk.services.iam.model.GetLoginProfileResponse;
 import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 
 import java.io.Serializable;
@@ -25,29 +23,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Martijn Sprengers
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class MFADeviceDataFetcher implements DataFetcher<AwsIamMfaDevice>, Serializable {
+public class AwsIamLoginProfileDataFetcher implements DataFetcher<AwsIamLoginProfile>, Serializable {
 
-	public static final MFADeviceDataFetcher INSTANCE = new MFADeviceDataFetcher();
-	private static final Logger log = LoggerFactory.getLogger( MFADeviceDataFetcher.class );
+	public static final AwsIamLoginProfileDataFetcher INSTANCE = new AwsIamLoginProfileDataFetcher();
 
-	private MFADeviceDataFetcher() {
+	private AwsIamLoginProfileDataFetcher() {
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsIamMfaDevice.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsIamLoginProfile.class, AwsConventionContext.INSTANCE );
 	}
 
 	@Override
-	public List<AwsIamMfaDevice> fetch(DataFetchContext context) {
+	public List<AwsIamLoginProfile> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
 			List<? extends AwsIamUser> users = context.getSession().getOrFetch( AwsIamUser.class );
-			List<AwsIamMfaDevice> list = new ArrayList<>();
+			List<AwsIamLoginProfile> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -60,21 +57,18 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsIamMfaDevice>, Seria
 					for ( AwsIamUser user : users ) {
 						if ( user.getAccountId().equals( account.getAccountId() ) ) {
 							try {
-								ListMfaDevicesRequest request = ListMfaDevicesRequest.builder()
+								GetLoginProfileRequest request = GetLoginProfileRequest.builder()
 										.userName( user.getPayload().userName() )
 										.build();
-								for ( MFADevice mfaDevice : client.listMFADevices( request ).mfaDevices() ) {
-									list.add( new AwsIamMfaDevice(
-											account.getAccountId(),
-											null,
-											mfaDevice
-									) );
-								}
+								GetLoginProfileResponse response = client.getLoginProfile( request );
+								list.add( new AwsIamLoginProfile(
+										account.getAccountId(),
+										null,
+										response.loginProfile()
+								) );
 							}
 							catch (NoSuchEntityException e) {
-								// If the user cannot be found, log and continue
-								log.warn( "User '{}' cannot be found: {}", user.getPayload().userName(),
-										e.getMessage() );
+								// Ignore NoSuchEntity - not all users have login profiles for console access
 							}
 						}
 					}
@@ -83,7 +77,7 @@ public class MFADeviceDataFetcher implements DataFetcher<AwsIamMfaDevice>, Seria
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch MFA devices list", e );
+			throw new DataFetcherException( "Could not fetch login profile list", e );
 		}
 	}
 }

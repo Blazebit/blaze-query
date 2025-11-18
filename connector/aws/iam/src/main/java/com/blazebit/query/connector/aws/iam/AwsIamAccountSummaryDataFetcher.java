@@ -14,8 +14,6 @@ import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
-import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
-import software.amazon.awssdk.services.iam.model.PasswordPolicy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,21 +23,24 @@ import java.util.List;
  * @author Martijn Sprengers
  * @since 1.0.0
  */
-public class PasswordPolicyDataFetcher implements DataFetcher<AwsPasswordPolicy>, Serializable {
+public class AwsIamAccountSummaryDataFetcher implements DataFetcher<AwsIamAccountSummary>, Serializable {
 
-	public static final PasswordPolicyDataFetcher INSTANCE = new PasswordPolicyDataFetcher();
+	public static final AwsIamAccountSummaryDataFetcher INSTANCE = new AwsIamAccountSummaryDataFetcher();
 
-	@Override
-	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsPasswordPolicy.class, AwsConventionContext.INSTANCE );
+	private AwsIamAccountSummaryDataFetcher() {
 	}
 
 	@Override
-	public List<AwsPasswordPolicy> fetch(DataFetchContext context) {
+	public DataFormat getDataFormat() {
+		return DataFormats.componentMethodConvention( AwsIamAccountSummary.class, AwsConventionContext.INSTANCE );
+	}
+
+	@Override
+	public List<AwsIamAccountSummary> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsPasswordPolicy> list = new ArrayList<>();
+			List<AwsIamAccountSummary> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -49,18 +50,13 @@ public class PasswordPolicyDataFetcher implements DataFetcher<AwsPasswordPolicy>
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					PasswordPolicy passwordPolicy = client.getAccountPasswordPolicy().passwordPolicy();
-					list.add( new AwsPasswordPolicy( account.getAccountId(), passwordPolicy ) );
-				}
-				catch (NoSuchEntityException e) {
-					// The AWS SDK throws a NoSuchEntity exception if the password policy is default
-					return list;
+					list.add( new AwsIamAccountSummary( account.getAccountId(), client.getAccountSummary().summaryMap() ) );
 				}
 			}
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch password policy", e );
+			throw new DataFetcherException( "Could not fetch account summary", e );
 		}
 	}
 }

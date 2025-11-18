@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.iam.model.User;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class AwsUser extends AwsWrapper<User> {
-	public AwsUser(String accountId, String resourceId, User payload) {
+public class AwsIamUser extends AwsWrapper<User> {
+	public AwsIamUser(String accountId, String resourceId, User payload) {
 		super( accountId, null, resourceId, payload );
 	}
 

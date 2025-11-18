@@ -21,10 +21,10 @@ public class AwsIAMSchemaProviderTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AwsIAMSchemaProvider() );
-		builder.registerSchemaObjectAlias( AwsUser.class, "AwsIAMUser" );
-		builder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIAMPasswordPolicy" );
-		builder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsIAMMFADevice" );
-		builder.registerSchemaObjectAlias( AccountSummary.class, "AwsIAMAccountSummary" );
+		builder.registerSchemaObjectAlias( AwsIamUser.class, "AwsIAMUser" );
+		builder.registerSchemaObjectAlias( AwsIamPasswordPolicy.class, "AwsIAMPasswordPolicy" );
+		builder.registerSchemaObjectAlias( AwsIamMfaDevice.class, "AwsIAMMFADevice" );
+		builder.registerSchemaObjectAlias( AwsIamAccountSummary.class, "AwsIAMAccountSummary" );
 		CONTEXT = builder.build();
 	}
 
@@ -32,7 +32,7 @@ public class AwsIAMSchemaProviderTest {
 	void should_return_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					AwsUser.class, Collections.singletonList( TestObjects.userWithMfa() ) );
+					AwsIamUser.class, Collections.singletonList( TestObjects.userWithMfa() ) );
 
 			var typedQuery =
 					session.createQuery( "select u.* from AwsIAMUser u", new TypeReference<Map<String, Object>>() {
@@ -45,7 +45,7 @@ public class AwsIAMSchemaProviderTest {
 	@Test
 	void should_return_password_policy() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( AwsPasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
+			session.put( AwsIamPasswordPolicy.class, TestObjects.defaultAccountPasswordPolicy() );
 
 			var typedQuery =
 					session.createQuery( "select p.* from AwsIAMPasswordPolicy p",
@@ -59,7 +59,7 @@ public class AwsIAMSchemaProviderTest {
 	@Test
 	void should_return_mfa_device() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( AwsMFADevice.class, Collections.singletonList( TestObjects.mfaDevice() ) );
+			session.put( AwsIamMfaDevice.class, Collections.singletonList( TestObjects.mfaDevice() ) );
 
 			var typedQuery =
 					session.createQuery(
@@ -73,7 +73,7 @@ public class AwsIAMSchemaProviderTest {
 	@Test
 	void should_return_account_summary() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( AccountSummary.class, Collections.singletonList( TestObjects.accountSummary() ) );
+			session.put( AwsIamAccountSummary.class, Collections.singletonList( TestObjects.accountSummary() ) );
 
 			var typedQuery =
 					session.createQuery(
