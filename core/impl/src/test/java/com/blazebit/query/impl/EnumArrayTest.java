@@ -50,7 +50,7 @@ public class EnumArrayTest {
 		try (QueryContext queryContext = queryContextBuilder.build()) {
 			try (QuerySession session = queryContext.createSession()) {
 				TypedQuery<Object[]> query = session.createQuery(
-						"select r = 'ADMIN', array_contains(u.platformRoles, 'ADMIN'), array_contains(u.aliases, 'ADMIN'), arrays_overlap(u.aliases, ?) " +
+						"select r = 'ADMIN', array_contains(u.platformRoles, 'ADMIN'), array_contains(u.aliases, array['ADMIN', 'admin']), arrays_overlap(u.aliases, ?) " +
 								"from JiraCloudAdminUser u " +
 								"cross join unnest(u.platformRoles) r"
 				).setParameter( 1, List.of( PlatformRole.ADMIN.name(), "u1" ) );
