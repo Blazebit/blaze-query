@@ -32,12 +32,22 @@ import com.blazebit.query.connector.aws.ecs.AwsEcsTaskDefinition;
 import com.blazebit.query.connector.aws.ecs.AwsEcsTaskSet;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
+import com.blazebit.query.connector.aws.accessanalyzer.AwsAnalyzer;
 import com.blazebit.query.connector.aws.iam.AwsIamAccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AwsIamAccountSummary;
+import com.blazebit.query.connector.aws.iam.AwsIamGroup;
+import com.blazebit.query.connector.aws.iam.AwsIamGroupAttachedPolicy;
 import com.blazebit.query.connector.aws.iam.AwsIamLoginProfile;
 import com.blazebit.query.connector.aws.iam.AwsIamMfaDevice;
 import com.blazebit.query.connector.aws.iam.AwsIamPasswordPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamPolicyVersion;
+import com.blazebit.query.connector.aws.iam.AwsIamRole;
+import com.blazebit.query.connector.aws.iam.AwsIamRoleAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamServerCertificate;
 import com.blazebit.query.connector.aws.iam.AwsIamUser;
+import com.blazebit.query.connector.aws.iam.AwsIamUserAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamUserInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamVirtualMfaDevice;
 import com.blazebit.query.connector.aws.kms.AwsKey;
 import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
@@ -245,6 +255,9 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
+			// Access Analyzer
+			queryContextBuilder.registerSchemaObjectAlias( AwsAnalyzer.class, "AwsAnalyzer" );
+
 			// IAM
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamUser.class, "AwsUser" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamPasswordPolicy.class, "AwsIamPasswordPolicy" );
@@ -253,6 +266,15 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccountSummary.class, "AwsIamAccountSummary" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccessKeyMetaDataLastUsed.class,
 					"AwsAccessKeyMetaDataLastUsed" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPolicyVersion.class, "AwsIamPolicyVersion" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroup.class, "AwsGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroupAttachedPolicy.class, "AwsGroupAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRole.class, "AwsRole" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRoleAttachedPolicy.class, "AwsRoleAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamServerCertificate.class, "AwsServerCertificate" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserAttachedPolicy.class, "AwsUserAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserInlinePolicy.class, "AwsUserInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamVirtualMfaDevice.class, "AwsVirtualMfaDevice" );
 
 			// EC2
 			queryContextBuilder.registerSchemaObjectAlias( AwsInstance.class, "AwsInstance" );
@@ -434,6 +456,67 @@ public class Main {
 		List<Object[]> awsAccountSummaryResult = awsAccountSummaryQuery.getResultList();
 		System.out.println( "AwsAccountSummary" );
 		print( awsAccountSummaryResult );
+
+		TypedQuery<Object[]> awsIamPolicyVersionQuery = session.createQuery(
+				"select p.* from AwsIamPolicyVersion p" );
+		List<Object[]> awsIamPolicyVersionResult = awsIamPolicyVersionQuery.getResultList();
+		System.out.println( "AwsIamPolicyVersions" );
+		print( awsIamPolicyVersionResult );
+
+		TypedQuery<Object[]> awsGroupQuery = session.createQuery(
+				"select g.* from AwsGroup g" );
+		List<Object[]> awsGroupResult = awsGroupQuery.getResultList();
+		System.out.println( "AwsGroups" );
+		print( awsGroupResult );
+
+		TypedQuery<Object[]> awsGroupAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsGroupAttachedPolicy p" );
+		List<Object[]> awsGroupAttachedPolicyResult = awsGroupAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsGroupAttachedPolicies" );
+		print( awsGroupAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsRoleQuery = session.createQuery(
+				"select r.* from AwsRole r" );
+		List<Object[]> awsRoleResult = awsRoleQuery.getResultList();
+		System.out.println( "AwsRoles" );
+		print( awsRoleResult );
+
+		TypedQuery<Object[]> awsRoleAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsRoleAttachedPolicy p" );
+		List<Object[]> awsRoleAttachedPolicyResult = awsRoleAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsRoleAttachedPolicies" );
+		print( awsRoleAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsServerCertificateQuery = session.createQuery(
+				"select c.* from AwsServerCertificate c" );
+		List<Object[]> awsServerCertificateResult = awsServerCertificateQuery.getResultList();
+		System.out.println( "AwsServerCertificates" );
+		print( awsServerCertificateResult );
+
+		TypedQuery<Object[]> awsUserAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsUserAttachedPolicy p" );
+		List<Object[]> awsUserAttachedPolicyResult = awsUserAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsUserAttachedPolicies" );
+		print( awsUserAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsUserInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsUserInlinePolicy p" );
+		List<Object[]> awsUserInlinePolicyResult = awsUserInlinePolicyQuery.getResultList();
+		System.out.println( "AwsUserInlinePolicies" );
+		print( awsUserInlinePolicyResult );
+
+		TypedQuery<Object[]> awsVirtualMfaDeviceQuery = session.createQuery(
+				"select d.* from AwsVirtualMfaDevice d" );
+		List<Object[]> awsVirtualMfaDeviceResult = awsVirtualMfaDeviceQuery.getResultList();
+		System.out.println( "AwsVirtualMfaDevices" );
+		print( awsVirtualMfaDeviceResult );
+
+		// Access Analyzer
+		TypedQuery<Object[]> awsAnalyzerQuery = session.createQuery(
+				"select a.* from AwsAnalyzer a" );
+		List<Object[]> awsAnalyzerResult = awsAnalyzerQuery.getResultList();
+		System.out.println( "AwsAnalyzers" );
+		print( awsAnalyzerResult );
 
 		// EC2
 		TypedQuery<Object[]> awsInstanceQuery = session.createQuery(

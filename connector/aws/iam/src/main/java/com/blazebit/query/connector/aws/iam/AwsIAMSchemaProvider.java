@@ -21,10 +21,19 @@ public final class AwsIAMSchemaProvider implements QuerySchemaProvider {
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
 				AwsIamUserDataFetcher.INSTANCE,
+				AwsIamRoleDataFetcher.INSTANCE,
+				AwsIamGroupDataFetcher.INSTANCE,
 				AwsIamPasswordPolicyDataFetcher.INSTANCE,
 				MFADeviceDataFetcher.INSTANCE,
+				VirtualMfaDeviceDataFetcher.INSTANCE,
 				AwsIamLoginProfileDataFetcher.INSTANCE,
 				AwsIamAccountSummaryDataFetcher.INSTANCE,
-				AwsIamAccessKeyMetaDataLastUsedDataFetcher.INSTANCE );
+				AwsIamAccessKeyMetaDataLastUsedDataFetcher.INSTANCE,
+				AwsIamPolicyDataFetcher.INSTANCE,
+				AwsIamUserAttachedPolicyDataFetcher.INSTANCE,
+				AwsIamUserInlinePolicyDataFetcher.INSTANCE,
+				AwsIamGroupAttachedPolicyDataFetcher.INSTANCE,
+				AwsIamRoleAttachedPolicyDataFetcher.INSTANCE,
+				AwsIamServerCertificateDataFetcher.INSTANCE );
 	}
 }

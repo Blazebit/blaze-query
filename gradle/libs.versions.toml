@@ -56,6 +56,7 @@ gitlab4j-api = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab4j" 
 
 github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 
+awssdk-accessanalyzer = { module = "software.amazon.awssdk:accessanalyzer", version.ref = "aws" }
 awssdk-ec2 = { module = "software.amazon.awssdk:ec2", version.ref = "aws" }
 awssdk-ecr = { module = "software.amazon.awssdk:ecr", version.ref = "aws" }
 awssdk-ecs = { module = "software.amazon.awssdk:ecs", version.ref = "aws" }
