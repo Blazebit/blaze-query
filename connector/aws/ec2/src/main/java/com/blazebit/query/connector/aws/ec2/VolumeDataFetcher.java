@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ec2;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -20,6 +16,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.Volume;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
