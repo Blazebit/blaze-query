@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ec2;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -19,26 +15,29 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
-import software.amazon.awssdk.services.ec2.model.Instance;
-import software.amazon.awssdk.services.ec2.model.Reservation;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachment;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class InstanceDataFetcher implements DataFetcher<AwsInstance>, Serializable {
+public class AwsEc2TransitGatewayAttachmentDataFetcher implements DataFetcher<AwsEc2TransitGatewayAttachment>, Serializable {
 
-	public static final InstanceDataFetcher INSTANCE = new InstanceDataFetcher();
+	public static final AwsEc2TransitGatewayAttachmentDataFetcher INSTANCE = new AwsEc2TransitGatewayAttachmentDataFetcher();
 
-	private InstanceDataFetcher() {
+	private AwsEc2TransitGatewayAttachmentDataFetcher() {
 	}
 
 	@Override
-	public List<AwsInstance> fetch(DataFetchContext context) {
+	public List<AwsEc2TransitGatewayAttachment> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsInstance> list = new ArrayList<>();
+			List<AwsEc2TransitGatewayAttachment> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
@@ -48,15 +47,14 @@ public class InstanceDataFetcher implements DataFetcher<AwsInstance>, Serializab
 						ec2ClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (Ec2Client client = ec2ClientBuilder.build()) {
-						for ( Reservation reservation : client.describeInstances().reservations() ) {
-							for ( Instance instance : reservation.instances() ) {
-								list.add( new AwsInstance(
-										reservation.ownerId(),
-										region.id(),
-										instance.instanceId(),
-										instance
-								) );
-							}
+						for ( TransitGatewayAttachment attachment : client.describeTransitGatewayAttachments()
+								.transitGatewayAttachments() ) {
+							list.add( new AwsEc2TransitGatewayAttachment(
+									account.getAccountId(),
+									region.id(),
+									attachment.transitGatewayAttachmentId(),
+									attachment
+							) );
 						}
 					}
 				}
@@ -64,12 +62,13 @@ public class InstanceDataFetcher implements DataFetcher<AwsInstance>, Serializab
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch instance list", e );
+			throw new DataFetcherException( "Could not fetch transit gateway attachment list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsInstance.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEc2TransitGatewayAttachment.class,
+				AwsConventionContext.INSTANCE );
 	}
 }

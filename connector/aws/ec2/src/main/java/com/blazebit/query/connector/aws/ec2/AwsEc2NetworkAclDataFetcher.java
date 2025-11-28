@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ec2;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -19,25 +15,29 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
-import software.amazon.awssdk.services.ec2.model.Vpc;
+import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class VpcDataFetcher implements DataFetcher<AwsVpc>, Serializable {
+public class AwsEc2NetworkAclDataFetcher implements DataFetcher<AwsEc2NetworkAcl>, Serializable {
 
-	public static final VpcDataFetcher INSTANCE = new VpcDataFetcher();
+	public static final AwsEc2NetworkAclDataFetcher INSTANCE = new AwsEc2NetworkAclDataFetcher();
 
-	private VpcDataFetcher() {
+	private AwsEc2NetworkAclDataFetcher() {
 	}
 
 	@Override
-	public List<AwsVpc> fetch(DataFetchContext context) {
+	public List<AwsEc2NetworkAcl> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsVpc> list = new ArrayList<>();
+			List<AwsEc2NetworkAcl> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
@@ -47,12 +47,12 @@ public class VpcDataFetcher implements DataFetcher<AwsVpc>, Serializable {
 						ec2ClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (Ec2Client client = ec2ClientBuilder.build()) {
-						for ( Vpc vpc : client.describeVpcs().vpcs() ) {
-							list.add( new AwsVpc(
-									vpc.ownerId(),
+						for ( NetworkAcl networkAcl : client.describeNetworkAcls().networkAcls() ) {
+							list.add( new AwsEc2NetworkAcl(
+									networkAcl.ownerId(),
 									region.id(),
-									vpc.vpcId(),
-									vpc
+									networkAcl.networkAclId(),
+									networkAcl
 							) );
 						}
 					}
@@ -67,6 +67,6 @@ public class VpcDataFetcher implements DataFetcher<AwsVpc>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsVpc.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEc2NetworkAcl.class, AwsConventionContext.INSTANCE );
 	}
 }

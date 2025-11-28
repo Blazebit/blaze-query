@@ -5,19 +5,19 @@
 package com.blazebit.query.connector.aws.ec2;
 
 import com.blazebit.query.connector.aws.base.AwsWrapper;
-import software.amazon.awssdk.services.ec2.model.SecurityGroup;
+import software.amazon.awssdk.services.ec2.model.Subnet;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsSecurityGroup extends AwsWrapper<SecurityGroup> {
-	public AwsSecurityGroup(String accountId, String regionId, String resourceId, SecurityGroup payload) {
+public class AwsEc2Subnet extends AwsWrapper<Subnet> {
+	public AwsEc2Subnet(String accountId, String regionId, String resourceId, Subnet payload) {
 		super( accountId, regionId, resourceId, payload );
 	}
 
 	@Override
-	public SecurityGroup getPayload() {
+	public Subnet getPayload() {
 		return super.getPayload();
 	}
 }
