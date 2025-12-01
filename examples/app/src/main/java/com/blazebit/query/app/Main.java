@@ -32,7 +32,7 @@ import com.blazebit.query.connector.aws.ecs.AwsEcsTaskDefinition;
 import com.blazebit.query.connector.aws.ecs.AwsEcsTaskSet;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
-import com.blazebit.query.connector.aws.accessanalyzer.AwsAnalyzer;
+import com.blazebit.query.connector.aws.accessanalyzer.AwsAccessAnalyzerAnalyzer;
 import com.blazebit.query.connector.aws.iam.AwsIamAccessKeyMetaDataLastUsed;
 import com.blazebit.query.connector.aws.iam.AwsIamAccountSummary;
 import com.blazebit.query.connector.aws.iam.AwsIamGroup;
@@ -258,7 +258,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
 			// Access Analyzer
-			queryContextBuilder.registerSchemaObjectAlias( AwsAnalyzer.class, "AwsAnalyzer" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsAccessAnalyzerAnalyzer.class, "AwsAnalyzer" );
 
 			// IAM
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamUser.class, "AwsUser" );

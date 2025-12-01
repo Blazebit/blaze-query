@@ -11,9 +11,9 @@ import software.amazon.awssdk.services.accessanalyzer.model.AnalyzerSummary;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsAnalyzer extends AwsWrapper<AnalyzerSummary> {
+public class AwsAccessAnalyzerAnalyzer extends AwsWrapper<AnalyzerSummary> {
 
-	public AwsAnalyzer(String accountId, String region, String resourceId, AnalyzerSummary payload) {
+	public AwsAccessAnalyzerAnalyzer(String accountId, String region, String resourceId, AnalyzerSummary payload) {
 		super( accountId, region, resourceId, payload );
 	}
 

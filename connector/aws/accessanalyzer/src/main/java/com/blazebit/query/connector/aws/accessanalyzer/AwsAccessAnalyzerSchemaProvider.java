@@ -18,6 +18,6 @@ public final class AwsAccessAnalyzerSchemaProvider implements QuerySchemaProvide
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				AnalyzerDataFetcher.INSTANCE );
+				AccessAnalyzerAnalyzerDataFetcher.INSTANCE );
 	}
 }

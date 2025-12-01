@@ -27,19 +27,19 @@ import java.util.StringTokenizer;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AnalyzerDataFetcher implements DataFetcher<AwsAnalyzer>, Serializable {
+public class AccessAnalyzerAnalyzerDataFetcher implements DataFetcher<AwsAccessAnalyzerAnalyzer>, Serializable {
 
-	public static final AnalyzerDataFetcher INSTANCE = new AnalyzerDataFetcher();
+	public static final AccessAnalyzerAnalyzerDataFetcher INSTANCE = new AccessAnalyzerAnalyzerDataFetcher();
 
-	private AnalyzerDataFetcher() {
+	private AccessAnalyzerAnalyzerDataFetcher() {
 	}
 
 	@Override
-	public List<AwsAnalyzer> fetch(DataFetchContext context) {
+	public List<AwsAccessAnalyzerAnalyzer> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsAnalyzer> list = new ArrayList<>();
+			List<AwsAccessAnalyzerAnalyzer> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					AccessAnalyzerClientBuilder clientBuilder = AccessAnalyzerClient.builder()
@@ -64,7 +64,7 @@ public class AnalyzerDataFetcher implements DataFetcher<AwsAnalyzer>, Serializab
 							// resource id
 							String resourceId = tokenizer.nextToken();
 
-							list.add( new AwsAnalyzer(
+							list.add( new AwsAccessAnalyzerAnalyzer(
 									account.getAccountId(),
 									region.id(),
 									resourceId,
@@ -83,6 +83,6 @@ public class AnalyzerDataFetcher implements DataFetcher<AwsAnalyzer>, Serializab
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsAnalyzer.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsAccessAnalyzerAnalyzer.class, AwsConventionContext.INSTANCE );
 	}
 }
