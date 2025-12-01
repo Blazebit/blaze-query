@@ -14,30 +14,30 @@ import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
+import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsIamUserDataFetcher implements DataFetcher<AwsIamUser>, Serializable {
+public class AwsIamUserAttachedPolicyDataFetcher implements DataFetcher<AwsIamUserAttachedPolicy>, Serializable {
 
-	public static final AwsIamUserDataFetcher INSTANCE = new AwsIamUserDataFetcher();
+	public static final AwsIamUserAttachedPolicyDataFetcher INSTANCE = new AwsIamUserAttachedPolicyDataFetcher();
 
-	private AwsIamUserDataFetcher() {
+	private AwsIamUserAttachedPolicyDataFetcher() {
 	}
 
 	@Override
-	public List<AwsIamUser> fetch(DataFetchContext context) {
+	public List<AwsIamUserAttachedPolicy> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsIamUser> list = new ArrayList<>();
+			List<AwsIamUserAttachedPolicy> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -48,38 +48,27 @@ public class AwsIamUserDataFetcher implements DataFetcher<AwsIamUser>, Serializa
 				}
 				try (IamClient client = iamClientBuilder.build()) {
 					for ( User user : client.listUsersPaginator().users() ) {
-						StringTokenizer tokenizer = new StringTokenizer( user.arn(), ":" );
-						// arn
-						tokenizer.nextToken();
-						// aws
-						tokenizer.nextToken();
-						// iam
-						tokenizer.nextToken();
-						// empty region
-						tokenizer.nextToken();
-						// resource id
-						String resourceId = tokenizer.nextToken();
-
-						// Fetch tags for the user
-						var tags = client.listUserTags( request -> request.userName( user.userName() ) ).tags();
-
-						list.add( new AwsIamUser(
-								account.getAccountId(),
-								resourceId,
-								user.toBuilder().tags( tags ).build()
-						) );
+						for ( AttachedPolicy attachedPolicy : client.listAttachedUserPoliciesPaginator(
+								builder -> builder.userName( user.userName() )
+						).attachedPolicies() ) {
+							list.add( AwsIamUserAttachedPolicy.from(
+									account.getAccountId(),
+									user.userName(),
+									attachedPolicy
+							) );
+						}
 					}
 				}
 			}
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch user list", e );
+			throw new DataFetcherException( "Could not fetch user attached policies", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsIamUser.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsIamUserAttachedPolicy.class, AwsConventionContext.INSTANCE );
 	}
 }
