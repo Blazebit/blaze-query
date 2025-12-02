@@ -43,8 +43,13 @@ public record AwsBucketPolicy(
 		if ( !json.has( "Statement" ) ) {
 			return List.of();
 		}
-		return StreamSupport.stream( json.get( "Statement" ).spliterator(), false )
-				.map( edge -> AwsBucketPolicyStatement.fromJson( edge.toString() ) )
-				.collect( Collectors.toList() );
+		JsonNode statementNode = json.get( "Statement" );
+		if ( statementNode.isArray() ) {
+			return StreamSupport.stream( statementNode.spliterator(), false )
+					.map( edge -> AwsBucketPolicyStatement.fromJson( edge.toString() ) )
+					.collect( Collectors.toList() );
+		} else {
+			return List.of( AwsBucketPolicyStatement.fromJson( statementNode.toString() ) );
+		}
 	}
 }

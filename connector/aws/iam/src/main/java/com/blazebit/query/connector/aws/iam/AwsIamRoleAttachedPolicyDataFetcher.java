@@ -14,30 +14,30 @@ import com.blazebit.query.spi.DataFormat;
 import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.IamClientBuilder;
-import software.amazon.awssdk.services.iam.model.User;
+import software.amazon.awssdk.services.iam.model.AttachedPolicy;
+import software.amazon.awssdk.services.iam.model.Role;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsIamUserDataFetcher implements DataFetcher<AwsIamUser>, Serializable {
+public class AwsIamRoleAttachedPolicyDataFetcher implements DataFetcher<AwsIamRoleAttachedPolicy>, Serializable {
 
-	public static final AwsIamUserDataFetcher INSTANCE = new AwsIamUserDataFetcher();
+	public static final AwsIamRoleAttachedPolicyDataFetcher INSTANCE = new AwsIamRoleAttachedPolicyDataFetcher();
 
-	private AwsIamUserDataFetcher() {
+	private AwsIamRoleAttachedPolicyDataFetcher() {
 	}
 
 	@Override
-	public List<AwsIamUser> fetch(DataFetchContext context) {
+	public List<AwsIamRoleAttachedPolicy> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsIamUser> list = new ArrayList<>();
+			List<AwsIamRoleAttachedPolicy> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				IamClientBuilder iamClientBuilder = IamClient.builder()
 						// Any region is fine for IAM operations
@@ -47,39 +47,30 @@ public class AwsIamUserDataFetcher implements DataFetcher<AwsIamUser>, Serializa
 					iamClientBuilder.httpClient( sdkHttpClient );
 				}
 				try (IamClient client = iamClientBuilder.build()) {
-					for ( User user : client.listUsersPaginator().users() ) {
-						StringTokenizer tokenizer = new StringTokenizer( user.arn(), ":" );
-						// arn
-						tokenizer.nextToken();
-						// aws
-						tokenizer.nextToken();
-						// iam
-						tokenizer.nextToken();
-						// empty region
-						tokenizer.nextToken();
-						// resource id
-						String resourceId = tokenizer.nextToken();
-
-						// Fetch tags for the user
-						var tags = client.listUserTags( request -> request.userName( user.userName() ) ).tags();
-
-						list.add( new AwsIamUser(
-								account.getAccountId(),
-								resourceId,
-								user.toBuilder().tags( tags ).build()
-						) );
+					// Get all roles
+					for ( Role role : client.listRolesPaginator().roles() ) {
+						// For each role, list attached managed policies
+						for ( AttachedPolicy attachedPolicy : client.listAttachedRolePoliciesPaginator(
+								builder -> builder.roleName( role.roleName() )
+						).attachedPolicies() ) {
+							list.add( AwsIamRoleAttachedPolicy.from(
+									account.getAccountId(),
+									role.roleName(),
+									attachedPolicy
+							) );
+						}
 					}
 				}
 			}
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch user list", e );
+			throw new DataFetcherException( "Could not fetch role attached policies", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsIamUser.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsIamRoleAttachedPolicy.class, AwsConventionContext.INSTANCE );
 	}
 }

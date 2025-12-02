@@ -29,6 +29,9 @@ public class AwsConventionContext implements ConventionContext {
 			case "serializableBuilderClass":
 			case "getValueForField":
 			case "sdkHttpResponse":
+			case "base32StringSeed":
+			case "qrCodePNG":
+
 				return null;
 			default:
 				return this;

@@ -18350,7 +18350,7 @@
               "software",
               "service_desk",
               "business",
-              "project_discovery"
+              "product_discovery"
             ],
             "readOnly": true,
             "type": "string"

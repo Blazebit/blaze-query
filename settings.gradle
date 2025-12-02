@@ -48,6 +48,7 @@ include(':blaze-query-connector-azure-resourcemanager')
 
 include(':blaze-query-connector-aws')
 include(':blaze-query-connector-aws-base')
+include(':blaze-query-connector-aws-accessanalyzer')
 include(':blaze-query-connector-aws-iam')
 include(':blaze-query-connector-aws-elb')
 include(':blaze-query-connector-aws-ecs')
@@ -102,6 +103,7 @@ project(":blaze-query-connector-azure-resourcemanager").projectDir = file('conne
 
 project(":blaze-query-connector-aws").projectDir = file('connector/aws')
 project(":blaze-query-connector-aws-base").projectDir = file('connector/aws/base')
+project(":blaze-query-connector-aws-accessanalyzer").projectDir = file('connector/aws/accessanalyzer')
 project(":blaze-query-connector-aws-iam").projectDir = file('connector/aws/iam')
 project(":blaze-query-connector-aws-elb").projectDir = file('connector/aws/elb')
 project(":blaze-query-connector-aws-ecs").projectDir = file('connector/aws/ecs')
