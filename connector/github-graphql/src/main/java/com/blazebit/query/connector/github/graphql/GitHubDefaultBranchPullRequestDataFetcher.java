@@ -33,8 +33,10 @@ public class GitHubDefaultBranchPullRequestDataFetcher implements DataFetcher<Gi
 
 			for (GitHubGraphQlClient client : githubClients) {
 				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
-					pullRequestList.addAll(
-							client.fetchRepositoryPullRequests(repository.id(), repository.defaultBranchRef().name()));
+					if (repository.defaultBranchRef() != null) {
+						pullRequestList.addAll(
+								client.fetchRepositoryPullRequests(repository.id(), repository.defaultBranchRef().name()));
+					}
 				}
 			}
 
