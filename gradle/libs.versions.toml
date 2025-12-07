@@ -1,7 +1,7 @@
 [versions]
-calcite = "1.39.0"
+calcite = "1.41.0"
 
-blaze-persistence = "1.6.11"
+blaze-persistence = "1.6.17"
 
 azure-core = "1.49.1"
 azure-identity = "1.11.0"
@@ -56,6 +56,7 @@ gitlab4j-api = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab4j" 
 
 github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 
+awssdk-accessanalyzer = { module = "software.amazon.awssdk:accessanalyzer", version.ref = "aws" }
 awssdk-ec2 = { module = "software.amazon.awssdk:ec2", version.ref = "aws" }
 awssdk-ecr = { module = "software.amazon.awssdk:ecr", version.ref = "aws" }
 awssdk-ecs = { module = "software.amazon.awssdk:ecs", version.ref = "aws" }
@@ -66,6 +67,7 @@ awssdk-lambda = { module = "software.amazon.awssdk:lambda", version.ref = "aws" 
 awssdk-rds = { module = "software.amazon.awssdk:rds", version.ref = "aws" }
 awssdk-route53 = { module = "software.amazon.awssdk:route53", version.ref = "aws" }
 awssdk-s3 = { module = "software.amazon.awssdk:s3", version.ref = "aws" }
+awssdk-kms = { module = "software.amazon.awssdk:kms", version.ref = "aws" }
 
 microsoft-graph-beta = { module = "com.microsoft.graph:microsoft-graph-beta", version.ref = "microsoft-graph-beta" }
 microsoft-graph-core = { module = "com.microsoft.graph:microsoft-graph-core", version.ref = "microsoft-graph-core" }

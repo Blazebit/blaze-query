@@ -27,6 +27,7 @@ dependencies {
     api project(':blaze-query-connector-azure-graph')
     api libs.azure.identity
     api libs.microsoft.graph.core
+    api project(':blaze-query-connector-aws-accessanalyzer')
     api project(':blaze-query-connector-aws-ec2')
     api project(':blaze-query-connector-aws-rds')
     api project(':blaze-query-connector-aws-iam')
@@ -35,6 +36,7 @@ dependencies {
     api project(':blaze-query-connector-aws-s3')
     api project(':blaze-query-connector-aws-ecr')
     api project(':blaze-query-connector-aws-ecs')
+    api project(':blaze-query-connector-aws-kms')
     api project(':blaze-query-connector-aws-lambda')
     api project(':blaze-query-connector-aws-route53')
     api project(':blaze-query-connector-gitlab')

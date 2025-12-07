@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.rds;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -20,6 +16,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
 import software.amazon.awssdk.services.rds.model.DBInstance;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christian Beikov
@@ -40,13 +40,13 @@ public class DBInstanceDataFetcher implements DataFetcher<AwsDBInstance>, Serial
 			List<AwsDBInstance> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
-					RdsClientBuilder ec2ClientBuilder = RdsClient.builder()
+					RdsClientBuilder rdsClientBuilder = RdsClient.builder()
 							.region( region )
 							.credentialsProvider( account.getCredentialsProvider() );
 					if ( sdkHttpClient != null ) {
-						ec2ClientBuilder.httpClient( sdkHttpClient );
+						rdsClientBuilder.httpClient( sdkHttpClient );
 					}
-					try (RdsClient client = ec2ClientBuilder.build()) {
+					try (RdsClient client = rdsClientBuilder.build()) {
 						for ( DBInstance dbInstance : client.describeDBInstances().dbInstances() ) {
 							list.add( new AwsDBInstance( dbInstance.dbInstanceArn(), dbInstance ) );
 						}

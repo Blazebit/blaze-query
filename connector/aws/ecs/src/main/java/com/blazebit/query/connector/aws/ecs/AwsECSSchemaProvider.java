@@ -20,7 +20,11 @@ public final class AwsECSSchemaProvider implements QuerySchemaProvider {
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				ClusterDataFetcher.INSTANCE
+				AwsEcsClusterDataFetcher.INSTANCE,
+				AwsEcsServiceDataFetcher.INSTANCE,
+				AwsEcsTaskDefinitionDataFetcher.INSTANCE,
+				AwsEcsContainerDefinitionDataFetcher.INSTANCE,
+				AwsEcsTaskSetDataFetcher.INSTANCE
 		);
 	}
 }

@@ -40,13 +40,13 @@ public class BucketDataFetcher implements DataFetcher<AwsBucket>, Serializable {
 			List<AwsBucket> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
-					S3ClientBuilder ec2ClientBuilder = S3Client.builder()
+					S3ClientBuilder s3ClientBuilder = S3Client.builder()
 							.region( region )
 							.credentialsProvider( account.getCredentialsProvider() );
 					if ( sdkHttpClient != null ) {
-						ec2ClientBuilder.httpClient( sdkHttpClient );
+						s3ClientBuilder.httpClient( sdkHttpClient );
 					}
-					try (S3Client client = ec2ClientBuilder.build()) {
+					try (S3Client client = s3ClientBuilder.build()) {
 						for ( Bucket bucket : client.listBuckets().buckets() ) {
 							list.add( new AwsBucket(
 									account.getAccountId(),
@@ -61,7 +61,7 @@ public class BucketDataFetcher implements DataFetcher<AwsBucket>, Serializable {
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch bucket list", e );
+			throw new DataFetcherException( "Could not fetch public access block configuration list", e );
 		}
 	}
 

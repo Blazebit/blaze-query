@@ -25,24 +25,56 @@ import com.blazebit.query.connector.aws.ec2.AwsSecurityGroup;
 import com.blazebit.query.connector.aws.ec2.AwsVolume;
 import com.blazebit.query.connector.aws.ec2.AwsVpc;
 import com.blazebit.query.connector.aws.ecr.AwsRepository;
-import com.blazebit.query.connector.aws.ecs.AwsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsEcsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsEcsContainerDefinition;
+import com.blazebit.query.connector.aws.ecs.AwsEcsService;
+import com.blazebit.query.connector.aws.ecs.AwsEcsTaskDefinition;
+import com.blazebit.query.connector.aws.ecs.AwsEcsTaskSet;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
-import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
-import com.blazebit.query.connector.aws.iam.AccountSummary;
-import com.blazebit.query.connector.aws.iam.AwsMFADevice;
-import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
-import com.blazebit.query.connector.aws.iam.AwsUser;
+import com.blazebit.query.connector.aws.accessanalyzer.AwsAccessAnalyzerAnalyzer;
+import com.blazebit.query.connector.aws.iam.AwsIamAccessKeyMetaDataLastUsed;
+import com.blazebit.query.connector.aws.iam.AwsIamAccountSummary;
+import com.blazebit.query.connector.aws.iam.AwsIamGroup;
+import com.blazebit.query.connector.aws.iam.AwsIamGroupAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamGroupInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamLoginProfile;
+import com.blazebit.query.connector.aws.iam.AwsIamMfaDevice;
+import com.blazebit.query.connector.aws.iam.AwsIamPasswordPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamPolicyVersion;
+import com.blazebit.query.connector.aws.iam.AwsIamRole;
+import com.blazebit.query.connector.aws.iam.AwsIamRoleAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamRoleInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamServerCertificate;
+import com.blazebit.query.connector.aws.iam.AwsIamUser;
+import com.blazebit.query.connector.aws.iam.AwsIamUserAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamUserInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamVirtualMfaDevice;
+import com.blazebit.query.connector.aws.kms.AwsKey;
+import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
+import com.blazebit.query.connector.aws.rds.AwsDBCluster;
+import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshot;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshotAttribute;
+import com.blazebit.query.connector.aws.rds.AwsEventSubscription;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
+import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
+import com.blazebit.query.connector.aws.s3.AwsBucketVersioning;
+import com.blazebit.query.connector.aws.s3.AwsBucketPolicy;
+import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
+import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
+import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
+import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
+import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.aws.s3.AwsServerSideEncryptionRule;
 import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
-import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
@@ -50,8 +82,6 @@ import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
@@ -62,7 +92,6 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
-import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
@@ -71,9 +100,7 @@ import com.blazebit.query.connector.github.graphql.GitHubRuleset;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
-import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
-import com.blazebit.query.connector.gitlab.GitlabGraphQlConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
 import com.blazebit.query.connector.gitlab.GitlabMergeRequest;
 import com.blazebit.query.connector.gitlab.GitlabProject;
@@ -176,7 +203,7 @@ public class Main {
 		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory( "default" )) {
 			SessionFactory sf = emf.unwrap( SessionFactory.class );
 			sf.inTransaction( s -> {
-				s.persist( new TestEntity( 1L, "Test", new TestEmbeddable( "text1", "text2" ) ) );
+				s.persist( new TestEntity( 1L, "Test", new TestEmbeddable( "text1", "text2" ), Set.of(TestEnum.A, TestEnum.B) ) );
 			} );
 
 			CriteriaBuilderFactory cbf = Criteria.getDefault().createCriteriaBuilderFactory( emf );
@@ -186,11 +213,11 @@ public class Main {
 			EntityViewManager evm = defaultConfiguration.createEntityViewManager( cbf );
 
 			QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
-					Main::createPostgreSqlManagers );
-			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
-			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+//			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
+//					Main::createPostgreSqlManagers );
+//			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
+//			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
@@ -200,11 +227,11 @@ public class Main {
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
+//			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+//			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
-			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
+//			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
@@ -230,13 +257,28 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
+			// Access Analyzer
+			queryContextBuilder.registerSchemaObjectAlias( AwsAccessAnalyzerAnalyzer.class, "AwsAnalyzer" );
+
 			// IAM
-			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIamPasswordPolicy" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsMFADevice" );
-			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
-			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUser.class, "AwsUser" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPasswordPolicy.class, "AwsIamPasswordPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamMfaDevice.class, "AwsMFADevice" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamLoginProfile.class, "AwsLoginProfile" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccountSummary.class, "AwsIamAccountSummary" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccessKeyMetaDataLastUsed.class,
 					"AwsAccessKeyMetaDataLastUsed" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPolicyVersion.class, "AwsIamPolicyVersion" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroup.class, "AwsGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroupAttachedPolicy.class, "AwsGroupAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroupInlinePolicy.class, "AwsGroupInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRole.class, "AwsRole" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRoleAttachedPolicy.class, "AwsRoleAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRoleInlinePolicy.class, "AwsRoleInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamServerCertificate.class, "AwsServerCertificate" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserAttachedPolicy.class, "AwsUserAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserInlinePolicy.class, "AwsUserInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamVirtualMfaDevice.class, "AwsVirtualMfaDevice" );
 
 			// EC2
 			queryContextBuilder.registerSchemaObjectAlias( AwsInstance.class, "AwsInstance" );
@@ -245,13 +287,22 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsSecurityGroup.class, "AwsSecurityGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsNetworkAcl" );
 			// RDS
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBCluster.class, "AwsDBCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBClusterSnapshot.class, "AwsDBClusterSnapshot" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBInstance.class, "AwsDBInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshot.class, "AwsDBSnapshot" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshotAttribute.class, "AwsDBSnapshotAttribute" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEventSubscription.class, "AwsEventSubscription" );
 			// EFS
 			queryContextBuilder.registerSchemaObjectAlias( AwsFileSystem.class, "AwsFileSystem" );
 			// ECR
 			queryContextBuilder.registerSchemaObjectAlias( AwsRepository.class, "AwsRepository" );
 			// ECS
-			queryContextBuilder.registerSchemaObjectAlias( AwsCluster.class, "AwsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsCluster.class, "AwsEcsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsContainerDefinition.class, "AwsEcsContainerDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsService.class, "AwsEcsService" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsTaskDefinition.class, "AwsEcsTaskDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsTaskSet.class, "AwsEcsTaskSet" );
 			// ELB
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoadBalancer.class, "AwsLoadBalancer" );
 			// Lambda
@@ -261,6 +312,19 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsHealthCheck.class, "AwsHealthCheck" );
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketVersioning.class, "AwsBucketVersioning" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketPolicy.class, "AwsBucketPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsObjectLockConfiguration.class, "AwsObjectLockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsServerSideEncryptionRule.class, "AwsServerSideEncryptionRule" );
+			// KMS
+			queryContextBuilder.registerSchemaObjectAlias( AwsKey.class, "AwsKey" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKeyAlias.class, "AwsKeyAlias" );
+
 
 			// Gitlab
 			queryContextBuilder.registerSchemaObjectAlias( Project.class, "GitlabProject" );
@@ -351,8 +415,8 @@ public class Main {
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
-//					testEntityView( session );
-					testAzureGraph( session );
+					testEntityView( session );
+//					testAzureGraph( session );
 //					testAzureResourceManager( session );
 				}
 			}
@@ -385,11 +449,90 @@ public class Main {
 		System.out.println( "AwsMFADevices" );
 		print( awsMFADeviceResult );
 
+		TypedQuery<Object[]> awsLoginProfileQuery = session.createQuery(
+				"select l.* from AwsLoginProfile l" );
+		List<Object[]> awsLoginProfileResult = awsLoginProfileQuery.getResultList();
+		System.out.println( "AwsLoginProfiles" );
+		print( awsLoginProfileResult );
+
 		TypedQuery<Object[]> awsAccountSummaryQuery = session.createQuery(
 				"select a.* from AwsIamAccountSummary a" );
 		List<Object[]> awsAccountSummaryResult = awsAccountSummaryQuery.getResultList();
 		System.out.println( "AwsAccountSummary" );
 		print( awsAccountSummaryResult );
+
+		TypedQuery<Object[]> awsIamPolicyVersionQuery = session.createQuery(
+				"select p.* from AwsIamPolicyVersion p" );
+		List<Object[]> awsIamPolicyVersionResult = awsIamPolicyVersionQuery.getResultList();
+		System.out.println( "AwsIamPolicyVersions" );
+		print( awsIamPolicyVersionResult );
+
+		TypedQuery<Object[]> awsGroupQuery = session.createQuery(
+				"select g.* from AwsGroup g" );
+		List<Object[]> awsGroupResult = awsGroupQuery.getResultList();
+		System.out.println( "AwsGroups" );
+		print( awsGroupResult );
+
+		TypedQuery<Object[]> awsGroupAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsGroupAttachedPolicy p" );
+		List<Object[]> awsGroupAttachedPolicyResult = awsGroupAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsGroupAttachedPolicies" );
+		print( awsGroupAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsGroupInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsGroupInlinePolicy p" );
+		List<Object[]> awsGroupInlinePolicyResult = awsGroupInlinePolicyQuery.getResultList();
+		System.out.println( "AwsGroupInlinePolicies" );
+		print( awsGroupInlinePolicyResult );
+
+		TypedQuery<Object[]> awsRoleQuery = session.createQuery(
+				"select r.* from AwsRole r" );
+		List<Object[]> awsRoleResult = awsRoleQuery.getResultList();
+		System.out.println( "AwsRoles" );
+		print( awsRoleResult );
+
+		TypedQuery<Object[]> awsRoleAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsRoleAttachedPolicy p" );
+		List<Object[]> awsRoleAttachedPolicyResult = awsRoleAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsRoleAttachedPolicies" );
+		print( awsRoleAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsRoleInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsRoleInlinePolicy p" );
+		List<Object[]> awsRoleInlinePolicyResult = awsRoleInlinePolicyQuery.getResultList();
+		System.out.println( "AwsRoleInlinePolicies" );
+		print( awsRoleInlinePolicyResult );
+
+		TypedQuery<Object[]> awsServerCertificateQuery = session.createQuery(
+				"select c.* from AwsServerCertificate c" );
+		List<Object[]> awsServerCertificateResult = awsServerCertificateQuery.getResultList();
+		System.out.println( "AwsServerCertificates" );
+		print( awsServerCertificateResult );
+
+		TypedQuery<Object[]> awsUserAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsUserAttachedPolicy p" );
+		List<Object[]> awsUserAttachedPolicyResult = awsUserAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsUserAttachedPolicies" );
+		print( awsUserAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsUserInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsUserInlinePolicy p" );
+		List<Object[]> awsUserInlinePolicyResult = awsUserInlinePolicyQuery.getResultList();
+		System.out.println( "AwsUserInlinePolicies" );
+		print( awsUserInlinePolicyResult );
+
+		TypedQuery<Object[]> awsVirtualMfaDeviceQuery = session.createQuery(
+				"select d.* from AwsVirtualMfaDevice d" );
+		List<Object[]> awsVirtualMfaDeviceResult = awsVirtualMfaDeviceQuery.getResultList();
+		System.out.println( "AwsVirtualMfaDevices" );
+		print( awsVirtualMfaDeviceResult );
+
+		// Access Analyzer
+		TypedQuery<Object[]> awsAnalyzerQuery = session.createQuery(
+				"select a.* from AwsAnalyzer a" );
+		List<Object[]> awsAnalyzerResult = awsAnalyzerQuery.getResultList();
+		System.out.println( "AwsAnalyzers" );
+		print( awsAnalyzerResult );
 
 		// EC2
 		TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
@@ -423,11 +566,42 @@ public class Main {
 		print(awsNetworkAclResult);
 
 		// RDS
+		TypedQuery<Object[]> awsDbClusterQuery = session.createQuery(
+				"select i.* from AwsDBCluster i" );
+		List<Object[]> awsDbClusterResult = awsDbClusterQuery.getResultList();
+		System.out.println("AwsDBCluster");
+		print(awsDbClusterResult);
+
+		TypedQuery<Object[]> awsDbClusterSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBClusterSnapshot i" );
+		List<Object[]> awsDbClusterSnapshotResult = awsDbClusterSnapshotQuery.getResultList();
+		System.out.println("AwsDBClusterSnapshot");
+		print(awsDbClusterSnapshotResult);
+
 		TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
 				"select i.* from AwsDBInstance i" );
 		List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
-		System.out.println("AwsDbInstances");
+		System.out.println("AwsDBInstance");
 		print(awsDbInstanceResult);
+
+		TypedQuery<Object[]> awsDBSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBSnapshot i" );
+		List<Object[]> awsDBSnapshotResult = awsDBSnapshotQuery.getResultList();
+		System.out.println("AwsDBSnapshot");
+		print(awsDBSnapshotResult);
+
+		TypedQuery<Object[]> awsDBSnapshotAttributeQuery = session.createQuery(
+				"select i.* from AwsDBSnapshotAttribute i" );
+		List<Object[]> awsDBSnapshotAttributeResult = awsDBSnapshotAttributeQuery.getResultList();
+		System.out.println("AwsDBSnapshotAttribute");
+		print(awsDBSnapshotAttributeResult);
+
+		TypedQuery<Object[]> awsEventSubscriptionQuery = session.createQuery(
+				"select i.* from AwsEventSubscription i" );
+		List<Object[]> awsEventSubscriptionResult = awsEventSubscriptionQuery.getResultList();
+		System.out.println("AwsEventSubscription");
+		print(awsEventSubscriptionResult);
+
 
 		// EFS
 		TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
@@ -445,10 +619,34 @@ public class Main {
 
 		// ECS
 		TypedQuery<Object[]> awsClusterQuery = session.createQuery(
-				"select f.* from AwsCluster f" );
+				"select f.* from AwsEcsCluster f" );
 		List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
-		System.out.println("AwsClusters");
+		System.out.println("AwsEcsClusters");
 		print(awsClusterResult);
+
+		TypedQuery<Object[]> awsContainerDefinitionQuery = session.createQuery(
+				"select f.* from AwsEcsContainerDefinition f" );
+		List<Object[]> awsContainerDefinitionResult = awsContainerDefinitionQuery.getResultList();
+		System.out.println("AwsEcsContainerDefinitions");
+		print(awsContainerDefinitionResult);
+
+		TypedQuery<Object[]> awsServiceQuery = session.createQuery(
+				"select f.* from AwsEcsService f" );
+		List<Object[]> awsServiceResult = awsServiceQuery.getResultList();
+		System.out.println("AwsEcsServices");
+		print(awsServiceResult);
+
+		TypedQuery<Object[]> awsTaskDefinitionQuery = session.createQuery(
+				"select f.* from AwsEcsTaskDefinition f" );
+		List<Object[]> awsTaskDefinitionResult = awsTaskDefinitionQuery.getResultList();
+		System.out.println("AwsEcsTaskDefinitions");
+		print(awsTaskDefinitionResult);
+
+		TypedQuery<Object[]> awsTaskSetQuery = session.createQuery(
+				"select f.* from AwsEcsTaskSet f" );
+		List<Object[]> awsTaskSetResult = awsTaskSetQuery.getResultList();
+		System.out.println("AwsEcsTaskSets");
+		print(awsTaskSetResult);
 
 		// ELB
 		TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
@@ -482,6 +680,73 @@ public class Main {
 		List<Object[]> awsBucketResult = awsBucketQuery.getResultList();
 		System.out.println("AwsBuckets");
 		print(awsBucketResult);
+
+		TypedQuery<Object[]> awsBucketAclQuery = session.createQuery(
+				"select f.* from AwsBucketAcl f" );
+		List<Object[]> awsBucketAclResult = awsBucketAclQuery.getResultList();
+		System.out.println("AwsBucketAcl");
+		print(awsBucketAclResult);
+
+		TypedQuery<Object[]> awsBucketVersioningQuery = session.createQuery(
+				"select f.* from AwsBucketVersioning f" );
+		List<Object[]> awsBucketVersioningResult = awsBucketVersioningQuery.getResultList();
+		System.out.println("AwsBucketVersioning");
+		print(awsBucketVersioningResult);
+
+	TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
+				"select f.* from AwsBucketPolicy f" );
+		List<Object[]> awsBucketPolicyResult = awsBucketPolicyQuery.getResultList();
+		System.out.println("AwsBucketPolicy");
+		print(awsBucketPolicyResult);
+
+		TypedQuery<Object[]> awsLoggingEnabledQuery = session.createQuery(
+				"select f.* from AwsLoggingEnabled f" );
+		List<Object[]> awsLoggingEnabledResult = awsLoggingEnabledQuery.getResultList();
+		System.out.println("AwsLoggingEnabled");
+		print(awsLoggingEnabledResult);
+
+		TypedQuery<Object[]> awsObjectLockConfigurationQuery = session.createQuery(
+				"select f.* from AwsObjectLockConfiguration f" );
+		List<Object[]> awsObjectLockConfigurationResult = awsObjectLockConfigurationQuery.getResultList();
+		System.out.println("AwsObjectLockConfiguration");
+		print(awsObjectLockConfigurationResult);
+
+		TypedQuery<Object[]> awsPolicyStatusQuery = session.createQuery(
+				"select f.* from AwsPolicyStatus f" );
+		List<Object[]> awsPolicyStatusResult = awsPolicyStatusQuery.getResultList();
+		System.out.println("AwsPolicyStatus");
+		print(awsPolicyStatusResult);
+
+		TypedQuery<Object[]> awsLifeCycleRuleQuery = session.createQuery(
+				"select f.* from AwsLifeCycleRule f" );
+		List<Object[]> awsLifeCycleRuleResult = awsLifeCycleRuleQuery.getResultList();
+		System.out.println("AwsLifeCycleRule");
+		print(awsLifeCycleRuleResult);
+
+		TypedQuery<Object[]> awsPublicAccessBlockConfigurationQuery = session.createQuery(
+				"select f.* from AwsPublicAccessBlockConfiguration f" );
+		List<Object[]> awsPublicAccessBlockConfigurationResult = awsPublicAccessBlockConfigurationQuery.getResultList();
+		System.out.println("AwsPublicAccessBlockConfiguration");
+		print(awsPublicAccessBlockConfigurationResult);
+
+		TypedQuery<Object[]> awsServerSideEncryptionRuleQuery = session.createQuery(
+				"select f.* from AwsServerSideEncryptionRule f" );
+		List<Object[]> awsServerSideEncryptionRuleResult = awsServerSideEncryptionRuleQuery.getResultList();
+		System.out.println("AwsServerSideEncryptionConfiguration");
+		print(awsServerSideEncryptionRuleResult);
+
+		// KMS
+		TypedQuery<Object[]> awsKeyQuery = session.createQuery(
+				"select f.* from AwsKey f" );
+		List<Object[]> awsKeyResult = awsKeyQuery.getResultList();
+		System.out.println("AwsKey");
+		print(awsKeyResult);
+
+		TypedQuery<Object[]> awsKeyAliasQuery = session.createQuery(
+				"select f.* from AwsKeyAlias f" );
+		List<Object[]> awsKeyAliasResult = awsKeyAliasQuery.getResultList();
+		System.out.println("AwsKeyAlias");
+		print(awsKeyAliasResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
@@ -799,6 +1064,10 @@ public class Main {
 				"select t.id, e.text1 from " + name( TestEntityView.class ) + " t, unnest(t.elements) e" );
 		List<Object[]> entityViewResult = entityViewQuery.getResultList();
 		print( entityViewResult, "id", "text1" );
+		TypedQuery<Object[]> entityViewQuery2 = session.createQuery(
+				"select t.id, array_contains(t.enums, 'A') from " + name( TestEntityView.class ) + " t" );
+		List<Object[]> entityViewResult2 = entityViewQuery2.getResultList();
+		print( entityViewResult2, "id", "enums" );
 	}
 
 	private static void testAzureGraph(QuerySession session) {
