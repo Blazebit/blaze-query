@@ -52,6 +52,7 @@ dependencies {
     api project(':blaze-query-connector-google-gcp-compute')
     api project(':blaze-query-connector-google-gcp-iam')
     api project(':blaze-query-connector-google-gcp-storage')
+    api project(':blaze-query-connector-observatory')
     runtimeOnly libs.blaze.persistence.integration.hibernate6
 }
 
