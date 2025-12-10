@@ -19,11 +19,45 @@ import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-import com.blazebit.query.connector.aws.ec2.AwsInstance;
-import com.blazebit.query.connector.aws.ec2.AwsNetworkAcl;
-import com.blazebit.query.connector.aws.ec2.AwsSecurityGroup;
-import com.blazebit.query.connector.aws.ec2.AwsVolume;
-import com.blazebit.query.connector.aws.ec2.AwsVpc;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Address;
+import com.blazebit.query.connector.aws.ec2.AwsEc2ClientVpnEndpoint;
+import com.blazebit.query.connector.aws.ec2.AwsEc2CustomerGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2DhcpOptions;
+import com.blazebit.query.connector.aws.ec2.AwsEc2EbsEncryptionByDefault;
+import com.blazebit.query.connector.aws.ec2.AwsEc2FlowLogs;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Instance;
+import com.blazebit.query.connector.aws.ec2.AwsEc2InstanceStatus;
+import com.blazebit.query.connector.aws.ec2.AwsEc2InternetGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2LaunchTemplate;
+import com.blazebit.query.connector.aws.ec2.AwsEc2LaunchTemplateVersion;
+import com.blazebit.query.connector.aws.ec2.AwsEc2ManagedPrefixList;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NatGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkAcl;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkAclEntry;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkInterface;
+import com.blazebit.query.connector.aws.ec2.AwsEc2RouteTable;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SecurityGroup;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SecurityGroupIpPermission;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Snapshot;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SnapshotAttribute;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SpotFleetRequest;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SpotFleetRequestLaunchSpecification;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Subnet;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorFilter;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorSession;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorTarget;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGatewayAttachment;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGatewayRouteTable;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Volume;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Vpc;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcBlockPublicAccessOptions;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcEndpoint;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcEndpointService;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcPeeringConnection;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnConnection;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnConnectionTunnelOption;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnGateway;
 import com.blazebit.query.connector.aws.ecr.AwsRepository;
 import com.blazebit.query.connector.aws.ecs.AwsEcsCluster;
 import com.blazebit.query.connector.aws.ecs.AwsEcsContainerDefinition;
@@ -281,11 +315,47 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsIamVirtualMfaDevice.class, "AwsVirtualMfaDevice" );
 
 			// EC2
-			queryContextBuilder.registerSchemaObjectAlias( AwsInstance.class, "AwsInstance" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsVolume.class, "AwsVolume" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsVpc.class, "AwsVpc" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsSecurityGroup.class, "AwsSecurityGroup" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsNetworkAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Instance.class, "AwsEc2Instance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2InstanceStatus.class, "AwsEc2InstanceStatus" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Address.class, "AwsEc2Address" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Subnet.class, "AwsEc2Subnet" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2CustomerGateway.class, "AwsEc2CustomerGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2InternetGateway.class, "AwsEc2InternetGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NatGateway.class, "AwsEc2NatGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2RouteTable.class, "AwsEc2RouteTable" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcEndpointService.class, "AwsEc2VpcEndpointService" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcPeeringConnection.class, "AwsEc2VpcPeeringConnection" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnGateway.class, "AwsEc2VpnGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2ClientVpnEndpoint.class, "AwsEc2ClientVpnEndpoint" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnConnection.class, "AwsEc2VpnConnection" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnConnectionTunnelOption.class, "AwsEc2VpnConnectionTunnelOption" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcBlockPublicAccessOptions.class,
+					"AwsEc2VpcBlockPublicAccessOptions" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGateway.class, "AwsEc2TransitGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGatewayAttachment.class, "AwsEc2TransitGatewayAttachment" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGatewayRouteTable.class, "AwsEc2TransitGatewayRouteTable" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkInterface.class, "AwsEc2NetworkInterface" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SpotFleetRequest.class, "AwsEc2SpotFleetRequest" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SpotFleetRequestLaunchSpecification.class,
+					"AwsEc2SpotFleetRequestLaunchSpecification" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2DhcpOptions.class, "AwsEc2DhcpOptions" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2LaunchTemplate.class, "AwsEc2LaunchTemplate" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2LaunchTemplateVersion.class, "AwsEc2LaunchTemplateVersion" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2ManagedPrefixList.class, "AwsEc2ManagedPrefixList" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorSession.class, "AwsEc2TrafficMirrorSession" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorFilter.class, "AwsEc2TrafficMirrorFilter" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorTarget.class, "AwsEc2TrafficMirrorTarget" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Vpc.class, "AwsEc2Vpc" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcEndpoint.class, "AwsEc2VpcEndpoint" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SecurityGroup.class, "AwsEc2SecurityGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SecurityGroupIpPermission.class, "AwsEc2SecurityGroupIpPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Volume.class, "AwsEc2Volume" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Snapshot.class, "AwsEc2Snapshot" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SnapshotAttribute.class, "AwsEc2SnapshotAttribute" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkAcl.class, "AwsEc2NetworkAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkAclEntry.class, "AwsEc2NetworkAclEntry" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2EbsEncryptionByDefault.class, "AwsEc2EbsEncryptionByDefault" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2FlowLogs.class, "AwsEc2FlowLogs" );
 			// RDS
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBCluster.class, "AwsDBCluster" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBClusterSnapshot.class, "AwsDBClusterSnapshot" );
@@ -536,34 +606,239 @@ public class Main {
 
 		// EC2
 		TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
-				"select i.* from AwsInstance i" );
+				"select i.* from AwsEc2Instance i" );
 		List<Object[]> awsInstanceResult = awsInstanceQuery.getResultList();
-		System.out.println("AwsInstances");
+		System.out.println("AwsEc2Instances");
 		print(awsInstanceResult);
 
 		TypedQuery<Object[]> awsVolumeQuery = session.createQuery(
-				"select v.* from AwsVolume v" );
+				"select v.* from AwsEc2Volume v" );
 		List<Object[]> awsVolumeResult = awsVolumeQuery.getResultList();
-		System.out.println("AwsVolumes");
+		System.out.println("AwsEc2Volumes");
 		print(awsVolumeResult);
 
 		TypedQuery<Object[]> awsVpcQuery = session.createQuery(
-				"select v.* from AwsVpc v" );
+				"select v.* from AwsEc2Vpc v" );
 		List<Object[]> awsVpcResult = awsVpcQuery.getResultList();
-		System.out.println("AwsVpcs");
+		System.out.println("AwsEc2Vpcs");
 		print(awsVpcResult);
 
 		TypedQuery<Object[]> awsSecurityGroupQuery = session.createQuery(
-				"select g.* from AwsSecurityGroup g" );
+				"select g.* from AwsEc2SecurityGroup g" );
 		List<Object[]> awsSecurityGroupResult = awsSecurityGroupQuery.getResultList();
-		System.out.println("AwsSecurityGroups");
+		System.out.println("AwsEc2SecurityGroups");
 		print(awsSecurityGroupResult);
 
 		TypedQuery<Object[]> awsNetworkAclQuery = session.createQuery(
-				"select g.* from AwsNetworkAcl g" );
+				"select g.* from AwsEc2NetworkAcl g" );
 		List<Object[]> awsNetworkAclResult = awsNetworkAclQuery.getResultList();
-		System.out.println("AwsNetworkAcls");
+		System.out.println("AwsEc2NetworkAcls");
 		print(awsNetworkAclResult);
+
+		TypedQuery<Object[]> awsNetworkAclEntryQuery = session.createQuery(
+				"select e.* from AwsEc2NetworkAclEntry e" );
+		List<Object[]> awsNetworkAclEntryResult = awsNetworkAclEntryQuery.getResultList();
+		System.out.println("AwsEc2NetworkAclEntries");
+		print(awsNetworkAclEntryResult);
+
+		TypedQuery<Object[]> awsInstanceStatusQuery = session.createQuery(
+				"select s.* from AwsEc2InstanceStatus s" );
+		List<Object[]> awsInstanceStatusResult = awsInstanceStatusQuery.getResultList();
+		System.out.println("AwsEc2InstanceStatuses");
+		print(awsInstanceStatusResult);
+
+		TypedQuery<Object[]> awsAddressQuery = session.createQuery(
+				"select a.* from AwsEc2Address a" );
+		List<Object[]> awsAddressResult = awsAddressQuery.getResultList();
+		System.out.println("AwsEc2Addresses");
+		print(awsAddressResult);
+
+		TypedQuery<Object[]> awsSubnetQuery = session.createQuery(
+				"select s.* from AwsEc2Subnet s" );
+		List<Object[]> awsSubnetResult = awsSubnetQuery.getResultList();
+		System.out.println("AwsEc2Subnets");
+		print(awsSubnetResult);
+
+		TypedQuery<Object[]> awsCustomerGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2CustomerGateway g" );
+		List<Object[]> awsCustomerGatewayResult = awsCustomerGatewayQuery.getResultList();
+		System.out.println("AwsEc2CustomerGateways");
+		print(awsCustomerGatewayResult);
+
+		TypedQuery<Object[]> awsInternetGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2InternetGateway g" );
+		List<Object[]> awsInternetGatewayResult = awsInternetGatewayQuery.getResultList();
+		System.out.println("AwsEc2InternetGateways");
+		print(awsInternetGatewayResult);
+
+		TypedQuery<Object[]> awsNatGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2NatGateway g" );
+		List<Object[]> awsNatGatewayResult = awsNatGatewayQuery.getResultList();
+		System.out.println("AwsEc2NatGateways");
+		print(awsNatGatewayResult);
+
+		TypedQuery<Object[]> awsRouteTableQuery = session.createQuery(
+				"select r.* from AwsEc2RouteTable r" );
+		List<Object[]> awsRouteTableResult = awsRouteTableQuery.getResultList();
+		System.out.println("AwsEc2RouteTables");
+		print(awsRouteTableResult);
+
+		TypedQuery<Object[]> awsVpcEndpointServiceQuery = session.createQuery(
+				"select v.* from AwsEc2VpcEndpointService v" );
+		List<Object[]> awsVpcEndpointServiceResult = awsVpcEndpointServiceQuery.getResultList();
+		System.out.println("AwsEc2VpcEndpointServices");
+		print(awsVpcEndpointServiceResult);
+
+		TypedQuery<Object[]> awsVpcPeeringConnectionQuery = session.createQuery(
+				"select v.* from AwsEc2VpcPeeringConnection v" );
+		List<Object[]> awsVpcPeeringConnectionResult = awsVpcPeeringConnectionQuery.getResultList();
+		System.out.println("AwsEc2VpcPeeringConnections");
+		print(awsVpcPeeringConnectionResult);
+
+		TypedQuery<Object[]> awsVpcBlockPublicAccessOptionsQuery = session.createQuery(
+				"select v.* from AwsEc2VpcBlockPublicAccessOptions v" );
+		List<Object[]> awsVpcBlockPublicAccessOptionsResult = awsVpcBlockPublicAccessOptionsQuery.getResultList();
+		System.out.println("AwsEc2VpcBlockPublicAccessOptions");
+		print(awsVpcBlockPublicAccessOptionsResult);
+
+		TypedQuery<Object[]> awsVpcEndpointQuery = session.createQuery(
+				"select v.* from AwsEc2VpcEndpoint v" );
+		List<Object[]> awsVpcEndpointResult = awsVpcEndpointQuery.getResultList();
+		System.out.println("AwsEc2VpcEndpoints");
+		print(awsVpcEndpointResult);
+
+		TypedQuery<Object[]> awsVpnGatewayQuery = session.createQuery(
+				"select v.* from AwsEc2VpnGateway v" );
+		List<Object[]> awsVpnGatewayResult = awsVpnGatewayQuery.getResultList();
+		System.out.println("AwsEc2VpnGateways");
+		print(awsVpnGatewayResult);
+
+		TypedQuery<Object[]> awsClientVpnEndpointQuery = session.createQuery(
+				"select v.* from AwsEc2ClientVpnEndpoint v" );
+		List<Object[]> awsClientVpnEndpointResult = awsClientVpnEndpointQuery.getResultList();
+		System.out.println("AwsEc2ClientVpnEndpoints");
+		print(awsClientVpnEndpointResult);
+
+		TypedQuery<Object[]> awsVpnConnectionQuery = session.createQuery(
+				"select v.* from AwsEc2VpnConnection v" );
+		List<Object[]> awsVpnConnectionResult = awsVpnConnectionQuery.getResultList();
+		System.out.println("AwsEc2VpnConnections");
+		print(awsVpnConnectionResult);
+
+		TypedQuery<Object[]> awsVpnConnectionTunnelOptionQuery = session.createQuery(
+				"select v.* from AwsEc2VpnConnectionTunnelOption v" );
+		List<Object[]> awsVpnConnectionTunnelOptionResult = awsVpnConnectionTunnelOptionQuery.getResultList();
+		System.out.println("AwsEc2VpnConnectionTunnelOptions");
+		print(awsVpnConnectionTunnelOptionResult);
+
+		TypedQuery<Object[]> awsTransitGatewayQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGateway v" );
+		List<Object[]> awsTransitGatewayResult = awsTransitGatewayQuery.getResultList();
+		System.out.println("AwsEc2TransitGateways");
+		print(awsTransitGatewayResult);
+
+		TypedQuery<Object[]> awsTransitGatewayAttachmentQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGatewayAttachment v" );
+		List<Object[]> awsTransitGatewayAttachmentResult = awsTransitGatewayAttachmentQuery.getResultList();
+		System.out.println("AwsEc2TransitGatewayAttachments");
+		print(awsTransitGatewayAttachmentResult);
+
+		TypedQuery<Object[]> awsTransitGatewayRouteTableQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGatewayRouteTable v" );
+		List<Object[]> awsTransitGatewayRouteTableResult = awsTransitGatewayRouteTableQuery.getResultList();
+		System.out.println("AwsEc2TransitGatewayRouteTables");
+		print(awsTransitGatewayRouteTableResult);
+
+		TypedQuery<Object[]> awsNetworkInterfaceQuery = session.createQuery(
+				"select n.* from AwsEc2NetworkInterface n" );
+		List<Object[]> awsNetworkInterfaceResult = awsNetworkInterfaceQuery.getResultList();
+		System.out.println("AwsEc2NetworkInterfaces");
+		print(awsNetworkInterfaceResult);
+
+		TypedQuery<Object[]> awsSpotFleetRequestQuery = session.createQuery(
+				"select s.* from AwsEc2SpotFleetRequest s" );
+		List<Object[]> awsSpotFleetRequestResult = awsSpotFleetRequestQuery.getResultList();
+		System.out.println("AwsEc2SpotFleetRequests");
+		print(awsSpotFleetRequestResult);
+
+		TypedQuery<Object[]> awsSpotFleetRequestLaunchSpecificationQuery = session.createQuery(
+				"select s.* from AwsEc2SpotFleetRequestLaunchSpecification s" );
+		List<Object[]> awsSpotFleetRequestLaunchSpecificationResult =
+				awsSpotFleetRequestLaunchSpecificationQuery.getResultList();
+		System.out.println("AwsEc2SpotFleetRequestLaunchSpecifications");
+		print(awsSpotFleetRequestLaunchSpecificationResult);
+
+		TypedQuery<Object[]> awsDhcpOptionsQuery = session.createQuery(
+				"select d.* from AwsEc2DhcpOptions d" );
+		List<Object[]> awsDhcpOptionsResult = awsDhcpOptionsQuery.getResultList();
+		System.out.println("AwsEc2DhcpOptions");
+		print(awsDhcpOptionsResult);
+
+		TypedQuery<Object[]> awsLaunchTemplateQuery = session.createQuery(
+				"select l.* from AwsEc2LaunchTemplate l" );
+		List<Object[]> awsLaunchTemplateResult = awsLaunchTemplateQuery.getResultList();
+		System.out.println("AwsEc2LaunchTemplates");
+		print(awsLaunchTemplateResult);
+
+		TypedQuery<Object[]> awsLaunchTemplateVersionQuery = session.createQuery(
+				"select l.* from AwsEc2LaunchTemplateVersion l" );
+		List<Object[]> awsLaunchTemplateVersionResult = awsLaunchTemplateVersionQuery.getResultList();
+		System.out.println("AwsEc2LaunchTemplateVersions");
+		print(awsLaunchTemplateVersionResult);
+
+		TypedQuery<Object[]> awsManagedPrefixListQuery = session.createQuery(
+				"select m.* from AwsEc2ManagedPrefixList m" );
+		List<Object[]> awsManagedPrefixListResult = awsManagedPrefixListQuery.getResultList();
+		System.out.println("AwsEc2ManagedPrefixLists");
+		print(awsManagedPrefixListResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorSessionQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorSession t" );
+		List<Object[]> awsTrafficMirrorSessionResult = awsTrafficMirrorSessionQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorSessions");
+		print(awsTrafficMirrorSessionResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorFilterQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorFilter t" );
+		List<Object[]> awsTrafficMirrorFilterResult = awsTrafficMirrorFilterQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorFilters");
+		print(awsTrafficMirrorFilterResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorTargetQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorTarget t" );
+		List<Object[]> awsTrafficMirrorTargetResult = awsTrafficMirrorTargetQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorTargets");
+		print(awsTrafficMirrorTargetResult);
+
+		TypedQuery<Object[]> awsSecurityGroupIpPermissionQuery = session.createQuery(
+				"select p.* from AwsEc2SecurityGroupIpPermission p" );
+		List<Object[]> awsSecurityGroupIpPermissionResult = awsSecurityGroupIpPermissionQuery.getResultList();
+		System.out.println("AwsEc2SecurityGroupIpPermissions");
+		print(awsSecurityGroupIpPermissionResult);
+
+		TypedQuery<Object[]> awsSnapshotQuery = session.createQuery(
+				"select s.* from AwsEc2Snapshot s" );
+		List<Object[]> awsSnapshotResult = awsSnapshotQuery.getResultList();
+		System.out.println("AwsEc2Snapshots");
+		print(awsSnapshotResult);
+
+		TypedQuery<Object[]> awsSnapshotAttributeQuery = session.createQuery(
+				"select s.* from AwsEc2SnapshotAttribute s" );
+		List<Object[]> awsSnapshotAttributeResult = awsSnapshotAttributeQuery.getResultList();
+		System.out.println("AwsEc2SnapshotAttributes");
+		print(awsSnapshotAttributeResult);
+
+		TypedQuery<Object[]> awsEbsEncryptionByDefaultQuery = session.createQuery(
+				"select e.* from AwsEc2EbsEncryptionByDefault e" );
+		List<Object[]> awsEbsEncryptionByDefaultResult = awsEbsEncryptionByDefaultQuery.getResultList();
+		System.out.println("AwsEc2EbsEncryptionByDefaults");
+		print(awsEbsEncryptionByDefaultResult);
+
+		TypedQuery<Object[]> awsFlowLogsQuery = session.createQuery(
+				"select f.* from AwsEc2FlowLogs f" );
+		List<Object[]> awsFlowLogsResult = awsFlowLogsQuery.getResultList();
+		System.out.println("AwsEc2FlowLogs");
+		print(awsFlowLogsResult);
 
 		// RDS
 		TypedQuery<Object[]> awsDbClusterQuery = session.createQuery(

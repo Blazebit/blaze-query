@@ -5,19 +5,19 @@
 package com.blazebit.query.connector.aws.ec2;
 
 import com.blazebit.query.connector.aws.base.AwsWrapper;
-import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.VpnGateway;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsNetworkAcl extends AwsWrapper<NetworkAcl> {
-	public AwsNetworkAcl(String accountId, String regionId, String resourceId, NetworkAcl payload) {
+public class AwsEc2VpnGateway extends AwsWrapper<VpnGateway> {
+	public AwsEc2VpnGateway(String accountId, String regionId, String resourceId, VpnGateway payload) {
 		super( accountId, regionId, resourceId, payload );
 	}
 
 	@Override
-	public NetworkAcl getPayload() {
+	public VpnGateway getPayload() {
 		return super.getPayload();
 	}
 }

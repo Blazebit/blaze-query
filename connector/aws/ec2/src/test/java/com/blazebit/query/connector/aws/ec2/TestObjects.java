@@ -17,9 +17,9 @@ public final class TestObjects {
 	private TestObjects() {
 	}
 
-	public static AwsInstance instance() {
+	public static AwsEc2Instance instance() {
 		Instance instance = Instance.builder().instanceId( "ami-0346fe82e44423dcb4" ).build();
-		return new AwsInstance(
+		return new AwsEc2Instance(
 				"123",
 				Region.EU_CENTRAL_1.id(),
 				instance.instanceId(),
@@ -27,7 +27,7 @@ public final class TestObjects {
 		);
 	}
 
-	public static AwsVolume volume() {
+	public static AwsEc2Volume volume() {
 		Volume volume = Volume.builder()
 				.attachments(
 						Collections.singletonList(
@@ -51,7 +51,7 @@ public final class TestObjects {
 				.multiAttachEnabled( false )
 				.throughput( 125 )
 				.build();
-		return new AwsVolume(
+		return new AwsEc2Volume(
 				"123",
 				Region.EU_CENTRAL_1.id(),
 				volume.volumeId(),

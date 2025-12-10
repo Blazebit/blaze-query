@@ -23,18 +23,18 @@ public class AwsEc2SchemaProviderTest {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new AwsEc2SchemaProvider() );
-		builder.registerSchemaObjectAlias( AwsInstance.class, "AwsEc2Instance" );
-		builder.registerSchemaObjectAlias( AwsVpc.class, "AwsEc2Vpc" );
-		builder.registerSchemaObjectAlias( AwsSecurityGroup.class, "AwsEc2SecurityGroup" );
-		builder.registerSchemaObjectAlias( AwsVolume.class, "AwsEc2Volume" );
-		builder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsEc2NetworkAcl" );
+		builder.registerSchemaObjectAlias( AwsEc2Instance.class, "AwsEc2Instance" );
+		builder.registerSchemaObjectAlias( AwsEc2Vpc.class, "AwsEc2Vpc" );
+		builder.registerSchemaObjectAlias( AwsEc2SecurityGroup.class, "AwsEc2SecurityGroup" );
+		builder.registerSchemaObjectAlias( AwsEc2Volume.class, "AwsEc2Volume" );
+		builder.registerSchemaObjectAlias( AwsEc2NetworkAcl.class, "AwsEc2NetworkAcl" );
 		CONTEXT = builder.build();
 	}
 
 	@Test
 	void should_return_ec2_instances() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( AwsInstance.class, Collections.singletonList( TestObjects.instance() ) );
+			session.put( AwsEc2Instance.class, Collections.singletonList( TestObjects.instance() ) );
 
 			var typedQuery =
 					session.createQuery( "select i.* from AwsEc2Instance i", new TypeReference<Map<String, Object>>() {} );
@@ -46,7 +46,7 @@ public class AwsEc2SchemaProviderTest {
 	@Test
 	void should_return_ec2_volumes() {
 		try (var session = CONTEXT.createSession()) {
-			session.put( AwsVolume.class, Collections.singletonList( TestObjects.volume() ) );
+			session.put( AwsEc2Volume.class, Collections.singletonList( TestObjects.volume() ) );
 
 			var typedQuery =
 					session.createQuery( "select v.* from AwsEc2Volume v", new TypeReference<Map<String, Object>>() {} );

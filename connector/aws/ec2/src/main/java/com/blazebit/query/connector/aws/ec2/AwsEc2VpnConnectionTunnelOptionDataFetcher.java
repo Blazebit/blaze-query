@@ -4,10 +4,6 @@
  */
 package com.blazebit.query.connector.aws.ec2;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
 import com.blazebit.query.connector.aws.base.AwsConventionContext;
 import com.blazebit.query.connector.base.DataFormats;
@@ -19,25 +15,30 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
-import software.amazon.awssdk.services.ec2.model.SecurityGroup;
+import software.amazon.awssdk.services.ec2.model.TunnelOption;
+import software.amazon.awssdk.services.ec2.model.VpnConnection;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Christian Beikov
+ * @author Donghwi Kim
  * @since 1.0.0
  */
-public class SecurityGroupDataFetcher implements DataFetcher<AwsSecurityGroup>, Serializable {
+public class AwsEc2VpnConnectionTunnelOptionDataFetcher implements DataFetcher<AwsEc2VpnConnectionTunnelOption>, Serializable {
 
-	public static final SecurityGroupDataFetcher INSTANCE = new SecurityGroupDataFetcher();
+	public static final AwsEc2VpnConnectionTunnelOptionDataFetcher INSTANCE = new AwsEc2VpnConnectionTunnelOptionDataFetcher();
 
-	private SecurityGroupDataFetcher() {
+	private AwsEc2VpnConnectionTunnelOptionDataFetcher() {
 	}
 
 	@Override
-	public List<AwsSecurityGroup> fetch(DataFetchContext context) {
+	public List<AwsEc2VpnConnectionTunnelOption> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsSecurityGroup> list = new ArrayList<>();
+			List<AwsEc2VpnConnectionTunnelOption> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder()
@@ -47,13 +48,17 @@ public class SecurityGroupDataFetcher implements DataFetcher<AwsSecurityGroup>, 
 						ec2ClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (Ec2Client client = ec2ClientBuilder.build()) {
-						for ( SecurityGroup securityGroup : client.describeSecurityGroups().securityGroups() ) {
-							list.add( new AwsSecurityGroup(
-									securityGroup.ownerId(),
-									region.id(),
-									securityGroup.groupId(),
-									securityGroup
-							) );
+						for ( VpnConnection vpnConnection : client.describeVpnConnections().vpnConnections() ) {
+							if ( vpnConnection.options() != null && vpnConnection.options().tunnelOptions() != null ) {
+								for ( TunnelOption tunnelOption : vpnConnection.options().tunnelOptions() ) {
+									list.add( new AwsEc2VpnConnectionTunnelOption(
+											account.getAccountId(),
+											region.id(),
+											vpnConnection.vpnConnectionId(),
+											tunnelOption
+									) );
+								}
+							}
 						}
 					}
 				}
@@ -61,12 +66,12 @@ public class SecurityGroupDataFetcher implements DataFetcher<AwsSecurityGroup>, 
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch security group list", e );
+			throw new DataFetcherException( "Could not fetch vpn connection tunnel option list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsSecurityGroup.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsEc2VpnConnectionTunnelOption.class, AwsConventionContext.INSTANCE );
 	}
 }
