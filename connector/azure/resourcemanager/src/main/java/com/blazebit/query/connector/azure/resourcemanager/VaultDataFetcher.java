@@ -37,7 +37,7 @@ public class VaultDataFetcher implements DataFetcher<AzureResourceVault>, Serial
 					AzureResourceManagerResourceGroup.class );
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( AzureResourceManagerResourceGroup resourceGroup : resourceGroups ) {
-					if ( resourceManager.tenantId().equals( resourceGroup.getTenantId() ) ) {
+					if ( resourceManager.subscriptionId().equals( resourceGroup.getSubscriptionId() ) ) {
 						for ( Vault vault : resourceManager.vaults()
 								.listByResourceGroup( resourceGroup.getResourceGroupName() ) ) {
 							list.add( new AzureResourceVault(
