@@ -86,6 +86,7 @@ import com.blazebit.query.connector.aws.iam.AwsIamUserInlinePolicy;
 import com.blazebit.query.connector.aws.iam.AwsIamVirtualMfaDevice;
 import com.blazebit.query.connector.aws.kms.AwsKey;
 import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
+import com.blazebit.query.connector.aws.secretsmanager.AwsSecretsManagerSecret;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBCluster;
 import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
@@ -394,6 +395,8 @@ public class Main {
 			// KMS
 			queryContextBuilder.registerSchemaObjectAlias( AwsKey.class, "AwsKey" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsKeyAlias.class, "AwsKeyAlias" );
+			// Secrets Manager
+			queryContextBuilder.registerSchemaObjectAlias( AwsSecretsManagerSecret.class, "AwsSecretsManagerSecret" );
 
 
 			// Gitlab
@@ -1022,6 +1025,13 @@ public class Main {
 		List<Object[]> awsKeyAliasResult = awsKeyAliasQuery.getResultList();
 		System.out.println("AwsKeyAlias");
 		print(awsKeyAliasResult);
+
+		// Secrets Manager
+		TypedQuery<Object[]> awsSecretsManagerSecretQuery = session.createQuery(
+				"select f.* from AwsSecretsManagerSecret f" );
+		List<Object[]> awsSecretsManagerSecretResult = awsSecretsManagerSecretQuery.getResultList();
+		System.out.println("AwsSecretsManagerSecret");
+		print(awsSecretsManagerSecretResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
