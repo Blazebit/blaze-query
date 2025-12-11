@@ -54,7 +54,7 @@ public class AwsIamUserInlinePolicyDataFetcher implements DataFetcher<AwsIamUser
 							GetUserPolicyResponse policyResponse = client.getUserPolicy(
 									builder -> builder.userName( user.userName() ).policyName( policyName )
 							);
-							list.add( AwsIamUserInlinePolicy.fromJson(
+							list.add( new AwsIamUserInlinePolicy(
 									account.getAccountId(),
 									user.userName(),
 									policyName,

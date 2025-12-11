@@ -15,7 +15,8 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.KmsClientBuilder;
-import software.amazon.awssdk.services.kms.model.AliasListEntry;
+import software.amazon.awssdk.services.kms.model.DescribeKeyRequest;
+import software.amazon.awssdk.services.kms.model.KeyListEntry;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,19 +26,19 @@ import java.util.List;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class KeyAliasFetcher implements DataFetcher<AwsKeyAlias>, Serializable {
+public class AwsKmsKeyDataFetcher implements DataFetcher<AwsKmsKey>, Serializable {
 
-	public static final KeyAliasFetcher INSTANCE = new KeyAliasFetcher();
+	public static final AwsKmsKeyDataFetcher INSTANCE = new AwsKmsKeyDataFetcher();
 
-	private KeyAliasFetcher() {
+	private AwsKmsKeyDataFetcher() {
 	}
 
 	@Override
-	public List<AwsKeyAlias> fetch(DataFetchContext context) {
+	public List<AwsKmsKey> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsKeyAlias> list = new ArrayList<>();
+			List<AwsKmsKey> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					KmsClientBuilder kmsClientBuilder = KmsClient.builder()
@@ -47,13 +48,15 @@ public class KeyAliasFetcher implements DataFetcher<AwsKeyAlias>, Serializable {
 						kmsClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (KmsClient client = kmsClientBuilder.build()) {
-						for ( AliasListEntry aliasListEntry : client.listAliases().aliases() ) {
-							list.add( new AwsKeyAlias(
+						for ( KeyListEntry key : client.listKeys().keys() ) {
+							var describeKey = client.describeKey(
+									DescribeKeyRequest.builder().keyId( key.keyId() ).build() );
+							list.add( new AwsKmsKey(
 									account.getAccountId(),
 									region.id(),
-									aliasListEntry.targetKeyId(),
-									aliasListEntry )
-							);
+									key.keyId(),
+									describeKey.keyMetadata()
+							) );
 						}
 					}
 				}
@@ -61,12 +64,12 @@ public class KeyAliasFetcher implements DataFetcher<AwsKeyAlias>, Serializable {
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch key alias list", e );
+			throw new DataFetcherException( "Could not fetch key list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsKeyAlias.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsKmsKey.class, AwsConventionContext.INSTANCE );
 	}
 }

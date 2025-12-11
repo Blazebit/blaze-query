@@ -15,30 +15,33 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.KmsClientBuilder;
-import software.amazon.awssdk.services.kms.model.DescribeKeyRequest;
+import software.amazon.awssdk.services.kms.model.GetKeyRotationStatusRequest;
+import software.amazon.awssdk.services.kms.model.GetKeyRotationStatusResponse;
 import software.amazon.awssdk.services.kms.model.KeyListEntry;
+import software.amazon.awssdk.services.kms.model.KmsException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class KeyFetcher implements DataFetcher<AwsKey>, Serializable {
+public class AwsKmsKeyRotationStatusDataFetcher implements DataFetcher<AwsKmsKeyRotationStatus>, Serializable {
 
-	public static final KeyFetcher INSTANCE = new KeyFetcher();
+	public static final AwsKmsKeyRotationStatusDataFetcher INSTANCE = new AwsKmsKeyRotationStatusDataFetcher();
 
-	private KeyFetcher() {
+	private AwsKmsKeyRotationStatusDataFetcher() {
 	}
 
 	@Override
-	public List<AwsKey> fetch(DataFetchContext context) {
+	public List<AwsKmsKeyRotationStatus> fetch(DataFetchContext context) {
 		try {
 			List<AwsConnectorConfig.Account> accounts = AwsConnectorConfig.ACCOUNT.getAll( context );
 			SdkHttpClient sdkHttpClient = AwsConnectorConfig.HTTP_CLIENT.find( context );
-			List<AwsKey> list = new ArrayList<>();
+			List<AwsKmsKeyRotationStatus> list = new ArrayList<>();
 			for ( AwsConnectorConfig.Account account : accounts ) {
 				for ( Region region : account.getRegions() ) {
 					KmsClientBuilder kmsClientBuilder = KmsClient.builder()
@@ -49,14 +52,27 @@ public class KeyFetcher implements DataFetcher<AwsKey>, Serializable {
 					}
 					try (KmsClient client = kmsClientBuilder.build()) {
 						for ( KeyListEntry key : client.listKeys().keys() ) {
-							var describeKey = client.describeKey(
-									DescribeKeyRequest.builder().keyId( key.keyId() ).build() );
-							list.add( new AwsKey(
-									account.getAccountId(),
-									region.id(),
-									key.keyId(),
-									describeKey.keyMetadata()
-							) );
+							try {
+								GetKeyRotationStatusResponse rotationStatus = client.getKeyRotationStatus(
+										GetKeyRotationStatusRequest.builder()
+												.keyId( key.keyId() )
+												.build()
+								);
+								list.add( new AwsKmsKeyRotationStatus(
+										account.getAccountId(),
+										region.id(),
+										key.keyId(),
+										rotationStatus
+								) );
+							}
+							catch (KmsException e) {
+								// UnsupportedOperationException is thrown for keys that don't support rotation
+								if ( Objects.equals( e.awsErrorDetails().errorCode(),
+										"UnsupportedOperationException" ) ) {
+									continue;
+								}
+								throw e;
+							}
 						}
 					}
 				}
@@ -64,12 +80,12 @@ public class KeyFetcher implements DataFetcher<AwsKey>, Serializable {
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch key list", e );
+			throw new DataFetcherException( "Could not fetch key rotation status list", e );
 		}
 	}
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.componentMethodConvention( AwsKey.class, AwsConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( AwsKmsKeyRotationStatus.class, AwsConventionContext.INSTANCE );
 	}
 }

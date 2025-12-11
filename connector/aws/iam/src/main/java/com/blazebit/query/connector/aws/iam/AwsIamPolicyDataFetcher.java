@@ -21,8 +21,6 @@ import software.amazon.awssdk.services.iam.model.Policy;
 import software.amazon.awssdk.services.iam.model.PolicyScopeType;
 
 import java.io.Serializable;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,18 +68,14 @@ public class AwsIamPolicyDataFetcher implements DataFetcher<AwsIamPolicyVersion>
 									.build();
 
 							var policyVersion = client.getPolicyVersion( getPolicyVersionRequest );
-							String policyDocument = URLDecoder.decode(
-									policyVersion.policyVersion().document(),
-									StandardCharsets.UTF_8
-							);
 
-							list.add( AwsIamPolicyVersion.fromJson(
+							list.add( new AwsIamPolicyVersion(
 									account.getAccountId(),
 									policy.arn(),
 									policyVersionMetadata.versionId(),
 									policyVersionMetadata.isDefaultVersion(),
 									policyVersionMetadata.createDate(),
-									policyDocument
+									policyVersion.policyVersion().document()
 							) );
 						}
 					}

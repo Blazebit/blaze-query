@@ -4,60 +4,32 @@
  */
 package com.blazebit.query.connector.aws.iam;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.blazebit.query.connector.aws.base.AwsPolicyWrapper;
 
 /**
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public record AwsIamGroupInlinePolicy(
-		String accountId,
-		String groupName,
-		String policyName,
-		String version,
-		List<AwsIamPolicyStatement> statement
-) {
-	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
+public class AwsIamGroupInlinePolicy extends AwsPolicyWrapper {
 
-	public static AwsIamGroupInlinePolicy fromJson(
+	private final String groupName;
+	private final String policyName;
+
+	public AwsIamGroupInlinePolicy(
 			String accountId,
 			String groupName,
 			String policyName,
 			String policyDocument) {
-		try {
-			String decodedDocument = URLDecoder.decode( policyDocument, StandardCharsets.UTF_8 );
-			JsonNode json = MAPPER.readTree( decodedDocument );
-			return new AwsIamGroupInlinePolicy(
-					accountId,
-					groupName,
-					policyName,
-					json.has( "Version" ) ? json.get( "Version" ).asText( "" ) : "",
-					parseStatement( json )
-			);
-		}
-		catch (Exception e) {
-			throw new RuntimeException( "Error parsing JSON for AwsIamGroupInlinePolicy", e );
-		}
+		super( accountId, null, null, policyDocument, true );
+		this.groupName = groupName;
+		this.policyName = policyName;
 	}
 
-	private static List<AwsIamPolicyStatement> parseStatement(JsonNode json) {
-		if ( !json.has( "Statement" ) ) {
-			return List.of();
-		}
-		JsonNode statementNode = json.get( "Statement" );
-		if ( statementNode.isArray() ) {
-			return StreamSupport.stream( statementNode.spliterator(), false )
-					.map( edge -> AwsIamPolicyStatement.fromJson( edge.toString() ) )
-					.collect( Collectors.toList() );
-		} else {
-			return List.of( AwsIamPolicyStatement.fromJson( statementNode.toString() ) );
-		}
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public String getPolicyName() {
+		return policyName;
 	}
 }

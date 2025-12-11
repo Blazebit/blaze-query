@@ -54,7 +54,7 @@ public class AwsIamRoleInlinePolicyDataFetcher implements DataFetcher<AwsIamRole
 							GetRolePolicyResponse policyResponse = client.getRolePolicy(
 									builder -> builder.roleName( role.roleName() ).policyName( policyName )
 							);
-							list.add( AwsIamRoleInlinePolicy.fromJson(
+							list.add( new AwsIamRoleInlinePolicy(
 									account.getAccountId(),
 									role.roleName(),
 									policyName,
