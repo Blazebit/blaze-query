@@ -654,10 +654,7 @@ public class Main {
 		System.out.println("AwsEc2InstanceStatuses");
 		print(awsInstanceStatusResult);
 
-		TypedQuery<Object[]> awsAddressQuery = session.createQuery(<<<<<<< aws-kms
-399
- 
-
+		TypedQuery<Object[]> awsAddressQuery = session.createQuery(
 				"select a.* from AwsEc2Address a" );
 		List<Object[]> awsAddressResult = awsAddressQuery.getResultList();
 		System.out.println("AwsEc2Addresses");
