@@ -88,6 +88,7 @@ import com.blazebit.query.connector.aws.kms.AwsKmsKey;
 import com.blazebit.query.connector.aws.kms.AwsKmsKeyAlias;
 import com.blazebit.query.connector.aws.kms.AwsKmsKeyPolicy;
 import com.blazebit.query.connector.aws.kms.AwsKmsKeyRotationStatus;
+import com.blazebit.query.connector.aws.secretsmanager.AwsSecretsManagerSecret;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBCluster;
 import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
@@ -398,6 +399,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyAlias.class, "AwsKmsKeyAlias" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyPolicy.class, "AwsKmsKeyPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyRotationStatus.class, "AwsKmsKeyRotationStatus" );
+			// Secrets Manager
+			queryContextBuilder.registerSchemaObjectAlias( AwsSecretsManagerSecret.class, "AwsSecretsManagerSecret" );
 
 
 			// Gitlab
@@ -651,7 +654,10 @@ public class Main {
 		System.out.println("AwsEc2InstanceStatuses");
 		print(awsInstanceStatusResult);
 
-		TypedQuery<Object[]> awsAddressQuery = session.createQuery(
+		TypedQuery<Object[]> awsAddressQuery = session.createQuery(<<<<<<< aws-kms
+399
+ 
+
 				"select a.* from AwsEc2Address a" );
 		List<Object[]> awsAddressResult = awsAddressQuery.getResultList();
 		System.out.println("AwsEc2Addresses");
@@ -1038,6 +1044,13 @@ public class Main {
 		List<Object[]> awsKmsKeyRotationStatusResult = awsKmsKeyRotationStatusQuery.getResultList();
 		System.out.println("AwsKmsKeyRotationStatus");
 		print(awsKmsKeyRotationStatusResult);
+
+		// Secrets Manager
+		TypedQuery<Object[]> awsSecretsManagerSecretQuery = session.createQuery(
+				"select f.* from AwsSecretsManagerSecret f" );
+		List<Object[]> awsSecretsManagerSecretResult = awsSecretsManagerSecretQuery.getResultList();
+		System.out.println("AwsSecretsManagerSecret");
+		print(awsSecretsManagerSecretResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
