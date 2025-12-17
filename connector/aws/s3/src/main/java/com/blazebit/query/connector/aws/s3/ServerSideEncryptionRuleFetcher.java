@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.GetBucketEncryptionRequest;
+import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryptionRule;
 
 import java.io.Serializable;
@@ -50,7 +51,7 @@ public class ServerSideEncryptionRuleFetcher
 						s3ClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (S3Client client = s3ClientBuilder.build()) {
-						for ( Bucket bucket : client.listBuckets().buckets() ) {
+						for ( Bucket bucket : client.listBuckets( ListBucketsRequest.builder().bucketRegion( region.id() ).build() ).buckets() ) {
 							var serverSideEncryptionConfiguration = client.getBucketEncryption(
 									GetBucketEncryptionRequest.builder().bucket( bucket.name() )
 											.build() ).serverSideEncryptionConfiguration();
