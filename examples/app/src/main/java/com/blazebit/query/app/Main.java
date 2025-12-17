@@ -89,6 +89,15 @@ import com.blazebit.query.connector.aws.kms.AwsKmsKeyAlias;
 import com.blazebit.query.connector.aws.kms.AwsKmsKeyPolicy;
 import com.blazebit.query.connector.aws.kms.AwsKmsKeyRotationStatus;
 import com.blazebit.query.connector.aws.secretsmanager.AwsSecretsManagerSecret;
+import com.blazebit.query.connector.aws.cloudwatch.AwsCloudWatchCompositeAlarm;
+import com.blazebit.query.connector.aws.cloudwatch.AwsCloudWatchMetricAlarm;
+import com.blazebit.query.connector.aws.cloudwatchlogs.AwsCloudWatchLogsLogGroup;
+import com.blazebit.query.connector.aws.cloudwatchlogs.AwsCloudWatchLogsMetricFilter;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailEventSelector;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailTrail;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailTrailStatus;
+import com.blazebit.query.connector.aws.sns.AwsSnsSubscription;
+import com.blazebit.query.connector.aws.sns.AwsSnsTopic;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBCluster;
 import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
@@ -401,6 +410,19 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyRotationStatus.class, "AwsKmsKeyRotationStatus" );
 			// Secrets Manager
 			queryContextBuilder.registerSchemaObjectAlias( AwsSecretsManagerSecret.class, "AwsSecretsManagerSecret" );
+			// CloudWatch
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchCompositeAlarm.class, "AwsCloudWatchCompositeAlarm" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchMetricAlarm.class, "AwsCloudWatchMetricAlarm" );
+			// CloudWatch Logs
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchLogsLogGroup.class, "AwsCloudWatchLogsLogGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchLogsMetricFilter.class, "AwsCloudWatchLogsMetricFilter" );
+			// CloudTrail
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailEventSelector.class, "AwsCloudTrailEventSelector" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailTrail.class, "AwsCloudTrailTrail" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailTrailStatus.class, "AwsCloudTrailTrailStatus" );
+			// SNS
+			queryContextBuilder.registerSchemaObjectAlias( AwsSnsSubscription.class, "AwsSnsSubscription" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsSnsTopic.class, "AwsSnsTopic" );
 
 
 			// Gitlab
@@ -1048,6 +1070,64 @@ public class Main {
 		List<Object[]> awsSecretsManagerSecretResult = awsSecretsManagerSecretQuery.getResultList();
 		System.out.println("AwsSecretsManagerSecret");
 		print(awsSecretsManagerSecretResult);
+
+		// CloudWatch
+		TypedQuery<Object[]> awsCloudWatchCompositeAlarmQuery = session.createQuery(
+				"select f.* from AwsCloudWatchCompositeAlarm f" );
+		List<Object[]> awsCloudWatchCompositeAlarmResult = awsCloudWatchCompositeAlarmQuery.getResultList();
+		System.out.println("AwsCloudWatchCompositeAlarm");
+		print(awsCloudWatchCompositeAlarmResult);
+
+		TypedQuery<Object[]> awsCloudWatchMetricAlarmQuery = session.createQuery(
+				"select f.* from AwsCloudWatchMetricAlarm f" );
+		List<Object[]> awsCloudWatchMetricAlarmResult = awsCloudWatchMetricAlarmQuery.getResultList();
+		System.out.println("AwsCloudWatchMetricAlarm");
+		print(awsCloudWatchMetricAlarmResult);
+
+		// CloudWatch Logs
+		TypedQuery<Object[]> awsCloudWatchLogsLogGroupQuery = session.createQuery(
+				"select f.* from AwsCloudWatchLogsLogGroup f" );
+		List<Object[]> awsCloudWatchLogsLogGroupResult = awsCloudWatchLogsLogGroupQuery.getResultList();
+		System.out.println("AwsCloudWatchLogsLogGroup");
+		print(awsCloudWatchLogsLogGroupResult);
+
+		TypedQuery<Object[]> awsCloudWatchLogsMetricFilterQuery = session.createQuery(
+				"select f.* from AwsCloudWatchLogsMetricFilter f" );
+		List<Object[]> awsCloudWatchLogsMetricFilterResult = awsCloudWatchLogsMetricFilterQuery.getResultList();
+		System.out.println("AwsCloudWatchLogsMetricFilter");
+		print(awsCloudWatchLogsMetricFilterResult);
+
+		// CloudTrail
+		TypedQuery<Object[]> awsCloudTrailEventSelectorQuery = session.createQuery(
+				"select f.* from AwsCloudTrailEventSelector f" );
+		List<Object[]> awsCloudTrailEventSelectorResult = awsCloudTrailEventSelectorQuery.getResultList();
+		System.out.println("AwsCloudTrailEventSelector");
+		print(awsCloudTrailEventSelectorResult);
+
+		TypedQuery<Object[]> awsCloudTrailTrailQuery = session.createQuery(
+				"select f.* from AwsCloudTrailTrail f" );
+		List<Object[]> awsCloudTrailTrailResult = awsCloudTrailTrailQuery.getResultList();
+		System.out.println("AwsCloudTrailTrail");
+		print(awsCloudTrailTrailResult);
+
+		TypedQuery<Object[]> awsCloudTrailTrailStatusQuery = session.createQuery(
+				"select f.* from AwsCloudTrailTrailStatus f" );
+		List<Object[]> awsCloudTrailTrailStatusResult = awsCloudTrailTrailStatusQuery.getResultList();
+		System.out.println("AwsCloudTrailTrailStatus");
+		print(awsCloudTrailTrailStatusResult);
+
+		// SNS
+		TypedQuery<Object[]> awsSnsSubscriptionQuery = session.createQuery(
+				"select f.* from AwsSnsSubscription f" );
+		List<Object[]> awsSnsSubscriptionResult = awsSnsSubscriptionQuery.getResultList();
+		System.out.println("AwsSnsSubscription");
+		print(awsSnsSubscriptionResult);
+
+		TypedQuery<Object[]> awsSnsTopicQuery = session.createQuery(
+				"select f.* from AwsSnsTopic f" );
+		List<Object[]> awsSnsTopicResult = awsSnsTopicQuery.getResultList();
+		System.out.println("AwsSnsTopic");
+		print(awsSnsTopicResult);
 	}
 
 	private static void testGitlab(QuerySession session) {

@@ -69,6 +69,10 @@ awssdk-route53 = { module = "software.amazon.awssdk:route53", version.ref = "aws
 awssdk-s3 = { module = "software.amazon.awssdk:s3", version.ref = "aws" }
 awssdk-kms = { module = "software.amazon.awssdk:kms", version.ref = "aws" }
 awssdk-secretsmanager = { module = "software.amazon.awssdk:secretsmanager", version.ref = "aws" }
+awssdk-cloudwatch = { module = "software.amazon.awssdk:cloudwatch", version.ref = "aws" }
+awssdk-cloudwatchlogs = { module = "software.amazon.awssdk:cloudwatchlogs", version.ref = "aws" }
+awssdk-cloudtrail = { module = "software.amazon.awssdk:cloudtrail", version.ref = "aws" }
+awssdk-sns = { module = "software.amazon.awssdk:sns", version.ref = "aws" }
 
 microsoft-graph-beta = { module = "com.microsoft.graph:microsoft-graph-beta", version.ref = "microsoft-graph-beta" }
 microsoft-graph-core = { module = "com.microsoft.graph:microsoft-graph-core", version.ref = "microsoft-graph-core" }
