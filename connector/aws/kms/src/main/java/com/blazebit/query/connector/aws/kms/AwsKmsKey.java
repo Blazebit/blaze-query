@@ -11,8 +11,8 @@ import software.amazon.awssdk.services.kms.model.KeyMetadata;
  * @author Donghwi Kim
  * @since 1.0.0
  */
-public class AwsKey extends AwsWrapper<KeyMetadata> {
-	public AwsKey(String accountId, String region, String resourceId, KeyMetadata payload) {
+public class AwsKmsKey extends AwsWrapper<KeyMetadata> {
+	public AwsKmsKey(String accountId, String region, String resourceId, KeyMetadata payload) {
 		super( accountId, region, resourceId, payload );
 	}
 

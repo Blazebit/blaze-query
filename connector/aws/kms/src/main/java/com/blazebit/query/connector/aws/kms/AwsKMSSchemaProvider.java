@@ -20,8 +20,10 @@ public final class AwsKMSSchemaProvider implements QuerySchemaProvider {
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				KeyFetcher.INSTANCE,
-				KeyAliasFetcher.INSTANCE
+				AwsKmsKeyDataFetcher.INSTANCE,
+				AwsKmsKeyAliasDataFetcher.INSTANCE,
+				AwsKmsKeyPolicyDataFetcher.INSTANCE,
+				AwsKmsKeyRotationStatusDataFetcher.INSTANCE
 		);
 	}
 }

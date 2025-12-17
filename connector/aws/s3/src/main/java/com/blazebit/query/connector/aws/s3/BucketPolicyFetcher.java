@@ -55,7 +55,7 @@ public class BucketPolicyFetcher implements DataFetcher<AwsBucketPolicy>, Serial
 								var bucketPolicy = client.getBucketPolicy(
 										GetBucketPolicyRequest.builder().bucket( bucket.name() )
 												.build() );
-								list.add( AwsBucketPolicy.fromJson(
+								list.add( new AwsBucketPolicy(
 										account.getAccountId(),
 										region.id(),
 										bucket.name(),

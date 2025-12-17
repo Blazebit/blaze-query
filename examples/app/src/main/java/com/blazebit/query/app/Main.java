@@ -84,8 +84,10 @@ import com.blazebit.query.connector.aws.iam.AwsIamUser;
 import com.blazebit.query.connector.aws.iam.AwsIamUserAttachedPolicy;
 import com.blazebit.query.connector.aws.iam.AwsIamUserInlinePolicy;
 import com.blazebit.query.connector.aws.iam.AwsIamVirtualMfaDevice;
-import com.blazebit.query.connector.aws.kms.AwsKey;
-import com.blazebit.query.connector.aws.kms.AwsKeyAlias;
+import com.blazebit.query.connector.aws.kms.AwsKmsKey;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyAlias;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyPolicy;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyRotationStatus;
 import com.blazebit.query.connector.aws.secretsmanager.AwsSecretsManagerSecret;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
 import com.blazebit.query.connector.aws.rds.AwsDBCluster;
@@ -393,8 +395,10 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsServerSideEncryptionRule.class, "AwsServerSideEncryptionRule" );
 			// KMS
-			queryContextBuilder.registerSchemaObjectAlias( AwsKey.class, "AwsKey" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsKeyAlias.class, "AwsKeyAlias" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKey.class, "AwsKmsKey" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyAlias.class, "AwsKmsKeyAlias" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyPolicy.class, "AwsKmsKeyPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyRotationStatus.class, "AwsKmsKeyRotationStatus" );
 			// Secrets Manager
 			queryContextBuilder.registerSchemaObjectAlias( AwsSecretsManagerSecret.class, "AwsSecretsManagerSecret" );
 
@@ -1014,17 +1018,29 @@ public class Main {
 		print(awsServerSideEncryptionRuleResult);
 
 		// KMS
-		TypedQuery<Object[]> awsKeyQuery = session.createQuery(
-				"select f.* from AwsKey f" );
-		List<Object[]> awsKeyResult = awsKeyQuery.getResultList();
-		System.out.println("AwsKey");
-		print(awsKeyResult);
+		TypedQuery<Object[]> awsKmsKeyQuery = session.createQuery(
+				"select f.* from AwsKmsKey f" );
+		List<Object[]> awsKmsKeyResult = awsKmsKeyQuery.getResultList();
+		System.out.println("AwsKmsKey");
+		print(awsKmsKeyResult);
 
-		TypedQuery<Object[]> awsKeyAliasQuery = session.createQuery(
-				"select f.* from AwsKeyAlias f" );
-		List<Object[]> awsKeyAliasResult = awsKeyAliasQuery.getResultList();
-		System.out.println("AwsKeyAlias");
-		print(awsKeyAliasResult);
+		TypedQuery<Object[]> awsKmsKeyAliasQuery = session.createQuery(
+				"select f.* from AwsKmsKeyAlias f" );
+		List<Object[]> awsKmsKeyAliasResult = awsKmsKeyAliasQuery.getResultList();
+		System.out.println("AwsKmsKeyAlias");
+		print(awsKmsKeyAliasResult);
+
+		TypedQuery<Object[]> awsKmsKeyPolicyQuery = session.createQuery(
+				"select f.* from AwsKmsKeyPolicy f" );
+		List<Object[]> awsKmsKeyPolicyResult = awsKmsKeyPolicyQuery.getResultList();
+		System.out.println("AwsKmsKeyPolicy");
+		print(awsKmsKeyPolicyResult);
+
+		TypedQuery<Object[]> awsKmsKeyRotationStatusQuery = session.createQuery(
+				"select f.* from AwsKmsKeyRotationStatus f" );
+		List<Object[]> awsKmsKeyRotationStatusResult = awsKmsKeyRotationStatusQuery.getResultList();
+		System.out.println("AwsKmsKeyRotationStatus");
+		print(awsKmsKeyRotationStatusResult);
 
 		// Secrets Manager
 		TypedQuery<Object[]> awsSecretsManagerSecretQuery = session.createQuery(

@@ -11,8 +11,6 @@ plugins {
 dependencies {
     api project(':blaze-query-connector-aws-base')
     api libs.awssdk.s3
-    api libs.jackson.annotations
-    api libs.jackson.databind
     testImplementation libs.junit.jupiter
 }
 

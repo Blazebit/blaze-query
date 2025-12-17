@@ -54,7 +54,7 @@ public class AwsIamGroupInlinePolicyDataFetcher implements DataFetcher<AwsIamGro
 							GetGroupPolicyResponse policyResponse = client.getGroupPolicy(
 									builder -> builder.groupName( group.groupName() ).policyName( policyName )
 							);
-							list.add( AwsIamGroupInlinePolicy.fromJson(
+							list.add( new AwsIamGroupInlinePolicy(
 									account.getAccountId(),
 									group.groupName(),
 									policyName,
