@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.GetObjectLockConfigurationRequest;
+import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.Serializable;
@@ -49,7 +50,7 @@ public class ObjectLockConfigurationFetcher implements DataFetcher<AwsObjectLock
 						s3ClientBuilder.httpClient( sdkHttpClient );
 					}
 					try (S3Client client = s3ClientBuilder.build()) {
-						for ( Bucket bucket : client.listBuckets().buckets() ) {
+						for ( Bucket bucket : client.listBuckets( ListBucketsRequest.builder().bucketRegion( region.id() ).build() ).buckets() ) {
 							try {
 								var objectLockConfiguration = client.getObjectLockConfiguration(
 										GetObjectLockConfigurationRequest.builder().bucket( bucket.name() )
