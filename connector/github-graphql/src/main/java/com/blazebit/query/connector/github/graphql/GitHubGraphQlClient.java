@@ -147,10 +147,13 @@ public class GitHubGraphQlClient {
 								nodes {
 									type
 									parameters {
+										... on CopilotCodeReviewParameters {
+											reviewDraftPullRequests
+											reviewOnPush
+										}
 										... on PullRequestParameters {
 											requireCodeOwnerReview
 											requiredApprovingReviewCount
-											automaticCopilotCodeReviewEnabled
 											dismissStaleReviewsOnPush
 											requireLastPushApproval
 											requiredReviewThreadResolution
@@ -311,10 +314,13 @@ public class GitHubGraphQlClient {
 								nodes {
 									type
 									parameters {
+										... on CopilotCodeReviewParameters {
+											reviewDraftPullRequests
+											reviewOnPush
+										}
 										... on PullRequestParameters {
 											requireCodeOwnerReview
 											requiredApprovingReviewCount
-											automaticCopilotCodeReviewEnabled
 											dismissStaleReviewsOnPush
 											requireLastPushApproval
 											requiredReviewThreadResolution
