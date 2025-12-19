@@ -18,7 +18,8 @@ import java.util.stream.StreamSupport;
 public record GitHubRule(
 		String type,
 		GitHubRulePullRequestParameters pullRequestParameters,
-		GitHubRuleRequiredStatusChecksParameters requiredStatusChecksParameters
+		GitHubRuleRequiredStatusChecksParameters requiredStatusChecksParameters,
+		GitHubRuleCopilotCodeReviewParameters copilotCodeReviewParameters
 ) {
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 
@@ -30,7 +31,8 @@ public record GitHubRule(
 			return new GitHubRule(
 					ruleType,
 					GitHubRulePullRequestParameters.parseRuleParameters( json.path( "parameters" ) ),
-					GitHubRuleRequiredStatusChecksParameters.parseRequiredStatusChecksParameters( json.path( "parameters" ) )
+					GitHubRuleRequiredStatusChecksParameters.parseRequiredStatusChecksParameters( json.path( "parameters" ) ),
+					GitHubRuleCopilotCodeReviewParameters.parseCopilotCodeReviewParameters( json.path( "parameters" ) )
 			);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing JSON for GithubRule", e);
