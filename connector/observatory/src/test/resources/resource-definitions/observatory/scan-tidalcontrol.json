@@ -1,0 +1,13 @@
+{
+  "id": 79627603,
+  "details_url": "https://developer.mozilla.org/en-US/observatory/analyze?host=tidalcontrol.com",
+  "algorithm_version": 5,
+  "scanned_at": "2025-12-05T16:52:10.602Z",
+  "error": null,
+  "grade": "B",
+  "score": 70,
+  "status_code": 200,
+  "tests_failed": 2,
+  "tests_passed": 8,
+  "tests_quantity": 10
+}
