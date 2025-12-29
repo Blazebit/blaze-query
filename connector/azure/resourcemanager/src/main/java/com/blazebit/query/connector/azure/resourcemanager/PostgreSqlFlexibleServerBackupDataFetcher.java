@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.azure.resourcemanager;
 
+import com.azure.core.management.exception.ManagementException;
 import com.azure.resourcemanager.postgresqlflexibleserver.models.Server;
 import com.azure.resourcemanager.postgresqlflexibleserver.models.ServerBackup;
 import com.blazebit.query.connector.base.DataFormats;
@@ -34,21 +35,30 @@ public class PostgreSqlFlexibleServerBackupDataFetcher implements DataFetcher<Az
 			List<AzureResourcePostgreSqlFlexibleServerBackup> list = new ArrayList<>();
 			for ( AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers ) {
 				for ( Server postgreSqlFlexibleServer : resourceManager.getManager().servers().list() ) {
-					for ( ServerBackup postgreSqlFlexibleServerBackup : resourceManager.getManager().backups().listByServer( postgreSqlFlexibleServer.resourceGroupName(), postgreSqlFlexibleServer.name() ) ) {
-						list.add( new AzureResourcePostgreSqlFlexibleServerBackup(
-								resourceManager.getTenantId(),
-								postgreSqlFlexibleServerBackup.id(),
-								postgreSqlFlexibleServerBackup.innerModel(),
-								postgreSqlFlexibleServer.innerModel().id()
-						) );
+					try {
+						for ( ServerBackup postgreSqlFlexibleServerBackup : resourceManager.getManager().backups().listByServer( postgreSqlFlexibleServer.resourceGroupName(), postgreSqlFlexibleServer.name() ) ) {
+							list.add( new AzureResourcePostgreSqlFlexibleServerBackup(
+									resourceManager.getTenantId(),
+									postgreSqlFlexibleServerBackup.id(),
+									postgreSqlFlexibleServerBackup.innerModel(),
+									postgreSqlFlexibleServer.innerModel().id()
+							) );
+						}
 					}
-
+					catch ( ManagementException e ) {
+						if ( e.getResponse().getStatusCode() == 404
+								&& postgreSqlFlexibleServer.name().toLowerCase().contains( "ltrclone" ) ) {
+							// LTR clone references may not exist as actual servers, skip silently
+							continue;
+						}
+						throw e;
+					}
 				}
 			}
 			return list;
 		}
 		catch (RuntimeException e) {
-			throw new DataFetcherException( "Could not fetch postgreSqlFlexibleServer list", e );
+			throw new DataFetcherException( "Could not fetch postgreSqlFlexibleServerBackup list", e );
 		}
 	}
 
