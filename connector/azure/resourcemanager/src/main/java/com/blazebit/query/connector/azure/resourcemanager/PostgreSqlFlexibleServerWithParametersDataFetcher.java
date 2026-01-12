@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.azure.resourcemanager.postgresqlflexibleserver.models.Server;
+import com.azure.resourcemanager.postgresqlflexibleserver.models.ServerState;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -40,6 +41,10 @@ public class PostgreSqlFlexibleServerWithParametersDataFetcher implements DataFe
 		if (!parametersToFetch.isEmpty()) {
 			for (AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers) {
 			for (Server postgreSqlFlexibleServer : resourceManager.getManager().servers().list()) {
+				if ( !postgreSqlFlexibleServer.state().equals( ServerState.READY )
+						&& postgreSqlFlexibleServer.name().toLowerCase().contains( "ltrclone" ) ) {
+					continue;
+				}
 				Map<String, String> serverParameters = new HashMap<>();
 
 				for (String parameterName : parametersToFetch) {
