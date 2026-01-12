@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.storage.models.BlobServiceProperties;
+import com.azure.resourcemanager.storage.models.Kind;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -36,7 +37,8 @@ public class BlobServicePropertiesDataFetcher implements DataFetcher<AzureResour
 			for ( AzureResourceManager resourceManager : resourceManagers ) {
 				for ( AzureResourceStorageAccount storageAccount : context.getSession()
 						.getOrFetch( AzureResourceStorageAccount.class ) ) {
-					if ( resourceManager.subscriptionId().equals( storageAccount.getSubscriptionId() ) ) {
+					if ( resourceManager.subscriptionId().equals( storageAccount.getSubscriptionId() )
+							&& storageAccount.getPayload().kind() != Kind.FILE_STORAGE ) {
 						BlobServiceProperties blobServiceProperties = resourceManager.storageBlobServices()
 								.getServicePropertiesAsync(
 										storageAccount.getResourceGroupName(),
