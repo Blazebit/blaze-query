@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.azure.resourcemanager.postgresqlflexibleserver.models.Server;
+import com.azure.resourcemanager.postgresqlflexibleserver.models.ServerState;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
@@ -34,6 +35,10 @@ public class PostgreSqlFlexibleServerDataFetcher implements DataFetcher<AzureRes
 			List<AzureResourcePostgreSqlFlexibleServer> list = new ArrayList<>();
 			for ( AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers ) {
 				for ( Server postgreSqlFlexibleServer : resourceManager.getManager().servers().list() ) {
+					if ( !postgreSqlFlexibleServer.state().equals( ServerState.READY )
+							&& postgreSqlFlexibleServer.name().toLowerCase().contains( "ltrclone" ) ) {
+						continue;
+					}
 					list.add( new AzureResourcePostgreSqlFlexibleServer(
 							resourceManager.getTenantId(),
 							postgreSqlFlexibleServer.id(),
