@@ -62,6 +62,7 @@ public final class TestObjects {
 		user.setCreationTime(new DateTime("2025-01-01T00:00:00.000Z"));
 		user.setLastLoginTime(new DateTime(Instant.now().toEpochMilli()));
 
+		// MFA fields (not enrolled + not enforced)
 		user.setIsEnrolledIn2Sv(false);
 		user.setIsEnforcedIn2Sv(false);
 
