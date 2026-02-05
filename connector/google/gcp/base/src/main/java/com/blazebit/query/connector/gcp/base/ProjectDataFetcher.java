@@ -45,6 +45,12 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (ProjectsClient client = ProjectsClient.create( settings )) {
+					ProjectsClient.SearchProjectsPagedResponse searchProjectsPagedResponse =
+							client.searchProjects("");
+
+					for (Project project : searchProjectsPagedResponse.iterateAll()) {
+						list.add(project);
+					}
 					for ( Organization organization : organizations ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
 								.setParent( organization.getName() )
