@@ -137,6 +137,7 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
@@ -154,6 +155,8 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.google.directory.GoogleDirectoryConnectorConfig;
+import com.blazebit.query.connector.google.drive.GoogleDriveConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
 import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
 import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
@@ -265,9 +268,9 @@ public class Main {
 //			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 //			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
-//			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
-//			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
-//			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
+			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
+			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
+			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
@@ -507,8 +510,8 @@ public class Main {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
-//					testGcp( session );
-//					testGoogleWorkspace( session );
+					testGcp( session );
+					testGoogleWorkspace( session );
 //					testAws( session );
 //					testGitlab( session );
 //					testGitHub( session );
@@ -1274,10 +1277,22 @@ public class Main {
 
 	private static void testGoogleWorkspace(QuerySession session) {
 		TypedQuery<Object[]> userQuery = session.createQuery(
-				"select u.* from GoogleUser u" );
+				"select u.primaryEmail, u.lastLoginTime from GoogleUser u" );
 		List<Object[]> userResult = userQuery.getResultList();
 		System.out.println( "User" );
 		print( userResult );
+		// Check lastlogin time format
+		TypedQuery<Object[]> lastloginQuery = session.createQuery(
+				"select u.primaryEmail, u.lastLoginTime " +
+						"from GoogleUser u " +
+						"where u.suspended = false " +
+						"  and u.lastLoginTime is not null " +
+						"  and SECOND_DIFF(ADD_YEAR(u.lastLoginTime, 1), CURRENT_TIMESTAMP) < 0"
+		);
+		List<Object[]> aliasResult = lastloginQuery.getResultList();
+		System.out.println( "Alias" );
+		print( aliasResult );
+
 		TypedQuery<Object[]> groupQuery = session.createQuery(
 				"select u.* from GoogleGroup u" );
 		List<Object[]> groupResult = groupQuery.getResultList();
