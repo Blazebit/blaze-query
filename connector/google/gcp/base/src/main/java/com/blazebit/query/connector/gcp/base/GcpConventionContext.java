@@ -6,7 +6,6 @@ package com.blazebit.query.connector.gcp.base;
 
 import com.blazebit.query.connector.base.ConventionContext;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.LazyStringArrayList;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -28,20 +27,15 @@ public class GcpConventionContext implements ConventionContext {
 	public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
 		final Method method = (Method) member;
 		if ( method.getReturnType() == ByteString.class
-				|| method.getReturnType() == LazyStringArrayList.class
+				|| com.google.protobuf.ProtocolStringList.class.isAssignableFrom(method.getReturnType())
 				|| method.getName().endsWith( "OrBuilder" )
 				|| method.getName().endsWith( "OrBuilderList" )
 				|| method.getDeclaringClass().getPackageName().startsWith( "com.google.protobuf" ) ) {
 			return null;
 		}
-		switch ( method.getName() ) {
-			case "getDefaultInstanceForType":
-			case "getParserForType":
-			case "getSerializedSize":
-//			case "getResourcePoliciesList":
-				return null;
-			default:
-				return this;
-		}
+		return switch ( method.getName() ) {
+			case "getDefaultInstanceForType", "getParserForType", "getSerializedSize" -> null;
+			default -> this;
+		};
 	}
 }
