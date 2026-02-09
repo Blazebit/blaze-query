@@ -14,7 +14,6 @@ import com.blazebit.query.spi.DataFormat;
 import com.google.api.client.http.HttpResponseException;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.rpc.PermissionDeniedException;
-import com.google.cloud.compute.v1.Instance;
 import com.google.cloud.compute.v1.InstancesClient;
 import com.google.cloud.compute.v1.InstancesScopedList;
 import com.google.cloud.compute.v1.InstancesSettings;
@@ -30,7 +29,7 @@ import java.util.Map;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class InstanceDataFetcher implements DataFetcher<Instance>, Serializable {
+public class InstanceDataFetcher implements DataFetcher<GcpInstance>, Serializable {
 
 	public static final InstanceDataFetcher INSTANCE = new InstanceDataFetcher();
 
@@ -38,10 +37,10 @@ public class InstanceDataFetcher implements DataFetcher<Instance>, Serializable 
 	}
 
 	@Override
-	public List<Instance> fetch(DataFetchContext context) {
+	public List<GcpInstance> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Instance> list = new ArrayList<>();
+			List<GcpInstance> list = new ArrayList<>();
 			List<? extends Project> projects = context.getSession().getOrFetch( Project.class );
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final InstancesSettings settings = InstancesSettings.newBuilder()
@@ -52,7 +51,7 @@ public class InstanceDataFetcher implements DataFetcher<Instance>, Serializable 
 						try {
 							final InstancesClient.AggregatedListPagedResponse response = client.aggregatedList( project.getProjectId() );
 							for ( Map.Entry<String, InstancesScopedList> entry : response.iterateAll() ) {
-								list.addAll( entry.getValue().getInstancesList() );
+								list.addAll( entry.getValue().getInstancesList().stream().map( instance -> new GcpInstance( String.valueOf( instance.getId() ), instance ) ).toList() );
 							}
 						}
 						catch (PermissionDeniedException e) {
@@ -76,6 +75,6 @@ public class InstanceDataFetcher implements DataFetcher<Instance>, Serializable 
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Instance.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpInstance.class, GcpConventionContext.INSTANCE );
 	}
 }
