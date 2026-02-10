@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.gcp.compute;
 
+import com.blazebit.query.connector.gcp.base.GcpWrapper;
 import com.google.cloud.compute.v1.Instance;
 
 public class GcpInstance extends GcpWrapper<Instance> {
