@@ -1296,18 +1296,6 @@ public class Main {
 		List<Object[]> userResult = userQuery.getResultList();
 		System.out.println( "User" );
 		print( userResult );
-		// Check lastlogin time format
-		TypedQuery<Object[]> lastloginQuery = session.createQuery(
-				"select u.primaryEmail, u.lastLoginTime " +
-						"from GoogleUser u " +
-						"where u.suspended = false " +
-						"  and u.lastLoginTime is not null " +
-						"  and SECOND_DIFF(ADD_YEAR(u.lastLoginTime, 1), CURRENT_TIMESTAMP) < 0"
-		);
-		List<Object[]> aliasResult = lastloginQuery.getResultList();
-		System.out.println( "Alias" );
-		print( aliasResult );
-
 		TypedQuery<Object[]> groupQuery = session.createQuery(
 				"select u.resourceId, u.payload.name, u.payload.email from GoogleGroup u" );
 		List<Object[]> groupResult = groupQuery.getResultList();
