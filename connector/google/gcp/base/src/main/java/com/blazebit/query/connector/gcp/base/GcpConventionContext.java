@@ -27,18 +27,15 @@ public class GcpConventionContext implements ConventionContext {
 	public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
 		final Method method = (Method) member;
 		if ( method.getReturnType() == ByteString.class
+				|| com.google.protobuf.ProtocolStringList.class.isAssignableFrom(method.getReturnType())
 				|| method.getName().endsWith( "OrBuilder" )
 				|| method.getName().endsWith( "OrBuilderList" )
 				|| method.getDeclaringClass().getPackageName().startsWith( "com.google.protobuf" ) ) {
 			return null;
 		}
-		switch ( method.getName() ) {
-			case "getDefaultInstanceForType":
-			case "getParserForType":
-			case "getSerializedSize":
-				return null;
-			default:
-				return this;
-		}
+		return switch ( method.getName() ) {
+			case "getDefaultInstanceForType", "getParserForType", "getSerializedSize" -> null;
+			default -> this;
+		};
 	}
 }

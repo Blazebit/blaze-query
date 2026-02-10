@@ -10,9 +10,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.gax.core.CredentialsProvider;
-import com.google.cloud.resourcemanager.v3.Folder;
 import com.google.cloud.resourcemanager.v3.ListProjectsRequest;
-import com.google.cloud.resourcemanager.v3.Organization;
 import com.google.cloud.resourcemanager.v3.Project;
 import com.google.cloud.resourcemanager.v3.ProjectsClient;
 import com.google.cloud.resourcemanager.v3.ProjectsSettings;
@@ -25,7 +23,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
+public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable {
 
 	public static final ProjectDataFetcher INSTANCE = new ProjectDataFetcher();
 
@@ -33,34 +31,40 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 	}
 
 	@Override
-	public List<Project> fetch(DataFetchContext context) {
+	public List<GcpProject> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Project> list = new ArrayList<>();
-			List<? extends Organization> organizations = context.getSession().getOrFetch( Organization.class );
-			List<? extends Folder> folders = context.getSession().getOrFetch( Folder.class );
+			List<GcpProject> list = new ArrayList<>();
+			List<? extends GcpOrganization> organizations = context.getSession().getOrFetch( GcpOrganization.class );
+			List<? extends GcpFolder> folders = context.getSession().getOrFetch( GcpFolder.class );
 
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final ProjectsSettings settings = ProjectsSettings.newBuilder()
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (ProjectsClient client = ProjectsClient.create( settings )) {
-					for ( Organization organization : organizations ) {
+					ProjectsClient.SearchProjectsPagedResponse searchProjectsPagedResponse =
+							client.searchProjects("");
+
+					for (Project project : searchProjectsPagedResponse.iterateAll()) {
+						list.add( new GcpProject( project.getName(), project ) );
+					}
+					for ( GcpOrganization organization : organizations ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
-								.setParent( organization.getName() )
+								.setParent( organization.getPayload().getName() )
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( instance );
+							list.add( new GcpProject( instance.getName(), instance ) );
 						}
 					}
-					for ( Folder folder : folders ) {
+					for ( GcpFolder folder : folders ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
-								.setParent( folder.getName() )
+								.setParent( folder.getPayload().getName() )
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( instance );
+							list.add( new GcpProject( instance.getName(), instance ) );
 						}
 					}
 				}
@@ -74,6 +78,6 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Project.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpProject.class, GcpConventionContext.INSTANCE );
 	}
 }

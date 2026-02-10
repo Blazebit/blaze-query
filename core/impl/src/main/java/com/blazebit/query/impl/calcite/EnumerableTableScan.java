@@ -224,7 +224,8 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 					SimpleBlockBuilder subBlockBuilder = new SimpleBlockBuilder( blockBuilder );
 					Expression e3 = toList( (CollectionDataFormat) dataFormatField.getFormat(), elementPhysType, e2,
 							subBlockBuilder );
-					subBlockBuilder.add( Expressions.statement( Expressions.assign( resultVar, e3 ) ) );
+					subBlockBuilder.add( Expressions.statement( Expressions.assign( resultVar,
+							Expressions.new_( FakeComparableList.class, e3 ) ) ) );
 
 					blockBuilder.add( Expressions.ifThenElse(
 							Expressions.equal( localVar, ConstantUntypedNull.INSTANCE ),

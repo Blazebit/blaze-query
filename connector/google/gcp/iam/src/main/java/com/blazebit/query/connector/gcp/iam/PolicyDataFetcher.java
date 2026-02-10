@@ -7,6 +7,7 @@ package com.blazebit.query.connector.gcp.iam;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
 import com.blazebit.query.connector.gcp.base.GcpConventionContext;
+import com.blazebit.query.connector.gcp.base.GcpOrganization;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
@@ -17,7 +18,6 @@ import com.google.cloud.asset.v1.AssetServiceClient;
 import com.google.cloud.asset.v1.AssetServiceSettings;
 import com.google.cloud.asset.v1.IamPolicySearchResult;
 import com.google.cloud.asset.v1.SearchAllIamPoliciesRequest;
-import com.google.cloud.resourcemanager.v3.Organization;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,7 +28,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class PolicyDataFetcher implements DataFetcher<IamPolicySearchResult>, Serializable {
+public class PolicyDataFetcher implements DataFetcher<GcpIamPolicy>, Serializable {
 
 	public static final PolicyDataFetcher INSTANCE = new PolicyDataFetcher();
 
@@ -36,24 +36,24 @@ public class PolicyDataFetcher implements DataFetcher<IamPolicySearchResult>, Se
 	}
 
 	@Override
-	public List<IamPolicySearchResult> fetch(DataFetchContext context) {
+	public List<GcpIamPolicy> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<IamPolicySearchResult> list = new ArrayList<>();
-			List<? extends Organization> organizations = context.getSession().getOrFetch( Organization.class );
+			List<GcpIamPolicy> list = new ArrayList<>();
+			List<? extends GcpOrganization> organizations = context.getSession().getOrFetch( GcpOrganization.class );
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final AssetServiceSettings settings = AssetServiceSettings.newBuilder()
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (AssetServiceClient client = AssetServiceClient.create( settings )) {
 					try {
-						for ( Organization organization : organizations ) {
+						for ( GcpOrganization organization : organizations ) {
 							final SearchAllIamPoliciesRequest request = SearchAllIamPoliciesRequest.newBuilder()
-									.setScope( organization.getName() )
+									.setScope( organization.getPayload().getName() )
 									.build();
 							final AssetServiceClient.SearchAllIamPoliciesPagedResponse response = client.searchAllIamPolicies( request );
 							for ( IamPolicySearchResult instance : response.iterateAll() ) {
-								list.add( instance );
+								list.add( new GcpIamPolicy( instance.getResource(), instance ) );
 							}
 						}
 					}
@@ -75,6 +75,6 @@ public class PolicyDataFetcher implements DataFetcher<IamPolicySearchResult>, Se
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( IamPolicySearchResult.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpIamPolicy.class, GcpConventionContext.INSTANCE );
 	}
 }
