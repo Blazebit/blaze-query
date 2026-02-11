@@ -45,6 +45,7 @@ include(':blaze-query-connector-jira-datacenter-jersey3')
 include(':blaze-query-connector-azure')
 include(':blaze-query-connector-azure-graph')
 include(':blaze-query-connector-azure-resourcemanager')
+include(':blaze-query-connector-azure-devops')
 
 include(':blaze-query-connector-aws')
 include(':blaze-query-connector-aws-base')
@@ -105,6 +106,7 @@ project(":blaze-query-connector-jira-datacenter-jersey3").projectDir = file('con
 project(":blaze-query-connector-azure").projectDir = file('connector/azure')
 project(":blaze-query-connector-azure-graph").projectDir = file('connector/azure/graph')
 project(":blaze-query-connector-azure-resourcemanager").projectDir = file('connector/azure/resourcemanager')
+project(":blaze-query-connector-azure-devops").projectDir = file('connector/azure/devops')
 
 project(":blaze-query-connector-aws").projectDir = file('connector/aws')
 project(":blaze-query-connector-aws-base").projectDir = file('connector/aws/base')
