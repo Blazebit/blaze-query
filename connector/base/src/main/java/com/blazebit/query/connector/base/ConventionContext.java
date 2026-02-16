@@ -4,6 +4,8 @@
  */
 package com.blazebit.query.connector.base;
 
+import com.blazebit.query.spi.DataFormatFieldAccessor;
+
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -87,5 +89,30 @@ public interface ConventionContext {
 	 */
 	default boolean nullOnException(Method method) {
 		return false;
+	}
+
+	/**
+	 * Resolves the given type to a different type that should be used for the data format.
+	 * This allows remapping types that are not directly supported by the query engine.
+	 *
+	 * @param typeClass The type class to resolve
+	 * @return The resolved type class, or the original type class if no resolution is needed
+	 */
+	default Class<?> resolveType(Class<?> typeClass) {
+		return typeClass;
+	}
+
+	/**
+	 * Creates a converting accessor that wraps the given accessor to convert values
+	 * from the source type to the target type, as determined by {@link #resolveType(Class)}.
+	 *
+	 * @param accessor The original accessor
+	 * @param sourceType The original type returned by the accessor
+	 * @param targetType The target type to convert to
+	 * @return A converting accessor, or the original accessor if no conversion is needed
+	 */
+	default DataFormatFieldAccessor createConvertingAccessor(
+			DataFormatFieldAccessor accessor, Class<?> sourceType, Class<?> targetType) {
+		return accessor;
 	}
 }

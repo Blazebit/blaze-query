@@ -21,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class GroupDataFetcher implements DataFetcher<Group>, Serializable {
+public class GroupDataFetcher implements DataFetcher<GoogleGroup>, Serializable {
 
 	public static final GroupDataFetcher INSTANCE = new GroupDataFetcher();
 
@@ -29,12 +29,14 @@ public class GroupDataFetcher implements DataFetcher<Group>, Serializable {
 	}
 
 	@Override
-	public List<Group> fetch(DataFetchContext context) {
+	public List<GoogleGroup> fetch(DataFetchContext context) {
 		try {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
-			List<Group> list = new ArrayList<>();
+			List<GoogleGroup> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.groups().list().setCustomer( "my_customer" ).execute().getGroups() );
+				for ( Group group : directory.groups().list().setCustomer( "my_customer" ).execute().getGroups() ) {
+					list.add( new GoogleGroup( group.getId(), group ) );
+				}
 			}
 			return list;
 		}
@@ -45,6 +47,6 @@ public class GroupDataFetcher implements DataFetcher<Group>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Group.class, GoogleDirectoryConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleGroup.class, GoogleDirectoryConventionContext.INSTANCE );
 	}
 }

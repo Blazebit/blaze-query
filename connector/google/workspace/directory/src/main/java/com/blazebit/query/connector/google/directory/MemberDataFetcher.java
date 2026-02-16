@@ -10,7 +10,6 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
-import com.google.api.services.directory.model.Group;
 import com.google.api.services.directory.model.Member;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class MemberDataFetcher implements DataFetcher<Member>, Serializable {
+public class MemberDataFetcher implements DataFetcher<GoogleMember>, Serializable {
 
 	public static final MemberDataFetcher INSTANCE = new MemberDataFetcher();
 
@@ -30,14 +29,16 @@ public class MemberDataFetcher implements DataFetcher<Member>, Serializable {
 	}
 
 	@Override
-	public List<Member> fetch(DataFetchContext context) {
+	public List<GoogleMember> fetch(DataFetchContext context) {
 		try {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
-			List<Member> list = new ArrayList<>();
-			List<? extends Group> groups = context.getSession().getOrFetch( Group.class );
+			List<GoogleMember> list = new ArrayList<>();
+			List<? extends GoogleGroup> groups = context.getSession().getOrFetch( GoogleGroup.class );
 			for ( Directory directory : directoryServices ) {
-				for ( Group group : groups ) {
-					list.addAll( directory.members().list( group.getId() ).execute().getMembers() );
+				for ( GoogleGroup group : groups ) {
+					for ( Member member : directory.members().list( group.getPayload().getId() ).execute().getMembers() ) {
+						list.add( new GoogleMember( member.getId(), member ) );
+					}
 				}
 			}
 			return list;
@@ -49,6 +50,6 @@ public class MemberDataFetcher implements DataFetcher<Member>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Member.class, GoogleDirectoryConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleMember.class, GoogleDirectoryConventionContext.INSTANCE );
 	}
 }
