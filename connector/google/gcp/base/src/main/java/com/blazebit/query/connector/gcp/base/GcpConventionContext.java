@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.gcp.base;
 
 import com.blazebit.query.connector.base.ConventionContext;
+import com.blazebit.query.connector.base.ConvertingFieldAccessor;
 import com.blazebit.query.spi.DataFormatFieldAccessor;
 import com.google.protobuf.ByteString;
 
@@ -22,6 +23,19 @@ import java.time.Instant;
 public class GcpConventionContext implements ConventionContext {
 
 	public static final ConventionContext INSTANCE = new GcpConventionContext();
+
+	private static final Method CONVERT_DURATION;
+	private static final Method CONVERT_TIMESTAMP;
+
+	static {
+		try {
+			CONVERT_DURATION = GcpTypeConverters.class.getMethod( "convertDuration", com.google.protobuf.Duration.class );
+			CONVERT_TIMESTAMP = GcpTypeConverters.class.getMethod( "convertTimestamp", com.google.protobuf.Timestamp.class );
+		}
+		catch (NoSuchMethodException e) {
+			throw new RuntimeException( e );
+		}
+	}
 
 	private GcpConventionContext() {
 	}
@@ -57,22 +71,10 @@ public class GcpConventionContext implements ConventionContext {
 	public DataFormatFieldAccessor createConvertingAccessor(
 			DataFormatFieldAccessor accessor, Class<?> sourceType, Class<?> targetType) {
 		if ( sourceType == com.google.protobuf.Duration.class ) {
-			return o -> {
-				com.google.protobuf.Duration d = (com.google.protobuf.Duration) accessor.get( o );
-				if ( d == null || d.equals( com.google.protobuf.Duration.getDefaultInstance() ) ) {
-					return null;
-				}
-				return Duration.ofSeconds( d.getSeconds(), d.getNanos() );
-			};
+			return new ConvertingFieldAccessor( accessor, CONVERT_DURATION );
 		}
 		if ( sourceType == com.google.protobuf.Timestamp.class ) {
-			return o -> {
-				com.google.protobuf.Timestamp t = (com.google.protobuf.Timestamp) accessor.get( o );
-				if ( t == null || t.equals( com.google.protobuf.Timestamp.getDefaultInstance() ) ) {
-					return null;
-				}
-				return Instant.ofEpochSecond( t.getSeconds(), t.getNanos() );
-			};
+			return new ConvertingFieldAccessor( accessor, CONVERT_TIMESTAMP );
 		}
 		return accessor;
 	}
