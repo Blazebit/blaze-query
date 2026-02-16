@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.impl.calcite;
 
+import com.blazebit.query.connector.base.ConvertingFieldAccessor;
 import com.blazebit.query.connector.base.FieldFieldAccessor;
 import com.blazebit.query.connector.base.LaxMethodFieldAccessor;
 import com.blazebit.query.connector.base.MethodFieldAccessor;
@@ -162,6 +163,18 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 		return physType.record( expressionList );
 	}
 
+	private Expression accessorExpression(Expression row, DataFormatFieldAccessor accessor, SimpleBlockBuilder blockBuilder) {
+		if ( accessor instanceof MethodFieldAccessor ) {
+			return Expressions.call( row, ((MethodFieldAccessor) accessor).getMethod() );
+		}
+		else if ( accessor instanceof FieldFieldAccessor ) {
+			return Expressions.field( row, ((FieldFieldAccessor) accessor).getField() );
+		}
+		else {
+			throw new IllegalArgumentException( "Unsupported field accessor: " + accessor );
+		}
+	}
+
 	private Expression fieldExpression(
 			Expression row,
 			RelDataType relFieldType,
@@ -169,7 +182,12 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 			SimpleBlockBuilder blockBuilder) {
 		DataFormatFieldAccessor accessor = dataFormatField.getAccessor();
 		final Expression e;
-		if ( accessor instanceof MethodFieldAccessor ) {
+		if ( accessor instanceof ConvertingFieldAccessor ) {
+			ConvertingFieldAccessor convertingAccessor = (ConvertingFieldAccessor) accessor;
+			Expression inner = accessorExpression( row, convertingAccessor.getDelegate(), blockBuilder );
+			e = Expressions.call( convertingAccessor.getConverterMethod(), inner );
+		}
+		else if ( accessor instanceof MethodFieldAccessor ) {
 			MethodFieldAccessor methodAccessor = (MethodFieldAccessor) accessor;
 			e = Expressions.call( row, methodAccessor.getMethod() );
 		}
