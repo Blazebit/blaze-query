@@ -13,7 +13,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
 
 /**
  * Simple client for Mozilla Observatory API v2.
@@ -46,13 +45,12 @@ public class ObservatoryClient {
 	}
 
 	/**
-	 * Triggers a scan and returns a single {@link ObservatoryScan}.
+	 * Triggers a scan and returns an {@link ObservatoryScan}.
 	 */
-	public List<ObservatoryScan> fetchScans() {
+	public ObservatoryScan fetchScan() {
 		try {
 			String json = runScan();
-			ObservatoryScan scan = ObservatoryScan.fromJson(json, host);
-			return List.of(scan);
+			return ObservatoryScan.fromJson(json, host);
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error calling Observatory API", e);
 		} catch (InterruptedException e) {

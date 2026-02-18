@@ -5,7 +5,7 @@
 package com.blazebit.query.connector.observatory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.time.OffsetDateTime;
 
@@ -30,7 +30,7 @@ public record ObservatoryScan(
 		int testsQuantity
 ) {
 
-	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
+	private static final JsonMapper MAPPER = ObjectMappers.getInstance();
 
 	/**
 	 * Parse an Observatory v2 scan result JSON string into an {@link ObservatoryScan}.

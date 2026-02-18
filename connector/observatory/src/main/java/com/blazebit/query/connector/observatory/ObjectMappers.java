@@ -4,7 +4,7 @@
  */
 package com.blazebit.query.connector.observatory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * @author Martijn Sprengers
@@ -12,15 +12,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public final class ObjectMappers {
 
-	public static ObjectMapper instance;
+	private static JsonMapper instance;
 
 	private ObjectMappers() {
 	}
 
-	public static ObjectMapper getInstance() {
+	public static JsonMapper getInstance() {
 		if ( instance == null ) {
-			instance = new ObjectMapper();
-			instance.findAndRegisterModules();
+			instance = JsonMapper.builder().findAndAddModules().build();
 		}
 
 		return instance;

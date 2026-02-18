@@ -35,7 +35,7 @@ public class ObservatoryScanDataFetcher implements DataFetcher<ObservatoryScan>,
 			List<ObservatoryScan> result = new ArrayList<>();
 
 			for (ObservatoryClient client : clients) {
-				result.addAll(client.fetchScans());
+				result.add(client.fetchScan());
 			}
 
 			return result;
