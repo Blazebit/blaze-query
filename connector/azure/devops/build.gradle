@@ -55,6 +55,13 @@ openApiGenerate {
 
 tasks.openApiGenerate.inputs.file("${project.projectDir}/.openapi-generator-ignore")
 
+// The generator ignores these files (they are hand-fixed in src/main/java due to type bugs),
+// but old copies may linger in the output directory. Delete them after every generation run.
+tasks.openApiGenerate.doLast {
+    delete "${project.buildDir}/generated/com/blazebit/query/connector/devops/model/Profile.java"
+    delete "${project.buildDir}/generated/com/blazebit/query/connector/devops/model/AttributesContainer.java"
+}
+
 tasks.compileJava.dependsOn tasks.openApiGenerate
 tasks.sourcesJar.dependsOn tasks.compileJava
 tasks.sourcesJar.dependsOn tasks.openApiGenerate

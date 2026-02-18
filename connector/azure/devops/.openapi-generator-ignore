@@ -15,3 +15,7 @@
 **/README.md
 **/.openapi-generator-ignore
 **/pom.xml
+
+# Hand-fixed due to OpenAPI generator type mismatch (putXxxItem uses base class instead of concrete type)
+**/model/Profile.java
+**/model/AttributesContainer.java

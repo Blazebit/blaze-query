@@ -11,6 +11,7 @@ import com.blazebit.query.connector.devops.api.ProfilesApi;
 import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.connector.devops.invoker.ApiException;
 import com.blazebit.query.connector.devops.model.Account;
+import com.blazebit.query.connector.devops.model.Profile;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
@@ -19,7 +20,6 @@ import com.blazebit.query.spi.DataFormat;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Dimitar Prisadnikov
@@ -38,18 +38,12 @@ public class AccountDataFetcher implements DataFetcher<Account>, Serializable {
 			List<ApiClient> apiClients = DevopsConnectorConfig.API_CLIENT.getAll( context );
 			List<Account> list = new ArrayList<>();
 			for ( ApiClient apiClient : apiClients ) {
-				AccountsApi accountsApi = new AccountsApi( apiClient );
 				ProfilesApi profilesApi = new ProfilesApi( apiClient );
+				Profile profile = profilesApi.profilesGet( "me", "7.1", null, null, null, null, null );
 
-
-				//TODO: Pagination?
-				List<Account> organizations = accountsApi.accountsList(
-						"7.1", null, UUID.fromString( "9d78628b-49ee-6375-8e74-009485f60bfd"), null
-				);
-				list.addAll( organizations );
-				if ( organizations.size() != 100 ) {
-					break;
-				}
+				AccountsApi accountsApi = new AccountsApi( apiClient );
+				List<Account> accounts = accountsApi.accountsList( "7.1", null, profile.getId(), null );
+				list.addAll( accounts );
 			}
 			return list;
 		}
