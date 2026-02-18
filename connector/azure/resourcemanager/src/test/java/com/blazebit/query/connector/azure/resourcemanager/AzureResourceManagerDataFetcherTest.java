@@ -52,7 +52,7 @@ public class AzureResourceManagerDataFetcherTest {
 					AzureResourceNetworkSecurityGroup.class, List.of( AzureTestObjects.azureNetworkSecurityGroupSshAllowed(), AzureTestObjects.azureNetworkSecurityGroupRdpAllowed() ) );
 
 			var typedQuery =
-					session.createQuery( "select nsg.payload.id from AzureNetworkSecurityGroup nsg where exists (select 1 from unnest(nsg.payload.securityRules) as r where r.direction = 'Inbound' and r.access = 'Allow' and r.destinationPortRange = 3389 )", new TypeReference<Map<String, Object>>() {} );
+					session.createQuery( "select nsg.payload.id from AzureNetworkSecurityGroup nsg where exists (select 1 from unnest(nsg.payload.securityRules) as r where r.direction = 'Inbound' and r.access = 'Allow' and r.destinationPortRange = '3389' )", new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "/subscriptions/e864bc3e-3581-473d-bc31-757e489cf8fa/resourceGroups/virtualmachines/providers/Microsoft.Network/networkSecurityGroups/windows-vm-no-automatic-patching-standard-security-type-nsg" );
 		}

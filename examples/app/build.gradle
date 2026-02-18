@@ -29,6 +29,7 @@ dependencies {
 
     api libs.azure.identity
     api libs.microsoft.graph.core
+    api project(':blaze-query-connector-aws-accessanalyzer')
     api project(':blaze-query-connector-aws-ec2')
     api project(':blaze-query-connector-aws-rds')
     api project(':blaze-query-connector-aws-iam')
@@ -37,6 +38,12 @@ dependencies {
     api project(':blaze-query-connector-aws-s3')
     api project(':blaze-query-connector-aws-ecr')
     api project(':blaze-query-connector-aws-ecs')
+    api project(':blaze-query-connector-aws-kms')
+    api project(':blaze-query-connector-aws-secretsmanager')
+    api project(':blaze-query-connector-aws-cloudwatch')
+    api project(':blaze-query-connector-aws-cloudwatchlogs')
+    api project(':blaze-query-connector-aws-cloudtrail')
+    api project(':blaze-query-connector-aws-sns')
     api project(':blaze-query-connector-aws-lambda')
     api project(':blaze-query-connector-aws-route53')
     api project(':blaze-query-connector-gitlab')
@@ -45,6 +52,7 @@ dependencies {
     api project(':blaze-query-connector-github-openapi-jersey3')
     api project(':blaze-query-connector-kandji-jersey3')
     api project(':blaze-query-connector-jira-cloud-jersey3')
+    api project(':blaze-query-connector-jira-cloud-jersey3-admin')
     api project(':blaze-query-connector-jira-datacenter-jersey3')
     api project(':blaze-query-connector-google-workspace-directory')
     api project(':blaze-query-connector-google-workspace-drive')

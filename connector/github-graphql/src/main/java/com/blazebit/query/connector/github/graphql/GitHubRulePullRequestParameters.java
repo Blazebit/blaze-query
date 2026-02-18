@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 public record GitHubRulePullRequestParameters(
 		boolean requireCodeOwnerReview,
 		int requiredApprovingReviewCount,
-		boolean automaticCopilotCodeReviewEnabled,
 		boolean dismissStaleReviewsOnPush,
 		boolean requireLastPushApproval,
 		boolean requiredReviewThreadResolution
@@ -39,7 +38,6 @@ public record GitHubRulePullRequestParameters(
 		return new GitHubRulePullRequestParameters(
 				json.path("requireCodeOwnerReview").asBoolean(false),
 				json.path("requiredApprovingReviewCount").asInt(0),
-				json.path("automaticCopilotCodeReviewEnabled").asBoolean(false),
 				json.path("dismissStaleReviewsOnPush").asBoolean(false),
 				json.path("requireLastPushApproval").asBoolean(false),
 				json.path("requiredReviewThreadResolution").asBoolean(false)

@@ -23,14 +23,11 @@ public class AwsConventionContext implements ConventionContext {
 
 	@Override
 	public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
-		switch ( member.getName() ) {
-			case "sdkFields":
-			case "toBuilder":
-			case "serializableBuilderClass":
-				return null;
-			default:
-				return this;
-		}
+		return switch ( member.getName() ) {
+			case "sdkFields", "toBuilder", "serializableBuilderClass", "getValueForField", "sdkHttpResponse",
+				"base32StringSeed", "sdkFieldNameToField", "qrCodePNG", "getter", "setter", "copy" -> null;
+			default -> this;
+		};
 	}
 
 }

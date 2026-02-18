@@ -54,11 +54,10 @@ public class GitHubGraphQlTestObjects {
 						0,
 						false,
 						false,
-						false,
 						false
 				);
 
-		return new GitHubRule("PULL_REQUEST", pullRequestParameters, null);
+		return new GitHubRule("PULL_REQUEST", pullRequestParameters, null, null);
 	}
 
 	public static GitHubRepository repository() {

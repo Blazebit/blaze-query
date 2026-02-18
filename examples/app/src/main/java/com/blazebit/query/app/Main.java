@@ -19,41 +19,117 @@ import com.blazebit.query.QueryContext;
 import com.blazebit.query.QuerySession;
 import com.blazebit.query.TypedQuery;
 import com.blazebit.query.connector.aws.base.AwsConnectorConfig;
-import com.blazebit.query.connector.aws.ec2.AwsInstance;
-import com.blazebit.query.connector.aws.ec2.AwsNetworkAcl;
-import com.blazebit.query.connector.aws.ec2.AwsSecurityGroup;
-import com.blazebit.query.connector.aws.ec2.AwsVolume;
-import com.blazebit.query.connector.aws.ec2.AwsVpc;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Address;
+import com.blazebit.query.connector.aws.ec2.AwsEc2ClientVpnEndpoint;
+import com.blazebit.query.connector.aws.ec2.AwsEc2CustomerGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2DhcpOptions;
+import com.blazebit.query.connector.aws.ec2.AwsEc2EbsEncryptionByDefault;
+import com.blazebit.query.connector.aws.ec2.AwsEc2FlowLogs;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Instance;
+import com.blazebit.query.connector.aws.ec2.AwsEc2InstanceStatus;
+import com.blazebit.query.connector.aws.ec2.AwsEc2InternetGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2LaunchTemplate;
+import com.blazebit.query.connector.aws.ec2.AwsEc2LaunchTemplateVersion;
+import com.blazebit.query.connector.aws.ec2.AwsEc2ManagedPrefixList;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NatGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkAcl;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkAclEntry;
+import com.blazebit.query.connector.aws.ec2.AwsEc2NetworkInterface;
+import com.blazebit.query.connector.aws.ec2.AwsEc2RouteTable;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SecurityGroup;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SecurityGroupIpPermission;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Snapshot;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SnapshotAttribute;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SpotFleetRequest;
+import com.blazebit.query.connector.aws.ec2.AwsEc2SpotFleetRequestLaunchSpecification;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Subnet;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorFilter;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorSession;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TrafficMirrorTarget;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGateway;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGatewayAttachment;
+import com.blazebit.query.connector.aws.ec2.AwsEc2TransitGatewayRouteTable;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Volume;
+import com.blazebit.query.connector.aws.ec2.AwsEc2Vpc;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcBlockPublicAccessOptions;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcEndpoint;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcEndpointService;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpcPeeringConnection;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnConnection;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnConnectionTunnelOption;
+import com.blazebit.query.connector.aws.ec2.AwsEc2VpnGateway;
 import com.blazebit.query.connector.aws.ecr.AwsRepository;
-import com.blazebit.query.connector.aws.ecs.AwsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsEcsCluster;
+import com.blazebit.query.connector.aws.ecs.AwsEcsContainerDefinition;
+import com.blazebit.query.connector.aws.ecs.AwsEcsService;
+import com.blazebit.query.connector.aws.ecs.AwsEcsTaskDefinition;
+import com.blazebit.query.connector.aws.ecs.AwsEcsTaskSet;
 import com.blazebit.query.connector.aws.efs.AwsFileSystem;
 import com.blazebit.query.connector.aws.elb.AwsLoadBalancer;
-import com.blazebit.query.connector.aws.iam.AccessKeyMetaDataLastUsed;
-import com.blazebit.query.connector.aws.iam.AccountSummary;
-import com.blazebit.query.connector.aws.iam.AwsMFADevice;
-import com.blazebit.query.connector.aws.iam.AwsPasswordPolicy;
-import com.blazebit.query.connector.aws.iam.AwsUser;
+import com.blazebit.query.connector.aws.accessanalyzer.AwsAccessAnalyzerAnalyzer;
+import com.blazebit.query.connector.aws.iam.AwsIamAccessKeyMetaDataLastUsed;
+import com.blazebit.query.connector.aws.iam.AwsIamAccountSummary;
+import com.blazebit.query.connector.aws.iam.AwsIamGroup;
+import com.blazebit.query.connector.aws.iam.AwsIamGroupAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamGroupInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamLoginProfile;
+import com.blazebit.query.connector.aws.iam.AwsIamMfaDevice;
+import com.blazebit.query.connector.aws.iam.AwsIamPasswordPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamPolicyVersion;
+import com.blazebit.query.connector.aws.iam.AwsIamRole;
+import com.blazebit.query.connector.aws.iam.AwsIamRoleAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamRoleInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamServerCertificate;
+import com.blazebit.query.connector.aws.iam.AwsIamUser;
+import com.blazebit.query.connector.aws.iam.AwsIamUserAttachedPolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamUserInlinePolicy;
+import com.blazebit.query.connector.aws.iam.AwsIamVirtualMfaDevice;
+import com.blazebit.query.connector.aws.kms.AwsKmsKey;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyAlias;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyPolicy;
+import com.blazebit.query.connector.aws.kms.AwsKmsKeyRotationStatus;
+import com.blazebit.query.connector.aws.secretsmanager.AwsSecretsManagerSecret;
+import com.blazebit.query.connector.aws.cloudwatch.AwsCloudWatchCompositeAlarm;
+import com.blazebit.query.connector.aws.cloudwatch.AwsCloudWatchMetricAlarm;
+import com.blazebit.query.connector.aws.cloudwatchlogs.AwsCloudWatchLogsLogGroup;
+import com.blazebit.query.connector.aws.cloudwatchlogs.AwsCloudWatchLogsMetricFilter;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailEventSelector;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailTrail;
+import com.blazebit.query.connector.aws.cloudtrail.AwsCloudTrailTrailStatus;
+import com.blazebit.query.connector.aws.sns.AwsSnsSubscription;
+import com.blazebit.query.connector.aws.sns.AwsSnsTopic;
 import com.blazebit.query.connector.aws.lambda.AwsFunction;
+import com.blazebit.query.connector.aws.rds.AwsDBCluster;
+import com.blazebit.query.connector.aws.rds.AwsDBClusterSnapshot;
 import com.blazebit.query.connector.aws.rds.AwsDBInstance;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshot;
+import com.blazebit.query.connector.aws.rds.AwsDBSnapshotAttribute;
+import com.blazebit.query.connector.aws.rds.AwsEventSubscription;
 import com.blazebit.query.connector.aws.route53.AwsHealthCheck;
 import com.blazebit.query.connector.aws.route53.AwsHostedZone;
+import com.blazebit.query.connector.aws.s3.AwsBucketAcl;
+import com.blazebit.query.connector.aws.s3.AwsBucketVersioning;
+import com.blazebit.query.connector.aws.s3.AwsBucketPolicy;
+import com.blazebit.query.connector.aws.s3.AwsLoggingEnabled;
+import com.blazebit.query.connector.aws.s3.AwsObjectLockConfiguration;
+import com.blazebit.query.connector.aws.s3.AwsPolicyStatus;
+import com.blazebit.query.connector.aws.s3.AwsLifeCycleRule;
+import com.blazebit.query.connector.aws.s3.AwsPublicAccessBlockConfiguration;
 import com.blazebit.query.connector.aws.s3.AwsBucket;
+import com.blazebit.query.connector.aws.s3.AwsServerSideEncryptionRule;
 import com.blazebit.query.connector.azure.graph.AzureGraphAlert;
 import com.blazebit.query.connector.azure.graph.AzureGraphApplication;
 import com.blazebit.query.connector.azure.graph.AzureGraphClientAccessor;
 import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolicy;
-import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
 import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
-import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
@@ -62,7 +138,6 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
-import com.blazebit.query.connector.github.graphql.GitHubConnectorConfig;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
 import com.blazebit.query.connector.github.graphql.GitHubPullRequest;
@@ -71,16 +146,21 @@ import com.blazebit.query.connector.github.graphql.GitHubRuleset;
 import com.blazebit.query.connector.github.v0314.model.OrganizationSimple;
 import com.blazebit.query.connector.github.v0314.model.ShortBranch;
 import com.blazebit.query.connector.github.v0314.model.Team;
-import com.blazebit.query.connector.gitlab.GitlabConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGraphQlClient;
-import com.blazebit.query.connector.gitlab.GitlabGraphQlConnectorConfig;
 import com.blazebit.query.connector.gitlab.GitlabGroup;
+import com.blazebit.query.connector.gitlab.GitlabMergeRequest;
 import com.blazebit.query.connector.gitlab.GitlabProject;
 import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
+import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
+import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminDirectoryWrapper;
+import com.blazebit.query.connector.jira.cloud.admin.JiraCloudAdminUserWrapper;
 import com.blazebit.query.connector.jira.cloud.model.UserPermission;
+import com.blazebit.query.connector.jira.cloud.admin.model.OrgModel;
 import com.blazebit.query.connector.jira.datacenter.model.PermissionGrantBean;
 import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
@@ -154,11 +234,13 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
-	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_DATACENTER_HOST = "";
+	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_HOST = "";
 	private static final String JIRA_CLOUD_USER = "";
 	private static final String JIRA_CLOUD_TOKEN = "";
-	private static final String JIRA_DATACENTER_TOKEN = "";
+	private static final String JIRA_CLOUD_ADMIN_API_KEY = "";
+
 
 	private Main() {
 	}
@@ -167,7 +249,7 @@ public class Main {
 		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory( "default" )) {
 			SessionFactory sf = emf.unwrap( SessionFactory.class );
 			sf.inTransaction( s -> {
-				s.persist( new TestEntity( 1L, "Test", new TestEmbeddable( "text1", "text2" ) ) );
+				s.persist( new TestEntity( 1L, "Test", new TestEmbeddable( "text1", "text2" ), Set.of(TestEnum.A, TestEnum.B) ) );
 			} );
 
 			CriteriaBuilderFactory cbf = Criteria.getDefault().createCriteriaBuilderFactory( emf );
@@ -177,23 +259,25 @@ public class Main {
 			EntityViewManager evm = defaultConfiguration.createEntityViewManager( cbf );
 
 			QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
-					Main::createPostgreSqlManagers );
-			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
-			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+//			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
+//			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
+//					Main::createPostgreSqlManagers );
+//			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
+//			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
+//			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
+//			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
-			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabApi());
+//			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
+//			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
 //            queryContextBuilder.setProperty(GithubConnectorConfig.GITHUB.getPropertyName(), createGithub());
-			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
+//			queryContextBuilder.setProperty( GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getPropertyName(), createGitHubGraphQLClient());
 //            queryContextBuilder.setProperty(com.blazebit.query.connector.github.v0314.GithubConnectorConfig.API_CLIENT.getPropertyName(), createGitHubApiClient());
 
 			// Azure Resource manager
@@ -219,28 +303,88 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
 
+			// Access Analyzer
+			queryContextBuilder.registerSchemaObjectAlias( AwsAccessAnalyzerAnalyzer.class, "AwsAnalyzer" );
+
 			// IAM
-			queryContextBuilder.registerSchemaObjectAlias( AwsUser.class, "AwsUser" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsPasswordPolicy.class, "AwsIamPasswordPolicy" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsMFADevice.class, "AwsMFADevice" );
-			queryContextBuilder.registerSchemaObjectAlias( AccountSummary.class, "AwsIamAccountSummary" );
-			queryContextBuilder.registerSchemaObjectAlias( AccessKeyMetaDataLastUsed.class,
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUser.class, "AwsUser" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPasswordPolicy.class, "AwsIamPasswordPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamMfaDevice.class, "AwsMFADevice" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamLoginProfile.class, "AwsLoginProfile" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccountSummary.class, "AwsIamAccountSummary" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamAccessKeyMetaDataLastUsed.class,
 					"AwsAccessKeyMetaDataLastUsed" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamPolicyVersion.class, "AwsIamPolicyVersion" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroup.class, "AwsGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroupAttachedPolicy.class, "AwsGroupAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamGroupInlinePolicy.class, "AwsGroupInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRole.class, "AwsRole" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRoleAttachedPolicy.class, "AwsRoleAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamRoleInlinePolicy.class, "AwsRoleInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamServerCertificate.class, "AwsServerCertificate" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserAttachedPolicy.class, "AwsUserAttachedPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamUserInlinePolicy.class, "AwsUserInlinePolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsIamVirtualMfaDevice.class, "AwsVirtualMfaDevice" );
 
 			// EC2
-			queryContextBuilder.registerSchemaObjectAlias( AwsInstance.class, "AwsInstance" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsVolume.class, "AwsVolume" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsVpc.class, "AwsVpc" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsSecurityGroup.class, "AwsSecurityGroup" );
-			queryContextBuilder.registerSchemaObjectAlias( AwsNetworkAcl.class, "AwsNetworkAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Instance.class, "AwsEc2Instance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2InstanceStatus.class, "AwsEc2InstanceStatus" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Address.class, "AwsEc2Address" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Subnet.class, "AwsEc2Subnet" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2CustomerGateway.class, "AwsEc2CustomerGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2InternetGateway.class, "AwsEc2InternetGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NatGateway.class, "AwsEc2NatGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2RouteTable.class, "AwsEc2RouteTable" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcEndpointService.class, "AwsEc2VpcEndpointService" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcPeeringConnection.class, "AwsEc2VpcPeeringConnection" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnGateway.class, "AwsEc2VpnGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2ClientVpnEndpoint.class, "AwsEc2ClientVpnEndpoint" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnConnection.class, "AwsEc2VpnConnection" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpnConnectionTunnelOption.class, "AwsEc2VpnConnectionTunnelOption" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcBlockPublicAccessOptions.class,
+					"AwsEc2VpcBlockPublicAccessOptions" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGateway.class, "AwsEc2TransitGateway" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGatewayAttachment.class, "AwsEc2TransitGatewayAttachment" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TransitGatewayRouteTable.class, "AwsEc2TransitGatewayRouteTable" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkInterface.class, "AwsEc2NetworkInterface" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SpotFleetRequest.class, "AwsEc2SpotFleetRequest" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SpotFleetRequestLaunchSpecification.class,
+					"AwsEc2SpotFleetRequestLaunchSpecification" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2DhcpOptions.class, "AwsEc2DhcpOptions" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2LaunchTemplate.class, "AwsEc2LaunchTemplate" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2LaunchTemplateVersion.class, "AwsEc2LaunchTemplateVersion" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2ManagedPrefixList.class, "AwsEc2ManagedPrefixList" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorSession.class, "AwsEc2TrafficMirrorSession" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorFilter.class, "AwsEc2TrafficMirrorFilter" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2TrafficMirrorTarget.class, "AwsEc2TrafficMirrorTarget" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Vpc.class, "AwsEc2Vpc" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2VpcEndpoint.class, "AwsEc2VpcEndpoint" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SecurityGroup.class, "AwsEc2SecurityGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SecurityGroupIpPermission.class, "AwsEc2SecurityGroupIpPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Volume.class, "AwsEc2Volume" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2Snapshot.class, "AwsEc2Snapshot" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2SnapshotAttribute.class, "AwsEc2SnapshotAttribute" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkAcl.class, "AwsEc2NetworkAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2NetworkAclEntry.class, "AwsEc2NetworkAclEntry" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2EbsEncryptionByDefault.class, "AwsEc2EbsEncryptionByDefault" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEc2FlowLogs.class, "AwsEc2FlowLogs" );
 			// RDS
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBCluster.class, "AwsDBCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBClusterSnapshot.class, "AwsDBClusterSnapshot" );
 			queryContextBuilder.registerSchemaObjectAlias( AwsDBInstance.class, "AwsDBInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshot.class, "AwsDBSnapshot" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsDBSnapshotAttribute.class, "AwsDBSnapshotAttribute" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEventSubscription.class, "AwsEventSubscription" );
 			// EFS
 			queryContextBuilder.registerSchemaObjectAlias( AwsFileSystem.class, "AwsFileSystem" );
 			// ECR
 			queryContextBuilder.registerSchemaObjectAlias( AwsRepository.class, "AwsRepository" );
 			// ECS
-			queryContextBuilder.registerSchemaObjectAlias( AwsCluster.class, "AwsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsCluster.class, "AwsEcsCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsContainerDefinition.class, "AwsEcsContainerDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsService.class, "AwsEcsService" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsTaskDefinition.class, "AwsEcsTaskDefinition" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsEcsTaskSet.class, "AwsEcsTaskSet" );
 			// ELB
 			queryContextBuilder.registerSchemaObjectAlias( AwsLoadBalancer.class, "AwsLoadBalancer" );
 			// Lambda
@@ -250,6 +394,36 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AwsHealthCheck.class, "AwsHealthCheck" );
 			// S3
 			queryContextBuilder.registerSchemaObjectAlias( AwsBucket.class, "AwsBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketAcl.class, "AwsBucketAcl" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketVersioning.class, "AwsBucketVersioning" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsBucketPolicy.class, "AwsBucketPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLifeCycleRule.class, "AwsLifeCycleRule" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsLoggingEnabled.class, "AwsLoggingEnabled" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsObjectLockConfiguration.class, "AwsObjectLockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPolicyStatus.class, "AwsPolicyStatus" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsPublicAccessBlockConfiguration.class, "AwsPublicAccessBlockConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsServerSideEncryptionRule.class, "AwsServerSideEncryptionRule" );
+			// KMS
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKey.class, "AwsKmsKey" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyAlias.class, "AwsKmsKeyAlias" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyPolicy.class, "AwsKmsKeyPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsKmsKeyRotationStatus.class, "AwsKmsKeyRotationStatus" );
+			// Secrets Manager
+			queryContextBuilder.registerSchemaObjectAlias( AwsSecretsManagerSecret.class, "AwsSecretsManagerSecret" );
+			// CloudWatch
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchCompositeAlarm.class, "AwsCloudWatchCompositeAlarm" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchMetricAlarm.class, "AwsCloudWatchMetricAlarm" );
+			// CloudWatch Logs
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchLogsLogGroup.class, "AwsCloudWatchLogsLogGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudWatchLogsMetricFilter.class, "AwsCloudWatchLogsMetricFilter" );
+			// CloudTrail
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailEventSelector.class, "AwsCloudTrailEventSelector" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailTrail.class, "AwsCloudTrailTrail" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsCloudTrailTrailStatus.class, "AwsCloudTrailTrailStatus" );
+			// SNS
+			queryContextBuilder.registerSchemaObjectAlias( AwsSnsSubscription.class, "AwsSnsSubscription" );
+			queryContextBuilder.registerSchemaObjectAlias( AwsSnsTopic.class, "AwsSnsTopic" );
+
 
 			// Gitlab
 			queryContextBuilder.registerSchemaObjectAlias( Project.class, "GitlabProject" );
@@ -262,6 +436,7 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GitlabUser.class, "GitlabGraphQlUser" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabGroup.class, "GitlabGraphQlGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( GitlabProject.class, "GitlabGraphQlProject" );
+			queryContextBuilder.registerSchemaObjectAlias( GitlabMergeRequest.class, "GitlabGraphQlMergeRequest" );
 
 			// GitHub
 			queryContextBuilder.registerSchemaObjectAlias( GHOrganization.class, "GitHubOrganization" );
@@ -312,11 +487,18 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( PermissionGrantBean.class, "JiraDatacenterPermission" );
 
 			// Jira Cloud
-			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.Project.class, "JiraCloudProject" );
+			queryContextBuilder.registerSchemaObjectAlias( ProjectWrapper.class, "JiraCloudProject" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.User.class, "JiraCloudUser" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.model.FoundGroup.class, "JiraCloudGroup" );
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.cloud.GroupMember.class, "JiraCloudMember" );
 			queryContextBuilder.registerSchemaObjectAlias( UserPermission.class, "JiraCloudPermission" );
+			queryContextBuilder.registerSchemaObjectAlias( IssueBeanWrapper.class, "JiraCloudIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( ServerInformation.class, "JiraCloudServerInfo" );
+
+			// Jira Cloud Admin
+			queryContextBuilder.registerSchemaObjectAlias( OrgModel.class, "JiraCloudAdminOrg" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
+			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
@@ -324,6 +506,7 @@ public class Main {
 							Map.of( EntityViewConnectorConfig.ENTITY_MANAGER.getPropertyName(), em ) )) {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
+//					testJiraCloudAdmin( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 //					testAws( session );
@@ -331,8 +514,8 @@ public class Main {
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
-//					testEntityView( session );
-					testAzureGraph( session );
+					testEntityView( session );
+//					testAzureGraph( session );
 //					testAzureResourceManager( session );
 				}
 			}
@@ -365,49 +548,364 @@ public class Main {
 		System.out.println( "AwsMFADevices" );
 		print( awsMFADeviceResult );
 
+		TypedQuery<Object[]> awsLoginProfileQuery = session.createQuery(
+				"select l.* from AwsLoginProfile l" );
+		List<Object[]> awsLoginProfileResult = awsLoginProfileQuery.getResultList();
+		System.out.println( "AwsLoginProfiles" );
+		print( awsLoginProfileResult );
+
 		TypedQuery<Object[]> awsAccountSummaryQuery = session.createQuery(
 				"select a.* from AwsIamAccountSummary a" );
 		List<Object[]> awsAccountSummaryResult = awsAccountSummaryQuery.getResultList();
 		System.out.println( "AwsAccountSummary" );
 		print( awsAccountSummaryResult );
 
+		TypedQuery<Object[]> awsIamPolicyVersionQuery = session.createQuery(
+				"select p.* from AwsIamPolicyVersion p" );
+		List<Object[]> awsIamPolicyVersionResult = awsIamPolicyVersionQuery.getResultList();
+		System.out.println( "AwsIamPolicyVersions" );
+		print( awsIamPolicyVersionResult );
+
+		TypedQuery<Object[]> awsGroupQuery = session.createQuery(
+				"select g.* from AwsGroup g" );
+		List<Object[]> awsGroupResult = awsGroupQuery.getResultList();
+		System.out.println( "AwsGroups" );
+		print( awsGroupResult );
+
+		TypedQuery<Object[]> awsGroupAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsGroupAttachedPolicy p" );
+		List<Object[]> awsGroupAttachedPolicyResult = awsGroupAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsGroupAttachedPolicies" );
+		print( awsGroupAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsGroupInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsGroupInlinePolicy p" );
+		List<Object[]> awsGroupInlinePolicyResult = awsGroupInlinePolicyQuery.getResultList();
+		System.out.println( "AwsGroupInlinePolicies" );
+		print( awsGroupInlinePolicyResult );
+
+		TypedQuery<Object[]> awsRoleQuery = session.createQuery(
+				"select r.* from AwsRole r" );
+		List<Object[]> awsRoleResult = awsRoleQuery.getResultList();
+		System.out.println( "AwsRoles" );
+		print( awsRoleResult );
+
+		TypedQuery<Object[]> awsRoleAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsRoleAttachedPolicy p" );
+		List<Object[]> awsRoleAttachedPolicyResult = awsRoleAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsRoleAttachedPolicies" );
+		print( awsRoleAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsRoleInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsRoleInlinePolicy p" );
+		List<Object[]> awsRoleInlinePolicyResult = awsRoleInlinePolicyQuery.getResultList();
+		System.out.println( "AwsRoleInlinePolicies" );
+		print( awsRoleInlinePolicyResult );
+
+		TypedQuery<Object[]> awsServerCertificateQuery = session.createQuery(
+				"select c.* from AwsServerCertificate c" );
+		List<Object[]> awsServerCertificateResult = awsServerCertificateQuery.getResultList();
+		System.out.println( "AwsServerCertificates" );
+		print( awsServerCertificateResult );
+
+		TypedQuery<Object[]> awsUserAttachedPolicyQuery = session.createQuery(
+				"select p.* from AwsUserAttachedPolicy p" );
+		List<Object[]> awsUserAttachedPolicyResult = awsUserAttachedPolicyQuery.getResultList();
+		System.out.println( "AwsUserAttachedPolicies" );
+		print( awsUserAttachedPolicyResult );
+
+		TypedQuery<Object[]> awsUserInlinePolicyQuery = session.createQuery(
+				"select p.* from AwsUserInlinePolicy p" );
+		List<Object[]> awsUserInlinePolicyResult = awsUserInlinePolicyQuery.getResultList();
+		System.out.println( "AwsUserInlinePolicies" );
+		print( awsUserInlinePolicyResult );
+
+		TypedQuery<Object[]> awsVirtualMfaDeviceQuery = session.createQuery(
+				"select d.* from AwsVirtualMfaDevice d" );
+		List<Object[]> awsVirtualMfaDeviceResult = awsVirtualMfaDeviceQuery.getResultList();
+		System.out.println( "AwsVirtualMfaDevices" );
+		print( awsVirtualMfaDeviceResult );
+
+		// Access Analyzer
+		TypedQuery<Object[]> awsAnalyzerQuery = session.createQuery(
+				"select a.* from AwsAnalyzer a" );
+		List<Object[]> awsAnalyzerResult = awsAnalyzerQuery.getResultList();
+		System.out.println( "AwsAnalyzers" );
+		print( awsAnalyzerResult );
+
 		// EC2
 		TypedQuery<Object[]> awsInstanceQuery = session.createQuery(
-				"select i.* from AwsInstance i" );
+				"select i.* from AwsEc2Instance i" );
 		List<Object[]> awsInstanceResult = awsInstanceQuery.getResultList();
-		System.out.println("AwsInstances");
+		System.out.println("AwsEc2Instances");
 		print(awsInstanceResult);
 
 		TypedQuery<Object[]> awsVolumeQuery = session.createQuery(
-				"select v.* from AwsVolume v" );
+				"select v.* from AwsEc2Volume v" );
 		List<Object[]> awsVolumeResult = awsVolumeQuery.getResultList();
-		System.out.println("AwsVolumes");
+		System.out.println("AwsEc2Volumes");
 		print(awsVolumeResult);
 
 		TypedQuery<Object[]> awsVpcQuery = session.createQuery(
-				"select v.* from AwsVpc v" );
+				"select v.* from AwsEc2Vpc v" );
 		List<Object[]> awsVpcResult = awsVpcQuery.getResultList();
-		System.out.println("AwsVpcs");
+		System.out.println("AwsEc2Vpcs");
 		print(awsVpcResult);
 
 		TypedQuery<Object[]> awsSecurityGroupQuery = session.createQuery(
-				"select g.* from AwsSecurityGroup g" );
+				"select g.* from AwsEc2SecurityGroup g" );
 		List<Object[]> awsSecurityGroupResult = awsSecurityGroupQuery.getResultList();
-		System.out.println("AwsSecurityGroups");
+		System.out.println("AwsEc2SecurityGroups");
 		print(awsSecurityGroupResult);
 
 		TypedQuery<Object[]> awsNetworkAclQuery = session.createQuery(
-				"select g.* from AwsNetworkAcl g" );
+				"select g.* from AwsEc2NetworkAcl g" );
 		List<Object[]> awsNetworkAclResult = awsNetworkAclQuery.getResultList();
-		System.out.println("AwsNetworkAcls");
+		System.out.println("AwsEc2NetworkAcls");
 		print(awsNetworkAclResult);
 
+		TypedQuery<Object[]> awsNetworkAclEntryQuery = session.createQuery(
+				"select e.* from AwsEc2NetworkAclEntry e" );
+		List<Object[]> awsNetworkAclEntryResult = awsNetworkAclEntryQuery.getResultList();
+		System.out.println("AwsEc2NetworkAclEntries");
+		print(awsNetworkAclEntryResult);
+
+		TypedQuery<Object[]> awsInstanceStatusQuery = session.createQuery(
+				"select s.* from AwsEc2InstanceStatus s" );
+		List<Object[]> awsInstanceStatusResult = awsInstanceStatusQuery.getResultList();
+		System.out.println("AwsEc2InstanceStatuses");
+		print(awsInstanceStatusResult);
+
+		TypedQuery<Object[]> awsAddressQuery = session.createQuery(
+				"select a.* from AwsEc2Address a" );
+		List<Object[]> awsAddressResult = awsAddressQuery.getResultList();
+		System.out.println("AwsEc2Addresses");
+		print(awsAddressResult);
+
+		TypedQuery<Object[]> awsSubnetQuery = session.createQuery(
+				"select s.* from AwsEc2Subnet s" );
+		List<Object[]> awsSubnetResult = awsSubnetQuery.getResultList();
+		System.out.println("AwsEc2Subnets");
+		print(awsSubnetResult);
+
+		TypedQuery<Object[]> awsCustomerGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2CustomerGateway g" );
+		List<Object[]> awsCustomerGatewayResult = awsCustomerGatewayQuery.getResultList();
+		System.out.println("AwsEc2CustomerGateways");
+		print(awsCustomerGatewayResult);
+
+		TypedQuery<Object[]> awsInternetGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2InternetGateway g" );
+		List<Object[]> awsInternetGatewayResult = awsInternetGatewayQuery.getResultList();
+		System.out.println("AwsEc2InternetGateways");
+		print(awsInternetGatewayResult);
+
+		TypedQuery<Object[]> awsNatGatewayQuery = session.createQuery(
+				"select g.* from AwsEc2NatGateway g" );
+		List<Object[]> awsNatGatewayResult = awsNatGatewayQuery.getResultList();
+		System.out.println("AwsEc2NatGateways");
+		print(awsNatGatewayResult);
+
+		TypedQuery<Object[]> awsRouteTableQuery = session.createQuery(
+				"select r.* from AwsEc2RouteTable r" );
+		List<Object[]> awsRouteTableResult = awsRouteTableQuery.getResultList();
+		System.out.println("AwsEc2RouteTables");
+		print(awsRouteTableResult);
+
+		TypedQuery<Object[]> awsVpcEndpointServiceQuery = session.createQuery(
+				"select v.* from AwsEc2VpcEndpointService v" );
+		List<Object[]> awsVpcEndpointServiceResult = awsVpcEndpointServiceQuery.getResultList();
+		System.out.println("AwsEc2VpcEndpointServices");
+		print(awsVpcEndpointServiceResult);
+
+		TypedQuery<Object[]> awsVpcPeeringConnectionQuery = session.createQuery(
+				"select v.* from AwsEc2VpcPeeringConnection v" );
+		List<Object[]> awsVpcPeeringConnectionResult = awsVpcPeeringConnectionQuery.getResultList();
+		System.out.println("AwsEc2VpcPeeringConnections");
+		print(awsVpcPeeringConnectionResult);
+
+		TypedQuery<Object[]> awsVpcBlockPublicAccessOptionsQuery = session.createQuery(
+				"select v.* from AwsEc2VpcBlockPublicAccessOptions v" );
+		List<Object[]> awsVpcBlockPublicAccessOptionsResult = awsVpcBlockPublicAccessOptionsQuery.getResultList();
+		System.out.println("AwsEc2VpcBlockPublicAccessOptions");
+		print(awsVpcBlockPublicAccessOptionsResult);
+
+		TypedQuery<Object[]> awsVpcEndpointQuery = session.createQuery(
+				"select v.* from AwsEc2VpcEndpoint v" );
+		List<Object[]> awsVpcEndpointResult = awsVpcEndpointQuery.getResultList();
+		System.out.println("AwsEc2VpcEndpoints");
+		print(awsVpcEndpointResult);
+
+		TypedQuery<Object[]> awsVpnGatewayQuery = session.createQuery(
+				"select v.* from AwsEc2VpnGateway v" );
+		List<Object[]> awsVpnGatewayResult = awsVpnGatewayQuery.getResultList();
+		System.out.println("AwsEc2VpnGateways");
+		print(awsVpnGatewayResult);
+
+		TypedQuery<Object[]> awsClientVpnEndpointQuery = session.createQuery(
+				"select v.* from AwsEc2ClientVpnEndpoint v" );
+		List<Object[]> awsClientVpnEndpointResult = awsClientVpnEndpointQuery.getResultList();
+		System.out.println("AwsEc2ClientVpnEndpoints");
+		print(awsClientVpnEndpointResult);
+
+		TypedQuery<Object[]> awsVpnConnectionQuery = session.createQuery(
+				"select v.* from AwsEc2VpnConnection v" );
+		List<Object[]> awsVpnConnectionResult = awsVpnConnectionQuery.getResultList();
+		System.out.println("AwsEc2VpnConnections");
+		print(awsVpnConnectionResult);
+
+		TypedQuery<Object[]> awsVpnConnectionTunnelOptionQuery = session.createQuery(
+				"select v.* from AwsEc2VpnConnectionTunnelOption v" );
+		List<Object[]> awsVpnConnectionTunnelOptionResult = awsVpnConnectionTunnelOptionQuery.getResultList();
+		System.out.println("AwsEc2VpnConnectionTunnelOptions");
+		print(awsVpnConnectionTunnelOptionResult);
+
+		TypedQuery<Object[]> awsTransitGatewayQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGateway v" );
+		List<Object[]> awsTransitGatewayResult = awsTransitGatewayQuery.getResultList();
+		System.out.println("AwsEc2TransitGateways");
+		print(awsTransitGatewayResult);
+
+		TypedQuery<Object[]> awsTransitGatewayAttachmentQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGatewayAttachment v" );
+		List<Object[]> awsTransitGatewayAttachmentResult = awsTransitGatewayAttachmentQuery.getResultList();
+		System.out.println("AwsEc2TransitGatewayAttachments");
+		print(awsTransitGatewayAttachmentResult);
+
+		TypedQuery<Object[]> awsTransitGatewayRouteTableQuery = session.createQuery(
+				"select v.* from AwsEc2TransitGatewayRouteTable v" );
+		List<Object[]> awsTransitGatewayRouteTableResult = awsTransitGatewayRouteTableQuery.getResultList();
+		System.out.println("AwsEc2TransitGatewayRouteTables");
+		print(awsTransitGatewayRouteTableResult);
+
+		TypedQuery<Object[]> awsNetworkInterfaceQuery = session.createQuery(
+				"select n.* from AwsEc2NetworkInterface n" );
+		List<Object[]> awsNetworkInterfaceResult = awsNetworkInterfaceQuery.getResultList();
+		System.out.println("AwsEc2NetworkInterfaces");
+		print(awsNetworkInterfaceResult);
+
+		TypedQuery<Object[]> awsSpotFleetRequestQuery = session.createQuery(
+				"select s.* from AwsEc2SpotFleetRequest s" );
+		List<Object[]> awsSpotFleetRequestResult = awsSpotFleetRequestQuery.getResultList();
+		System.out.println("AwsEc2SpotFleetRequests");
+		print(awsSpotFleetRequestResult);
+
+		TypedQuery<Object[]> awsSpotFleetRequestLaunchSpecificationQuery = session.createQuery(
+				"select s.* from AwsEc2SpotFleetRequestLaunchSpecification s" );
+		List<Object[]> awsSpotFleetRequestLaunchSpecificationResult =
+				awsSpotFleetRequestLaunchSpecificationQuery.getResultList();
+		System.out.println("AwsEc2SpotFleetRequestLaunchSpecifications");
+		print(awsSpotFleetRequestLaunchSpecificationResult);
+
+		TypedQuery<Object[]> awsDhcpOptionsQuery = session.createQuery(
+				"select d.* from AwsEc2DhcpOptions d" );
+		List<Object[]> awsDhcpOptionsResult = awsDhcpOptionsQuery.getResultList();
+		System.out.println("AwsEc2DhcpOptions");
+		print(awsDhcpOptionsResult);
+
+		TypedQuery<Object[]> awsLaunchTemplateQuery = session.createQuery(
+				"select l.* from AwsEc2LaunchTemplate l" );
+		List<Object[]> awsLaunchTemplateResult = awsLaunchTemplateQuery.getResultList();
+		System.out.println("AwsEc2LaunchTemplates");
+		print(awsLaunchTemplateResult);
+
+		TypedQuery<Object[]> awsLaunchTemplateVersionQuery = session.createQuery(
+				"select l.* from AwsEc2LaunchTemplateVersion l" );
+		List<Object[]> awsLaunchTemplateVersionResult = awsLaunchTemplateVersionQuery.getResultList();
+		System.out.println("AwsEc2LaunchTemplateVersions");
+		print(awsLaunchTemplateVersionResult);
+
+		TypedQuery<Object[]> awsManagedPrefixListQuery = session.createQuery(
+				"select m.* from AwsEc2ManagedPrefixList m" );
+		List<Object[]> awsManagedPrefixListResult = awsManagedPrefixListQuery.getResultList();
+		System.out.println("AwsEc2ManagedPrefixLists");
+		print(awsManagedPrefixListResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorSessionQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorSession t" );
+		List<Object[]> awsTrafficMirrorSessionResult = awsTrafficMirrorSessionQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorSessions");
+		print(awsTrafficMirrorSessionResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorFilterQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorFilter t" );
+		List<Object[]> awsTrafficMirrorFilterResult = awsTrafficMirrorFilterQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorFilters");
+		print(awsTrafficMirrorFilterResult);
+
+		TypedQuery<Object[]> awsTrafficMirrorTargetQuery = session.createQuery(
+				"select t.* from AwsEc2TrafficMirrorTarget t" );
+		List<Object[]> awsTrafficMirrorTargetResult = awsTrafficMirrorTargetQuery.getResultList();
+		System.out.println("AwsEc2TrafficMirrorTargets");
+		print(awsTrafficMirrorTargetResult);
+
+		TypedQuery<Object[]> awsSecurityGroupIpPermissionQuery = session.createQuery(
+				"select p.* from AwsEc2SecurityGroupIpPermission p" );
+		List<Object[]> awsSecurityGroupIpPermissionResult = awsSecurityGroupIpPermissionQuery.getResultList();
+		System.out.println("AwsEc2SecurityGroupIpPermissions");
+		print(awsSecurityGroupIpPermissionResult);
+
+		TypedQuery<Object[]> awsSnapshotQuery = session.createQuery(
+				"select s.* from AwsEc2Snapshot s" );
+		List<Object[]> awsSnapshotResult = awsSnapshotQuery.getResultList();
+		System.out.println("AwsEc2Snapshots");
+		print(awsSnapshotResult);
+
+		TypedQuery<Object[]> awsSnapshotAttributeQuery = session.createQuery(
+				"select s.* from AwsEc2SnapshotAttribute s" );
+		List<Object[]> awsSnapshotAttributeResult = awsSnapshotAttributeQuery.getResultList();
+		System.out.println("AwsEc2SnapshotAttributes");
+		print(awsSnapshotAttributeResult);
+
+		TypedQuery<Object[]> awsEbsEncryptionByDefaultQuery = session.createQuery(
+				"select e.* from AwsEc2EbsEncryptionByDefault e" );
+		List<Object[]> awsEbsEncryptionByDefaultResult = awsEbsEncryptionByDefaultQuery.getResultList();
+		System.out.println("AwsEc2EbsEncryptionByDefaults");
+		print(awsEbsEncryptionByDefaultResult);
+
+		TypedQuery<Object[]> awsFlowLogsQuery = session.createQuery(
+				"select f.* from AwsEc2FlowLogs f" );
+		List<Object[]> awsFlowLogsResult = awsFlowLogsQuery.getResultList();
+		System.out.println("AwsEc2FlowLogs");
+		print(awsFlowLogsResult);
+
 		// RDS
+		TypedQuery<Object[]> awsDbClusterQuery = session.createQuery(
+				"select i.* from AwsDBCluster i" );
+		List<Object[]> awsDbClusterResult = awsDbClusterQuery.getResultList();
+		System.out.println("AwsDBCluster");
+		print(awsDbClusterResult);
+
+		TypedQuery<Object[]> awsDbClusterSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBClusterSnapshot i" );
+		List<Object[]> awsDbClusterSnapshotResult = awsDbClusterSnapshotQuery.getResultList();
+		System.out.println("AwsDBClusterSnapshot");
+		print(awsDbClusterSnapshotResult);
+
 		TypedQuery<Object[]> awsDbInstanceQuery = session.createQuery(
 				"select i.* from AwsDBInstance i" );
 		List<Object[]> awsDbInstanceResult = awsDbInstanceQuery.getResultList();
-		System.out.println("AwsDbInstances");
+		System.out.println("AwsDBInstance");
 		print(awsDbInstanceResult);
+
+		TypedQuery<Object[]> awsDBSnapshotQuery = session.createQuery(
+				"select i.* from AwsDBSnapshot i" );
+		List<Object[]> awsDBSnapshotResult = awsDBSnapshotQuery.getResultList();
+		System.out.println("AwsDBSnapshot");
+		print(awsDBSnapshotResult);
+
+		TypedQuery<Object[]> awsDBSnapshotAttributeQuery = session.createQuery(
+				"select i.* from AwsDBSnapshotAttribute i" );
+		List<Object[]> awsDBSnapshotAttributeResult = awsDBSnapshotAttributeQuery.getResultList();
+		System.out.println("AwsDBSnapshotAttribute");
+		print(awsDBSnapshotAttributeResult);
+
+		TypedQuery<Object[]> awsEventSubscriptionQuery = session.createQuery(
+				"select i.* from AwsEventSubscription i" );
+		List<Object[]> awsEventSubscriptionResult = awsEventSubscriptionQuery.getResultList();
+		System.out.println("AwsEventSubscription");
+		print(awsEventSubscriptionResult);
+
 
 		// EFS
 		TypedQuery<Object[]> awsFileSystemQuery = session.createQuery(
@@ -425,10 +923,34 @@ public class Main {
 
 		// ECS
 		TypedQuery<Object[]> awsClusterQuery = session.createQuery(
-				"select f.* from AwsCluster f" );
+				"select f.* from AwsEcsCluster f" );
 		List<Object[]> awsClusterResult = awsClusterQuery.getResultList();
-		System.out.println("AwsClusters");
+		System.out.println("AwsEcsClusters");
 		print(awsClusterResult);
+
+		TypedQuery<Object[]> awsContainerDefinitionQuery = session.createQuery(
+				"select f.* from AwsEcsContainerDefinition f" );
+		List<Object[]> awsContainerDefinitionResult = awsContainerDefinitionQuery.getResultList();
+		System.out.println("AwsEcsContainerDefinitions");
+		print(awsContainerDefinitionResult);
+
+		TypedQuery<Object[]> awsServiceQuery = session.createQuery(
+				"select f.* from AwsEcsService f" );
+		List<Object[]> awsServiceResult = awsServiceQuery.getResultList();
+		System.out.println("AwsEcsServices");
+		print(awsServiceResult);
+
+		TypedQuery<Object[]> awsTaskDefinitionQuery = session.createQuery(
+				"select f.* from AwsEcsTaskDefinition f" );
+		List<Object[]> awsTaskDefinitionResult = awsTaskDefinitionQuery.getResultList();
+		System.out.println("AwsEcsTaskDefinitions");
+		print(awsTaskDefinitionResult);
+
+		TypedQuery<Object[]> awsTaskSetQuery = session.createQuery(
+				"select f.* from AwsEcsTaskSet f" );
+		List<Object[]> awsTaskSetResult = awsTaskSetQuery.getResultList();
+		System.out.println("AwsEcsTaskSets");
+		print(awsTaskSetResult);
 
 		// ELB
 		TypedQuery<Object[]> awsLoadBalancerQuery = session.createQuery(
@@ -462,6 +984,150 @@ public class Main {
 		List<Object[]> awsBucketResult = awsBucketQuery.getResultList();
 		System.out.println("AwsBuckets");
 		print(awsBucketResult);
+
+		TypedQuery<Object[]> awsBucketAclQuery = session.createQuery(
+				"select f.* from AwsBucketAcl f" );
+		List<Object[]> awsBucketAclResult = awsBucketAclQuery.getResultList();
+		System.out.println("AwsBucketAcl");
+		print(awsBucketAclResult);
+
+		TypedQuery<Object[]> awsBucketVersioningQuery = session.createQuery(
+				"select f.* from AwsBucketVersioning f" );
+		List<Object[]> awsBucketVersioningResult = awsBucketVersioningQuery.getResultList();
+		System.out.println("AwsBucketVersioning");
+		print(awsBucketVersioningResult);
+
+	TypedQuery<Object[]> awsBucketPolicyQuery = session.createQuery(
+				"select f.* from AwsBucketPolicy f" );
+		List<Object[]> awsBucketPolicyResult = awsBucketPolicyQuery.getResultList();
+		System.out.println("AwsBucketPolicy");
+		print(awsBucketPolicyResult);
+
+		TypedQuery<Object[]> awsLoggingEnabledQuery = session.createQuery(
+				"select f.* from AwsLoggingEnabled f" );
+		List<Object[]> awsLoggingEnabledResult = awsLoggingEnabledQuery.getResultList();
+		System.out.println("AwsLoggingEnabled");
+		print(awsLoggingEnabledResult);
+
+		TypedQuery<Object[]> awsObjectLockConfigurationQuery = session.createQuery(
+				"select f.* from AwsObjectLockConfiguration f" );
+		List<Object[]> awsObjectLockConfigurationResult = awsObjectLockConfigurationQuery.getResultList();
+		System.out.println("AwsObjectLockConfiguration");
+		print(awsObjectLockConfigurationResult);
+
+		TypedQuery<Object[]> awsPolicyStatusQuery = session.createQuery(
+				"select f.* from AwsPolicyStatus f" );
+		List<Object[]> awsPolicyStatusResult = awsPolicyStatusQuery.getResultList();
+		System.out.println("AwsPolicyStatus");
+		print(awsPolicyStatusResult);
+
+		TypedQuery<Object[]> awsLifeCycleRuleQuery = session.createQuery(
+				"select f.* from AwsLifeCycleRule f" );
+		List<Object[]> awsLifeCycleRuleResult = awsLifeCycleRuleQuery.getResultList();
+		System.out.println("AwsLifeCycleRule");
+		print(awsLifeCycleRuleResult);
+
+		TypedQuery<Object[]> awsPublicAccessBlockConfigurationQuery = session.createQuery(
+				"select f.* from AwsPublicAccessBlockConfiguration f" );
+		List<Object[]> awsPublicAccessBlockConfigurationResult = awsPublicAccessBlockConfigurationQuery.getResultList();
+		System.out.println("AwsPublicAccessBlockConfiguration");
+		print(awsPublicAccessBlockConfigurationResult);
+
+		TypedQuery<Object[]> awsServerSideEncryptionRuleQuery = session.createQuery(
+				"select f.* from AwsServerSideEncryptionRule f" );
+		List<Object[]> awsServerSideEncryptionRuleResult = awsServerSideEncryptionRuleQuery.getResultList();
+		System.out.println("AwsServerSideEncryptionConfiguration");
+		print(awsServerSideEncryptionRuleResult);
+
+		// KMS
+		TypedQuery<Object[]> awsKmsKeyQuery = session.createQuery(
+				"select f.* from AwsKmsKey f" );
+		List<Object[]> awsKmsKeyResult = awsKmsKeyQuery.getResultList();
+		System.out.println("AwsKmsKey");
+		print(awsKmsKeyResult);
+
+		TypedQuery<Object[]> awsKmsKeyAliasQuery = session.createQuery(
+				"select f.* from AwsKmsKeyAlias f" );
+		List<Object[]> awsKmsKeyAliasResult = awsKmsKeyAliasQuery.getResultList();
+		System.out.println("AwsKmsKeyAlias");
+		print(awsKmsKeyAliasResult);
+
+		TypedQuery<Object[]> awsKmsKeyPolicyQuery = session.createQuery(
+				"select f.* from AwsKmsKeyPolicy f" );
+		List<Object[]> awsKmsKeyPolicyResult = awsKmsKeyPolicyQuery.getResultList();
+		System.out.println("AwsKmsKeyPolicy");
+		print(awsKmsKeyPolicyResult);
+
+		TypedQuery<Object[]> awsKmsKeyRotationStatusQuery = session.createQuery(
+				"select f.* from AwsKmsKeyRotationStatus f" );
+		List<Object[]> awsKmsKeyRotationStatusResult = awsKmsKeyRotationStatusQuery.getResultList();
+		System.out.println("AwsKmsKeyRotationStatus");
+		print(awsKmsKeyRotationStatusResult);
+
+		// Secrets Manager
+		TypedQuery<Object[]> awsSecretsManagerSecretQuery = session.createQuery(
+				"select f.* from AwsSecretsManagerSecret f" );
+		List<Object[]> awsSecretsManagerSecretResult = awsSecretsManagerSecretQuery.getResultList();
+		System.out.println("AwsSecretsManagerSecret");
+		print(awsSecretsManagerSecretResult);
+
+		// CloudWatch
+		TypedQuery<Object[]> awsCloudWatchCompositeAlarmQuery = session.createQuery(
+				"select f.* from AwsCloudWatchCompositeAlarm f" );
+		List<Object[]> awsCloudWatchCompositeAlarmResult = awsCloudWatchCompositeAlarmQuery.getResultList();
+		System.out.println("AwsCloudWatchCompositeAlarm");
+		print(awsCloudWatchCompositeAlarmResult);
+
+		TypedQuery<Object[]> awsCloudWatchMetricAlarmQuery = session.createQuery(
+				"select f.* from AwsCloudWatchMetricAlarm f" );
+		List<Object[]> awsCloudWatchMetricAlarmResult = awsCloudWatchMetricAlarmQuery.getResultList();
+		System.out.println("AwsCloudWatchMetricAlarm");
+		print(awsCloudWatchMetricAlarmResult);
+
+		// CloudWatch Logs
+		TypedQuery<Object[]> awsCloudWatchLogsLogGroupQuery = session.createQuery(
+				"select f.* from AwsCloudWatchLogsLogGroup f" );
+		List<Object[]> awsCloudWatchLogsLogGroupResult = awsCloudWatchLogsLogGroupQuery.getResultList();
+		System.out.println("AwsCloudWatchLogsLogGroup");
+		print(awsCloudWatchLogsLogGroupResult);
+
+		TypedQuery<Object[]> awsCloudWatchLogsMetricFilterQuery = session.createQuery(
+				"select f.* from AwsCloudWatchLogsMetricFilter f" );
+		List<Object[]> awsCloudWatchLogsMetricFilterResult = awsCloudWatchLogsMetricFilterQuery.getResultList();
+		System.out.println("AwsCloudWatchLogsMetricFilter");
+		print(awsCloudWatchLogsMetricFilterResult);
+
+		// CloudTrail
+		TypedQuery<Object[]> awsCloudTrailEventSelectorQuery = session.createQuery(
+				"select f.* from AwsCloudTrailEventSelector f" );
+		List<Object[]> awsCloudTrailEventSelectorResult = awsCloudTrailEventSelectorQuery.getResultList();
+		System.out.println("AwsCloudTrailEventSelector");
+		print(awsCloudTrailEventSelectorResult);
+
+		TypedQuery<Object[]> awsCloudTrailTrailQuery = session.createQuery(
+				"select f.* from AwsCloudTrailTrail f" );
+		List<Object[]> awsCloudTrailTrailResult = awsCloudTrailTrailQuery.getResultList();
+		System.out.println("AwsCloudTrailTrail");
+		print(awsCloudTrailTrailResult);
+
+		TypedQuery<Object[]> awsCloudTrailTrailStatusQuery = session.createQuery(
+				"select f.* from AwsCloudTrailTrailStatus f" );
+		List<Object[]> awsCloudTrailTrailStatusResult = awsCloudTrailTrailStatusQuery.getResultList();
+		System.out.println("AwsCloudTrailTrailStatus");
+		print(awsCloudTrailTrailStatusResult);
+
+		// SNS
+		TypedQuery<Object[]> awsSnsSubscriptionQuery = session.createQuery(
+				"select f.* from AwsSnsSubscription f" );
+		List<Object[]> awsSnsSubscriptionResult = awsSnsSubscriptionQuery.getResultList();
+		System.out.println("AwsSnsSubscription");
+		print(awsSnsSubscriptionResult);
+
+		TypedQuery<Object[]> awsSnsTopicQuery = session.createQuery(
+				"select f.* from AwsSnsTopic f" );
+		List<Object[]> awsSnsTopicResult = awsSnsTopicQuery.getResultList();
+		System.out.println("AwsSnsTopic");
+		print(awsSnsTopicResult);
 	}
 
 	private static void testGitlab(QuerySession session) {
@@ -501,15 +1167,10 @@ public class Main {
 		System.out.println( "GitlabGraphQlUsers" );
 		print( gitlabGraphqlUserResult );
 
-		List<Object[]> gitlabGraphqlGroupResult = session.createQuery(
-				"select g.* from GitlabGraphQlGroup g" ).getResultList();
-		System.out.println( "GitlabGraphQlGroups" );
-		print( gitlabGraphqlGroupResult );
-
-		List<Object[]> gitlabGraphqlProjectResult = session.createQuery(
-				"select g.* from GitlabGraphQlProject g" ).getResultList();
-		System.out.println( "GitlabGraphQlProjects" );
-		print( gitlabGraphqlProjectResult );
+		List<Object[]> gitlabGraphqlMergeRequestResult = session.createQuery(
+				"select g.* from GitlabGraphQlMergeRequest g" ).getResultList();
+		System.out.println( "GitlabGraphQlMergeRequests" );
+		print( gitlabGraphqlMergeRequestResult );
 	}
 
 	private static void testGitHub(QuerySession session) {
@@ -745,6 +1406,38 @@ public class Main {
 		List<Object[]> permissionResult = permissionQuery.getResultList();
 		System.out.println( "Permission" );
 		print( permissionResult );
+
+		TypedQuery<Object[]> issueQuery = session.createQuery(
+				"SELECT u.* FROM JiraCloudIssue u");
+		List<Object[]> issueResult = issueQuery.getResultList();
+		System.out.println( "Issue" );
+		print( issueResult );
+
+		TypedQuery<Object[]> serverInfoQuery = session.createQuery(
+				"select u.* from JiraCloudServerInfo u" );
+		List<Object[]> serverInfoResult = serverInfoQuery.getResultList();
+		System.out.println( "Server info" );
+		print( serverInfoResult );
+	}
+
+	private static void testJiraCloudAdmin(QuerySession session) {
+		TypedQuery<Object[]> orgQuery = session.createQuery(
+				"select o.* from JiraCloudAdminOrg o" );
+		List<Object[]> orgResult = orgQuery.getResultList();
+		System.out.println( "Org" );
+		print( orgResult );
+
+		TypedQuery<Object[]> directoryQuery = session.createQuery(
+				"select o.* from JiraCloudAdminDirectory o" );
+		List<Object[]> directoryResult = directoryQuery.getResultList();
+		System.out.println( "Directory" );
+		print( directoryResult );
+
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"select u.* from JiraCloudAdminUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "User" );
+		print( userResult );
 	}
 
 	private static void testEntityView(QuerySession session) {
@@ -752,6 +1445,10 @@ public class Main {
 				"select t.id, e.text1 from " + name( TestEntityView.class ) + " t, unnest(t.elements) e" );
 		List<Object[]> entityViewResult = entityViewQuery.getResultList();
 		print( entityViewResult, "id", "text1" );
+		TypedQuery<Object[]> entityViewQuery2 = session.createQuery(
+				"select t.id, array_contains(t.enums, 'A') from " + name( TestEntityView.class ) + " t" );
+		List<Object[]> entityViewResult2 = entityViewQuery2.getResultList();
+		print( entityViewResult2, "id", "enums" );
 	}
 
 	private static void testAzureGraph(QuerySession session) {
@@ -916,6 +1613,12 @@ public class Main {
 		apiClient.setBasePath( JIRA_CLOUD_HOST );
 		apiClient.addDefaultHeader( "Authorization", "Basic " + Base64.getEncoder().encodeToString( (JIRA_CLOUD_USER + ":" + JIRA_CLOUD_TOKEN ).getBytes( StandardCharsets.UTF_8 ) ) );
 //        apiClient.getJSON().getMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return apiClient;
+	}
+
+	private static com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient createJiraCloudAdminOrganizationApiClient() {
+		com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient apiClient = new com.blazebit.query.connector.jira.cloud.admin.invoker.ApiClient();
+		apiClient.addDefaultHeader( "Authorization", "Bearer " + JIRA_CLOUD_ADMIN_API_KEY );
 		return apiClient;
 	}
 
