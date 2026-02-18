@@ -1,7 +1,7 @@
 [versions]
 calcite = "1.41.0"
 
-blaze-persistence = "1.6.17"
+blaze-persistence = "1.6.18"
 
 azure-core = "1.49.1"
 azure-identity = "1.11.0"
@@ -45,7 +45,7 @@ blaze-persistence-core-api = { module = "com.blazebit:blaze-persistence-core-api
 blaze-persistence-core-impl = { module = "com.blazebit:blaze-persistence-core-impl-jakarta", version.ref = "blaze-persistence" }
 blaze-persistence-entity-view-api = { module = "com.blazebit:blaze-persistence-entity-view-api-jakarta", version.ref = "blaze-persistence" }
 blaze-persistence-entity-view-impl = { module = "com.blazebit:blaze-persistence-entity-view-impl-jakarta", version.ref = "blaze-persistence" }
-blaze-persistence-integration-hibernate6 = { module = "com.blazebit:blaze-persistence-integration-hibernate-6.2", version.ref = "blaze-persistence" }
+blaze-persistence-integration-hibernate6 = { module = "com.blazebit:blaze-persistence-integration-hibernate-7.1", version.ref = "blaze-persistence" }
 
 azure-core = { module = "com.azure:azure-core", version.ref = "azure-core" }
 azure-identity = { module = "com.azure:azure-identity", version.ref = "azure-identity" }
