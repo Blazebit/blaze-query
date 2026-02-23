@@ -6,7 +6,6 @@ package com.blazebit.query.connector.azure.devops;
 
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.devops.api.WorkItemsApi;
-import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.connector.devops.invoker.ApiException;
 import com.blazebit.query.connector.devops.model.Wiql;
 import com.blazebit.query.connector.devops.model.WorkItemList;
@@ -43,18 +42,16 @@ public class WorkItemDataFetcher implements DataFetcher<WorkItem>, Serializable 
 	@Override
 	public List<WorkItem> fetch(DataFetchContext context) {
 		try {
-			List<ApiClient> apiClients = DevopsConnectorConfig.WIT_API_CLIENT.getAll( context );
-			List<String> organizations = DevopsConnectorConfig.ORGANIZATION.getAll( context );
+			List<DevopsConnectorConfig.Account> accounts = DevopsConnectorConfig.ACCOUNT.getAll( context );
 			String wiqlQuery = DevopsConnectorConfig.WIQL_QUERY.find( context );
 			if ( wiqlQuery == null ) {
 				wiqlQuery = DEFAULT_WIQL;
 			}
 
 			List<WorkItem> list = new ArrayList<>();
-			for ( int i = 0; i < apiClients.size(); i++ ) {
-				ApiClient apiClient = apiClients.get( i );
-				String organization = organizations.get( i );
-				WorkItemsApi api = new WorkItemsApi( apiClient );
+			for ( DevopsConnectorConfig.Account account : accounts ) {
+				WorkItemsApi api = new WorkItemsApi( account.getWitApiClient() );
+				String organization = account.getOrganization();
 
 				WorkItemQueryResult result = api.workItemsQueryWiql(
 						organization, "7.1", new Wiql().query( wiqlQuery ) );

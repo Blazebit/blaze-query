@@ -137,6 +137,11 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.azure.devops.DevopsConnectorConfig;
+import com.blazebit.query.connector.azure.devops.WorkItem;
+import com.blazebit.query.connector.devops.invoker.ApiClient;
+import com.blazebit.query.connector.devops.model.GitRepository;
+import com.blazebit.query.connector.devops.model.PolicyConfiguration;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
@@ -234,6 +239,9 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
+	private static final String DEVOPS_PAT = "";
+	private static final String DEVOPS_ORGANIZATION = "";
+
 	private static final String JIRA_DATACENTER_HOST = "";
 	private static final String JIRA_DATACENTER_TOKEN = "";
 	private static final String JIRA_CLOUD_HOST = "";
@@ -264,7 +272,7 @@ public class Main {
 //					Main::createPostgreSqlManagers );
 //			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 //			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
+			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
@@ -272,6 +280,7 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
+//			queryContextBuilder.setProperty( DevopsConnectorConfig.ACCOUNT.getPropertyName(), createDevopsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
@@ -500,6 +509,11 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
+			// Azure DevOps
+			queryContextBuilder.registerSchemaObjectAlias( GitRepository.class, "DevopsRepository" );
+			queryContextBuilder.registerSchemaObjectAlias( PolicyConfiguration.class, "DevopsPolicyConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( WorkItem.class, "DevopsWorkItem" );
+
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
 					QuerySession session = queryContext.createSession(
@@ -517,6 +531,7 @@ public class Main {
 					testEntityView( session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
+//					testAzureDevops( session );
 				}
 			}
 		}
@@ -1557,6 +1572,23 @@ public class Main {
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
+	private static void testAzureDevops(QuerySession session) {
+		List<Object[]> repositoryResult = session.createQuery(
+				"select r.* from DevopsRepository r" ).getResultList();
+		System.out.println( "DevopsRepositories" );
+		print( repositoryResult );
+
+		List<Object[]> policyResult = session.createQuery(
+				"select p.* from DevopsPolicyConfiguration p" ).getResultList();
+		System.out.println( "DevopsPolicyConfigurations" );
+		print( policyResult );
+
+		List<Object[]> workItemResult = session.createQuery(
+				"select w.* from DevopsWorkItem w" ).getResultList();
+		System.out.println( "DevopsWorkItems" );
+		print( workItemResult );
+	}
+
 	private static AwsConnectorConfig.Account createAwsAccount() {
 		return new AwsConnectorConfig.Account(
 				AWS_ACCOUNT_ID,
@@ -1591,6 +1623,18 @@ public class Main {
 		catch (IOException e) {
 			throw new RuntimeException( e );
 		}
+	}
+
+	private static DevopsConnectorConfig.Account createDevopsAccount() {
+		String auth = "Basic " + Base64.getEncoder().encodeToString(
+				( ":" + DEVOPS_PAT ).getBytes( StandardCharsets.UTF_8 ) );
+		ApiClient apiClient = new ApiClient();
+		apiClient.setBasePath( "https://app.vssps.visualstudio.com" );
+		apiClient.addDefaultHeader( "Authorization", auth );
+		ApiClient witApiClient = new ApiClient();
+		witApiClient.setBasePath( "https://dev.azure.com" );
+		witApiClient.addDefaultHeader( "Authorization", auth );
+		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, "" );
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {

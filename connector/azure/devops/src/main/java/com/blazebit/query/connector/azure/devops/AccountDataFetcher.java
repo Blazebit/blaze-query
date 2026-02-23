@@ -8,7 +8,6 @@ package com.blazebit.query.connector.azure.devops;
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.devops.api.AccountsApi;
 import com.blazebit.query.connector.devops.api.ProfilesApi;
-import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.connector.devops.invoker.ApiException;
 import com.blazebit.query.connector.devops.model.Account;
 import com.blazebit.query.connector.devops.model.Profile;
@@ -35,15 +34,15 @@ public class AccountDataFetcher implements DataFetcher<Account>, Serializable {
 	@Override
 	public List<Account> fetch(DataFetchContext context) {
 		try {
-			List<ApiClient> apiClients = DevopsConnectorConfig.API_CLIENT.getAll( context );
+			List<DevopsConnectorConfig.Account> accounts = DevopsConnectorConfig.ACCOUNT.getAll( context );
 			List<Account> list = new ArrayList<>();
-			for ( ApiClient apiClient : apiClients ) {
-				ProfilesApi profilesApi = new ProfilesApi( apiClient );
+			for ( DevopsConnectorConfig.Account account : accounts ) {
+				ProfilesApi profilesApi = new ProfilesApi( account.getApiClient() );
 				Profile profile = profilesApi.profilesGet( "me", "7.1", null, null, null, null, null );
 
-				AccountsApi accountsApi = new AccountsApi( apiClient );
-				List<Account> accounts = accountsApi.accountsList( "7.1", null, profile.getId(), null );
-				list.addAll( accounts );
+				AccountsApi accountsApi = new AccountsApi( account.getApiClient() );
+				List<Account> fetched = accountsApi.accountsList( "7.1", null, profile.getId(), null );
+				list.addAll( fetched );
 			}
 			return list;
 		}

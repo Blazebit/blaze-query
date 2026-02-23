@@ -43,15 +43,13 @@ public class PolicyConfigurationDataFetcher implements DataFetcher<PolicyConfigu
 	@Override
 	public List<PolicyConfiguration> fetch(DataFetchContext context) {
 		try {
-			List<ApiClient> apiClients = DevopsConnectorConfig.API_CLIENT.getAll( context );
-			List<String> organizations = DevopsConnectorConfig.ORGANIZATION.getAll( context );
-			List<String> projects = DevopsConnectorConfig.PROJECT.getAll( context );
+			List<DevopsConnectorConfig.Account> accounts = DevopsConnectorConfig.ACCOUNT.getAll( context );
 			// Use a map to deduplicate: project-wide policies appear for every repo they match
 			Map<Integer, PolicyConfiguration> deduplicated = new LinkedHashMap<>();
-			for ( int i = 0; i < apiClients.size(); i++ ) {
-				ApiClient apiClient = apiClients.get( i );
-				String organization = organizations.get( i );
-				String project = projects.get( i );
+			for ( DevopsConnectorConfig.Account account : accounts ) {
+				ApiClient apiClient = account.getApiClient();
+				String organization = account.getOrganization();
+				String project = account.getProject();
 
 				fetchForProject( apiClient, organization, project, deduplicated );
 

@@ -6,7 +6,6 @@ package com.blazebit.query.connector.azure.devops;
 
 import com.blazebit.query.connector.base.DataFormats;
 import com.blazebit.query.connector.devops.api.RepositoriesApi;
-import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.connector.devops.invoker.ApiException;
 import com.blazebit.query.connector.devops.model.GitRepository;
 import com.blazebit.query.spi.DataFetchContext;
@@ -34,14 +33,12 @@ public class RepositoryDataFetcher implements DataFetcher<GitRepository>, Serial
 	@Override
 	public List<GitRepository> fetch(DataFetchContext context) {
 		try {
-			List<ApiClient> apiClients = DevopsConnectorConfig.API_CLIENT.getAll( context );
-			List<String> organizations = DevopsConnectorConfig.ORGANIZATION.getAll( context );
-			List<String> projects = DevopsConnectorConfig.PROJECT.getAll( context );
+			List<DevopsConnectorConfig.Account> accounts = DevopsConnectorConfig.ACCOUNT.getAll( context );
 			List<GitRepository> list = new ArrayList<>();
-			for ( int i = 0; i < apiClients.size(); i++ ) {
-				RepositoriesApi repositoriesApi = new RepositoriesApi( apiClients.get( i ) );
+			for ( DevopsConnectorConfig.Account account : accounts ) {
+				RepositoriesApi repositoriesApi = new RepositoriesApi( account.getApiClient() );
 				List<GitRepository> repositories = repositoriesApi.repositoriesList(
-						organizations.get( i ), projects.get( i ), "7.1", null, null, null );
+						account.getOrganization(), account.getProject(), "7.1", null, null, null );
 				list.addAll( repositories );
 			}
 			return list;
