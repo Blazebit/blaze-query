@@ -31,19 +31,13 @@ public class DevopsConventionContext implements ConventionContext {
 	@Override
 	public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
 		if ( AbstractOpenApiSchema.class.isAssignableFrom( concreteClass ) ) {
-			switch ( member.getName() ) {
-				case "getSchemas":
-				case "getActualInstance":
-				case "getActualInstanceRecursively":
-				case "getSchemaType":
-				case "isNullable":
-					return null;
-				default:
-					return this;
-			}
+			return switch ( member.getName() ) {
+				case "getSchemas", "getActualInstance", "getActualInstanceRecursively", "getSchemaType", "isNullable" ->
+						null;
+				default -> this;
+			};
 		}
-		if ( member instanceof Method ) {
-			Method method = (Method) member;
+		if ( member instanceof Method method ) {
 			if ( method.getName().endsWith( "_JsonNullable" ) ) {
 				return null;
 			}

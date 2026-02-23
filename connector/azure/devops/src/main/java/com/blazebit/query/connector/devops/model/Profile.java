@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -52,13 +50,13 @@ private UUID id;
 * The current state of the profile.
 */
 public enum ProfileStateEnum {
-	CUSTOM(String.valueOf("custom")),
+	CUSTOM( "custom" ),
 
-	CUSTOM_READ_ONLY(String.valueOf("customReadOnly")),
+	CUSTOM_READ_ONLY( "customReadOnly" ),
 
-	READ_ONLY(String.valueOf("readOnly"));
+	READ_ONLY( "readOnly" );
 
-	private String value;
+	private final String value;
 
 	ProfileStateEnum(String value) {
 	this.value = value;

@@ -83,8 +83,7 @@ public record WorkItem(
 			return null;
 		}
 		Object value = fields.get( key );
-		if ( value instanceof String ) {
-			String s = (String) value;
+		if ( value instanceof String s ) {
 			return s.isEmpty() ? null : OffsetDateTime.parse( s );
 		}
 		return null;
