@@ -20,7 +20,10 @@ public final class DevopsSchemaProvider implements QuerySchemaProvider {
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
 		return Set.of(
-				AccountDataFetcher.INSTANCE
+				AccountDataFetcher.INSTANCE,
+				RepositoryDataFetcher.INSTANCE,
+				PolicyConfigurationDataFetcher.INSTANCE,
+				WorkItemDataFetcher.INSTANCE
 		);
 	}
 }

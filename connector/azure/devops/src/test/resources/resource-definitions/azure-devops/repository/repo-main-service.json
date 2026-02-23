@@ -1,0 +1,20 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "main-service",
+  "defaultBranch": "refs/heads/main",
+  "isDisabled": false,
+  "isFork": false,
+  "isInMaintenance": false,
+  "remoteUrl": "https://myorg@dev.azure.com/myorg/myproject/_git/main-service",
+  "sshUrl": "git@ssh.dev.azure.com:v3/myorg/myproject/main-service",
+  "url": "https://dev.azure.com/myorg/bbbbbbbb-cccc-dddd-eeee-ffffffffffff/_apis/git/repositories/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "webUrl": "https://dev.azure.com/myorg/myproject/_git/main-service",
+  "size": 204800,
+  "project": {
+    "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+    "name": "myproject",
+    "state": "wellFormed",
+    "visibility": "private",
+    "lastUpdateTime": "2024-06-01T10:00:00Z"
+  }
+}

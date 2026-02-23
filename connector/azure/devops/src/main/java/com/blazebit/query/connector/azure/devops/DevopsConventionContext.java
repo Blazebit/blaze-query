@@ -6,6 +6,7 @@ package com.blazebit.query.connector.azure.devops;
 
 import com.blazebit.query.connector.base.ConventionContext;
 import com.blazebit.query.connector.devops.model.AbstractOpenApiSchema;
+import com.blazebit.query.connector.devops.model.ReferenceLinks;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -44,6 +45,9 @@ public class DevopsConventionContext implements ConventionContext {
 		if ( member instanceof Method ) {
 			Method method = (Method) member;
 			if ( method.getName().endsWith( "_JsonNullable" ) ) {
+				return null;
+			}
+			if ( ReferenceLinks.class.equals( method.getReturnType() ) ) {
 				return null;
 			}
 		}
