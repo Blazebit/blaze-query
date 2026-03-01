@@ -22,7 +22,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class DriveDataFetcher implements DataFetcher<com.google.api.services.drive.model.Drive>, Serializable {
+public class DriveDataFetcher implements DataFetcher<GoogleDrive>, Serializable {
 
 	public static final DriveDataFetcher INSTANCE = new DriveDataFetcher();
 
@@ -30,13 +30,15 @@ public class DriveDataFetcher implements DataFetcher<com.google.api.services.dri
 	}
 
 	@Override
-	public List<com.google.api.services.drive.model.Drive> fetch(DataFetchContext context) {
+	public List<GoogleDrive> fetch(DataFetchContext context) {
 		try {
 			List<Drive> directoryServices = GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getAll( context );
-			List<com.google.api.services.drive.model.Drive> list = new ArrayList<>();
+			List<GoogleDrive> list = new ArrayList<>();
 			OUTER: for ( Drive drive : directoryServices ) {
 				try {
-					list.addAll( drive.drives().list().execute().getDrives() );
+					for ( com.google.api.services.drive.model.Drive d : drive.drives().list().execute().getDrives() ) {
+						list.add( new GoogleDrive( d.getId(), d ) );
+					}
 				}
 				catch ( GoogleJsonResponseException e ) {
 					for ( GoogleJsonError.Details detail : e.getDetails().getDetails() ) {
@@ -56,6 +58,6 @@ public class DriveDataFetcher implements DataFetcher<com.google.api.services.dri
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( com.google.api.services.drive.model.Drive.class, GoogleDriveConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleDrive.class, GoogleDriveConventionContext.INSTANCE );
 	}
 }

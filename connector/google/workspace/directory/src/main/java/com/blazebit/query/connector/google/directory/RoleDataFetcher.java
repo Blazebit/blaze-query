@@ -21,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
+public class RoleDataFetcher implements DataFetcher<GoogleRole>, Serializable {
 
 	public static final RoleDataFetcher INSTANCE = new RoleDataFetcher();
 
@@ -29,12 +29,14 @@ public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
 	}
 
 	@Override
-	public List<Role> fetch(DataFetchContext context) {
+	public List<GoogleRole> fetch(DataFetchContext context) {
 		try {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
-			List<Role> list = new ArrayList<>();
+			List<GoogleRole> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.roles().list("my_customer" ).execute().getItems() );
+				for ( Role role : directory.roles().list("my_customer" ).execute().getItems() ) {
+					list.add( new GoogleRole( String.valueOf( role.getRoleId() ), role ) );
+				}
 			}
 			return list;
 		}
@@ -45,6 +47,6 @@ public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Role.class, GoogleDirectoryConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleRole.class, GoogleDirectoryConventionContext.INSTANCE );
 	}
 }

@@ -27,7 +27,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
+public class RoleDataFetcher implements DataFetcher<GcpRole>, Serializable {
 
 	public static final RoleDataFetcher INSTANCE = new RoleDataFetcher();
 
@@ -35,10 +35,10 @@ public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
 	}
 
 	@Override
-	public List<Role> fetch(DataFetchContext context) {
+	public List<GcpRole> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Role> list = new ArrayList<>();
+			List<GcpRole> list = new ArrayList<>();
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final IAMSettings settings = IAMSettings.newBuilder()
 						.setCredentialsProvider(credentialsProvider)
@@ -52,7 +52,7 @@ public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
 								.build();
 						final IAMClient.ListRolesPagedResponse response = client.listRoles( request );
 						for ( Role instance : response.iterateAll() ) {
-							list.add( instance );
+							list.add( new GcpRole( instance.getName(), instance ) );
 						}
 					}
 					catch (PermissionDeniedException e) {
@@ -73,6 +73,6 @@ public class RoleDataFetcher implements DataFetcher<Role>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Role.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpRole.class, GcpConventionContext.INSTANCE );
 	}
 }

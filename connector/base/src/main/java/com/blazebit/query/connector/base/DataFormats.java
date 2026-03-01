@@ -192,10 +192,21 @@ public final class DataFormats {
 		for ( Map.Entry<String, ? extends Member> entry : attributes.entrySet() ) {
 			ConventionContext subFilter = conventionContext.getSubFilter( clazz, entry.getValue() );
 			if ( subFilter != null ) {
+				Type memberType = factory.memberType( entry.getValue() );
+				DataFormatFieldAccessor accessor = factory.memberAccessor( entry.getValue(), conventionContext );
+
+				if ( memberType instanceof Class<?> memberClass ) {
+					Class<?> resolved = subFilter.resolveType( memberClass );
+					if ( resolved != memberClass ) {
+						accessor = subFilter.createConvertingAccessor( accessor, memberClass, resolved );
+						memberType = resolved;
+					}
+				}
+
 				DataFormatField dataFormatField = DataFormatField.of(
 						entry.getKey(),
-						factory.memberAccessor( entry.getValue(), conventionContext ),
-						getOrCreateDataFormat( clazz, factory.memberType( entry.getValue() ), subFilter,
+						accessor,
+						getOrCreateDataFormat( clazz, memberType, subFilter,
 								visitedTypes, registry, factory )
 				);
 				fields.add( dataFormatField );
