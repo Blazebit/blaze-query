@@ -1,0 +1,21 @@
+**/.gitignore
+**/git_push.sh
+**/gradle-wrapper.jar
+**/gradle-wrapper.properties
+**/gradlew.bat
+**/gradlew
+**/openapi.yaml
+**/maven.yml
+**/.travis.yml
+**/AndroidManifest.xml
+**/gradle.properties
+**/settings.gradle
+**/build.sbt
+**/build.gradle
+**/README.md
+**/.openapi-generator-ignore
+**/pom.xml
+
+# Hand-fixed due to OpenAPI generator type mismatch (putXxxItem uses base class instead of concrete type)
+**/model/Profile.java
+**/model/AttributesContainer.java
