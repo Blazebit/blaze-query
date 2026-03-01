@@ -166,6 +166,8 @@ import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
 import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
+import com.blazebit.query.connector.observatory.ObservatoryClient;
+import com.blazebit.query.connector.observatory.ObservatoryConnectorConfig;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.Queries;
@@ -241,6 +243,8 @@ public class Main {
 	private static final String JIRA_CLOUD_TOKEN = "";
 	private static final String JIRA_CLOUD_ADMIN_API_KEY = "";
 
+	private static final String OBSERVATORY_HOST = "";
+
 
 	private Main() {
 	}
@@ -273,6 +277,7 @@ public class Main {
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
+			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -500,6 +505,13 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
+			// Observatory
+			queryContextBuilder.registerSchemaObject(
+					com.blazebit.query.connector.observatory.ObservatoryScan.class,
+					com.blazebit.query.connector.observatory.ObservatoryScanDataFetcher.INSTANCE
+			);
+			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.observatory.ObservatoryScan.class, "ObservatoryScan" );
+
 			try (QueryContext queryContext = queryContextBuilder.build()) {
 				try (EntityManager em = emf.createEntityManager();
 					QuerySession session = queryContext.createSession(
@@ -514,7 +526,8 @@ public class Main {
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
-					testEntityView( session );
+//					testEntityView( session );
+					testObservatory(  session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
 				}
@@ -1557,6 +1570,14 @@ public class Main {
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
+	private static void testObservatory(QuerySession session) {
+		TypedQuery<Object[]> observatoryScanQuery = session.createQuery(
+				"select c.* from ObservatoryScan c" );
+		List<Object[]> observatoryCheckResult = observatoryScanQuery.getResultList();
+		System.out.println( "ObservatoryScan" );
+		print( observatoryCheckResult );
+	}
+
 	private static AwsConnectorConfig.Account createAwsAccount() {
 		return new AwsConnectorConfig.Account(
 				AWS_ACCOUNT_ID,
@@ -1591,6 +1612,10 @@ public class Main {
 		catch (IOException e) {
 			throw new RuntimeException( e );
 		}
+	}
+
+	private static ObservatoryClient createObservatoryClient() {
+		return new ObservatoryClient(OBSERVATORY_HOST);
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
