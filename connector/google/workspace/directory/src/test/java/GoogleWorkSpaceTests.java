@@ -4,6 +4,7 @@
  */
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.connector.google.directory.GoogleDirectorySchemaProvider;
+import com.blazebit.query.connector.google.directory.GoogleUser;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ public class GoogleWorkSpaceTests {
 	static {
 		var builder = new QueryContextBuilderImpl();
 		builder.registerSchemaProvider( new GoogleDirectorySchemaProvider() );
-		builder.registerSchemaObjectAlias( com.google.api.services.directory.model.User.class, "GoogleUser" );
+		builder.registerSchemaObjectAlias( GoogleUser.class, "GoogleUser" );
 		CONTEXT = builder.build();
 	}
 
@@ -29,7 +30,7 @@ public class GoogleWorkSpaceTests {
 	void should_return_google_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-				com.google.api.services.directory.model.User.class,
+				GoogleUser.class,
 					List.of(
 							TestObjects.staleUser(),
 							TestObjects.activeUser(),
@@ -49,7 +50,7 @@ public class GoogleWorkSpaceTests {
 	void should_return_suspended_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-				com.google.api.services.directory.model.User.class,
+				GoogleUser.class,
 					List.of(
 							TestObjects.staleUser(),
 							TestObjects.activeUser(),
@@ -58,7 +59,7 @@ public class GoogleWorkSpaceTests {
 			);
 
 			var typedQuery =
-				session.createQuery( "select u.* from GoogleUser u where u.suspended = true", new com.blazebit.query.TypeReference<java.util.Map<String, Object>>() {
+				session.createQuery( "select u.* from GoogleUser u where u.payload.suspended = true", new com.blazebit.query.TypeReference<java.util.Map<String, Object>>() {
 				} );
 
 			assertThat( typedQuery.getResultList() ).hasSize( 1 );
@@ -69,7 +70,7 @@ public class GoogleWorkSpaceTests {
 	void should_return_active_users() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-				com.google.api.services.directory.model.User.class,
+				GoogleUser.class,
 					List.of(
 							TestObjects.staleUser(),
 							TestObjects.activeUser(),
@@ -84,13 +85,13 @@ public class GoogleWorkSpaceTests {
 							.toEpochMilli();
 
 			var typedQuery =
-				session.createQuery( "select u.* from GoogleUser u where u.suspended = false and u.lastLoginTime is not null and u.lastLoginTime.`value` > ?", new com.blazebit.query.TypeReference<java.util.Map<String, Object>>() {
+				session.createQuery( "select u.* from GoogleUser u where u.payload.suspended = false and u.payload.lastLoginTime is not null and u.payload.lastLoginTime.`value` > ?", new com.blazebit.query.TypeReference<java.util.Map<String, Object>>() {
 				} );
 
 			typedQuery.setParameter(1, oneYearAgoMillis);
 
 			assertThat( typedQuery.getResultList() ).hasSize( 1 );
-			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "id" ) ).containsExactly( "active-user-id" );
+			assertThat( typedQuery.getResultList() ).extracting( result -> result.get( "resourceId" ) ).containsExactly( "active-user-id" );
 		}
 	}
 
@@ -98,7 +99,7 @@ public class GoogleWorkSpaceTests {
 	void should_return_active_users_without_mfa_enrolled() {
 		try (var session = CONTEXT.createSession()) {
 			session.put(
-					com.google.api.services.directory.model.User.class,
+					GoogleUser.class,
 					List.of(
 							TestObjects.activeUser(),          // enrolled -> should NOT be returned
 							TestObjects.staleUser(),           // enrolled -> should NOT be returned
@@ -111,14 +112,14 @@ public class GoogleWorkSpaceTests {
 					session.createQuery(
 							"select u.* " +
 									"from GoogleUser u " +
-									"where u.suspended = false " +
-									"and (u.isEnrolledIn2Sv = false or u.isEnrolledIn2Sv is null)",
+									"where u.payload.suspended = false " +
+									"and (u.payload.isEnrolledIn2Sv = false or u.payload.isEnrolledIn2Sv is null)",
 							new com.blazebit.query.TypeReference<Map<String, Object>>() {}
 					);
 
 			var result = typedQuery.getResultList();
 			assertThat(result).hasSize(1);
-			assertThat(result).extracting(r -> r.get("id")).containsExactly("active-user-no-mfa-id");
+			assertThat(result).extracting(r -> r.get("resourceId")).containsExactly("active-user-no-mfa-id");
 		}
 	}
 }

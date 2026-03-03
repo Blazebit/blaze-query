@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
+import com.blazebit.query.connector.google.directory.GoogleUser;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.directory.model.User;
 
@@ -11,7 +12,7 @@ public final class TestObjects {
 	private TestObjects() {
 	}
 
-	public static User staleUser() {
+	public static GoogleUser staleUser() {
 		User user = new User();
 		user.setId("stale-user-id");
 		user.setSuspended(false);
@@ -22,10 +23,10 @@ public final class TestObjects {
 		user.setIsEnrolledIn2Sv(true);
 		user.setIsEnforcedIn2Sv(true);
 
-		return user;
+		return new GoogleUser( user.getId(), user );
 	}
 
-	public static User activeUser() {
+	public static GoogleUser activeUser() {
 		User user = new User();
 		user.setId("active-user-id");
 		user.setSuspended(false);
@@ -38,10 +39,10 @@ public final class TestObjects {
 		user.setIsEnrolledIn2Sv(true);
 		user.setIsEnforcedIn2Sv(true);
 
-		return user;
+		return new GoogleUser( user.getId(), user );
 	}
 
-	public static User suspendedUser() {
+	public static GoogleUser suspendedUser() {
 		User user = new User();
 		user.setId("suspended-user-id");
 		user.setSuspended(true);
@@ -52,10 +53,10 @@ public final class TestObjects {
 		user.setIsEnrolledIn2Sv(false);
 		user.setIsEnforcedIn2Sv(false);
 
-		return user;
+		return new GoogleUser( user.getId(), user );
 	}
 
-	public static User activeUserWithoutMfa() {
+	public static GoogleUser activeUserWithoutMfa() {
 		User user = new User();
 		user.setId("active-user-no-mfa-id");
 		user.setSuspended(false);
@@ -66,6 +67,6 @@ public final class TestObjects {
 		user.setIsEnrolledIn2Sv(false);
 		user.setIsEnforcedIn2Sv(false);
 
-		return user;
+		return new GoogleUser( user.getId(), user );
 	}
 }
