@@ -168,9 +168,6 @@ public class AvaticaTypeExtractionTest {
 	public record PrimitiveModel(Long id, String name, boolean active, double val) {
 	}
 
-	public record DeepModel(List<List<GitHubBranchProtectionRule>> deepRules) {
-	}
-
 	public record GitHubRepository(
 			String id,
 			List<GitHubBranchProtectionRule> branchProtectionRules) {
