@@ -96,7 +96,7 @@ public class QueryContextImpl implements QueryContext {
 			return (ResultExtractor<T>) new MapExtractor( columnTypes );
 		}
 
-		return SingleObjectExtractor.INSTANCE;
+		return new SingleObjectExtractor<>( columnTypes.length == 0 ? null : columnTypes[0] );
 	}
 
 	private static AvaticaType[] extractColumnTypes(ResultSet resultSet) {
@@ -120,6 +120,9 @@ public class QueryContextImpl implements QueryContext {
 	}
 
 	static Object normalizeValue(Object value, AvaticaType type) {
+		if ( value == null ) {
+			return null;
+		}
 		if ( value instanceof Struct struct ) {
 			try {
 				Object[] attributes = struct.getAttributes();
@@ -170,8 +173,10 @@ public class QueryContextImpl implements QueryContext {
 		}
 		if ( value instanceof List<?> list ) {
 			List<Object> result = new ArrayList<>( list.size() );
+			AvaticaType componentType = type instanceof ArrayType arrayType
+					? arrayType.getComponent() : null;
 			for ( Object el : list ) {
-				result.add( normalizeValue( el, null ) );
+				result.add( normalizeValue( el, componentType ) );
 			}
 			return result;
 		}
@@ -494,12 +499,15 @@ public class QueryContextImpl implements QueryContext {
 	}
 
 	private static class SingleObjectExtractor<T> implements ResultExtractor<T> {
+		private final AvaticaType type;
 
-		private static final SingleObjectExtractor INSTANCE = new SingleObjectExtractor();
+		public SingleObjectExtractor(AvaticaType type) {
+			this.type = type;
+		}
 
 		@Override
 		public T extract(ResultSet resultSet) throws SQLException {
-			return (T) resultSet.getObject( 1 );
+			return (T) normalizeValue( resultSet.getObject( 1 ), type );
 		}
 	}
 
