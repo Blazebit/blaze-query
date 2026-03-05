@@ -22,6 +22,7 @@ import org.apache.calcite.avatica.ColumnMetaData.StructType;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Table;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Array;
 import java.sql.Connection;
@@ -49,10 +50,23 @@ import static java.util.Spliterators.spliteratorUnknownSize;
  */
 public class QueryContextImpl implements QueryContext {
 
+	private static final Field COLUMN_META_DATA_LIST_FIELD;
 	private final ConfigurationProviderImpl configurationProvider;
 	private final MetamodelImpl metamodel;
 	private final CalciteDataSource calciteDataSource;
 	private volatile boolean closed;
+
+	static {
+		Field field;
+		try {
+			field = AvaticaResultSet.class.getDeclaredField( "columnMetaDataList" );
+			field.setAccessible( true );
+		}
+		catch (Exception e) {
+			field = null;
+		}
+		COLUMN_META_DATA_LIST_FIELD = field;
+	}
 
 	public QueryContextImpl(QueryContextBuilderImpl builder) {
 		this.configurationProvider = new ConfigurationProviderImpl(
@@ -66,33 +80,27 @@ public class QueryContextImpl implements QueryContext {
 			AvaticaType[] columnTypes,
 			ResultSet resultSet,
 			TypedQueryImpl<T> query) {
-		if ( query.getResultType() == Object[].class ) {
-			if ( columnTypes.length == 0 ) {
-				try {
-					columnTypes = new AvaticaType[resultSet.getMetaData().getColumnCount()];
-				}
-				catch (SQLException e) {
-					throw new QueryException( "Couldn't access result set metadata", e,
-							query.getQueryString()
-					);
+		if ( columnTypes.length == 0 ) {
+			try {
+				int columnCount = resultSet.getMetaData().getColumnCount();
+				if ( columnCount > 0 ) {
+					columnTypes = new AvaticaType[columnCount];
 				}
 			}
+			catch (SQLException e) {
+				throw new QueryException( "Couldn't access result set metadata", e,
+						query.getQueryString()
+				);
+			}
+		}
+
+		if ( query.getResultType() == Object[].class ) {
 			return (ResultExtractor<T>) new ObjectArrayExtractor( columnTypes );
 		}
 
 		if ( query.getResultType() == Map.class
 				|| query.getResultType() instanceof ParameterizedType parameterizedType
 				&& parameterizedType.getRawType() == Map.class ) {
-			if ( columnTypes.length == 0 ) {
-				try {
-					columnTypes = new AvaticaType[resultSet.getMetaData().getColumnCount()];
-				}
-				catch (SQLException e) {
-					throw new QueryException( "Couldn't access result set metadata", e,
-							query.getQueryString()
-					);
-				}
-			}
 			return (ResultExtractor<T>) new MapExtractor( columnTypes );
 		}
 
@@ -100,21 +108,21 @@ public class QueryContextImpl implements QueryContext {
 	}
 
 	private static AvaticaType[] extractColumnTypes(ResultSet resultSet) {
-		try {
-			if ( resultSet.isWrapperFor( AvaticaResultSet.class ) ) {
-				AvaticaResultSet avaticaResultSet = resultSet.unwrap( AvaticaResultSet.class );
-				var field = AvaticaResultSet.class.getDeclaredField( "columnMetaDataList" );
-				field.setAccessible( true );
-				List<ColumnMetaData> columns = (List<ColumnMetaData>) field.get( avaticaResultSet );
-				AvaticaType[] types = new AvaticaType[columns.size()];
-				for ( int i = 0; i < columns.size(); i++ ) {
-					types[i] = columns.get( i ).type;
+		if ( COLUMN_META_DATA_LIST_FIELD != null ) {
+			try {
+				if ( resultSet.isWrapperFor( AvaticaResultSet.class ) ) {
+					AvaticaResultSet avaticaResultSet = resultSet.unwrap( AvaticaResultSet.class );
+					List<ColumnMetaData> columns = (List<ColumnMetaData>) COLUMN_META_DATA_LIST_FIELD.get( avaticaResultSet );
+					AvaticaType[] types = new AvaticaType[columns.size()];
+					for ( int i = 0; i < columns.size(); i++ ) {
+						types[i] = columns.get( i ).type;
+					}
+					return types;
 				}
-				return types;
 			}
-		}
-		catch (Exception e) {
-			// fallback
+			catch (Exception e) {
+				// fallback
+			}
 		}
 		return new AvaticaType[0];
 	}
@@ -148,34 +156,26 @@ public class QueryContextImpl implements QueryContext {
 		}
 		if ( value instanceof Array array ) {
 			try {
-				AvaticaType componentType = type instanceof ArrayType arrayType
-						? arrayType.getComponent() : null;
-				Object elements = array.getArray();
-				if ( elements instanceof Object[] objArray ) {
-					List<Object> list = new ArrayList<>( objArray.length );
-					for ( Object el : objArray ) {
-						list.add( normalizeValue( el, componentType ) );
-					}
-					return list;
-				}
-				if ( elements instanceof List<?> elList ) {
-					List<Object> list = new ArrayList<>( elList.size() );
-					for ( Object el : elList ) {
-						list.add( normalizeValue( el, componentType ) );
-					}
-					return list;
-				}
-				return normalizeValue( elements, componentType );
+				return normalizeValue( array.getArray(), type );
 			}
 			catch (SQLException e) {
 				return value.toString();
 			}
 		}
 		if ( value instanceof List<?> list ) {
-			List<Object> result = new ArrayList<>( list.size() );
 			AvaticaType componentType = type instanceof ArrayType arrayType
 					? arrayType.getComponent() : null;
+			List<Object> result = new ArrayList<>( list.size() );
 			for ( Object el : list ) {
+				result.add( normalizeValue( el, componentType ) );
+			}
+			return result;
+		}
+		if ( value instanceof Object[] objArray ) {
+			AvaticaType componentType = type instanceof ArrayType arrayType
+					? arrayType.getComponent() : null;
+			List<Object> result = new ArrayList<>( objArray.length );
+			for ( Object el : objArray ) {
 				result.add( normalizeValue( el, componentType ) );
 			}
 			return result;
