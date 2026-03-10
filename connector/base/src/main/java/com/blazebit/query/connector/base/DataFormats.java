@@ -192,10 +192,21 @@ public final class DataFormats {
 		for ( Map.Entry<String, ? extends Member> entry : attributes.entrySet() ) {
 			ConventionContext subFilter = conventionContext.getSubFilter( clazz, entry.getValue() );
 			if ( subFilter != null ) {
+				Type memberType = factory.memberType( entry.getValue() );
+				DataFormatFieldAccessor accessor = factory.memberAccessor( entry.getValue(), conventionContext );
+
+				if ( memberType instanceof Class<?> memberClass ) {
+					Class<?> resolved = subFilter.resolveType( memberClass );
+					if ( resolved != memberClass ) {
+						accessor = subFilter.createConvertingAccessor( accessor, memberClass, resolved );
+						memberType = resolved;
+					}
+				}
+
 				DataFormatField dataFormatField = DataFormatField.of(
 						entry.getKey(),
-						factory.memberAccessor( entry.getValue(), conventionContext ),
-						getOrCreateDataFormat( clazz, factory.memberType( entry.getValue() ), subFilter,
+						accessor,
+						getOrCreateDataFormat( clazz, memberType, subFilter,
 								visitedTypes, registry, factory )
 				);
 				fields.add( dataFormatField );
@@ -287,7 +298,7 @@ public final class DataFormats {
 		Set<TypeVariable<?>> visitedTypeVariables = new HashSet<>();
 		TypeVariable<?> currentTypeVariable = typeVariable;
 		while ( visitedTypeVariables.add( currentTypeVariable ) ) {
-			Type type = typeAssignments.get( typeVariable );
+			Type type = typeAssignments.get( currentTypeVariable );
 			if ( type instanceof Class<?> || type instanceof ParameterizedType ) {
 				return type;
 			}
@@ -299,7 +310,7 @@ public final class DataFormats {
 			}
 		}
 		Type[] bounds = typeVariable.getBounds();
-		if ( bounds[0] != Object.class ) {
+		if ( bounds.length > 0 && bounds[0] != Object.class ) {
 			return bounds[0];
 		}
 		return typeVariable;

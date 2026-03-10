@@ -113,10 +113,10 @@ public class TypedQueryImpl<T> implements TypedQuery<T>, DataFetchContext {
 			if ( value == null ) {
 				preparedStatement.setNull( position, java.sql.Types.NULL );
 			}
-			if ( value instanceof Character characterValue ) {
+			else if ( value instanceof Character characterValue ) {
 				preparedStatement.setString( position, String.valueOf( characterValue ) );
 			}
-			if ( value instanceof String stringValue ) {
+			else if ( value instanceof String stringValue ) {
 				preparedStatement.setString( position, stringValue );
 			}
 			else if ( value instanceof Long longValue ) {
