@@ -259,13 +259,14 @@ public class QueryContextImpl implements QueryContext {
 			);
 			Spliterator<T> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
 			Stream<T> stream = StreamSupport.stream( spliterator, false );
-			return stream.onClose( iterator::close );
+			return stream.onClose( () -> {
+				iterator.close();
+				configurationProvider.unsetQuery();
+			} );
 		}
 		catch (SQLException e) {
-			throw new QueryException( "Error while executing query", e, query.getQueryString() );
-		}
-		finally {
 			configurationProvider.unsetQuery();
+			throw new QueryException( "Error while executing query", e, query.getQueryString() );
 		}
 	}
 
