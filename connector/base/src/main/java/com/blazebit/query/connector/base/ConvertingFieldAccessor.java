@@ -40,7 +40,11 @@ public final class ConvertingFieldAccessor implements DataFormatFieldAccessor {
 	@Override
 	public Object get(Object o) {
 		try {
-			return converterMethod.invoke( null, delegate.get( o ) );
+			Object value = delegate.get( o );
+			if ( value == null ) {
+				return null;
+			}
+			return converterMethod.invoke( null, value );
 		}
 		catch (Exception e) {
 			throw new RuntimeException( e );
