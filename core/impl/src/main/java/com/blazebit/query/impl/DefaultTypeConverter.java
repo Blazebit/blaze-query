@@ -6,13 +6,10 @@ package com.blazebit.query.impl;
 
 import com.blazebit.query.spi.TypeConverter;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.sql.Struct;
 import java.sql.Timestamp;
 import java.sql.Date;
 import java.sql.Time;
@@ -26,13 +23,13 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
+ * Handles scalar type conversions between Java types.
+ * Composite JDBC types (Struct, Array, Object[]) are handled by
+ * {@link ResultValueNormalizer} before reaching this converter.
+ *
  * @author Max Hovens
  * @since 2.2.0
  */
@@ -57,17 +54,6 @@ public class DefaultTypeConverter implements TypeConverter {
 			if ( targetClass != Object.class && targetClass.isInstance( value ) ) {
 				return value;
 			}
-		}
-		if ( value instanceof java.sql.Array array ) {
-			return convertSqlArray( array, targetType, context );
-		}
-		if ( value instanceof Struct struct ) {
-			return context.convert( struct.getAttributes(), targetType );
-		}
-		if ( value instanceof Object[] objectArray ) {
-			return convertObjectArray( objectArray, targetType, context );
-		}
-		if ( targetType instanceof Class<?> targetClass ) {
 			if ( targetClass == Object.class ) {
 				return unwrapSqlScalar( value );
 			}
@@ -90,43 +76,6 @@ public class DefaultTypeConverter implements TypeConverter {
 			}
 		}
 		return value;
-	}
-
-	private Object convertSqlArray(java.sql.Array array, Type targetType, Context context) throws SQLException {
-		Object[] elements = (Object[]) array.getArray();
-		Type elementType = Object.class;
-		Class<?> rawTargetClass = null;
-		if ( targetType instanceof ParameterizedType parameterizedType ) {
-			rawTargetClass = (Class<?>) parameterizedType.getRawType();
-			elementType = parameterizedType.getActualTypeArguments()[0];
-		}
-		else if ( targetType instanceof Class<?> cls ) {
-			rawTargetClass = cls;
-		}
-		List<Object> convertedElements = new ArrayList<>( elements.length );
-		for ( Object element : elements ) {
-			convertedElements.add( context.convert( element, elementType ) );
-		}
-		if ( rawTargetClass != null && Set.class.isAssignableFrom( rawTargetClass ) ) {
-			return new HashSet<>( convertedElements );
-		}
-		return convertedElements;
-	}
-
-	private Object convertObjectArray(Object[] objectArray, Type targetType, Context context) throws SQLException {
-		if ( targetType instanceof Class<?> targetClass && targetClass.isArray() ) {
-			Class<?> componentType = targetClass.getComponentType();
-			Object convertedArray = Array.newInstance( componentType, objectArray.length );
-			for ( int i = 0; i < objectArray.length; i++ ) {
-				Array.set( convertedArray, i, context.convert( objectArray[i], componentType ) );
-			}
-			return convertedArray;
-		}
-		Object[] convertedElements = new Object[objectArray.length];
-		for ( int i = 0; i < objectArray.length; i++ ) {
-			convertedElements[i] = context.convert( objectArray[i], Object.class );
-		}
-		return convertedElements;
 	}
 
 	private Object unwrapSqlScalar(Object value) {

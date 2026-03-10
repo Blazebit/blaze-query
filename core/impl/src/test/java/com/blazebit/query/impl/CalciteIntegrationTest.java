@@ -102,12 +102,11 @@ public class CalciteIntegrationTest {
 				assertEquals( "Acme", results.get( 0 )[0] );
 				Object departments = results.get( 0 )[1];
 				assertTrue( departments instanceof List );
-				List<Object[]> deptList = (List<Object[]>) departments;
+				List<Map<String, Object>> deptList = (List<Map<String, Object>>) departments;
 				assertEquals( 1, deptList.size() );
-				Object[] itDept = deptList.get( 0 );
-				// Department has: employees, name
-				assertEquals( "IT", itDept[1] );
-				assertTrue( itDept[0] instanceof List );
+				Map<String, Object> itDept = deptList.get( 0 );
+				assertEquals( "IT", itDept.get( "name" ) );
+				assertTrue( itDept.get( "employees" ) instanceof List );
 			}
 		}
 	}

@@ -25,9 +25,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -63,10 +65,12 @@ public class QueryContextImpl implements QueryContext {
 			ResultSet resultSet,
 			TypedQueryImpl<T> query) {
 		Type resultType = query.getResultType();
+		ResultValueNormalizer normalizer = ResultValueNormalizer.create(
+				resultSet, value -> convert( value, Object.class ) );
 		if ( resultType == Object[].class ) {
 			try {
 				return (ResultExtractor<T>) new ObjectArrayExtractor(
-						resultSet.getMetaData().getColumnCount() );
+						resultSet.getMetaData().getColumnCount(), normalizer );
 			}
 			catch (SQLException e) {
 				throw new QueryException( "Couldn't access result set metadata", e,
@@ -81,7 +85,7 @@ public class QueryContextImpl implements QueryContext {
 				&& parameterizedType.getRawType() == Map.class ) {
 			try {
 				return (ResultExtractor<T>) new MapExtractor(
-						resultSet.getMetaData().getColumnCount() );
+						resultSet.getMetaData().getColumnCount(), normalizer );
 			}
 			catch (SQLException e) {
 				throw new QueryException( "Couldn't access result set metadata", e,
@@ -90,7 +94,7 @@ public class QueryContextImpl implements QueryContext {
 			}
 		}
 
-		return new SingleObjectExtractor<>( resultType );
+		return new SingleObjectExtractor<>( resultType, normalizer );
 	}
 
 	private static ImmutableMap<String, SchemaObjectTypeImpl<?>> resolveSchemaObjects(
@@ -365,16 +369,18 @@ public class QueryContextImpl implements QueryContext {
 	private class ObjectArrayExtractor implements ResultExtractor<Object[]> {
 
 		private final int columnCount;
+		private final ResultValueNormalizer normalizer;
 
-		public ObjectArrayExtractor(int columnCount) {
+		public ObjectArrayExtractor(int columnCount, ResultValueNormalizer normalizer) {
 			this.columnCount = columnCount;
+			this.normalizer = normalizer;
 		}
 
 		@Override
 		public Object[] extract(ResultSet resultSet) throws SQLException {
 			Object[] tuple = new Object[columnCount];
 			for ( int i = 0; i < tuple.length; i++ ) {
-				tuple[i] = convert( resultSet.getObject( i + 1 ), Object.class );
+				tuple[i] = normalizer.normalizeColumn( resultSet.getObject( i + 1 ), i );
 			}
 			return tuple;
 		}
@@ -383,17 +389,19 @@ public class QueryContextImpl implements QueryContext {
 	private class MapExtractor implements ResultExtractor<Map> {
 
 		private final int columnCount;
+		private final ResultValueNormalizer normalizer;
 
-		public MapExtractor(int columnCount) {
+		public MapExtractor(int columnCount, ResultValueNormalizer normalizer) {
 			this.columnCount = columnCount;
+			this.normalizer = normalizer;
 		}
 
 		@Override
 		public Map<String, Object> extract(ResultSet resultSet) throws SQLException {
-			Map<String, Object> map = new HashMap<>();
+			Map<String, Object> map = new LinkedHashMap<>();
 			for ( int i = 0; i < columnCount; i++ ) {
 				map.put( resultSet.getMetaData().getColumnLabel( i + 1 ),
-						convert( resultSet.getObject( i + 1 ), Object.class ) );
+						normalizer.normalizeColumn( resultSet.getObject( i + 1 ), i ) );
 			}
 			return map;
 		}
@@ -402,14 +410,21 @@ public class QueryContextImpl implements QueryContext {
 	private class SingleObjectExtractor<T> implements ResultExtractor<T> {
 
 		private final Type resultType;
+		private final ResultValueNormalizer normalizer;
 
-		public SingleObjectExtractor(Type resultType) {
+		public SingleObjectExtractor(Type resultType, ResultValueNormalizer normalizer) {
 			this.resultType = resultType;
+			this.normalizer = normalizer;
 		}
 
 		@Override
 		public T extract(ResultSet resultSet) throws SQLException {
-			return (T) convert( resultSet.getObject( 1 ), resultType );
+			Object value = resultSet.getObject( 1 );
+			if ( value instanceof Struct || value instanceof java.sql.Array
+					|| value instanceof Object[] ) {
+				return (T) normalizer.normalizeColumn( value, 0 );
+			}
+			return (T) convert( value, resultType );
 		}
 	}
 

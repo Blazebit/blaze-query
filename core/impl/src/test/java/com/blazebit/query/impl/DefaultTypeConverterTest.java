@@ -7,15 +7,11 @@ package com.blazebit.query.impl;
 import com.blazebit.query.spi.TypeConverter;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Array;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -28,16 +24,11 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Max Hovens
@@ -164,90 +155,17 @@ class DefaultTypeConverterTest {
 	}
 
 	@Test
-	void testObjectTargetType() throws SQLException {
+	void testObjectTargetUnwrapsSqlScalars() throws SQLException {
 		long now = System.currentTimeMillis();
 		assertEquals(Instant.ofEpochMilli(now), converter.convert(new Timestamp(now), Object.class, context));
 		assertEquals(LocalDate.of(2023, 10, 27), converter.convert(Date.valueOf("2023-10-27"), Object.class, context));
 		assertEquals(LocalTime.of(12, 34, 56), converter.convert(Time.valueOf("12:34:56"), Object.class, context));
-
-		Object[] array = new Object[]{1, 2};
-		assertArrayEquals(array, (Object[]) converter.convert(array, Object.class, context));
 	}
 
 	@Test
-	void testSqlArrayToList() throws SQLException {
-		Array sqlArray = new MockArray(new Object[]{"a", "b"});
-
-		assertEquals(Arrays.asList("a", "b"), converter.convert(sqlArray, List.class, context));
-		assertEquals(new HashSet<>(Arrays.asList("a", "b")), converter.convert(sqlArray, Set.class, context));
-	}
-
-	@Test
-	void testArrayToArray() throws SQLException {
-		Object[] data = new Object[]{1, 2};
-
-		Integer[] result = (Integer[]) converter.convert(data, Integer[].class, context);
-		assertArrayEquals(new Integer[]{1, 2}, result);
-	}
-
-	@Test
-	void testStructToObjectArray() throws SQLException {
-		Struct struct = new MockStruct(new Object[]{"test", 123});
-		Object[] result = (Object[]) converter.convert(struct, Object.class, context);
-		assertArrayEquals(new Object[]{"test", 123}, result);
-	}
-
-	@Test
-	void testNestedCollections() throws SQLException {
-		Array innerArray = new MockArray(new Object[]{1, 2});
-		Array outerArray = new MockArray(new Object[]{innerArray});
-
-		ParameterizedType listType = new MockParameterizedType(List.class, new MockParameterizedType(List.class, Integer.class));
-		List<List<Integer>> result = (List<List<Integer>>) converter.convert(outerArray, listType, context);
-
-		assertEquals(1, result.size());
-		assertEquals(Arrays.asList(1, 2), result.get(0));
-	}
-
-	private static class MockArray implements Array {
-		private final Object[] elements;
-
-		MockArray(Object[] elements) { this.elements = elements; }
-
-		@Override public String getBaseTypeName() { return null; }
-		@Override public int getBaseType() { return 0; }
-		@Override public Object getArray() { return elements; }
-		@Override public Object getArray(Map<String, Class<?>> map) { return elements; }
-		@Override public Object getArray(long index, int count) { return null; }
-		@Override public Object getArray(long index, int count, Map<String, Class<?>> map) { return null; }
-		@Override public ResultSet getResultSet() { return null; }
-		@Override public ResultSet getResultSet(Map<String, Class<?>> map) { return null; }
-		@Override public ResultSet getResultSet(long index, int count) { return null; }
-		@Override public ResultSet getResultSet(long index, int count, Map<String, Class<?>> map) { return null; }
-		@Override public void free() { }
-	}
-
-	private static class MockStruct implements Struct {
-		private final Object[] attributes;
-
-		MockStruct(Object[] attributes) {
-			this.attributes = attributes;
-		}
-
-		@Override public String getSQLTypeName() { return null; }
-		@Override public Object[] getAttributes() { return attributes; }
-		@Override public Object[] getAttributes(Map<String, Class<?>> map) { return attributes; }
-	}
-
-	private static class MockParameterizedType implements ParameterizedType {
-		private final Class<?> raw;
-		private final Type arg;
-
-		MockParameterizedType(Class<?> raw, Type arg) { this.raw = raw; this.arg = arg; }
-
-		@Override public Type[] getActualTypeArguments() { return new Type[]{arg}; }
-		@Override public Type getRawType() { return raw; }
-		@Override public Type getOwnerType() { return null; }
+	void testObjectTargetPassesThroughNonSqlTypes() throws SQLException {
+		assertSame("hello", converter.convert("hello", Object.class, context));
+		assertEquals(42, converter.convert(42, Object.class, context));
 	}
 
 	enum TestEnum {
