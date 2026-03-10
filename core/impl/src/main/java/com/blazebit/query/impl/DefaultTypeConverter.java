@@ -31,7 +31,7 @@ import java.util.UUID;
  * {@link ResultValueNormalizer} before reaching this converter.
  *
  * @author Max Hovens
- * @since 2.2.0
+ * @since 2.3.0
  */
 public class DefaultTypeConverter implements TypeConverter {
 

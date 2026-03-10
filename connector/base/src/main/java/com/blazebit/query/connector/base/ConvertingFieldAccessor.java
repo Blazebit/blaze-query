@@ -11,8 +11,8 @@ import com.blazebit.query.spi.DataFormatFieldAccessor;
 /**
  * Accessor that wraps another accessor and applies a static conversion method to the result.
  *
- * @author Christian Beikov
- * @since 1.0.0
+ * @author Max Hovens
+ * @since 2.3.0
  */
 public final class ConvertingFieldAccessor implements DataFormatFieldAccessor {
 	private final DataFormatFieldAccessor delegate;

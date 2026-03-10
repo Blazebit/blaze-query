@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * and {@link CalciteIntegrationTest}.
  *
  * @author Max Hovens
- * @since 2.2.0
+ * @since 2.3.0
  */
 public class ExhaustiveTypeConversionTest {
 

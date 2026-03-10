@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Max Hovens
- * @since 2.2.0
+ * @since 2.3.0
  */
 class AccessorTest {
 

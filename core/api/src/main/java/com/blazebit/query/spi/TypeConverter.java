@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * A converter for values to a target type.
  *
  * @author Max Hovens
- * @since 2.2.0
+ * @since 2.3.0
  */
 public interface TypeConverter {
 
