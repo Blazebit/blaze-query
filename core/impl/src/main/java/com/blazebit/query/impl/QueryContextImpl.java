@@ -13,27 +13,21 @@ import com.blazebit.query.impl.calcite.SubSchema;
 import com.blazebit.query.impl.metamodel.MetamodelImpl;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.QuerySchemaProvider;
+import com.blazebit.query.spi.TypeConverter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.apache.calcite.avatica.AvaticaResultSet;
-import org.apache.calcite.avatica.ColumnMetaData;
-import org.apache.calcite.avatica.ColumnMetaData.ArrayType;
-import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
-import org.apache.calcite.avatica.ColumnMetaData.StructType;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Table;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.sql.Array;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -50,23 +44,11 @@ import static java.util.Spliterators.spliteratorUnknownSize;
  */
 public class QueryContextImpl implements QueryContext {
 
-	private static final Field COLUMN_META_DATA_LIST_FIELD;
 	private final ConfigurationProviderImpl configurationProvider;
 	private final MetamodelImpl metamodel;
 	private final CalciteDataSource calciteDataSource;
+	private final ImmutableList<TypeConverter> typeConverters;
 	private volatile boolean closed;
-
-	static {
-		Field field;
-		try {
-			field = AvaticaResultSet.class.getDeclaredField( "columnMetaDataList" );
-			field.setAccessible( true );
-		}
-		catch (Exception e) {
-			field = null;
-		}
-		COLUMN_META_DATA_LIST_FIELD = field;
-	}
 
 	public QueryContextImpl(QueryContextBuilderImpl builder) {
 		this.configurationProvider = new ConfigurationProviderImpl(
@@ -74,18 +56,32 @@ public class QueryContextImpl implements QueryContext {
 		this.calciteDataSource = new CalciteDataSource( builder.getProperties() );
 		this.metamodel = new MetamodelImpl(
 				resolveSchemaObjects( builder, configurationProvider, calciteDataSource ) );
+		this.typeConverters = ImmutableList.copyOf( builder.typeConverters );
 	}
 
-	private static <T> ResultExtractor<T> getResultExtractor(
-			AvaticaType[] columnTypes,
+	private <T> ResultExtractor<T> getResultExtractor(
 			ResultSet resultSet,
 			TypedQueryImpl<T> query) {
-		if ( columnTypes.length == 0 ) {
+		Type resultType = query.getResultType();
+		if ( resultType == Object[].class ) {
 			try {
-				int columnCount = resultSet.getMetaData().getColumnCount();
-				if ( columnCount > 0 ) {
-					columnTypes = new AvaticaType[columnCount];
-				}
+				return (ResultExtractor<T>) new ObjectArrayExtractor(
+						resultSet.getMetaData().getColumnCount() );
+			}
+			catch (SQLException e) {
+				throw new QueryException( "Couldn't access result set metadata", e,
+						query.getQueryString()
+				);
+			}
+
+		}
+
+		if ( resultType == Map.class
+				|| resultType instanceof ParameterizedType parameterizedType
+				&& parameterizedType.getRawType() == Map.class ) {
+			try {
+				return (ResultExtractor<T>) new MapExtractor(
+						resultSet.getMetaData().getColumnCount() );
 			}
 			catch (SQLException e) {
 				throw new QueryException( "Couldn't access result set metadata", e,
@@ -94,93 +90,7 @@ public class QueryContextImpl implements QueryContext {
 			}
 		}
 
-		if ( query.getResultType() == Object[].class ) {
-			return (ResultExtractor<T>) new ObjectArrayExtractor( columnTypes );
-		}
-
-		if ( query.getResultType() == Map.class
-				|| query.getResultType() instanceof ParameterizedType parameterizedType
-				&& parameterizedType.getRawType() == Map.class ) {
-			return (ResultExtractor<T>) new MapExtractor( columnTypes );
-		}
-
-		return new SingleObjectExtractor<>( columnTypes.length == 0 ? null : columnTypes[0] );
-	}
-
-	private static AvaticaType[] extractColumnTypes(ResultSet resultSet) {
-		if ( COLUMN_META_DATA_LIST_FIELD != null ) {
-			try {
-				if ( resultSet.isWrapperFor( AvaticaResultSet.class ) ) {
-					AvaticaResultSet avaticaResultSet = resultSet.unwrap( AvaticaResultSet.class );
-					List<ColumnMetaData> columns = (List<ColumnMetaData>) COLUMN_META_DATA_LIST_FIELD.get( avaticaResultSet );
-					AvaticaType[] types = new AvaticaType[columns.size()];
-					for ( int i = 0; i < columns.size(); i++ ) {
-						types[i] = columns.get( i ).type;
-					}
-					return types;
-				}
-			}
-			catch (Exception e) {
-				// fallback
-			}
-		}
-		return new AvaticaType[0];
-	}
-
-	static Object normalizeValue(Object value, AvaticaType type) {
-		if ( value == null ) {
-			return null;
-		}
-		if ( value instanceof Struct struct ) {
-			try {
-				Object[] attributes = struct.getAttributes();
-				if ( type instanceof StructType structType
-						&& structType.columns.size() == attributes.length ) {
-					Map<String, Object> map = new LinkedHashMap<>( attributes.length );
-					for ( int i = 0; i < attributes.length; i++ ) {
-						ColumnMetaData field = structType.columns.get( i );
-						String name = field.label != null ? field.label : field.columnName;
-						map.put( name, normalizeValue( attributes[i], field.type ) );
-					}
-					return map;
-				}
-				List<Object> list = new ArrayList<>( attributes.length );
-				for ( Object attr : attributes ) {
-					list.add( normalizeValue( attr, null ) );
-				}
-				return list;
-			}
-			catch (SQLException e) {
-				return value.toString();
-			}
-		}
-		if ( value instanceof Array array ) {
-			try {
-				return normalizeValue( array.getArray(), type );
-			}
-			catch (SQLException e) {
-				return value.toString();
-			}
-		}
-		if ( value instanceof List<?> list ) {
-			AvaticaType componentType = type instanceof ArrayType arrayType
-					? arrayType.getComponent() : null;
-			List<Object> result = new ArrayList<>( list.size() );
-			for ( Object el : list ) {
-				result.add( normalizeValue( el, componentType ) );
-			}
-			return result;
-		}
-		if ( value instanceof Object[] objArray ) {
-			AvaticaType componentType = type instanceof ArrayType arrayType
-					? arrayType.getComponent() : null;
-			List<Object> result = new ArrayList<>( objArray.length );
-			for ( Object el : objArray ) {
-				result.add( normalizeValue( el, componentType ) );
-			}
-			return result;
-		}
-		return value;
+		return new SingleObjectExtractor<>( resultType );
 	}
 
 	private static ImmutableMap<String, SchemaObjectTypeImpl<?>> resolveSchemaObjects(
@@ -319,8 +229,7 @@ public class QueryContextImpl implements QueryContext {
 	public <T> List<T> getResultList(TypedQueryImpl<T> query, PreparedStatement preparedStatement) {
 		configurationProvider.setQuery( query );
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			AvaticaType[] columnTypes = extractColumnTypes( resultSet );
-			ResultExtractor<T> extractor = getResultExtractor( columnTypes, resultSet, query );
+			ResultExtractor<T> extractor = getResultExtractor( resultSet, query );
 			ArrayList<T> resultList = new ArrayList<>();
 			while ( resultSet.next() ) {
 				resultList.add( extractor.extract( resultSet ) );
@@ -340,12 +249,9 @@ public class QueryContextImpl implements QueryContext {
 			PreparedStatement preparedStatement) {
 		configurationProvider.setQuery( query );
 		try {
-			ResultSet resultSet = preparedStatement.executeQuery();
-			AvaticaType[] columnTypes = extractColumnTypes( resultSet );
 			ResultSetIterator<T> iterator = new ResultSetIterator<>(
 					query,
-					columnTypes,
-					resultSet
+					preparedStatement.executeQuery()
 			);
 			Spliterator<T> spliterator = spliteratorUnknownSize( iterator, Spliterator.NONNULL );
 			Stream<T> stream = StreamSupport.stream( spliterator, false );
@@ -399,20 +305,17 @@ public class QueryContextImpl implements QueryContext {
 		T extract(ResultSet resultSet) throws SQLException;
 	}
 
-	private static class ResultSetIterator<T> implements Iterator<T> {
+	private class ResultSetIterator<T> implements Iterator<T> {
 
 		private final TypedQueryImpl<T> query;
 		private final ResultSet resultSet;
 		private final ResultExtractor<T> extractor;
 		private boolean hasNext;
 
-		public ResultSetIterator(
-				TypedQueryImpl<T> query,
-				AvaticaType[] columnTypes,
-				ResultSet resultSet) {
+		public ResultSetIterator(TypedQueryImpl<T> query, ResultSet resultSet) {
 			this.query = query;
 			this.resultSet = resultSet;
-			this.extractor = getResultExtractor( columnTypes, resultSet, query );
+			this.extractor = getResultExtractor( resultSet, query );
 			advance();
 		}
 
@@ -459,56 +362,67 @@ public class QueryContextImpl implements QueryContext {
 		}
 	}
 
-	private static class ObjectArrayExtractor implements ResultExtractor<Object[]> {
+	private class ObjectArrayExtractor implements ResultExtractor<Object[]> {
 
-		private final AvaticaType[] columnTypes;
+		private final int columnCount;
 
-		public ObjectArrayExtractor(AvaticaType[] columnTypes) {
-			this.columnTypes = columnTypes;
+		public ObjectArrayExtractor(int columnCount) {
+			this.columnCount = columnCount;
 		}
 
 		@Override
 		public Object[] extract(ResultSet resultSet) throws SQLException {
-			Object[] tuple = new Object[columnTypes.length];
+			Object[] tuple = new Object[columnCount];
 			for ( int i = 0; i < tuple.length; i++ ) {
-				tuple[i] = normalizeValue( resultSet.getObject( i + 1 ), columnTypes[i] );
+				tuple[i] = convert( resultSet.getObject( i + 1 ), Object.class );
 			}
 			return tuple;
 		}
 	}
 
-	private static class MapExtractor implements ResultExtractor<Map> {
+	private class MapExtractor implements ResultExtractor<Map> {
 
-		private final AvaticaType[] columnTypes;
+		private final int columnCount;
 
-		public MapExtractor(AvaticaType[] columnTypes) {
-			this.columnTypes = columnTypes;
+		public MapExtractor(int columnCount) {
+			this.columnCount = columnCount;
 		}
 
 		@Override
 		public Map<String, Object> extract(ResultSet resultSet) throws SQLException {
-			Map<String, Object> map = new LinkedHashMap<>();
-			for ( int i = 0; i < columnTypes.length; i++ ) {
-				map.put(
-						resultSet.getMetaData().getColumnLabel( i + 1 ),
-						normalizeValue( resultSet.getObject( i + 1 ), columnTypes[i] )
-				);
+			Map<String, Object> map = new HashMap<>();
+			for ( int i = 0; i < columnCount; i++ ) {
+				map.put( resultSet.getMetaData().getColumnLabel( i + 1 ),
+						convert( resultSet.getObject( i + 1 ), Object.class ) );
 			}
 			return map;
 		}
 	}
 
-	private static class SingleObjectExtractor<T> implements ResultExtractor<T> {
-		private final AvaticaType type;
+	private class SingleObjectExtractor<T> implements ResultExtractor<T> {
 
-		public SingleObjectExtractor(AvaticaType type) {
-			this.type = type;
+		private final Type resultType;
+
+		public SingleObjectExtractor(Type resultType) {
+			this.resultType = resultType;
 		}
 
 		@Override
 		public T extract(ResultSet resultSet) throws SQLException {
-			return (T) normalizeValue( resultSet.getObject( 1 ), type );
+			return (T) convert( resultSet.getObject( 1 ), resultType );
 		}
+	}
+
+	private Object convert(Object value, Type targetType) throws SQLException {
+		if ( value == null ) {
+			return null;
+		}
+		for ( TypeConverter typeConverter : typeConverters ) {
+			if ( typeConverter.canConvert( value, targetType ) ) {
+				return typeConverter.convert( value, targetType, this::convert );
+			}
+		}
+		return DefaultTypeConverter.INSTANCE.convert( value, targetType, this::convert );
 	}
 
 	private static class SchemaProviderEntry {

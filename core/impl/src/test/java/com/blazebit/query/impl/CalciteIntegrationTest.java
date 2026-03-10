@@ -59,8 +59,8 @@ public class CalciteIntegrationTest {
 				assertEquals( 1, results.size() );
 				assertEquals( "IT", results.get( 0 )[0] );
 				Object employees = results.get( 0 )[1];
-				assertTrue( employees instanceof java.sql.Array );
-				assertEquals( List.of( "John", "Jane" ), List.of( (Object[]) ((java.sql.Array) employees).getArray() ) );
+				assertTrue( employees instanceof List );
+				assertEquals( List.of( "John", "Jane" ), employees );
 			}
 		}
 	}
@@ -101,13 +101,13 @@ public class CalciteIntegrationTest {
 				assertEquals( 1, results.size() );
 				assertEquals( "Acme", results.get( 0 )[0] );
 				Object departments = results.get( 0 )[1];
-				assertTrue( departments instanceof java.sql.Array );
-				Object[] deptArray = (Object[]) ((java.sql.Array) departments).getArray();
-				assertEquals( 1, deptArray.length );
-				Object[] itDept = (Object[]) deptArray[0];
-				// Department has: name, employees
-				assertEquals( "IT", itDept[0] );
-				assertTrue( itDept[1] instanceof java.sql.Array );
+				assertTrue( departments instanceof List );
+				List<Object[]> deptList = (List<Object[]>) departments;
+				assertEquals( 1, deptList.size() );
+				Object[] itDept = deptList.get( 0 );
+				// Department has: employees, name
+				assertEquals( "IT", itDept[1] );
+				assertTrue( itDept[0] instanceof List );
 			}
 		}
 	}

@@ -26,6 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Max Hovens
+ * @since 2.2.0
+ */
 public class CoreComponentTest {
 
 	@Test
