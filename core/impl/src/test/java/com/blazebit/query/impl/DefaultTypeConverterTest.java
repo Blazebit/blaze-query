@@ -29,6 +29,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Max Hovens
@@ -166,6 +168,25 @@ class DefaultTypeConverterTest {
 	void testObjectTargetPassesThroughNonSqlTypes() throws SQLException {
 		assertSame("hello", converter.convert("hello", Object.class, context));
 		assertEquals(42, converter.convert(42, Object.class, context));
+	}
+
+	@Test
+	void testInvalidEnumNameThrows() {
+		assertThrows( IllegalArgumentException.class,
+				() -> converter.convert( "NONEXISTENT", TestEnum.class, context ) );
+	}
+
+	@Test
+	void testCanConvertAlwaysReturnsTrue() {
+		assertTrue( converter.canConvert( "anything", String.class ) );
+		assertTrue( converter.canConvert( 42, Long.class ) );
+		assertTrue( converter.canConvert( null, Object.class ) );
+	}
+
+	@Test
+	void testUnrecognizedTypePassesThrough() throws SQLException {
+		Object custom = new Object();
+		assertSame( custom, converter.convert( custom, getClass(), context ) );
 	}
 
 	enum TestEnum {

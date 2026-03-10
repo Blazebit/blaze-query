@@ -98,6 +98,13 @@ public class CoreComponentTest {
 	}
 
 	@Test
+	public void testDoubleCloseThrows() {
+		QueryContext context = Queries.createQueryContextBuilder().build();
+		context.close();
+		assertThrows( IllegalStateException.class, context::close );
+	}
+
+	@Test
 	public void testDataFetcherInteraction() {
 		QueryContextBuilder builder = Queries.createQueryContextBuilder();
 		MockDataFetcher<Person> fetcher = new MockDataFetcher<>( Person.class,
