@@ -298,7 +298,7 @@ public final class DataFormats {
 		Set<TypeVariable<?>> visitedTypeVariables = new HashSet<>();
 		TypeVariable<?> currentTypeVariable = typeVariable;
 		while ( visitedTypeVariables.add( currentTypeVariable ) ) {
-			Type type = typeAssignments.get( typeVariable );
+			Type type = typeAssignments.get( currentTypeVariable );
 			if ( type instanceof Class<?> || type instanceof ParameterizedType ) {
 				return type;
 			}
@@ -310,7 +310,7 @@ public final class DataFormats {
 			}
 		}
 		Type[] bounds = typeVariable.getBounds();
-		if ( bounds[0] != Object.class ) {
+		if ( bounds.length > 0 && bounds[0] != Object.class ) {
 			return bounds[0];
 		}
 		return typeVariable;
