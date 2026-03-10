@@ -192,9 +192,17 @@ class DefaultTypeConverterTest {
 
 	@Test
 	void testStructToObjectArray() throws SQLException {
-		Struct struct = new MockStruct(new Object[]{"test", 123});
+		Struct struct = new MockStruct(new Object[]{"test", 123}, null);
 		Object[] result = (Object[]) converter.convert(struct, Object.class, context);
 		assertArrayEquals(new Object[]{"test", 123}, result);
+	}
+
+	@Test
+	void testStructToMap() throws SQLException {
+		Struct struct = new MockStruct(new Object[]{"test", 123}, new String[]{"name", "age"});
+		Map<String, Object> result = (Map<String, Object>) converter.convert(struct, Object.class, context);
+		assertEquals("test", result.get("name"));
+		assertEquals(123, result.get("age"));
 	}
 
 	@Test
@@ -229,8 +237,12 @@ class DefaultTypeConverterTest {
 
 	private static class MockStruct implements Struct {
 		private final Object[] attributes;
+		private final String[] fieldNames;
 
-		MockStruct(Object[] attributes) { this.attributes = attributes; }
+		MockStruct(Object[] attributes, String[] fieldNames) {
+			this.attributes = attributes;
+			this.fieldNames = fieldNames;
+		}
 
 		@Override public String getSQLTypeName() { return null; }
 		@Override public Object[] getAttributes() { return attributes; }

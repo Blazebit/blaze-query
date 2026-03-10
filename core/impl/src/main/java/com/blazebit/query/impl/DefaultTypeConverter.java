@@ -7,10 +7,13 @@ package com.blazebit.query.impl;
 import com.blazebit.query.spi.TypeConverter;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Date;
@@ -28,7 +31,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,6 +44,20 @@ import java.util.UUID;
 public class DefaultTypeConverter implements TypeConverter {
 
 	public static final DefaultTypeConverter INSTANCE = new DefaultTypeConverter();
+	private static final Field AVATICA_STRUCT_COLUMNS_FIELD;
+
+	static {
+		Field f = null;
+		try {
+			Class<?> structTypeClass = Class.forName( "org.apache.calcite.avatica.ColumnMetaData$StructType" );
+			f = structTypeClass.getDeclaredField( "columns" );
+			f.setAccessible( true );
+		}
+		catch (Exception e) {
+			// Ignore
+		}
+		AVATICA_STRUCT_COLUMNS_FIELD = f;
+	}
 
 	private DefaultTypeConverter() {
 	}
@@ -74,7 +93,96 @@ public class DefaultTypeConverter implements TypeConverter {
 					return convertedElements;
 				}
 				if ( value instanceof Struct struct ) {
-					return context.convert( struct.getAttributes(), Object.class );
+					Object[] attributes = struct.getAttributes();
+					String[] attributeNames = null;
+					try {
+						Method getMetaDataMethod = struct.getClass().getMethod( "getMetaData" );
+						ResultSetMetaData metaData = (ResultSetMetaData) getMetaDataMethod.invoke( struct );
+						if ( metaData != null ) {
+							int columnCount = metaData.getColumnCount();
+							attributeNames = new String[columnCount];
+							for ( int i = 0; i < columnCount; i++ ) {
+								attributeNames[i] = metaData.getColumnLabel( i + 1 );
+							}
+						}
+					}
+					catch (Exception e) {
+						// Ignore
+					}
+					if ( attributeNames == null ) {
+						try {
+							Field field = struct.getClass().getDeclaredField( "fieldNames" );
+							field.setAccessible( true );
+							attributeNames = (String[]) field.get( struct );
+						}
+						catch (Exception e) {
+							// Ignore
+						}
+					}
+					if ( attributeNames == null ) {
+						try {
+							Field field = struct.getClass().getDeclaredField( "columnNames" );
+							field.setAccessible( true );
+							attributeNames = (String[]) field.get( struct );
+						}
+						catch (Exception e) {
+							// Ignore
+						}
+					}
+					if ( attributeNames == null ) {
+						try {
+							Method method = struct.getClass().getMethod( "getFieldNames" );
+							attributeNames = (String[]) method.invoke( struct );
+						}
+						catch (Exception e) {
+							// Ignore
+						}
+					}
+					if ( attributeNames == null ) {
+						try {
+							Method method = struct.getClass().getMethod( "getColumnNames" );
+							attributeNames = (String[]) method.invoke( struct );
+						}
+						catch (Exception e) {
+							// Ignore
+						}
+					}
+					if ( attributeNames == null && AVATICA_STRUCT_COLUMNS_FIELD != null ) {
+						try {
+							Method getTypeNameMethod = struct.getClass().getMethod( "getTypeName" );
+							Object structType = getTypeNameMethod.invoke( struct );
+							if ( AVATICA_STRUCT_COLUMNS_FIELD.getDeclaringClass().isInstance( structType ) ) {
+								List<?> columns = (List<?>) AVATICA_STRUCT_COLUMNS_FIELD.get( structType );
+								attributeNames = new String[columns.size()];
+								for ( int i = 0; i < columns.size(); i++ ) {
+									Object columnMetaData = columns.get( i );
+									Field labelField = columnMetaData.getClass().getDeclaredField( "label" );
+									labelField.setAccessible( true );
+									String label = (String) labelField.get( columnMetaData );
+									if ( label != null ) {
+										attributeNames[i] = label;
+									}
+									else {
+										Field columnNameField = columnMetaData.getClass().getDeclaredField( "columnName" );
+										columnNameField.setAccessible( true );
+										attributeNames[i] = (String) columnNameField.get( columnMetaData );
+									}
+								}
+							}
+						}
+						catch (Exception e) {
+							// Ignore
+						}
+					}
+
+					if ( attributeNames != null && attributeNames.length == attributes.length ) {
+						Map<String, Object> map = new LinkedHashMap<>( attributes.length );
+						for ( int i = 0; i < attributes.length; i++ ) {
+							map.put( attributeNames[i], context.convert( attributes[i], Object.class ) );
+						}
+						return map;
+					}
+					return context.convert( attributes, Object.class );
 				}
 				if ( value instanceof Object[] objectArray ) {
 					Object[] convertedElements = new Object[objectArray.length];
