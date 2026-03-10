@@ -379,7 +379,7 @@ public class QueryContextImpl implements QueryContext {
 
 	@Override
 	public boolean isOpen() {
-		return closed;
+		return !closed;
 	}
 
 	public void checkClosed() {
