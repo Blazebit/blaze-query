@@ -113,10 +113,11 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
 
 	@Override
 	public <T> T findProperty(String key) {
-		ConfigurationProviderImpl configurationProvider = queryContext.getConfigurationProvider();
-		Object value = configurationProvider.hasCurrentQuery()
-				? configurationProvider.findProperty( key )
-				: findLocalProperty( key );
+		Object value = findLocalProperty( key );
+		if ( value == null ) {
+			ConfigurationProviderImpl configurationProvider = queryContext.getConfigurationProvider();
+			value = configurationProvider.findProperty( key );
+		}
 		//noinspection unchecked
 		return (T) value;
 	}
@@ -152,7 +153,7 @@ public class QuerySessionImpl implements QuerySession, DataFetchContext {
 
 	@Override
 	public boolean isOpen() {
-		return closed;
+		return !closed;
 	}
 
 	public void checkClosed() {

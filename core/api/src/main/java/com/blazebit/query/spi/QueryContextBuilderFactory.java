@@ -19,5 +19,5 @@ public interface QueryContextBuilderFactory {
 	 *
 	 * @return a new {@link QueryContextBuilder}
 	 */
-	QueryContextBuilder creatBuilder();
+	QueryContextBuilder createBuilder();
 }
