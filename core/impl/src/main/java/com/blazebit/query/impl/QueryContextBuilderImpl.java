@@ -10,9 +10,11 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.PropertyProvider;
 import com.blazebit.query.spi.QueryContextBuilder;
 import com.blazebit.query.spi.QuerySchemaProvider;
+import com.blazebit.query.spi.TypeConverter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -27,6 +29,7 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
 	final ArrayList<QuerySchemaProvider> schemaProviders = new ArrayList<>();
 	final Map<String, SchemaObjectTypeImpl<?>> schemaObjects = new HashMap<>();
 	final Map<String, String> schemaObjectNames = new HashMap<>();
+	final List<TypeConverter> typeConverters = new ArrayList<>();
 
 	@Override
 	public QueryContextBuilder setProperty(String property, Object value) {
@@ -69,9 +72,18 @@ public class QueryContextBuilderImpl implements QueryContextBuilder {
 	}
 
 	@Override
+	public QueryContextBuilder registerTypeConverter(TypeConverter typeConverter) {
+		typeConverters.add( typeConverter );
+		return this;
+	}
+
+	@Override
 	public QueryContextBuilder loadServices() {
 		for ( QuerySchemaProvider querySchemaProvider : ServiceLoader.load( QuerySchemaProvider.class ) ) {
 			registerSchemaProvider( querySchemaProvider );
+		}
+		for ( TypeConverter typeConverter : ServiceLoader.load( TypeConverter.class ) ) {
+			registerTypeConverter( typeConverter );
 		}
 		return this;
 	}

@@ -37,7 +37,7 @@ public final class LaxMethodFieldAccessor implements DataFormatFieldAccessor {
 			return method.invoke( o );
 		}
 		catch (Exception e) {
-			throw new RuntimeException( e );
+			return null;
 		}
 	}
 }

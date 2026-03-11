@@ -60,6 +60,6 @@ public final class Queries {
 						"No QueryContextBuilderFactory found on the class path. Please check if a valid implementation is on the class path." );
 			}
 		}
-		return factory.creatBuilder();
+		return factory.createBuilder();
 	}
 }
