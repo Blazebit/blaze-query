@@ -34,8 +34,11 @@ public class GroupDataFetcher implements DataFetcher<GoogleGroup>, Serializable 
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleGroup> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				for ( Group group : directory.groups().list().setCustomer( "my_customer" ).execute().getGroups() ) {
-					list.add( new GoogleGroup( group.getId(), group ) );
+				List<Group> groups = directory.groups().list().setCustomer( "my_customer" ).execute().getGroups();
+				if ( groups != null ) {
+					for ( Group group : groups ) {
+						list.add( new GoogleGroup( group.getId(), group ) );
+					}
 				}
 			}
 			return list;

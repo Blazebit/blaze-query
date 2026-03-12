@@ -36,8 +36,11 @@ public class DriveDataFetcher implements DataFetcher<GoogleDrive>, Serializable 
 			List<GoogleDrive> list = new ArrayList<>();
 			OUTER: for ( Drive drive : directoryServices ) {
 				try {
-					for ( com.google.api.services.drive.model.Drive d : drive.drives().list().execute().getDrives() ) {
-						list.add( new GoogleDrive( d.getId(), d ) );
+					List<com.google.api.services.drive.model.Drive> drives = drive.drives().list().execute().getDrives();
+					if ( drives != null ) {
+						for ( com.google.api.services.drive.model.Drive d : drives ) {
+							list.add( new GoogleDrive( d.getId(), d ) );
+						}
 					}
 				}
 				catch ( GoogleJsonResponseException e ) {

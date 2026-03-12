@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
+package com.blazebit.query.connector.gcp.compute;
+
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.TypeReference;
-import com.blazebit.query.connector.gcp.compute.GcpComputeSchemaProvider;
-import com.blazebit.query.connector.gcp.compute.GcpInstance;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import com.google.cloud.compute.v1.ConfidentialInstanceConfig;
 import com.google.cloud.compute.v1.Instance;

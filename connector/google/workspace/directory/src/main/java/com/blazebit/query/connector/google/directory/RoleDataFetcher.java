@@ -34,8 +34,11 @@ public class RoleDataFetcher implements DataFetcher<GoogleRole>, Serializable {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleRole> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				for ( Role role : directory.roles().list("my_customer" ).execute().getItems() ) {
-					list.add( new GoogleRole( String.valueOf( role.getRoleId() ), role ) );
+				List<Role> roles = directory.roles().list( "my_customer" ).execute().getItems();
+				if ( roles != null ) {
+					for ( Role role : roles ) {
+						list.add( new GoogleRole( String.valueOf( role.getRoleId() ), role ) );
+					}
 				}
 			}
 			return list;

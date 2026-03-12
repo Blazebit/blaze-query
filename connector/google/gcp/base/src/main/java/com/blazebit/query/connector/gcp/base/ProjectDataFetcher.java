@@ -17,7 +17,9 @@ import com.google.cloud.resourcemanager.v3.ProjectsSettings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Christian Beikov
@@ -34,7 +36,10 @@ public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable
 	public List<GcpProject> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<GcpProject> list = new ArrayList<>();
+			// Use LinkedHashMap to deduplicate projects by name while preserving insertion order.
+			// searchProjects("") already returns all visible projects, but iterating org/folder
+			// parents can surface the same projects again.
+			Map<String, GcpProject> seen = new LinkedHashMap<>();
 			List<? extends GcpOrganization> organizations = context.getSession().getOrFetch( GcpOrganization.class );
 			List<? extends GcpFolder> folders = context.getSession().getOrFetch( GcpFolder.class );
 
@@ -44,10 +49,10 @@ public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable
 						.build();
 				try (ProjectsClient client = ProjectsClient.create( settings )) {
 					ProjectsClient.SearchProjectsPagedResponse searchProjectsPagedResponse =
-							client.searchProjects("");
+							client.searchProjects( "" );
 
-					for (Project project : searchProjectsPagedResponse.iterateAll()) {
-						list.add( new GcpProject( project.getName(), project ) );
+					for ( Project project : searchProjectsPagedResponse.iterateAll() ) {
+						seen.putIfAbsent( project.getName(), new GcpProject( project.getName(), project ) );
 					}
 					for ( GcpOrganization organization : organizations ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
@@ -55,7 +60,7 @@ public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( new GcpProject( instance.getName(), instance ) );
+							seen.putIfAbsent( instance.getName(), new GcpProject( instance.getName(), instance ) );
 						}
 					}
 					for ( GcpFolder folder : folders ) {
@@ -64,12 +69,12 @@ public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( new GcpProject( instance.getName(), instance ) );
+							seen.putIfAbsent( instance.getName(), new GcpProject( instance.getName(), instance ) );
 						}
 					}
 				}
 			}
-			return list;
+			return new ArrayList<>( seen.values() );
 		}
 		catch (Exception e) {
 			throw new DataFetcherException( "Could not fetch project list", e );

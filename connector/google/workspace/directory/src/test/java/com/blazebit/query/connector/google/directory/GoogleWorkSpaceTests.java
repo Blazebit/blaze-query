@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
+package com.blazebit.query.connector.google.directory;
+
 import com.blazebit.query.QueryContext;
-import com.blazebit.query.connector.google.directory.GoogleDirectorySchemaProvider;
-import com.blazebit.query.connector.google.directory.GoogleUser;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 

@@ -34,8 +34,11 @@ public class RoleAssignmentDataFetcher implements DataFetcher<GoogleRoleAssignme
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleRoleAssignment> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				for ( RoleAssignment roleAssignment : directory.roleAssignments().list("my_customer" ).execute().getItems() ) {
-					list.add( new GoogleRoleAssignment( String.valueOf( roleAssignment.getRoleAssignmentId() ), roleAssignment ) );
+				List<RoleAssignment> roleAssignments = directory.roleAssignments().list( "my_customer" ).execute().getItems();
+				if ( roleAssignments != null ) {
+					for ( RoleAssignment roleAssignment : roleAssignments ) {
+						list.add( new GoogleRoleAssignment( String.valueOf( roleAssignment.getRoleAssignmentId() ), roleAssignment ) );
+					}
 				}
 			}
 			return list;

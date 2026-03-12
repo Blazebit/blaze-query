@@ -2,10 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
+package com.blazebit.query.connector.gcp.storage;
+
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.TypeReference;
-import com.blazebit.query.connector.gcp.storage.GcpBucket;
-import com.blazebit.query.connector.gcp.storage.GcpStorageSchemaProvider;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import com.google.protobuf.Duration;
 import com.google.protobuf.Timestamp;

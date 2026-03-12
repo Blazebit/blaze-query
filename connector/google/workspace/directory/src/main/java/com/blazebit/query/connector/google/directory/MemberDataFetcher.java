@@ -36,8 +36,11 @@ public class MemberDataFetcher implements DataFetcher<GoogleMember>, Serializabl
 			List<? extends GoogleGroup> groups = context.getSession().getOrFetch( GoogleGroup.class );
 			for ( Directory directory : directoryServices ) {
 				for ( GoogleGroup group : groups ) {
-					for ( Member member : directory.members().list( group.getPayload().getId() ).execute().getMembers() ) {
-						list.add( new GoogleMember( member.getId(), member ) );
+					List<Member> members = directory.members().list( group.getPayload().getId() ).execute().getMembers();
+					if ( members != null ) {
+						for ( Member member : members ) {
+							list.add( new GoogleMember( member.getId(), member ) );
+						}
 					}
 				}
 			}

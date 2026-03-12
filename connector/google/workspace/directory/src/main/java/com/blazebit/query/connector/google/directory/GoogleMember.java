@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.google.directory;
 
+import com.blazebit.query.connector.google.workspace.GoogleWrapper;
 import com.google.api.services.directory.model.Member;
 
 public class GoogleMember extends GoogleWrapper<Member> {

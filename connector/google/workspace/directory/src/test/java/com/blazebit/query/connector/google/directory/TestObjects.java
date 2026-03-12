@@ -2,7 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
-import com.blazebit.query.connector.google.directory.GoogleUser;
+package com.blazebit.query.connector.google.directory;
+
 import com.google.api.client.util.DateTime;
 import com.google.api.services.directory.model.User;
 
