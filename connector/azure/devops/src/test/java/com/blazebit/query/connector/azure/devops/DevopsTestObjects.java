@@ -9,9 +9,9 @@ import com.blazebit.query.connector.devops.model.GitRepository;
 import com.blazebit.query.connector.devops.model.PolicyConfiguration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Martijn Sprengers
@@ -26,28 +26,31 @@ public final class DevopsTestObjects {
 
 	public static GitRepository mainServiceRepository() {
 		return fromJson( GitRepository.class,
-				"src/test/resources/resource-definitions/azure-devops/repository/repo-main-service.json" );
+				"resource-definitions/azure-devops/repository/repo-main-service.json" );
 	}
 
 	public static PolicyConfiguration minReviewersPolicy() {
 		return fromJson( PolicyConfiguration.class,
-				"src/test/resources/resource-definitions/azure-devops/policy-configuration/policy-min-reviewers.json" );
+				"resource-definitions/azure-devops/policy-configuration/policy-min-reviewers.json" );
 	}
 
 	public static WorkItem loginBugWorkItem() {
 		com.blazebit.query.connector.devops.model.WorkItem raw = fromJson(
 				com.blazebit.query.connector.devops.model.WorkItem.class,
-				"src/test/resources/resource-definitions/azure-devops/work-item/work-item-login-bug.json" );
+				"resource-definitions/azure-devops/work-item/work-item-login-bug.json" );
 		return new WorkItem( raw );
 	}
 
-	private static <T> T fromJson(Class<T> type, String path) {
-		try {
-			String json = new String( Files.readAllBytes( Paths.get( path ) ) );
+	private static <T> T fromJson(Class<T> type, String resource) {
+		try (InputStream is = DevopsTestObjects.class.getClassLoader().getResourceAsStream( resource )) {
+			if ( is == null ) {
+				throw new IOException( "Resource not found: " + resource );
+			}
+			String json = new String( is.readAllBytes(), StandardCharsets.UTF_8 );
 			return JSON_PARSER.getMapper().readValue( json, type );
 		}
 		catch (IOException e) {
-			throw new UncheckedIOException( "Could not read test fixture: " + path, e );
+			throw new UncheckedIOException( "Could not read test fixture: " + resource, e );
 		}
 	}
 }

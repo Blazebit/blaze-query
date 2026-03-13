@@ -47,7 +47,7 @@ public class PolicyConfigurationDataFetcher implements DataFetcher<PolicyConfigu
 			// Use a map to deduplicate: project-wide policies appear for every repo they match
 			Map<Integer, PolicyConfiguration> deduplicated = new LinkedHashMap<>();
 			for ( DevopsConnectorConfig.Account account : accounts ) {
-				ApiClient apiClient = account.getApiClient();
+				ApiClient apiClient = account.getWitApiClient();
 				String organization = account.getOrganization();
 				String project = account.getProject();
 

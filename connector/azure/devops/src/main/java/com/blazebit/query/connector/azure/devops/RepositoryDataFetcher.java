@@ -36,7 +36,7 @@ public class RepositoryDataFetcher implements DataFetcher<GitRepository>, Serial
 			List<DevopsConnectorConfig.Account> accounts = DevopsConnectorConfig.ACCOUNT.getAll( context );
 			List<GitRepository> list = new ArrayList<>();
 			for ( DevopsConnectorConfig.Account account : accounts ) {
-				RepositoriesApi repositoriesApi = new RepositoriesApi( account.getApiClient() );
+				RepositoriesApi repositoriesApi = new RepositoriesApi( account.getWitApiClient() );
 				List<GitRepository> repositories = repositoriesApi.repositoriesList(
 						account.getOrganization(), account.getProject(), "7.1", null, null, null );
 				list.addAll( repositories );

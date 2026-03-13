@@ -243,6 +243,7 @@ public class Main {
 
 	private static final String DEVOPS_PAT = "";
 	private static final String DEVOPS_ORGANIZATION = "";
+	private static final String DEVOPS_PROJECT = "";
 
 	private static final String JIRA_DATACENTER_HOST = "";
 	private static final String JIRA_DATACENTER_TOKEN = "";
@@ -276,7 +277,7 @@ public class Main {
 //					Main::createPostgreSqlManagers );
 //			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 //			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
+	//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
@@ -1659,7 +1660,7 @@ public class Main {
 		ApiClient witApiClient = new ApiClient();
 		witApiClient.setBasePath( "https://dev.azure.com" );
 		witApiClient.addDefaultHeader( "Authorization", auth );
-		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, "" );
+		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, DEVOPS_PROJECT );
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
