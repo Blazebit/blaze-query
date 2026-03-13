@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
-import com.blazebit.query.connector.google.workspace.endpointverification.GoogleChromeOsDevice;
-import com.blazebit.query.connector.google.workspace.endpointverification.GoogleMobileDevice;
+package com.blazebit.query.connector.google.workspace.endpointverification;
+
 import com.google.api.client.util.DateTime;
 import com.google.api.services.directory.model.ChromeOsDevice;
 import com.google.api.services.directory.model.MobileDevice;
@@ -27,7 +27,7 @@ public final class TestObjects {
 		device.setDevicePasswordStatus( "ACTIVE" );
 		device.setDeviceCompromisedStatus( "No compromise detected" );
 		device.setLastSync( new DateTime( Instant.now().toEpochMilli() ) );
-		return new GoogleMobileDevice( "my_customer", device );
+		return new GoogleMobileDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleMobileDevice pendingMobileDevice() {
@@ -40,7 +40,7 @@ public final class TestObjects {
 		device.setEncryptionStatus( "ENABLED" );
 		device.setDevicePasswordStatus( "ACTIVE" );
 		device.setLastSync( new DateTime( Instant.now().toEpochMilli() ) );
-		return new GoogleMobileDevice( "my_customer", device );
+		return new GoogleMobileDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleMobileDevice blockedMobileDevice() {
@@ -54,7 +54,7 @@ public final class TestObjects {
 		device.setDevicePasswordStatus( "INACTIVE" );
 		device.setLastSync( new DateTime(
 				Instant.now().minus( 90, ChronoUnit.DAYS ).toEpochMilli() ) );
-		return new GoogleMobileDevice( "my_customer", device );
+		return new GoogleMobileDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleMobileDevice approvedUnencryptedMobileDevice() {
@@ -67,7 +67,7 @@ public final class TestObjects {
 		device.setEncryptionStatus( "DISABLED" );
 		device.setDevicePasswordStatus( "ACTIVE" );
 		device.setLastSync( new DateTime( Instant.now().toEpochMilli() ) );
-		return new GoogleMobileDevice( "my_customer", device );
+		return new GoogleMobileDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleChromeOsDevice activeChromeOsDevice() {
@@ -84,7 +84,7 @@ public final class TestObjects {
 		device.setAutoUpdateExpiration( Instant.parse( "2028-06-01T00:00:00Z" ).toEpochMilli() );
 		device.setLastSync( new DateTime( Instant.now().toEpochMilli() ) );
 		device.setLastEnrollmentTime( new DateTime( "2023-01-15T08:00:00.000Z" ) );
-		return new GoogleChromeOsDevice( "my_customer", device );
+		return new GoogleChromeOsDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleChromeOsDevice deprovisionedChromeOsDevice() {
@@ -100,7 +100,7 @@ public final class TestObjects {
 		device.setAutoUpdateExpiration( Instant.parse( "2024-06-01T00:00:00Z" ).toEpochMilli() );
 		device.setLastSync( new DateTime(
 				Instant.now().minus( 180, ChronoUnit.DAYS ).toEpochMilli() ) );
-		return new GoogleChromeOsDevice( "my_customer", device );
+		return new GoogleChromeOsDevice( device.getDeviceId(), device );
 	}
 
 	public static GoogleChromeOsDevice activeChromeOsDeviceExpiredAutoUpdate() {
@@ -115,6 +115,6 @@ public final class TestObjects {
 		// AUE 2023-06-01
 		device.setAutoUpdateExpiration( Instant.parse( "2023-06-01T00:00:00Z" ).toEpochMilli() );
 		device.setLastSync( new DateTime( Instant.now().toEpochMilli() ) );
-		return new GoogleChromeOsDevice( "my_customer", device );
+		return new GoogleChromeOsDevice( device.getDeviceId(), device );
 	}
 }

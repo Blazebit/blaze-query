@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.google.workspace.endpointverification;
 
+import com.blazebit.query.connector.google.workspace.GoogleWrapper;
 import com.google.api.services.directory.model.MobileDevice;
 
 /**
@@ -12,33 +13,20 @@ import com.google.api.services.directory.model.MobileDevice;
  * @author Blazebit
  * @since 1.0.0
  */
-public class GoogleMobileDevice {
-
-	private final String customerId;
-	private final MobileDevice mobileDevice;
+public class GoogleMobileDevice extends GoogleWrapper<MobileDevice> {
 
 	/**
 	 * Creates a new wrapper.
 	 *
-	 * @param customerId the customer identifier
+	 * @param resourceId the resource identifier
 	 * @param mobileDevice the mobile device
 	 */
-	public GoogleMobileDevice(String customerId, MobileDevice mobileDevice) {
-		this.customerId = customerId;
-		this.mobileDevice = mobileDevice;
+	public GoogleMobileDevice(String resourceId, MobileDevice mobileDevice) {
+		super( resourceId, mobileDevice );
 	}
 
-	/**
-	 * Returns the customer identifier.
-	 */
-	public String getCustomerId() {
-		return customerId;
-	}
-
-	/**
-	 * Returns the mobile device payload.
-	 */
-	public MobileDevice getMobileDevice() {
-		return mobileDevice;
+	@Override
+	public MobileDevice getPayload() {
+		return super.getPayload();
 	}
 }

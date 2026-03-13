@@ -49,7 +49,7 @@ public class ChromeOsDeviceDataFetcher implements DataFetcher<GoogleChromeOsDevi
 					List<ChromeOsDevice> devices = response.getChromeosdevices();
 					if ( devices != null ) {
 						for ( ChromeOsDevice device : devices ) {
-							list.add( new GoogleChromeOsDevice( CUSTOMER_ID, device ) );
+							list.add( new GoogleChromeOsDevice( device.getDeviceId(), device ) );
 						}
 					}
 					pageToken = response.getNextPageToken();

@@ -2,11 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * Copyright Blazebit
  */
+package com.blazebit.query.connector.google.workspace.endpointverification;
+
 import com.blazebit.query.QueryContext;
 import com.blazebit.query.TypeReference;
-import com.blazebit.query.connector.google.workspace.endpointverification.GoogleChromeOsDevice;
-import com.blazebit.query.connector.google.workspace.endpointverification.GoogleMobileDevice;
-import com.blazebit.query.connector.google.workspace.endpointverification.GoogleWorkspaceEndpointVerificationSchemaProvider;
 import com.blazebit.query.impl.QueryContextBuilderImpl;
 import org.junit.jupiter.api.Test;
 
@@ -66,13 +65,13 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			);
 
 			var result = session.createQuery(
-					"select d.* from GoogleMobileDevice d where d.mobileDevice.status <> 'APPROVED'",
+					"select d.* from GoogleMobileDevice d where d.payload.status <> 'APPROVED'",
 					new TypeReference<Map<String, Object>>() {}
 			).getResultList();
 
 			assertThat( result ).hasSize( 2 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "mobileDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactlyInAnyOrder( "mobile-pending", "mobile-blocked" );
 		}
 	}
@@ -90,13 +89,13 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			);
 
 			var result = session.createQuery(
-					"select d.* from GoogleMobileDevice d where d.mobileDevice.encryptionStatus = 'DISABLED'",
+					"select d.* from GoogleMobileDevice d where d.payload.encryptionStatus = 'DISABLED'",
 					new TypeReference<Map<String, Object>>() {}
 			).getResultList();
 
 			assertThat( result ).hasSize( 2 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "mobileDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactlyInAnyOrder( "mobile-approved-unencrypted", "mobile-blocked" );
 		}
 	}
@@ -115,14 +114,14 @@ public class GoogleWorkspaceEndpointVerificationTests {
 
 			var result = session.createQuery(
 					"select d.* from GoogleMobileDevice d " +
-							"where d.mobileDevice.status = 'APPROVED' " +
-							"and d.mobileDevice.encryptionStatus = 'DISABLED'",
+							"where d.payload.status = 'APPROVED' " +
+							"and d.payload.encryptionStatus = 'DISABLED'",
 					new TypeReference<Map<String, Object>>() {}
 			).getResultList();
 
 			assertThat( result ).hasSize( 1 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "mobileDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactly( "mobile-approved-unencrypted" );
 		}
 	}
@@ -165,13 +164,13 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			);
 
 			var result = session.createQuery(
-					"select d.* from GoogleChromeOsDevice d where d.chromeOsDevice.status = 'ACTIVE'",
+					"select d.* from GoogleChromeOsDevice d where d.payload.status = 'ACTIVE'",
 					new TypeReference<Map<String, Object>>() {}
 			).getResultList();
 
 			assertThat( result ).hasSize( 2 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "chromeOsDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactlyInAnyOrder( "chromeos-active", "chromeos-expired-aue" );
 		}
 	}
@@ -191,7 +190,7 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			long threshold = Instant.parse( "2025-01-01T00:00:00Z" ).toEpochMilli();
 			var query = session.createQuery(
 					"select d.* from GoogleChromeOsDevice d " +
-							"where d.chromeOsDevice.autoUpdateExpiration < ?",
+							"where d.payload.autoUpdateExpiration < ?",
 					new TypeReference<Map<String, Object>>() {}
 			);
 			query.setParameter( 1, threshold );
@@ -199,7 +198,7 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			var result = query.getResultList();
 			assertThat( result ).hasSize( 2 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "chromeOsDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactlyInAnyOrder( "chromeos-deprovisioned", "chromeos-expired-aue" );
 		}
 	}
@@ -219,8 +218,8 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			long threshold = Instant.parse( "2025-01-01T00:00:00Z" ).toEpochMilli();
 			var query = session.createQuery(
 					"select d.* from GoogleChromeOsDevice d " +
-							"where d.chromeOsDevice.status = 'ACTIVE' " +
-							"and d.chromeOsDevice.autoUpdateExpiration < ?",
+							"where d.payload.status = 'ACTIVE' " +
+							"and d.payload.autoUpdateExpiration < ?",
 					new TypeReference<Map<String, Object>>() {}
 			);
 			query.setParameter( 1, threshold );
@@ -228,7 +227,7 @@ public class GoogleWorkspaceEndpointVerificationTests {
 			var result = query.getResultList();
 			assertThat( result ).hasSize( 1 );
 			assertThat( result )
-					.extracting( r -> (String) ( (Map<?, ?>) r.get( "chromeOsDevice" ) ).get( "deviceId" ) )
+					.extracting( r -> (String) ( (Map<?, ?>) r.get( "payload" ) ).get( "deviceId" ) )
 					.containsExactly( "chromeos-expired-aue" );
 		}
 	}

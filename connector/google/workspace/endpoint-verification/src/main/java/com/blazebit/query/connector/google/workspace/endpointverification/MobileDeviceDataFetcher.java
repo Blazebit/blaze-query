@@ -49,7 +49,7 @@ public class MobileDeviceDataFetcher implements DataFetcher<GoogleMobileDevice>,
 					List<MobileDevice> devices = response.getMobiledevices();
 					if ( devices != null ) {
 						for ( MobileDevice device : devices ) {
-							list.add( new GoogleMobileDevice( CUSTOMER_ID, device ) );
+							list.add( new GoogleMobileDevice( device.getDeviceId(), device ) );
 						}
 					}
 					pageToken = response.getNextPageToken();
