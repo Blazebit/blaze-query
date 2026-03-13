@@ -27,7 +27,7 @@ description = 'blaze-query-connector-github-openapi-jersey3'
 sourceSets {
     main {
         java {
-            srcDirs += "${project.buildDir}/generated"
+            srcDirs += project.layout.buildDirectory.dir("openapi-generated")
         }
     }
 }
@@ -35,7 +35,7 @@ sourceSets {
 openApiGenerate {
     generatorName.set("java")
     remoteInputSpec.set("https://raw.githubusercontent.com/github/rest-api-description/108f3b249fe3c0f0889a40737552c8d373bbfdc4/descriptions-next/api.github.com/api.github.com.json")
-    outputDir.set(project.layout.buildDirectory.dir("generated").map { it.asFile.absolutePath })
+    outputDir.set(project.layout.buildDirectory.dir("openapi-generated").map { it.asFile.absolutePath })
     apiPackage.set("com.blazebit.query.connector.github.v0314.api")
     invokerPackage.set("com.blazebit.query.connector.github.v0314.invoker")
     modelPackage.set("com.blazebit.query.connector.github.v0314.model")
