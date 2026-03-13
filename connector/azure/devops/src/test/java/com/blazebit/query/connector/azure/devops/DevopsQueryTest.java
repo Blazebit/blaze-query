@@ -29,6 +29,7 @@ public class DevopsQueryTest {
 		builder.registerSchemaProvider( new DevopsSchemaProvider() );
 		builder.registerSchemaObjectAlias( GitRepository.class, "AzureDevOpsRepository" );
 		builder.registerSchemaObjectAlias( PolicyConfiguration.class, "AzureDevOpsPolicyConfiguration" );
+		builder.registerSchemaObjectAlias( WorkItem.class, "AzureDevOpsWorkItem" );
 		CONTEXT = builder.build();
 	}
 
@@ -74,6 +75,31 @@ public class DevopsQueryTest {
 					new TypeReference<Map<String, Object>>() {} );
 
 			assertThat( query.getResultList() ).isEmpty();
+		}
+	}
+
+	@Test
+	void should_return_work_item() {
+		try (var session = CONTEXT.createSession()) {
+			WorkItem workItem = DevopsTestObjects.loginBugWorkItem();
+			session.put( WorkItem.class, List.of( workItem ) );
+
+			var query = session.createQuery(
+					"select w.* from AzureDevOpsWorkItem w",
+					new TypeReference<Map<String, Object>>() {} );
+
+			List<Map<String, Object>> results = query.getResultList();
+			assertThat( results ).hasSize( 1 );
+			Map<String, Object> row = results.get( 0 );
+			assertThat( row.get( "id" ) ).isEqualTo( 42 );
+			assertThat( row.get( "title" ) ).isEqualTo( "Fix login bug" );
+			assertThat( row.get( "state" ) ).isEqualTo( "Active" );
+			assertThat( row.get( "workItemType" ) ).isEqualTo( "Bug" );
+			assertThat( row.get( "assignedTo" ) ).isEqualTo( "Jane Doe" );
+			assertThat( row.get( "createdBy" ) ).isEqualTo( "John Smith" );
+			assertThat( row.get( "priority" ) ).isEqualTo( 2 );
+			assertThat( row.get( "createdDate" ) ).isNotNull();
+			assertThat( row.get( "changedDate" ) ).isNotNull();
 		}
 	}
 

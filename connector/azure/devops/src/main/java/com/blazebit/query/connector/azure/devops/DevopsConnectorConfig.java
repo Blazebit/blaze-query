@@ -7,6 +7,8 @@ package com.blazebit.query.connector.azure.devops;
 import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.spi.DataFetcherConfig;
 
+import java.util.Objects;
+
 /**
  * The configuration properties for the Azure DevOps connector.
  *
@@ -58,10 +60,10 @@ public final class DevopsConnectorConfig {
 		 * @param project the Azure DevOps project name or ID
 		 */
 		public Account(ApiClient apiClient, ApiClient witApiClient, String organization, String project) {
-			this.apiClient = apiClient;
-			this.witApiClient = witApiClient;
-			this.organization = organization;
-			this.project = project;
+			this.apiClient = Objects.requireNonNull( apiClient, "apiClient must not be null" );
+			this.witApiClient = Objects.requireNonNull( witApiClient, "witApiClient must not be null" );
+			this.organization = Objects.requireNonNull( organization, "organization must not be null" );
+			this.project = Objects.requireNonNull( project, "project must not be null" );
 		}
 
 		/**

@@ -53,6 +53,9 @@ public class PolicyConfigurationDataFetcher implements DataFetcher<PolicyConfigu
 
 				fetchForProject( apiClient, organization, project, deduplicated );
 
+				// The project-level fetch returns only policies not scoped to a specific repository.
+				// Per-repository fetches are required to capture repository-scoped policies (e.g. branch
+				// policies). Deduplication via the map ensures project-wide policies are not counted twice.
 				RepositoriesApi repositoriesApi = new RepositoriesApi( apiClient );
 				List<GitRepository> repositories = repositoriesApi.repositoriesList(
 						organization, project, "7.1", null, null, null );

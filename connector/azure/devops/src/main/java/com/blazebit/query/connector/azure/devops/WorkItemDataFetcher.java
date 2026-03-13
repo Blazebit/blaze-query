@@ -63,10 +63,8 @@ public class WorkItemDataFetcher implements DataFetcher<WorkItem>, Serializable 
 				for ( int j = 0; j < refs.size(); j += BATCH_SIZE ) {
 					List<WorkItemReference> batch = refs.subList( j, Math.min( j + BATCH_SIZE, refs.size() ) );
 					String ids = batch.stream()
-							.map( r -> {
-								assert r.getId() != null;
-								return r.getId().toString();
-							} )
+							.filter( r -> r.getId() != null )
+							.map( r -> r.getId().toString() )
 							.collect( Collectors.joining( "," ) );
 					WorkItemList items = api.workItemsList( organization, ids, "7.1", "fields" );
 					if ( items.getValue() != null ) {

@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.devops;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 /**
@@ -84,7 +85,15 @@ public record WorkItem(
 		}
 		Object value = fields.get( key );
 		if ( value instanceof String s ) {
-			return s.isEmpty() ? null : OffsetDateTime.parse( s );
+			if ( s.isEmpty() ) {
+				return null;
+			}
+			try {
+				return OffsetDateTime.parse( s );
+			}
+			catch (DateTimeParseException e) {
+				return null;
+			}
 		}
 		return null;
 	}

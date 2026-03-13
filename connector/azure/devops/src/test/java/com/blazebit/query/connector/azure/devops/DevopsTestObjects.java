@@ -34,6 +34,13 @@ public final class DevopsTestObjects {
 				"src/test/resources/resource-definitions/azure-devops/policy-configuration/policy-min-reviewers.json" );
 	}
 
+	public static WorkItem loginBugWorkItem() {
+		com.blazebit.query.connector.devops.model.WorkItem raw = fromJson(
+				com.blazebit.query.connector.devops.model.WorkItem.class,
+				"src/test/resources/resource-definitions/azure-devops/work-item/work-item-login-bug.json" );
+		return new WorkItem( raw );
+	}
+
 	private static <T> T fromJson(Class<T> type, String path) {
 		try {
 			String json = new String( Files.readAllBytes( Paths.get( path ) ) );
