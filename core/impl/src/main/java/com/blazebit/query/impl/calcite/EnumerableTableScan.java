@@ -242,6 +242,8 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 					SimpleBlockBuilder subBlockBuilder = new SimpleBlockBuilder( blockBuilder );
 					Expression e3 = toList( (CollectionDataFormat) dataFormatField.getFormat(), elementPhysType, e2,
 							subBlockBuilder );
+					// Wrap in FakeComparableList so Calcite can apply comparison operations (e.g. ORDER BY,
+					// DISTINCT) on list-typed columns without requiring the element type to implement Comparable.
 					subBlockBuilder.add( Expressions.statement( Expressions.assign( resultVar,
 							Expressions.new_( FakeComparableList.class, e3 ) ) ) );
 

@@ -13,7 +13,6 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.cloud.resourcemanager.v3.Folder;
 import com.google.cloud.resourcemanager.v3.FoldersClient;
 import com.google.cloud.resourcemanager.v3.FoldersSettings;
-import com.google.cloud.resourcemanager.v3.Organization;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class FolderDataFetcher implements DataFetcher<Folder>, Serializable {
+public class FolderDataFetcher implements DataFetcher<GcpFolder>, Serializable {
 
 	public static final FolderDataFetcher INSTANCE = new FolderDataFetcher();
 
@@ -31,21 +30,21 @@ public class FolderDataFetcher implements DataFetcher<Folder>, Serializable {
 	}
 
 	@Override
-	public List<Folder> fetch(DataFetchContext context) {
+	public List<GcpFolder> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Folder> list = new ArrayList<>();
-			List<? extends Organization> organizations = context.getSession().getOrFetch( Organization.class );
+			List<GcpFolder> list = new ArrayList<>();
+			List<? extends GcpOrganization> organizations = context.getSession().getOrFetch( GcpOrganization.class );
 
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
-				for ( Organization organization : organizations ) {
+				for ( GcpOrganization organization : organizations ) {
 					final FoldersSettings settings = FoldersSettings.newBuilder()
 							.setCredentialsProvider( credentialsProvider )
 							.build();
 					try (FoldersClient client = FoldersClient.create( settings )) {
-						final FoldersClient.ListFoldersPagedResponse response = client.listFolders( organization.getName() );
+						final FoldersClient.ListFoldersPagedResponse response = client.listFolders( organization.getPayload().getName() );
 						for ( Folder instance : response.iterateAll() ) {
-							list.add( instance );
+							list.add( new GcpFolder( instance.getName(), instance ) );
 						}
 					}
 				}
@@ -59,6 +58,6 @@ public class FolderDataFetcher implements DataFetcher<Folder>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Folder.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpFolder.class, GcpConventionContext.INSTANCE );
 	}
 }

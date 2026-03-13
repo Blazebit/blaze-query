@@ -11,6 +11,7 @@ plugins {
 dependencies {
     api project(':blaze-query-core-api')
     api project(':blaze-query-connector-base')
+    api project(':blaze-query-connector-google-workspace-base')
     api libs.google.workspace.api
     api libs.google.oauth
     api libs.google.workspace.drive
