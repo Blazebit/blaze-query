@@ -13,6 +13,9 @@ dependencies {
     api project(':blaze-query-connector-google-gcp-base')
     api platform(libs.gcp.bom)
     api libs.gcp.compute
+    testImplementation project(':blaze-query-core-impl')
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
 }
 
 description = 'blaze-query-connector-google-gcp-compute'

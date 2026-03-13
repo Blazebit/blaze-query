@@ -70,6 +70,14 @@ public interface QueryContextBuilder {
 	QueryContextBuilder registerSchemaProvider(QuerySchemaProvider querySchemaProvider);
 
 	/**
+	 * Registers a {@link TypeConverter} to convert values.
+	 *
+	 * @param typeConverter The {@link TypeConverter} to register
+	 * @return The updated {@link QueryContextBuilder} object
+	 */
+	QueryContextBuilder registerTypeConverter(TypeConverter typeConverter);
+
+	/**
 	 * Loads the available services through the Java {@link java.util.ServiceLoader} API.
 	 *
 	 * @return {@code this} object for method chaining

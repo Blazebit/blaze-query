@@ -36,7 +36,7 @@ jakarta-persistence-api = "3.0.0"
 junit-jupiter = "5.11.3"
 assertj = "3.26.3"
 h2 = "2.2.224"
-hibernate = "6.5.2.Final"
+hibernate = "7.2.6.Final"
 
 [libraries]
 calcite-core = { module = "org.apache.calcite:calcite-core", version.ref = "calcite" }
@@ -110,6 +110,7 @@ jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api",
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence-api" }
 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
