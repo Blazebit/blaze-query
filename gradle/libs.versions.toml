@@ -36,7 +36,7 @@ jakarta-persistence-api = "3.0.0"
 junit-jupiter = "5.11.3"
 assertj = "3.26.3"
 h2 = "2.2.224"
-hibernate = "6.5.2.Final"
+hibernate = "7.0.2.Final"
 
 [libraries]
 calcite-core = { module = "org.apache.calcite:calcite-core", version.ref = "calcite" }
