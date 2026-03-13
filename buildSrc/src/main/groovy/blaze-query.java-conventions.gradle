@@ -20,6 +20,10 @@ java {
     withSourcesJar()
 }
 
+dependencies {
+    testRuntimeOnly libs.junit.platform.launcher
+}
+
 test {
     useJUnitPlatform()
 }

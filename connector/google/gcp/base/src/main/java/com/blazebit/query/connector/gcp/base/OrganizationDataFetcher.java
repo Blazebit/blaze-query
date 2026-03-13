@@ -22,7 +22,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class OrganizationDataFetcher implements DataFetcher<Organization>, Serializable {
+public class OrganizationDataFetcher implements DataFetcher<GcpOrganization>, Serializable {
 
 	public static final OrganizationDataFetcher INSTANCE = new OrganizationDataFetcher();
 
@@ -30,10 +30,10 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 	}
 
 	@Override
-	public List<Organization> fetch(DataFetchContext context) {
+	public List<GcpOrganization> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Organization> list = new ArrayList<>();
+			List<GcpOrganization> list = new ArrayList<>();
 
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final OrganizationsSettings settings = OrganizationsSettings.newBuilder()
@@ -42,7 +42,7 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 				try (OrganizationsClient client = OrganizationsClient.create( settings )) {
 					final OrganizationsClient.SearchOrganizationsPagedResponse response = client.searchOrganizations( "" );
 					for ( Organization instance : response.iterateAll() ) {
-						list.add( instance );
+						list.add( new GcpOrganization( instance.getName(), instance ) );
 					}
 				}
 			}
@@ -55,6 +55,6 @@ public class OrganizationDataFetcher implements DataFetcher<Organization>, Seria
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Organization.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpOrganization.class, GcpConventionContext.INSTANCE );
 	}
 }

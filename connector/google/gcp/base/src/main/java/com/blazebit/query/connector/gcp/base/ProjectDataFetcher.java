@@ -10,22 +10,22 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.gax.core.CredentialsProvider;
-import com.google.cloud.resourcemanager.v3.Folder;
 import com.google.cloud.resourcemanager.v3.ListProjectsRequest;
-import com.google.cloud.resourcemanager.v3.Organization;
 import com.google.cloud.resourcemanager.v3.Project;
 import com.google.cloud.resourcemanager.v3.ProjectsClient;
 import com.google.cloud.resourcemanager.v3.ProjectsSettings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
+public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable {
 
 	public static final ProjectDataFetcher INSTANCE = new ProjectDataFetcher();
 
@@ -33,39 +33,48 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 	}
 
 	@Override
-	public List<Project> fetch(DataFetchContext context) {
+	public List<GcpProject> fetch(DataFetchContext context) {
 		try {
 			List<CredentialsProvider> credentialsProviders = GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getAll( context );
-			List<Project> list = new ArrayList<>();
-			List<? extends Organization> organizations = context.getSession().getOrFetch( Organization.class );
-			List<? extends Folder> folders = context.getSession().getOrFetch( Folder.class );
+			// Use LinkedHashMap to deduplicate projects by name while preserving insertion order.
+			// searchProjects("") already returns all visible projects, but iterating org/folder
+			// parents can surface the same projects again.
+			Map<String, GcpProject> seen = new LinkedHashMap<>();
+			List<? extends GcpOrganization> organizations = context.getSession().getOrFetch( GcpOrganization.class );
+			List<? extends GcpFolder> folders = context.getSession().getOrFetch( GcpFolder.class );
 
 			for ( CredentialsProvider credentialsProvider : credentialsProviders ) {
 				final ProjectsSettings settings = ProjectsSettings.newBuilder()
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (ProjectsClient client = ProjectsClient.create( settings )) {
-					for ( Organization organization : organizations ) {
+					ProjectsClient.SearchProjectsPagedResponse searchProjectsPagedResponse =
+							client.searchProjects( "" );
+
+					for ( Project project : searchProjectsPagedResponse.iterateAll() ) {
+						seen.putIfAbsent( project.getName(), new GcpProject( project.getName(), project ) );
+					}
+					for ( GcpOrganization organization : organizations ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
-								.setParent( organization.getName() )
+								.setParent( organization.getPayload().getName() )
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( instance );
+							seen.putIfAbsent( instance.getName(), new GcpProject( instance.getName(), instance ) );
 						}
 					}
-					for ( Folder folder : folders ) {
+					for ( GcpFolder folder : folders ) {
 						final ListProjectsRequest request = ListProjectsRequest.newBuilder()
-								.setParent( folder.getName() )
+								.setParent( folder.getPayload().getName() )
 								.build();
 						final ProjectsClient.ListProjectsPagedResponse response = client.listProjects( request );
 						for ( Project instance : response.iterateAll() ) {
-							list.add( instance );
+							seen.putIfAbsent( instance.getName(), new GcpProject( instance.getName(), instance ) );
 						}
 					}
 				}
 			}
-			return list;
+			return new ArrayList<>( seen.values() );
 		}
 		catch (Exception e) {
 			throw new DataFetcherException( "Could not fetch project list", e );
@@ -74,6 +83,6 @@ public class ProjectDataFetcher implements DataFetcher<Project>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( Project.class, GcpConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GcpProject.class, GcpConventionContext.INSTANCE );
 	}
 }

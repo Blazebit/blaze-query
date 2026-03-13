@@ -4,6 +4,7 @@
  */
 package com.blazebit.query.connector.base;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.blazebit.query.spi.DataFormatFieldAccessor;
@@ -46,7 +47,7 @@ public final class ConvertingFieldAccessor implements DataFormatFieldAccessor {
 			}
 			return converterMethod.invoke( null, value );
 		}
-		catch (Exception e) {
+		catch (InvocationTargetException | IllegalAccessException e) {
 			throw new RuntimeException( e );
 		}
 	}

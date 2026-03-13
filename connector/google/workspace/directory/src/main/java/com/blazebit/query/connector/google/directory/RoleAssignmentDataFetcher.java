@@ -21,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class RoleAssignmentDataFetcher implements DataFetcher<RoleAssignment>, Serializable {
+public class RoleAssignmentDataFetcher implements DataFetcher<GoogleRoleAssignment>, Serializable {
 
 	public static final RoleAssignmentDataFetcher INSTANCE = new RoleAssignmentDataFetcher();
 
@@ -29,12 +29,17 @@ public class RoleAssignmentDataFetcher implements DataFetcher<RoleAssignment>, S
 	}
 
 	@Override
-	public List<RoleAssignment> fetch(DataFetchContext context) {
+	public List<GoogleRoleAssignment> fetch(DataFetchContext context) {
 		try {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
-			List<RoleAssignment> list = new ArrayList<>();
+			List<GoogleRoleAssignment> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.roleAssignments().list("my_customer" ).execute().getItems() );
+				List<RoleAssignment> roleAssignments = directory.roleAssignments().list( "my_customer" ).execute().getItems();
+				if ( roleAssignments != null ) {
+					for ( RoleAssignment roleAssignment : roleAssignments ) {
+						list.add( new GoogleRoleAssignment( String.valueOf( roleAssignment.getRoleAssignmentId() ), roleAssignment ) );
+					}
+				}
 			}
 			return list;
 		}
@@ -45,6 +50,6 @@ public class RoleAssignmentDataFetcher implements DataFetcher<RoleAssignment>, S
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( RoleAssignment.class, GoogleDirectoryConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleRoleAssignment.class, GoogleDirectoryConventionContext.INSTANCE );
 	}
 }

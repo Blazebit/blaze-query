@@ -1,0 +1,10 @@
+plugins {
+	id 'blaze-query.java-conventions'
+}
+
+dependencies {
+	api project(':blaze-query-core-api')
+	api project(':blaze-query-connector-base')
+}
+
+description = 'blaze-query-connector-google-workspace-base'

@@ -21,7 +21,7 @@ import java.util.List;
  * @author Christian Beikov
  * @since 1.0.0
  */
-public class UserDataFetcher implements DataFetcher<User>, Serializable {
+public class UserDataFetcher implements DataFetcher<GoogleUser>, Serializable {
 
 	public static final UserDataFetcher INSTANCE = new UserDataFetcher();
 
@@ -29,12 +29,17 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 	}
 
 	@Override
-	public List<User> fetch(DataFetchContext context) {
+	public List<GoogleUser> fetch(DataFetchContext context) {
 		try {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
-			List<User> list = new ArrayList<>();
+			List<GoogleUser> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				list.addAll( directory.users().list().setCustomer( "my_customer" ).execute().getUsers() );
+				List<User> users = directory.users().list().setCustomer( "my_customer" ).execute().getUsers();
+				if ( users != null ) {
+					for ( User user : users ) {
+						list.add( new GoogleUser( user.getId(), user ) );
+					}
+				}
 			}
 			return list;
 		}
@@ -45,6 +50,6 @@ public class UserDataFetcher implements DataFetcher<User>, Serializable {
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( User.class, GoogleDirectoryConventionContext.INSTANCE );
+		return DataFormats.beansConvention( GoogleUser.class, GoogleDirectoryConventionContext.INSTANCE );
 	}
 }

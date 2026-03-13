@@ -137,6 +137,12 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
+import com.blazebit.query.connector.azure.devops.DevopsConnectorConfig;
+import com.blazebit.query.connector.azure.devops.WorkItem;
+import com.blazebit.query.connector.devops.invoker.ApiClient;
+import com.blazebit.query.connector.devops.model.GitRepository;
+import com.blazebit.query.connector.devops.model.PolicyConfiguration;
+import com.blazebit.query.connector.gcp.compute.GcpInstance;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
@@ -179,14 +185,24 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.DirectoryScopes;
-import com.google.api.services.directory.model.Member;
-import com.google.api.services.directory.model.Role;
+import com.blazebit.query.connector.gcp.base.GcpAsset;
+import com.blazebit.query.connector.gcp.base.GcpFolder;
+import com.blazebit.query.connector.gcp.base.GcpOrganization;
+import com.blazebit.query.connector.gcp.base.GcpProject;
+import com.blazebit.query.connector.gcp.iam.GcpIamPolicy;
+import com.blazebit.query.connector.gcp.iam.GcpRole;
+import com.blazebit.query.connector.gcp.iam.GcpServiceAccount;
+import com.blazebit.query.connector.gcp.storage.GcpBucket;
+import com.blazebit.query.connector.google.directory.GoogleGroup;
+import com.blazebit.query.connector.google.directory.GoogleMember;
+import com.blazebit.query.connector.google.directory.GoogleRole;
+import com.blazebit.query.connector.google.directory.GoogleRoleAssignment;
+import com.blazebit.query.connector.google.directory.GoogleUser;
+import com.blazebit.query.connector.google.drive.GoogleDrive;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.asset.v1.IamPolicySearchResult;
-import com.google.iam.admin.v1.ServiceAccount;
 import com.microsoft.graph.beta.serviceclient.GraphServiceClient;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -236,6 +252,10 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
+	private static final String DEVOPS_PAT = "";
+	private static final String DEVOPS_ORGANIZATION = "";
+	private static final String DEVOPS_PROJECT = "";
+
 	private static final String JIRA_DATACENTER_HOST = "";
 	private static final String JIRA_DATACENTER_TOKEN = "";
 	private static final String JIRA_CLOUD_HOST = "";
@@ -268,14 +288,17 @@ public class Main {
 //					Main::createPostgreSqlManagers );
 //			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 //			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
+	//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
 //			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
+//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
+	//			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
 //			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
+//			queryContextBuilder.setProperty( DevopsConnectorConfig.ACCOUNT.getPropertyName(), createDevopsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
@@ -470,19 +493,23 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GetDeviceDetails200Response.class, "KandjiDeviceDetail" );
 
 			// Google Workspace
-			queryContextBuilder.registerSchemaObjectAlias( com.google.api.services.directory.model.User.class, "GoogleUser" );
-			queryContextBuilder.registerSchemaObjectAlias( com.google.api.services.directory.model.Group.class, "GoogleGroup" );
-			queryContextBuilder.registerSchemaObjectAlias( Member.class, "GoogleMember" );
-			queryContextBuilder.registerSchemaObjectAlias( Role.class, "GoogleRole" );
-			queryContextBuilder.registerSchemaObjectAlias( com.google.api.services.drive.model.Drive.class, "GoogleDrive" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleUser.class, "GoogleUser" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleGroup.class, "GoogleGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleMember.class, "GoogleMember" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleRole.class, "GoogleRole" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleRoleAssignment.class, "GoogleRoleAssignment" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleDrive.class, "GoogleDrive" );
 
 			// GCP
-			queryContextBuilder.registerSchemaObjectAlias( com.google.cloud.compute.v1.Instance.class, "GcpInstance" );
-			queryContextBuilder.registerSchemaObjectAlias( com.google.iam.admin.v1.Role.class, "GcpIamRole" );
-			queryContextBuilder.registerSchemaObjectAlias( ServiceAccount.class, "GcpIamServiceAccount" );
-			queryContextBuilder.registerSchemaObjectAlias( IamPolicySearchResult.class, "GcpIamPolicy" );
-			queryContextBuilder.registerSchemaObjectAlias( com.google.cloud.resourcemanager.v3.Project.class, "GcpProject" );
-			queryContextBuilder.registerSchemaObjectAlias( com.google.storage.v2.Bucket.class, "GcpBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpOrganization.class, "GcpOrganization" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpFolder.class, "GcpFolder" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpProject.class, "GcpProject" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpAsset.class, "GcpAsset" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpInstance.class, "GcpInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpRole.class, "GcpIamRole" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpServiceAccount.class, "GcpIamServiceAccount" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpIamPolicy.class, "GcpIamPolicy" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpBucket.class, "GcpBucket" );
 
 			// Jira Datacenter
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.model.ProjectBean.class, "JiraDatacenterProject" );
@@ -505,6 +532,11 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
+			// Azure DevOps
+			queryContextBuilder.registerSchemaObjectAlias( GitRepository.class, "DevopsRepository" );
+			queryContextBuilder.registerSchemaObjectAlias( PolicyConfiguration.class, "DevopsPolicyConfiguration" );
+			queryContextBuilder.registerSchemaObjectAlias( WorkItem.class, "DevopsWorkItem" );
+
 			// Observatory
 			queryContextBuilder.registerSchemaObject(
 					com.blazebit.query.connector.observatory.ObservatoryScan.class,
@@ -519,8 +551,8 @@ public class Main {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
-//					testGcp( session );
-//					testGoogleWorkspace( session );
+					testGcp( session );
+					testGoogleWorkspace( session );
 //					testAws( session );
 //					testGitlab( session );
 //					testGitHub( session );
@@ -530,6 +562,7 @@ public class Main {
 					testObservatory(  session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
+//					testAzureDevops( session );
 				}
 			}
 		}
@@ -1287,71 +1320,112 @@ public class Main {
 
 	private static void testGoogleWorkspace(QuerySession session) {
 		TypedQuery<Object[]> userQuery = session.createQuery(
-				"select u.* from GoogleUser u" );
+				"select u.resourceId, u.payload.primaryEmail, u.payload.lastLoginTime from GoogleUser u" );
 		List<Object[]> userResult = userQuery.getResultList();
 		System.out.println( "User" );
 		print( userResult );
 		TypedQuery<Object[]> groupQuery = session.createQuery(
-				"select u.* from GoogleGroup u" );
+				"select u.resourceId, u.payload.name, u.payload.email from GoogleGroup u" );
 		List<Object[]> groupResult = groupQuery.getResultList();
 		System.out.println( "Group" );
 		print( groupResult );
 		TypedQuery<Object[]> memberQuery = session.createQuery(
-				"select u.* from GoogleMember u" );
+				"select u.resourceId, u.payload.email, u.payload.role, u.payload.type from GoogleMember u" );
 		List<Object[]> memberResult = memberQuery.getResultList();
 		System.out.println( "Member" );
 		print( memberResult );
 		TypedQuery<Object[]> roleQuery = session.createQuery(
-				"select u.* from GoogleRole u" );
+				"select u.resourceId, u.payload.roleName from GoogleRole u" );
 		List<Object[]> roleResult = roleQuery.getResultList();
 		System.out.println( "Role" );
 		print( roleResult );
 		TypedQuery<Object[]> roleAssignmentQuery = session.createQuery(
-				"select u.* from GoogleRole u" );
+				"select u.resourceId, u.payload.roleId, u.payload.assignedTo from GoogleRoleAssignment u" );
 		List<Object[]> roleAssignmentResult = roleAssignmentQuery.getResultList();
 		System.out.println( "Role assignment" );
 		print( roleAssignmentResult );
 
 		TypedQuery<Object[]> driveQuery = session.createQuery(
-				"select u.* from GoogleDrive u" );
+				"select u.resourceId, u.payload.name from GoogleDrive u" );
 		List<Object[]> driveResult = driveQuery.getResultList();
 		System.out.println( "Drive" );
 		print( driveResult );
 	}
 
 	private static void testGcp(QuerySession session) {
+		TypedQuery<Object[]> organizationQuery = session.createQuery(
+				"select i.resourceId, i.payload.displayName from GcpOrganization i" );
+		List<Object[]> organizationResult = organizationQuery.getResultList();
+		System.out.println( "Organization" );
+		print( organizationResult );
+
+		TypedQuery<Object[]> folderQuery = session.createQuery(
+				"select i.resourceId, i.payload.displayName from GcpFolder i" );
+		List<Object[]> folderResult = folderQuery.getResultList();
+		System.out.println( "Folder" );
+		print( folderResult );
+
 		TypedQuery<Object[]> projectQuery = session.createQuery(
-				"select i.* from GcpProject i" );
+				"select i.resourceId, i.payload.projectId, i.payload.displayName from GcpProject i" );
 		List<Object[]> projectResult = projectQuery.getResultList();
 		System.out.println( "Project" );
 		print( projectResult );
 
+		TypedQuery<Object[]> assetQuery = session.createQuery(
+				"select i.resourceId, i.payload.assetType from GcpAsset i" );
+		List<Object[]> assetResult = assetQuery.getResultList();
+		System.out.println( "Asset" );
+		print( assetResult );
+
 		TypedQuery<Object[]> instanceQuery = session.createQuery(
-				"select i.* from GcpInstance i" );
+				"""
+							SELECT i.resourceId as resourceId,
+								i.payload.name,
+								COALESCE(i.payload.shieldedInstanceConfig.enableSecureBoot, false)
+									AND COALESCE(i.payload.shieldedInstanceConfig.enableVtpm, false)
+									AND COALESCE(i.payload.shieldedInstanceConfig.enableIntegrityMonitoring, false) AS passed
+							FROM GcpInstance i
+						""" );
 		List<Object[]> instanceResult = instanceQuery.getResultList();
 		System.out.println( "Instance" );
 		print( instanceResult );
 
+		TypedQuery<Object[]> instance2Query = session.createQuery(
+				"""
+						SELECT i.resourceId,
+							i.payload.name,
+							NOT EXISTS (
+								SELECT 1
+								FROM UNNEST(i.payload.networkInterfacesList) AS ni
+								JOIN UNNEST(ni.accessConfigsList) AS ac ON true
+								WHERE ac.natIP IS NOT NULL
+							) AS passed
+						FROM GcpInstance i
+						""" );
+		List<Object[]> instance2Result = instance2Query.getResultList();
+		System.out.println( "Instance - not publicly accessible" );
+		print( instance2Result );
+
 		TypedQuery<Object[]> policyQuery = session.createQuery(
-				"select i.* from GcpIamPolicy i" );
+				"select i.resourceId, i.payload.resource, i.payload.project from GcpIamPolicy i" );
 		List<Object[]> policyResult = policyQuery.getResultList();
 		System.out.println( "Policy" );
 		print( policyResult );
 
 		TypedQuery<Object[]> roleQuery = session.createQuery(
-				"select i.* from GcpIamRole i" );
+				"select i.resourceId, i.payload.title from GcpIamRole i" );
 		List<Object[]> roleResult = roleQuery.getResultList();
 		System.out.println( "Role" );
 		print( roleResult );
 
 		TypedQuery<Object[]> serviceAccountQuery = session.createQuery(
-				"select i.* from GcpIamServiceAccount i" );
+				"select i.resourceId, i.payload.email, i.payload.displayName from GcpIamServiceAccount i" );
 		List<Object[]> serviceAccountResult = serviceAccountQuery.getResultList();
 		System.out.println( "Service Account" );
 		print( serviceAccountResult );
 
 		TypedQuery<Object[]> bucketQuery = session.createQuery(
-				"select i.* from GcpBucket i" );
+				"select i.resourceId, i.payload.location from GcpBucket i" );
 		List<Object[]> bucketResult = bucketQuery.getResultList();
 		System.out.println( "Bucket" );
 		print( bucketResult );
@@ -1570,6 +1644,23 @@ public class Main {
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
+	private static void testAzureDevops(QuerySession session) {
+		List<Object[]> repositoryResult = session.createQuery(
+				"select r.* from DevopsRepository r" ).getResultList();
+		System.out.println( "DevopsRepositories" );
+		print( repositoryResult );
+
+		List<Object[]> policyResult = session.createQuery(
+				"select p.* from DevopsPolicyConfiguration p" ).getResultList();
+		System.out.println( "DevopsPolicyConfigurations" );
+		print( policyResult );
+
+		List<Object[]> workItemResult = session.createQuery(
+				"select w.* from DevopsWorkItem w" ).getResultList();
+		System.out.println( "DevopsWorkItems" );
+		print( workItemResult );
+	}
+
 	private static void testObservatory(QuerySession session) {
 		TypedQuery<Object[]> observatoryScanQuery = session.createQuery(
 				"select c.* from ObservatoryScan c" );
@@ -1616,6 +1707,18 @@ public class Main {
 
 	private static ObservatoryClient createObservatoryClient() {
 		return new ObservatoryClient(OBSERVATORY_HOST);
+	}
+
+	private static DevopsConnectorConfig.Account createDevopsAccount() {
+		String auth = "Basic " + Base64.getEncoder().encodeToString(
+				( ":" + DEVOPS_PAT ).getBytes( StandardCharsets.UTF_8 ) );
+		ApiClient apiClient = new ApiClient();
+		apiClient.setBasePath( "https://app.vssps.visualstudio.com" );
+		apiClient.addDefaultHeader( "Authorization", auth );
+		ApiClient witApiClient = new ApiClient();
+		witApiClient.setBasePath( "https://dev.azure.com" );
+		witApiClient.addDefaultHeader( "Authorization", auth );
+		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, DEVOPS_PROJECT );
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
