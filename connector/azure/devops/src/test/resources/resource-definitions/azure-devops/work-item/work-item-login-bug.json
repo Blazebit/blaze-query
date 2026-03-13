@@ -1,0 +1,26 @@
+{
+  "id": 42,
+  "rev": 3,
+  "url": "https://dev.azure.com/myorg/myproject/_apis/wit/workItems/42",
+  "fields": {
+    "System.Title": "Fix login bug",
+    "System.State": "Active",
+    "System.WorkItemType": "Bug",
+    "System.TeamProject": "myproject",
+    "System.AreaPath": "myproject\\Backend",
+    "System.IterationPath": "myproject\\Sprint 1",
+    "System.Reason": "New",
+    "System.AssignedTo": {
+      "displayName": "Jane Doe"
+    },
+    "System.CreatedBy": {
+      "displayName": "John Smith"
+    },
+    "System.ChangedBy": {
+      "displayName": "Jane Doe"
+    },
+    "System.CreatedDate": "2024-06-01T10:00:00+00:00",
+    "System.ChangedDate": "2024-06-15T14:30:00+00:00",
+    "Microsoft.VSTS.Common.Priority": 2
+  }
+}
