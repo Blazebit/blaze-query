@@ -25,6 +25,6 @@ public final class GcpComputeSchemaProvider implements QuerySchemaProvider {
 
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-		return Set.of( InstanceDataFetcher.INSTANCE );
+		return Set.of( InstanceDataFetcher.INSTANCE, FirewallRuleDataFetcher.INSTANCE );
 	}
 }
