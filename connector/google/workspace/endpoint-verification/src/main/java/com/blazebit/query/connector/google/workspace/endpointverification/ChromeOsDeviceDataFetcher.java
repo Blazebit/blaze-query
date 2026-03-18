@@ -44,6 +44,7 @@ public class ChromeOsDeviceDataFetcher implements DataFetcher<GoogleChromeOsDevi
 				do {
 					Directory.Chromeosdevices.List request = directory.chromeosdevices()
 							.list( CUSTOMER_ID )
+							.setProjection( "FULL" )
 							.setPageToken( pageToken );
 					ChromeOsDevices response = request.execute();
 					List<ChromeOsDevice> devices = response.getChromeosdevices();
