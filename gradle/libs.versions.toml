@@ -12,6 +12,8 @@ gitlab4j = "6.0.0"
 
 github-api = "1.323"
 
+datadog = "2.51.0"
+
 aws = "2.40.3"
 
 microsoft-graph-beta = "6.13.0"
@@ -34,6 +36,7 @@ jakarta-annotation-api = "2.1.1"
 jakarta-persistence-api = "3.0.0"
 
 junit-jupiter = "5.11.3"
+junit-platform = "1.11.3"
 assertj = "3.26.3"
 h2 = "2.2.224"
 hibernate = "7.2.6.Final"
@@ -53,6 +56,8 @@ azure-resourcemanager = { module = "com.azure.resourcemanager:azure-resourcemana
 azure-resourcemanager-postgresqlflexibleserver = { module = "com.azure.resourcemanager:azure-resourcemanager-postgresqlflexibleserver", version.ref = "azure-resourcemanager-postgresqlflexibleserver" }
 
 gitlab4j-api = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab4j" }
+
+datadog-api-client = { module = "com.datadoghq:datadog-api-client", version.ref = "datadog" }
 
 github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 
@@ -110,7 +115,7 @@ jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api",
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence-api" }
 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
