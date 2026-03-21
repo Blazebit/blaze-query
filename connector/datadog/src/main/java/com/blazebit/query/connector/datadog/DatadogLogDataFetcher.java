@@ -44,8 +44,8 @@ public class DatadogLogDataFetcher implements DataFetcher<DatadogLog>, Serializa
 	public List<DatadogLog> fetch(DataFetchContext context) {
 		try {
 			List<ApiClient> clients = DatadogConnectorConfig.DATADOG_API_CLIENT.getAll( context );
-			String query = DatadogConnectorConfig.LOGS_QUERY.get( context );
-			String from = DatadogConnectorConfig.LOGS_FROM.get( context );
+			String query = DatadogConnectorConfig.LOGS_QUERY.find( context );
+			String from = DatadogConnectorConfig.LOGS_FROM.find( context );
 
 			if ( query == null ) {
 				query = "*";
@@ -91,6 +91,9 @@ public class DatadogLogDataFetcher implements DataFetcher<DatadogLog>, Serializa
 			return result;
 		}
 		catch (ApiException e) {
+			if ( e.getMessage() != null && e.getMessage().contains( "No valid indexes specified" ) ) {
+				return List.of();
+			}
 			throw new DataFetcherException( "Could not fetch Datadog logs", e );
 		}
 	}
