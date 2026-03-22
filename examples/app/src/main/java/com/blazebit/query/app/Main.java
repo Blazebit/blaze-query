@@ -172,6 +172,14 @@ import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
 import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
+import com.blazebit.query.connector.datadog.DatadogConnectorConfig;
+import com.blazebit.query.connector.datadog.DatadogHost;
+import com.blazebit.query.connector.datadog.DatadogLog;
+import com.blazebit.query.connector.datadog.DatadogMonitor;
+import com.blazebit.query.connector.datadog.DatadogOrganizationSettings;
+import com.blazebit.query.connector.datadog.DatadogSecurityMonitoringRule;
+import com.blazebit.query.connector.datadog.DatadogSyntheticsTest;
+import com.blazebit.query.connector.datadog.DatadogUser;
 import com.blazebit.query.connector.observatory.ObservatoryClient;
 import com.blazebit.query.connector.observatory.ObservatoryConnectorConfig;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
@@ -300,7 +308,8 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 //			queryContextBuilder.setProperty( DevopsConnectorConfig.ACCOUNT.getPropertyName(), createDevopsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
+//			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
+			queryContextBuilder.setProperty( DatadogConnectorConfig.DATADOG_API_CLIENT.getPropertyName(), createDatadogApiClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -532,10 +541,14 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminDirectoryWrapper.class, "JiraCloudAdminDirectory" );
 			queryContextBuilder.registerSchemaObjectAlias( JiraCloudAdminUserWrapper.class, "JiraCloudAdminUser" );
 
-			// Azure DevOps
-			queryContextBuilder.registerSchemaObjectAlias( GitRepository.class, "DevopsRepository" );
-			queryContextBuilder.registerSchemaObjectAlias( PolicyConfiguration.class, "DevopsPolicyConfiguration" );
-			queryContextBuilder.registerSchemaObjectAlias( WorkItem.class, "DevopsWorkItem" );
+			// Datadog
+			queryContextBuilder.registerSchemaObjectAlias( DatadogLog.class, "DatadogLog" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogSyntheticsTest.class, "DatadogSyntheticsTest" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogMonitor.class, "DatadogMonitor" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogHost.class, "DatadogHost" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogUser.class, "DatadogUser" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogSecurityMonitoringRule.class, "DatadogSecurityMonitoringRule" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogOrganizationSettings.class, "DatadogOrganizationSettings" );
 
 			// Observatory
 			queryContextBuilder.registerSchemaObject(
@@ -551,15 +564,16 @@ public class Main {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
-					testGcp( session );
-					testGoogleWorkspace( session );
+//					testGcp( session );
+//					testGoogleWorkspace( session );
+					testDatadog( session );
 //					testAws( session );
 //					testGitlab( session );
 //					testGitHub( session );
 //					testGitHubOpenAPI( session );
 //					testKandji( session );
 //					testEntityView( session );
-					testObservatory(  session );
+//					testObservatory(  session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
 //					testAzureDevops( session );
@@ -1667,6 +1681,111 @@ public class Main {
 		List<Object[]> observatoryCheckResult = observatoryScanQuery.getResultList();
 		System.out.println( "ObservatoryScan" );
 		print( observatoryCheckResult );
+	}
+
+	private static void testDatadog(QuerySession session) {
+		// Logs: find recent error logs
+		TypedQuery<Object[]> logQuery = session.createQuery(
+				"SELECT l.id, l.host, l.service, l.status, l.message FROM DatadogLog l WHERE l.status = 'error'" );
+		List<Object[]> logResult = logQuery.getResultList();
+		System.out.println( "Datadog Error Logs" );
+		print( logResult );
+
+		// Synthetics: list all live web uptime tests
+		TypedQuery<Object[]> syntheticsQuery = session.createQuery(
+				"SELECT t.publicId, t.name, t.type, t.status FROM DatadogSyntheticsTest t WHERE t.status = 'live'" );
+		List<Object[]> syntheticsResult = syntheticsQuery.getResultList();
+		System.out.println( "Datadog Live Synthetics Tests" );
+		print( syntheticsResult );
+
+		// Monitors: show alerting infrastructure monitors
+		TypedQuery<Object[]> monitorQuery = session.createQuery(
+				"SELECT m.id, m.name, m.overallState, m.priority FROM DatadogMonitor m WHERE m.overallState = 'Alert'" );
+		List<Object[]> monitorResult = monitorQuery.getResultList();
+		System.out.println( "Datadog Alerting Monitors" );
+		print( monitorResult );
+
+		// Hosts: list all hosts
+		TypedQuery<Object[]> hostQuery = session.createQuery(
+				"SELECT h.id, h.name, h.hostName, h.up, h.muted, h.lastReportedTime FROM DatadogHost h" );
+		List<Object[]> hostResult = hostQuery.getResultList();
+		System.out.println( "Datadog Hosts" );
+		print( hostResult );
+
+		// Hosts: find hosts that are down
+		TypedQuery<Object[]> hostDownQuery = session.createQuery(
+				"SELECT h.id, h.name, h.hostName, h.up, h.muted FROM DatadogHost h WHERE h.up = false" );
+		List<Object[]> hostDownResult = hostDownQuery.getResultList();
+		System.out.println( "Datadog Down Hosts" );
+		print( hostDownResult );
+
+		// Users: list all users with MFA and disabled status
+		TypedQuery<Object[]> userQuery = session.createQuery(
+				"SELECT u.id, u.name, u.email, u.status, u.mfaEnabled, u.disabled, u.serviceAccount FROM DatadogUser u" );
+		List<Object[]> userResult = userQuery.getResultList();
+		System.out.println( "Datadog Users" );
+		print( userResult );
+
+		// Users: find users without MFA enabled
+		TypedQuery<Object[]> userNoMfaQuery = session.createQuery(
+				"""
+						SELECT u.id, u.name, u.email, u.status
+						FROM DatadogUser u
+						WHERE (u.mfaEnabled = false OR u.mfaEnabled IS NULL)
+						AND u.disabled = false
+						AND (u.serviceAccount = false OR u.serviceAccount IS NULL)
+						""" );
+		List<Object[]> userNoMfaResult = userNoMfaQuery.getResultList();
+		System.out.println( "Datadog Users - MFA not enabled (active, non-service accounts)" );
+		print( userNoMfaResult );
+
+		// Security Monitoring Rules: list all rules
+		TypedQuery<Object[]> ruleQuery = session.createQuery(
+				"SELECT r.id, r.name, r.type, r.enabled FROM DatadogSecurityMonitoringRule r" );
+		List<Object[]> ruleResult = ruleQuery.getResultList();
+		System.out.println( "Datadog Security Monitoring Rules" );
+		print( ruleResult );
+
+		// Security Monitoring Rules: find disabled rules
+		TypedQuery<Object[]> ruleDisabledQuery = session.createQuery(
+				"SELECT r.id, r.name, r.type FROM DatadogSecurityMonitoringRule r WHERE r.enabled = false" );
+		List<Object[]> ruleDisabledResult = ruleDisabledQuery.getResultList();
+		System.out.println( "Datadog Security Monitoring Rules - disabled" );
+		print( ruleDisabledResult );
+
+		// Organization settings: SAML and security posture
+		TypedQuery<Object[]> orgQuery = session.createQuery(
+				"""
+						SELECT o.publicId, o.name,
+						o.samlEnabled, o.samlStrictMode,
+						o.samlIdpInitiatedLoginEnabled, o.samlAutocreateUsersEnabled,
+						o.samlIdpMetadataUploaded, o.privateWidgetShare
+						FROM DatadogOrganizationSettings o
+						""" );
+		List<Object[]> orgResult = orgQuery.getResultList();
+		System.out.println( "Datadog Organization Settings" );
+		print( orgResult );
+
+		// Organization settings: flag orgs where SAML strict mode is not enabled
+		TypedQuery<Object[]> orgNoSamlStrictQuery = session.createQuery(
+				"""
+						SELECT o.publicId, o.name, o.samlEnabled, o.samlStrictMode
+						FROM DatadogOrganizationSettings o
+						WHERE o.samlStrictMode = false OR o.samlStrictMode IS NULL
+						""" );
+		List<Object[]> orgNoSamlStrictResult = orgNoSamlStrictQuery.getResultList();
+		System.out.println( "Datadog Organization Settings - SAML strict mode not enforced" );
+		print( orgNoSamlStrictResult );
+	}
+
+	private static com.datadog.api.client.ApiClient createDatadogApiClient() {
+		com.datadog.api.client.ApiClient client = new com.datadog.api.client.ApiClient();
+		client.addDefaultHeader( "DD-API-KEY", DATADOG_API_KEY );
+		client.addDefaultHeader( "DD-APPLICATION-KEY", DATADOG_APP_KEY );
+		if ( !DATADOG_SITE.equals( "datadoghq.com" ) ) {
+			client.setServerVariables( new java.util.HashMap<>( java.util.Map.of( "site", DATADOG_SITE ) ) );
+		}
+		return client;
 	}
 
 	private static AwsConnectorConfig.Account createAwsAccount() {
