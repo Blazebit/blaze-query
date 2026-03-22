@@ -27,7 +27,10 @@ public final class DatadogSchemaProvider implements QuerySchemaProvider {
 				DatadogLogDataFetcher.INSTANCE,
 				DatadogSyntheticsTestDataFetcher.INSTANCE,
 				DatadogMonitorDataFetcher.INSTANCE,
-				DatadogHostDataFetcher.INSTANCE
+				DatadogHostDataFetcher.INSTANCE,
+				DatadogUserDataFetcher.INSTANCE,
+				DatadogSecurityMonitoringRuleDataFetcher.INSTANCE,
+				DatadogOrganizationSettingsDataFetcher.INSTANCE
 		);
 	}
 }
