@@ -273,6 +273,9 @@ public class Main {
 
 	private static final String OBSERVATORY_HOST = "";
 
+	private static final String DATADOG_API_KEY = "";
+	private static final String DATADOG_APP_KEY = "";
+	private static final String DATADOG_SITE = "datadoghq.eu";
 
 	private Main() {
 	}
