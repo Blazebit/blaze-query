@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Dimitar Prisadnikov
@@ -22,9 +24,12 @@ import java.util.Map;
  */
 public class GitHubGraphQlClient {
 
+	private static final Logger LOG = Logger.getLogger( GitHubGraphQlClient.class.getName() );
 	private static final ObjectMapper MAPPER = ObjectMappers.getInstance();
 	private static final int DEFAULT_PAGE_SIZE = 100; // Must be within the range of 1-100
 	private static final String GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
+	private static final int MAX_RETRIES = 3;
+	private static final long RETRY_BASE_DELAY_MS = 1000L;
 
 	private final HttpClient httpClient;
 	private final String authToken;
@@ -425,7 +430,18 @@ public class GitHubGraphQlClient {
 						.POST(HttpRequest.BodyPublishers.ofString(requestBody))
 						.build();
 
-				HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+				HttpResponse<String> response = null;
+				for ( int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
+					response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+					if ( response.statusCode() < 500 ) {
+						break;
+					}
+					if ( attempt < MAX_RETRIES ) {
+						LOG.log( Level.WARNING, "GitHub API returned {0}, retrying (attempt {1}/{2})",
+								new Object[]{ response.statusCode(), attempt, MAX_RETRIES } );
+						Thread.sleep( RETRY_BASE_DELAY_MS * attempt );
+					}
+				}
 
 				if (response.statusCode() != 200) {
 					throw new RuntimeException("GitHub API error: " + response.body());
