@@ -172,12 +172,20 @@ import com.blazebit.query.connector.kandji.DeviceParameter;
 import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
 import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
+import com.blazebit.query.connector.datadog.DatadogApiKey;
+import com.blazebit.query.connector.datadog.DatadogApplicationKey;
+import com.blazebit.query.connector.datadog.DatadogAuditLog;
 import com.blazebit.query.connector.datadog.DatadogConnectorConfig;
+import com.blazebit.query.connector.datadog.DatadogCsmFinding;
 import com.blazebit.query.connector.datadog.DatadogHost;
 import com.blazebit.query.connector.datadog.DatadogLog;
 import com.blazebit.query.connector.datadog.DatadogMonitor;
+import com.blazebit.query.connector.datadog.DatadogMonitorDowntime;
 import com.blazebit.query.connector.datadog.DatadogOrganizationSettings;
+import com.blazebit.query.connector.datadog.DatadogPermission;
+import com.blazebit.query.connector.datadog.DatadogRole;
 import com.blazebit.query.connector.datadog.DatadogSecurityMonitoringRule;
+import com.blazebit.query.connector.datadog.DatadogSecuritySignal;
 import com.blazebit.query.connector.datadog.DatadogSyntheticsTest;
 import com.blazebit.query.connector.datadog.DatadogUser;
 import com.blazebit.query.connector.observatory.ObservatoryClient;
@@ -552,6 +560,14 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( DatadogUser.class, "DatadogUser" );
 			queryContextBuilder.registerSchemaObjectAlias( DatadogSecurityMonitoringRule.class, "DatadogSecurityMonitoringRule" );
 			queryContextBuilder.registerSchemaObjectAlias( DatadogOrganizationSettings.class, "DatadogOrganizationSettings" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogCsmFinding.class, "DatadogCsmFinding" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogSecuritySignal.class, "DatadogSecuritySignal" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogAuditLog.class, "DatadogAuditLog" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogApiKey.class, "DatadogApiKey" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogRole.class, "DatadogRole" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogApplicationKey.class, "DatadogApplicationKey" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogMonitorDowntime.class, "DatadogMonitorDowntime" );
+			queryContextBuilder.registerSchemaObjectAlias( DatadogPermission.class, "DatadogPermission" );
 
 			// Observatory
 			queryContextBuilder.registerSchemaObject(
@@ -1779,6 +1795,102 @@ public class Main {
 		List<Object[]> orgNoSamlStrictResult = orgNoSamlStrictQuery.getResultList();
 		System.out.println( "Datadog Organization Settings - SAML strict mode not enforced" );
 		print( orgNoSamlStrictResult );
+
+		// CSM Findings: all findings
+		TypedQuery<Object[]> findingQuery = session.createQuery(
+				"SELECT f.id, f.resource, f.resourceType, f.ruleName, f.status, f.evaluation, f.muted FROM DatadogCsmFinding f" );
+		List<Object[]> findingResult = findingQuery.getResultList();
+		System.out.println( "Datadog CSM Findings" );
+		print( findingResult );
+
+		// CSM Findings: failing, non-muted findings
+		TypedQuery<Object[]> findingFailQuery = session.createQuery(
+				"""
+						SELECT f.id, f.resource, f.resourceType, f.ruleName, f.status
+						FROM DatadogCsmFinding f
+						WHERE f.evaluation = 'fail'
+						AND (f.muted = false OR f.muted IS NULL)
+						""" );
+		List<Object[]> findingFailResult = findingFailQuery.getResultList();
+		System.out.println( "Datadog CSM Findings - failing and not muted" );
+		print( findingFailResult );
+
+		// Security Signals: all signals in last 24h
+		TypedQuery<Object[]> signalQuery = session.createQuery(
+				"SELECT s.id, s.message, s.timestamp FROM DatadogSecuritySignal s" );
+		List<Object[]> signalResult = signalQuery.getResultList();
+		System.out.println( "Datadog Security Signals (last 24h)" );
+		print( signalResult );
+
+		// Audit Logs: all events in last 24h
+		TypedQuery<Object[]> auditQuery = session.createQuery(
+				"SELECT a.id, a.message, a.service, a.timestamp FROM DatadogAuditLog a" );
+		List<Object[]> auditResult = auditQuery.getResultList();
+		System.out.println( "Datadog Audit Logs (last 24h)" );
+		print( auditResult );
+
+		// API Keys: all keys with last used date
+		TypedQuery<Object[]> apiKeyQuery = session.createQuery(
+				"SELECT k.id, k.name, k.last4, k.category, k.createdAt, k.dateLastUsed FROM DatadogApiKey k" );
+		List<Object[]> apiKeyResult = apiKeyQuery.getResultList();
+		System.out.println( "Datadog API Keys" );
+		print( apiKeyResult );
+
+		// API Keys: keys never used
+		TypedQuery<Object[]> apiKeyUnusedQuery = session.createQuery(
+				"SELECT k.id, k.name, k.last4, k.createdAt FROM DatadogApiKey k WHERE k.dateLastUsed IS NULL" );
+		List<Object[]> apiKeyUnusedResult = apiKeyUnusedQuery.getResultList();
+		System.out.println( "Datadog API Keys - never used" );
+		print( apiKeyUnusedResult );
+
+		// Roles: all roles with user counts
+		TypedQuery<Object[]> roleQuery2 = session.createQuery(
+				"SELECT r.id, r.name, r.userCount FROM DatadogRole r" );
+		List<Object[]> roleResult2 = roleQuery2.getResultList();
+		System.out.println( "Datadog Roles" );
+		print( roleResult2 );
+
+		// Application Keys: all keys
+		TypedQuery<Object[]> appKeyQuery = session.createQuery(
+				"SELECT k.id, k.name, k.last4, k.createdAt, k.lastUsedAt FROM DatadogApplicationKey k" );
+		List<Object[]> appKeyResult = appKeyQuery.getResultList();
+		System.out.println( "Datadog Application Keys" );
+		print( appKeyResult );
+
+		// Application Keys: keys with no OAuth scopes (unrestricted)
+		TypedQuery<Object[]> appKeyNoScopesQuery = session.createQuery(
+				"SELECT k.id, k.name, k.createdAt FROM DatadogApplicationKey k WHERE CARDINALITY(k.scopes) = 0" );
+		List<Object[]> appKeyNoScopesResult = appKeyNoScopesQuery.getResultList();
+		System.out.println( "Datadog Application Keys - no OAuth scopes (unrestricted)" );
+		print( appKeyNoScopesResult );
+
+		// Monitor Downtimes: all scheduled downtimes
+		TypedQuery<Object[]> downtimeQuery = session.createQuery(
+				"SELECT d.id, d.scope, d.status, d.message, d.created, d.modified FROM DatadogMonitorDowntime d" );
+		List<Object[]> downtimeResult = downtimeQuery.getResultList();
+		System.out.println( "Datadog Monitor Downtimes" );
+		print( downtimeResult );
+
+		// Monitor Downtimes: active downtimes (not canceled)
+		TypedQuery<Object[]> downtimeActiveQuery = session.createQuery(
+				"SELECT d.id, d.scope, d.status, d.created FROM DatadogMonitorDowntime d WHERE d.status = 'active'" );
+		List<Object[]> downtimeActiveResult = downtimeActiveQuery.getResultList();
+		System.out.println( "Datadog Monitor Downtimes - active" );
+		print( downtimeActiveResult );
+
+		// Permissions: full RBAC permission catalog
+		TypedQuery<Object[]> permissionQuery = session.createQuery(
+				"SELECT p.id, p.name, p.displayName, p.groupName, p.restricted FROM DatadogPermission p" );
+		List<Object[]> permissionResult = permissionQuery.getResultList();
+		System.out.println( "Datadog Permissions" );
+		print( permissionResult );
+
+		// Permissions: restricted permissions only
+		TypedQuery<Object[]> permissionRestrictedQuery = session.createQuery(
+				"SELECT p.id, p.name, p.displayName, p.groupName FROM DatadogPermission p WHERE p.restricted = true" );
+		List<Object[]> permissionRestrictedResult = permissionRestrictedQuery.getResultList();
+		System.out.println( "Datadog Permissions - restricted" );
+		print( permissionRestrictedResult );
 	}
 
 	private static com.datadog.api.client.ApiClient createDatadogApiClient() {
