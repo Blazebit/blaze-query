@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -225,6 +226,13 @@ public class GitHubGraphQlClient {
 		""";
 
 		return executePaginatedQuery(query, variables, "node.branchProtectionRules", this::extractBranchProtectionRules);
+	}
+
+	public List<GitHubPullRequest> fetchRepositoryPullRequestsSince(String repositoryId, String branchName, OffsetDateTime since) {
+		List<GitHubPullRequest> all = fetchRepositoryPullRequests( repositoryId, branchName );
+		return all.stream()
+				.filter( pr -> pr.createdAt() != null && !pr.createdAt().isBefore( since ) )
+				.toList();
 	}
 
 	public List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String branchName) {
