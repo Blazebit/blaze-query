@@ -7,6 +7,8 @@ package com.blazebit.query.connector.azure.devops;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A typed wrapper around the generated {@code devops.model.WorkItem} that extracts
@@ -33,6 +35,8 @@ public record WorkItem(
 		OffsetDateTime changedDate,
 		Integer priority
 ) {
+
+	private static final Logger LOG = Logger.getLogger( WorkItem.class.getName() );
 
 	public WorkItem(com.blazebit.query.connector.devops.model.WorkItem w) {
 		this(
@@ -95,6 +99,9 @@ public record WorkItem(
 				return OffsetDateTime.parse( s );
 			}
 			catch (DateTimeParseException e) {
+				LOG.log( Level.WARNING,
+						"Could not parse date field ''{0}'' with value ''{1}''",
+						new Object[]{ key, s } );
 				return null;
 			}
 		}

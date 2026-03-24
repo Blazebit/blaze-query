@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Fetches ChromeOS devices enrolled in Google Workspace Endpoint Verification.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class ChromeOsDeviceDataFetcher implements DataFetcher<GoogleChromeOsDevice>, Serializable {
 
@@ -44,6 +44,7 @@ public class ChromeOsDeviceDataFetcher implements DataFetcher<GoogleChromeOsDevi
 				do {
 					Directory.Chromeosdevices.List request = directory.chromeosdevices()
 							.list( CUSTOMER_ID )
+							.setProjection( "FULL" )
 							.setPageToken( pageToken );
 					ChromeOsDevices response = request.execute();
 					List<ChromeOsDevice> devices = response.getChromeosdevices();

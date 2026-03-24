@@ -22,12 +22,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class RoleDataFetcher implements DataFetcher<GcpRole>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( RoleDataFetcher.class.getName() );
 
 	public static final RoleDataFetcher INSTANCE = new RoleDataFetcher();
 
@@ -46,9 +50,6 @@ public class RoleDataFetcher implements DataFetcher<GcpRole>, Serializable {
 				try (IAMClient client = IAMClient.create( settings )) {
 					try {
 						final ListRolesRequest request = ListRolesRequest.newBuilder()
-	//							.setName("970024905535")
-	//							.setAddress(newAddressName)
-	//							.setRegion(REGION)
 								.build();
 						final IAMClient.ListRolesPagedResponse response = client.listRoles( request );
 						for ( Role instance : response.iterateAll() ) {
@@ -56,8 +57,9 @@ public class RoleDataFetcher implements DataFetcher<GcpRole>, Serializable {
 						}
 					}
 					catch (PermissionDeniedException e) {
-						if ( "SERVICE_DISABLED".equals( e.getErrorDetails().getErrorInfo().getReason() ) ) {
-							// Ignore this exception, since there are no resources
+						if ( isServiceDisabled( e ) ) {
+							LOG.log( Level.WARNING,
+									"IAM API is not enabled, skipping role fetch." );
 							continue;
 						}
 						throw e;
@@ -69,6 +71,14 @@ public class RoleDataFetcher implements DataFetcher<GcpRole>, Serializable {
 		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch role list", e );
 		}
+	}
+
+	private static boolean isServiceDisabled(PermissionDeniedException e) {
+		var details = e.getErrorDetails();
+		if ( details != null && details.getErrorInfo() != null ) {
+			return "SERVICE_DISABLED".equals( details.getErrorInfo().getReason() );
+		}
+		return false;
 	}
 
 	@Override

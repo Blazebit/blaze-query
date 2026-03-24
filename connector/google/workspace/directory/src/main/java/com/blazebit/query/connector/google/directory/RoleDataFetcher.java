@@ -11,6 +11,7 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Role;
+import com.google.api.services.directory.model.Roles;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,12 +35,20 @@ public class RoleDataFetcher implements DataFetcher<GoogleRole>, Serializable {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleRole> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				List<Role> roles = directory.roles().list( "my_customer" ).execute().getItems();
-				if ( roles != null ) {
-					for ( Role role : roles ) {
-						list.add( new GoogleRole( String.valueOf( role.getRoleId() ), role ) );
+				String pageToken = null;
+				do {
+					Roles response = directory.roles().list( "my_customer" )
+							.setPageToken( pageToken )
+							.execute();
+					List<Role> roles = response.getItems();
+					if ( roles != null ) {
+						for ( Role role : roles ) {
+							list.add( new GoogleRole( String.valueOf( role.getRoleId() ), role ) );
+						}
 					}
+					pageToken = response.getNextPageToken();
 				}
+				while ( pageToken != null );
 			}
 			return list;
 		}

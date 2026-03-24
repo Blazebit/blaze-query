@@ -66,6 +66,9 @@ public class WorkItemDataFetcher implements DataFetcher<WorkItem>, Serializable 
 							.filter( r -> r.getId() != null )
 							.map( r -> r.getId().toString() )
 							.collect( Collectors.joining( "," ) );
+					if ( ids.isEmpty() ) {
+						continue;
+					}
 					WorkItemList items = api.workItemsList( organization, ids, "7.1", "fields" );
 					if ( items.getValue() != null ) {
 						items.getValue().stream().map( WorkItem::new ).forEach( list::add );

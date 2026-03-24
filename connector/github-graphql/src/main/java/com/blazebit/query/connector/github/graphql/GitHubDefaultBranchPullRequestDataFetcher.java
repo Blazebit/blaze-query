@@ -11,6 +11,8 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +31,19 @@ public class GitHubDefaultBranchPullRequestDataFetcher implements DataFetcher<Gi
 	public List<GitHubPullRequest> fetch(DataFetchContext context) {
 		try {
 			List<GitHubGraphQlClient> githubClients = GitHubConnectorConfig.GITHUB_GRAPHQL_CLIENT.getAll(context);
+			Duration maxAge = GitHubConnectorConfig.PULL_REQUESTS_MAX_AGE.find(context);
+			OffsetDateTime since = maxAge != null ? OffsetDateTime.now().minus(maxAge) : null;
 			List<GitHubPullRequest> pullRequestList = new ArrayList<>();
 
 			for (GitHubGraphQlClient client : githubClients) {
 				for (GitHubRepository repository : context.getSession().getOrFetch(GitHubRepository.class)) {
 					if (repository.defaultBranchRef() != null) {
-						pullRequestList.addAll(
-								client.fetchRepositoryPullRequests(repository.id(), repository.defaultBranchRef().name()));
+						String repoId = repository.id();
+						String branch = repository.defaultBranchRef().name();
+						List<GitHubPullRequest> prs = since != null
+								? client.fetchRepositoryPullRequestsSince(repoId, branch, since)
+								: client.fetchRepositoryPullRequests(repoId, branch);
+						pullRequestList.addAll(prs);
 					}
 				}
 			}

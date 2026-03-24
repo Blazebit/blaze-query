@@ -12,7 +12,9 @@ import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.storage.v2.Bucket;
 import com.google.storage.v2.StorageClient;
 import com.google.storage.v2.StorageSettings;
@@ -21,12 +23,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class BucketDataFetcher implements DataFetcher<GcpBucket>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( BucketDataFetcher.class.getName() );
 
 	public static final BucketDataFetcher INSTANCE = new BucketDataFetcher();
 
@@ -45,9 +51,22 @@ public class BucketDataFetcher implements DataFetcher<GcpBucket>, Serializable {
 						.build();
 				try (StorageClient client = StorageClient.create( settings )) {
 					for ( GcpProject project : projects ) {
-						final StorageClient.ListBucketsPagedResponse response = client.listBuckets( project.getPayload().getName() );
-						for ( Bucket instance : response.iterateAll() ) {
-							list.add( new GcpBucket( instance.getName(), instance ) );
+						try {
+							final StorageClient.ListBucketsPagedResponse response = client.listBuckets( project.getPayload().getName() );
+							for ( Bucket instance : response.iterateAll() ) {
+								list.add( new GcpBucket( instance.getName(), instance ) );
+							}
+						}
+						catch (PermissionDeniedException e) {
+							if ( e.getCause() instanceof HttpResponseException httpEx
+									&& httpEx.getContent() != null
+									&& httpEx.getContent().contains( "\"accessNotConfigured\"" ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud Storage API is not enabled for project ''{0}'', skipping bucket fetch.",
+										project.getPayload().getProjectId() );
+								continue;
+							}
+							throw e;
 						}
 					}
 				}
