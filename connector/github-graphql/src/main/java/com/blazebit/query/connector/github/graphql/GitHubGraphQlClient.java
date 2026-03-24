@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -235,13 +236,15 @@ public class GitHubGraphQlClient {
 	}
 
 	public List<GitHubPullRequest> fetchRepositoryPullRequestsSince(String repositoryId, String branchName, OffsetDateTime since) {
-		List<GitHubPullRequest> all = fetchRepositoryPullRequests( repositoryId, branchName );
-		return all.stream()
-				.filter( pr -> pr.createdAt() != null && !pr.createdAt().isBefore( since ) )
-				.toList();
+		return fetchRepositoryPullRequests( repositoryId, branchName,
+				pr -> pr.createdAt() != null && !pr.createdAt().isBefore( since ) );
 	}
 
 	public List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String branchName) {
+		return fetchRepositoryPullRequests( repositoryId, branchName, null );
+	}
+
+	private List<GitHubPullRequest> fetchRepositoryPullRequests(String repositoryId, String branchName, Predicate<GitHubPullRequest> keepWhile) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("repositoryId", repositoryId);
 		variables.put("defaultBranchName", branchName);
@@ -285,7 +288,7 @@ public class GitHubGraphQlClient {
 		}
 		""";
 
-		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests);
+		return executePaginatedQuery(query, variables, "node.pullRequests", this::extractPullRequests, keepWhile);
 	}
 
 	public List<GitHubRuleset> fetchOrganizationRulesets(String organizationId) {
@@ -426,6 +429,16 @@ public class GitHubGraphQlClient {
 			String rootNode,
 			JsonPathExtractor<T> extractor
 	) {
+		return executePaginatedQuery( query, variables, rootNode, extractor, null );
+	}
+
+	public <T> List<T> executePaginatedQuery(
+			String query,
+			Map<String, Object> variables,
+			String rootNode,
+			JsonPathExtractor<T> extractor,
+			Predicate<T> keepWhile
+	) {
 		List<T> allResults = new ArrayList<>();
 		String cursor = null;
 		boolean hasNextPage;
@@ -444,22 +457,7 @@ public class GitHubGraphQlClient {
 						.POST(HttpRequest.BodyPublishers.ofString(requestBody))
 						.build();
 
-				HttpResponse<String> response = null;
-				for ( int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
-					response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-					if ( response.statusCode() < 500 ) {
-						break;
-					}
-					if ( attempt < MAX_RETRIES ) {
-						LOG.log( Level.WARNING, "GitHub API returned {0}, retrying (attempt {1}/{2})",
-								new Object[]{ response.statusCode(), attempt, MAX_RETRIES } );
-						Thread.sleep( RETRY_BASE_DELAY_MS * attempt );
-					}
-				}
-
-				if (response.statusCode() != 200) {
-					throw new RuntimeException("GitHub API error: " + response.body());
-				}
+				HttpResponse<String> response = sendWithRetries( request, rootNode );
 
 				JsonNode jsonResponse = MAPPER.readTree(response.body());
 
@@ -482,10 +480,28 @@ public class GitHubGraphQlClient {
 				JsonNode pageInfo = data.path("pageInfo");
 
 				List<T> extractedResults = extractor.extract(data);
-				allResults.addAll(extractedResults);
+
+				if ( keepWhile != null ) {
+					for ( T item : extractedResults ) {
+						if ( keepWhile.test( item ) ) {
+							allResults.add( item );
+						}
+						else {
+							// Results are ordered DESC, so once an item fails the predicate,
+							// all subsequent items will also fail — stop paginating.
+							return allResults;
+						}
+					}
+				}
+				else {
+					allResults.addAll(extractedResults);
+				}
 
 				cursor = pageInfo.path("endCursor").asText(null);
 				hasNextPage = pageInfo.path("hasNextPage").asBoolean(false);
+			}
+			catch (RuntimeException e) {
+				throw e;
 			}
 			catch (Exception e) {
 				throw new RuntimeException("Failed to fetch " + rootNode + " from GitHub GraphQL API", e);
@@ -494,6 +510,39 @@ public class GitHubGraphQlClient {
 		while (hasNextPage && cursor != null);
 
 		return allResults;
+	}
+
+	private HttpResponse<String> sendWithRetries(HttpRequest request, String rootNode) throws Exception {
+		HttpResponse<String> response = null;
+		for ( int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
+			response = httpClient.send( request, HttpResponse.BodyHandlers.ofString() );
+			if ( !isRetryableStatus( response.statusCode() ) ) {
+				break;
+			}
+			LOG.log( Level.WARNING, "GitHub API returned {0}, retrying (attempt {1}/{2})",
+					new Object[]{ response.statusCode(), attempt, MAX_RETRIES } );
+			if ( attempt < MAX_RETRIES ) {
+				try {
+					Thread.sleep( RETRY_BASE_DELAY_MS * attempt );
+				}
+				catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					throw new RuntimeException( "Interrupted during retry delay for " + rootNode, ie );
+				}
+			}
+		}
+		if ( response != null && isRetryableStatus( response.statusCode() ) ) {
+			throw new RuntimeException( "GitHub API returned " + response.statusCode()
+					+ " after " + MAX_RETRIES + " attempts: " + response.body() );
+		}
+		if ( response.statusCode() != 200 ) {
+			throw new RuntimeException( "GitHub API error: " + response.body() );
+		}
+		return response;
+	}
+
+	private static boolean isRetryableStatus(int statusCode) {
+		return statusCode >= 500 || statusCode == 429;
 	}
 
 	private String createJsonRequest(String query, Map<String, Object> variables) {

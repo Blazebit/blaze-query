@@ -130,7 +130,6 @@ class GitHubGraphQlClientTest {
 				"viewer",
 				data -> List.of()
 		) ).isInstanceOf( RuntimeException.class )
-				.cause()
 				.hasMessageContaining( "GitHub GraphQL error" );
 	}
 }
