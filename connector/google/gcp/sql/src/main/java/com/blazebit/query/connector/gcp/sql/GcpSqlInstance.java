@@ -10,8 +10,8 @@ import com.google.api.services.sqladmin.model.DatabaseInstance;
 /**
  * Wrapper for a GCP Cloud SQL database instance.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpSqlInstance extends GcpWrapper<DatabaseInstance> {
 	public GcpSqlInstance(String resourceId, DatabaseInstance instance) {

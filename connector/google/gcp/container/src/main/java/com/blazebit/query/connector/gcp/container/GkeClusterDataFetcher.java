@@ -28,8 +28,8 @@ import java.util.List;
 /**
  * Fetches GKE clusters for GCP projects.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GkeClusterDataFetcher implements DataFetcher<GcpGkeCluster>, Serializable {
 

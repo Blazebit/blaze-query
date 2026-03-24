@@ -10,8 +10,8 @@ import com.google.container.v1.Cluster;
 /**
  * Wrapper for a GCP GKE (Google Kubernetes Engine) cluster.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpGkeCluster extends GcpWrapper<Cluster> {
 	public GcpGkeCluster(String resourceId, Cluster cluster) {

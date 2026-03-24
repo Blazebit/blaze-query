@@ -10,8 +10,8 @@ import com.google.cloud.kms.v1.CryptoKey;
 /**
  * Wrapper for a GCP Cloud KMS CryptoKey.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpKmsCryptoKey extends GcpWrapper<CryptoKey> {
 	public GcpKmsCryptoKey(String resourceId, CryptoKey cryptoKey) {

@@ -26,8 +26,8 @@ import java.util.List;
 /**
  * Fetches Cloud DNS managed zones for GCP projects.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class DnsManagedZoneDataFetcher implements DataFetcher<GcpDnsManagedZone>, Serializable {
 

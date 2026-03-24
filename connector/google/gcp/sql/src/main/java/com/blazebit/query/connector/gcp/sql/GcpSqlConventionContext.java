@@ -13,8 +13,8 @@ import java.lang.reflect.Method;
  * Convention context for GCP Cloud SQL models (google-api-services-sqladmin).
  * Filters out internal Google API client methods from {@code GenericJson} base classes.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpSqlConventionContext implements ConventionContext {
 

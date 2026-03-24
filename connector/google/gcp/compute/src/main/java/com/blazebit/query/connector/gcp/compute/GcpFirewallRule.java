@@ -10,8 +10,8 @@ import com.google.cloud.compute.v1.Firewall;
 /**
  * Wrapper for a GCP VPC Firewall rule.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpFirewallRule extends GcpWrapper<Firewall> {
 	public GcpFirewallRule(String resourceId, Firewall firewall) {

@@ -10,8 +10,8 @@ import com.google.cloud.dns.ZoneInfo;
 /**
  * Wrapper for a GCP Cloud DNS managed zone.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public class GcpDnsManagedZone extends GcpWrapper<ZoneInfo> {
 	public GcpDnsManagedZone(String resourceId, ZoneInfo zoneInfo) {

@@ -13,8 +13,8 @@ import java.util.Set;
 /**
  * The schema provider for the GCP Cloud KMS connector.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.3.0
  */
 public final class GcpKmsSchemaProvider implements QuerySchemaProvider {
 	/**
