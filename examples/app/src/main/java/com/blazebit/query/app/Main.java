@@ -230,6 +230,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -1982,7 +1983,7 @@ public class Main {
 					)
 			).setApplicationName( "blaze-query-test" ).build();
 		}
-		catch (Exception e) {
+		catch (IOException | GeneralSecurityException e) {
 			throw new RuntimeException( e );
 		}
 	}
@@ -2009,7 +2010,7 @@ public class Main {
 					)
 			).setApplicationName( "blaze-query-test" ).build();
 		}
-		catch (Exception e) {
+		catch (IOException | GeneralSecurityException e) {
 			throw new RuntimeException( e );
 		}
 	}
@@ -2026,7 +2027,7 @@ public class Main {
 							.build()
 			);
 		}
-		catch (Exception e) {
+		catch (IOException | GeneralSecurityException e) {
 			throw new RuntimeException( e );
 		}
 	}

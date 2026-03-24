@@ -198,10 +198,9 @@ public class EnumerableTableScan extends TableScan implements EnumerableRel {
 
 			SimpleBlockBuilder tryBlockBuilder = new SimpleBlockBuilder( blockBuilder );
 			SimpleBlockBuilder catchBlockBuilder = new SimpleBlockBuilder( blockBuilder );
-			ParameterExpression exVar = catchBlockBuilder.createLocalVariable( Throwable.class );
+			ParameterExpression exVar = catchBlockBuilder.createLocalVariable( Exception.class );
 			tryBlockBuilder.add( Expressions.statement(
 					Expressions.assign( localVar, Expressions.call( row, methodAccessor.getMethod() ) ) ) );
-			// todo: add logging?
 			catchBlockBuilder.add(
 					Expressions.statement( Expressions.assign( localVar, Expressions.constant( null ) ) ) );
 			blockBuilder.add( Expressions.tryCatch( tryBlockBuilder.toBlock(),

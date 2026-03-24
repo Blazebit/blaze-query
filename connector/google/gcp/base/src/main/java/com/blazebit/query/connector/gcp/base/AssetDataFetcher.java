@@ -10,6 +10,7 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.cloud.asset.v1.Asset;
 import com.google.cloud.asset.v1.AssetServiceClient;
 import com.google.cloud.asset.v1.AssetServiceSettings;
@@ -18,12 +19,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class AssetDataFetcher implements DataFetcher<GcpAsset>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( AssetDataFetcher.class.getName() );
 
 	public static final AssetDataFetcher INSTANCE = new AssetDataFetcher();
 
@@ -45,27 +50,60 @@ public class AssetDataFetcher implements DataFetcher<GcpAsset>, Serializable {
 						.build();
 				try (AssetServiceClient client = AssetServiceClient.create( settings )) {
 					for ( GcpOrganization organization : organizations ) {
-						final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
-								organization.getPayload().getName()
-						);
-						for ( Asset instance : response.iterateAll() ) {
-							list.add( new GcpAsset( instance.getName(), instance ) );
+						try {
+							final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
+									organization.getPayload().getName()
+							);
+							for ( Asset instance : response.iterateAll() ) {
+								list.add( new GcpAsset( instance.getName(), instance ) );
+							}
+						}
+						catch (PermissionDeniedException e) {
+							if ( isServiceDisabled( e ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud Asset API is not enabled for organization ''{0}'', skipping asset fetch.",
+										organization.getPayload().getName() );
+								continue;
+							}
+							throw e;
 						}
 					}
 					for ( GcpFolder folder : folders ) {
-						final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
-								folder.getPayload().getName()
-						);
-						for ( Asset instance : response.iterateAll() ) {
-							list.add( new GcpAsset( instance.getName(), instance ) );
+						try {
+							final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
+									folder.getPayload().getName()
+							);
+							for ( Asset instance : response.iterateAll() ) {
+								list.add( new GcpAsset( instance.getName(), instance ) );
+							}
+						}
+						catch (PermissionDeniedException e) {
+							if ( isServiceDisabled( e ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud Asset API is not enabled for folder ''{0}'', skipping asset fetch.",
+										folder.getPayload().getName() );
+								continue;
+							}
+							throw e;
 						}
 					}
 					for ( GcpProject project : projects ) {
-						final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
-								project.getPayload().getName()
-						);
-						for ( Asset instance : response.iterateAll() ) {
-							list.add( new GcpAsset( instance.getName(), instance ) );
+						try {
+							final AssetServiceClient.ListAssetsPagedResponse response = client.listAssets(
+									project.getPayload().getName()
+							);
+							for ( Asset instance : response.iterateAll() ) {
+								list.add( new GcpAsset( instance.getName(), instance ) );
+							}
+						}
+						catch (PermissionDeniedException e) {
+							if ( isServiceDisabled( e ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud Asset API is not enabled for project ''{0}'', skipping asset fetch.",
+										project.getPayload().getProjectId() );
+								continue;
+							}
+							throw e;
 						}
 					}
 				}
@@ -75,6 +113,14 @@ public class AssetDataFetcher implements DataFetcher<GcpAsset>, Serializable {
 		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch asset list", e );
 		}
+	}
+
+	private static boolean isServiceDisabled(PermissionDeniedException e) {
+		var details = e.getErrorDetails();
+		if ( details != null && details.getErrorInfo() != null ) {
+			return "SERVICE_DISABLED".equals( details.getErrorInfo().getReason() );
+		}
+		return false;
 	}
 
 	@Override

@@ -48,7 +48,8 @@ public final class ConvertingFieldAccessor implements DataFormatFieldAccessor {
 			return converterMethod.invoke( null, value );
 		}
 		catch (InvocationTargetException | IllegalAccessException e) {
-			throw new RuntimeException( e );
+			throw new RuntimeException( "Failed to convert field value via "
+					+ converterMethod.getDeclaringClass().getSimpleName() + "." + converterMethod.getName(), e );
 		}
 	}
 }

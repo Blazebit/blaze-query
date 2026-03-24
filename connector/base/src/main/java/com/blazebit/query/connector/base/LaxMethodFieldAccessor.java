@@ -5,6 +5,8 @@
 package com.blazebit.query.connector.base;
 
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.blazebit.query.spi.DataFormatFieldAccessor;
 
@@ -16,6 +18,9 @@ import com.blazebit.query.spi.DataFormatFieldAccessor;
  * @since 1.0.0
  */
 public final class LaxMethodFieldAccessor implements DataFormatFieldAccessor {
+
+	private static final Logger LOG = Logger.getLogger( LaxMethodFieldAccessor.class.getName() );
+
 	private final Method method;
 
 	/**
@@ -37,6 +42,8 @@ public final class LaxMethodFieldAccessor implements DataFormatFieldAccessor {
 			return method.invoke( o );
 		}
 		catch (Exception e) {
+			LOG.log( Level.FINE, "Lax accessor for {0}.{1}() returned null due to exception",
+					new Object[]{ method.getDeclaringClass().getSimpleName(), method.getName() } );
 			return null;
 		}
 	}
