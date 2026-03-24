@@ -15,6 +15,7 @@ import com.google.cloud.resourcemanager.v3.Project;
 import com.google.cloud.resourcemanager.v3.ProjectsClient;
 import com.google.cloud.resourcemanager.v3.ProjectsSettings;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -76,7 +77,7 @@ public class ProjectDataFetcher implements DataFetcher<GcpProject>, Serializable
 			}
 			return new ArrayList<>( seen.values() );
 		}
-		catch (Exception e) {
+		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch project list", e );
 		}
 	}

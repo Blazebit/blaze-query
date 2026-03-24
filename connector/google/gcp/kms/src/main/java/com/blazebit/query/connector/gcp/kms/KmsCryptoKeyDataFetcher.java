@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Fetches Cloud KMS CryptoKeys for GCP projects.
@@ -34,6 +36,8 @@ import java.util.List;
  * @since 2.3.0
  */
 public class KmsCryptoKeyDataFetcher implements DataFetcher<GcpKmsCryptoKey>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( KmsCryptoKeyDataFetcher.class.getName() );
 
 	public static final KmsCryptoKeyDataFetcher INSTANCE = new KmsCryptoKeyDataFetcher();
 
@@ -66,10 +70,12 @@ public class KmsCryptoKeyDataFetcher implements DataFetcher<GcpKmsCryptoKey>, Se
 							}
 						}
 						catch (PermissionDeniedException e) {
-							if ( e.getCause() instanceof HttpResponseException
-									&& ((HttpResponseException) e.getCause()).getContent()
-									.contains( "\"accessNotConfigured\"" ) ) {
-								// Ignore this exception, since there are no resources
+							if ( e.getCause() instanceof HttpResponseException httpEx
+									&& httpEx.getContent() != null
+									&& httpEx.getContent().contains( "\"accessNotConfigured\"" ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud KMS API is not enabled for project ''{0}'', skipping crypto key fetch.",
+										project.getPayload().getProjectId() );
 								continue;
 							}
 							throw e;

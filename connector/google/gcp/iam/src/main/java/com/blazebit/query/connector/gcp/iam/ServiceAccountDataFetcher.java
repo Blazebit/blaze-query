@@ -23,12 +23,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class ServiceAccountDataFetcher implements DataFetcher<GcpServiceAccount>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( ServiceAccountDataFetcher.class.getName() );
 
 	public static final ServiceAccountDataFetcher INSTANCE = new ServiceAccountDataFetcher();
 
@@ -46,8 +50,8 @@ public class ServiceAccountDataFetcher implements DataFetcher<GcpServiceAccount>
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (IAMClient client = IAMClient.create( settings )) {
-					try {
-						for ( GcpProject project : projects ) {
+					for ( GcpProject project : projects ) {
+						try {
 							final ListServiceAccountsRequest request = ListServiceAccountsRequest.newBuilder()
 									.setName( project.getPayload().getName() )
 									.build();
@@ -57,13 +61,15 @@ public class ServiceAccountDataFetcher implements DataFetcher<GcpServiceAccount>
 								list.add( new GcpServiceAccount( instance.getName(), instance ) );
 							}
 						}
-					}
-					catch (PermissionDeniedException e) {
-						if ( "SERVICE_DISABLED".equals( e.getErrorDetails().getErrorInfo().getReason() ) ) {
-							// Ignore this exception, since there are no resources
-							continue;
+						catch (PermissionDeniedException e) {
+							if ( isServiceDisabled( e ) ) {
+								LOG.log( Level.WARNING,
+										"IAM API is not enabled for project ''{0}'', skipping service account fetch.",
+										project.getPayload().getProjectId() );
+								continue;
+							}
+							throw e;
 						}
-						throw e;
 					}
 				}
 			}
@@ -72,6 +78,14 @@ public class ServiceAccountDataFetcher implements DataFetcher<GcpServiceAccount>
 		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch service account list", e );
 		}
+	}
+
+	private static boolean isServiceDisabled(PermissionDeniedException e) {
+		var details = e.getErrorDetails();
+		if ( details != null && details.getErrorInfo() != null ) {
+			return "SERVICE_DISABLED".equals( details.getErrorInfo().getReason() );
+		}
+		return false;
 	}
 
 	@Override

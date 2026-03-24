@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Fetches Cloud DNS managed zones for GCP projects.
@@ -30,6 +32,8 @@ import java.util.List;
  * @since 2.3.0
  */
 public class DnsManagedZoneDataFetcher implements DataFetcher<GcpDnsManagedZone>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( DnsManagedZoneDataFetcher.class.getName() );
 
 	public static final DnsManagedZoneDataFetcher INSTANCE = new DnsManagedZoneDataFetcher();
 
@@ -56,8 +60,11 @@ public class DnsManagedZoneDataFetcher implements DataFetcher<GcpDnsManagedZone>
 						}
 					}
 					catch (com.google.cloud.dns.DnsException e) {
-						if ( e.getCode() == 403 ) {
-							// Ignore this exception, since there are no resources or access is denied
+						if ( e.getCode() == 403 && e.getMessage() != null
+								&& e.getMessage().contains( "accessNotConfigured" ) ) {
+							LOG.log( Level.WARNING,
+									"Cloud DNS API is not enabled for project ''{0}'', skipping managed zone fetch.",
+									project.getPayload().getProjectId() );
 							continue;
 						}
 						throw e;

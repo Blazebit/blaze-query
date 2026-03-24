@@ -12,17 +12,22 @@ import com.blazebit.query.spi.DataFormat;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.DriveList;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class DriveDataFetcher implements DataFetcher<GoogleDrive>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( DriveDataFetcher.class.getName() );
 
 	public static final DriveDataFetcher INSTANCE = new DriveDataFetcher();
 
@@ -36,17 +41,30 @@ public class DriveDataFetcher implements DataFetcher<GoogleDrive>, Serializable 
 			List<GoogleDrive> list = new ArrayList<>();
 			OUTER: for ( Drive drive : directoryServices ) {
 				try {
-					List<com.google.api.services.drive.model.Drive> drives = drive.drives().list().execute().getDrives();
-					if ( drives != null ) {
-						for ( com.google.api.services.drive.model.Drive d : drives ) {
-							list.add( new GoogleDrive( d.getId(), d ) );
+					String pageToken = null;
+					do {
+						DriveList result = drive.drives().list()
+								.setPageToken( pageToken )
+								.execute();
+						List<com.google.api.services.drive.model.Drive> drives = result.getDrives();
+						if ( drives != null ) {
+							for ( com.google.api.services.drive.model.Drive d : drives ) {
+								list.add( new GoogleDrive( d.getId(), d ) );
+							}
 						}
+						pageToken = result.getNextPageToken();
 					}
+					while ( pageToken != null );
 				}
 				catch ( GoogleJsonResponseException e ) {
-					for ( GoogleJsonError.Details detail : e.getDetails().getDetails() ) {
-						if ( "SERVICE_DISABLED".equals( detail.getReason() ) ) {
-							continue OUTER;
+					GoogleJsonError error = e.getDetails();
+					if ( error != null && error.getDetails() != null ) {
+						for ( GoogleJsonError.Details detail : error.getDetails() ) {
+							if ( "SERVICE_DISABLED".equals( detail.getReason() ) ) {
+								LOG.log( Level.WARNING,
+										"Google Drive API is not enabled, skipping drive fetch." );
+								continue OUTER;
+							}
 						}
 					}
 					throw e;

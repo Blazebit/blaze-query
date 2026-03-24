@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Fetches GKE clusters for GCP projects.
@@ -32,6 +34,8 @@ import java.util.List;
  * @since 2.3.0
  */
 public class GkeClusterDataFetcher implements DataFetcher<GcpGkeCluster>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( GkeClusterDataFetcher.class.getName() );
 
 	public static final GkeClusterDataFetcher INSTANCE = new GkeClusterDataFetcher();
 
@@ -59,10 +63,12 @@ public class GkeClusterDataFetcher implements DataFetcher<GcpGkeCluster>, Serial
 							}
 						}
 						catch (PermissionDeniedException e) {
-							if ( e.getCause() instanceof HttpResponseException
-									&& ((HttpResponseException) e.getCause()).getContent()
-									.contains( "\"accessNotConfigured\"" ) ) {
-								// Ignore this exception, since there are no resources
+							if ( e.getCause() instanceof HttpResponseException httpEx
+									&& httpEx.getContent() != null
+									&& httpEx.getContent().contains( "\"accessNotConfigured\"" ) ) {
+								LOG.log( Level.WARNING,
+										"Container Engine API is not enabled for project ''{0}'', skipping GKE cluster fetch.",
+										project.getPayload().getProjectId() );
 								continue;
 							}
 							throw e;

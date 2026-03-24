@@ -18,17 +18,22 @@ import com.google.cloud.asset.v1.AssetServiceClient;
 import com.google.cloud.asset.v1.AssetServiceSettings;
 import com.google.cloud.asset.v1.IamPolicySearchResult;
 import com.google.cloud.asset.v1.SearchAllIamPoliciesRequest;
+import com.google.rpc.ErrorInfo;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class PolicyDataFetcher implements DataFetcher<GcpIamPolicy>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( PolicyDataFetcher.class.getName() );
 
 	public static final PolicyDataFetcher INSTANCE = new PolicyDataFetcher();
 
@@ -46,8 +51,8 @@ public class PolicyDataFetcher implements DataFetcher<GcpIamPolicy>, Serializabl
 						.setCredentialsProvider(credentialsProvider)
 						.build();
 				try (AssetServiceClient client = AssetServiceClient.create( settings )) {
-					try {
-						for ( GcpOrganization organization : organizations ) {
+					for ( GcpOrganization organization : organizations ) {
+						try {
 							final SearchAllIamPoliciesRequest request = SearchAllIamPoliciesRequest.newBuilder()
 									.setScope( organization.getPayload().getName() )
 									.build();
@@ -56,13 +61,15 @@ public class PolicyDataFetcher implements DataFetcher<GcpIamPolicy>, Serializabl
 								list.add( new GcpIamPolicy( instance.getResource(), instance ) );
 							}
 						}
-					}
-					catch (PermissionDeniedException e) {
-						if ( "SERVICE_DISABLED".equals( e.getErrorDetails().getErrorInfo().getReason() ) ) {
-							// Ignore this exception, since there are no resources
-							continue;
+						catch (PermissionDeniedException e) {
+							if ( isServiceDisabled( e ) ) {
+								LOG.log( Level.WARNING,
+										"Cloud Asset API is not enabled, skipping IAM policy fetch for organization ''{0}''.",
+										organization.getPayload().getName() );
+								continue;
+							}
+							throw e;
 						}
-						throw e;
 					}
 				}
 			}
@@ -71,6 +78,14 @@ public class PolicyDataFetcher implements DataFetcher<GcpIamPolicy>, Serializabl
 		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch policy list", e );
 		}
+	}
+
+	private static boolean isServiceDisabled(PermissionDeniedException e) {
+		var details = e.getErrorDetails();
+		if ( details != null && details.getErrorInfo() != null ) {
+			return "SERVICE_DISABLED".equals( details.getErrorInfo().getReason() );
+		}
+		return false;
 	}
 
 	@Override

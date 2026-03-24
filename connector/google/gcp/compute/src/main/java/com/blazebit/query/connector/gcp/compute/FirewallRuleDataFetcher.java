@@ -59,9 +59,9 @@ public class FirewallRuleDataFetcher implements DataFetcher<GcpFirewallRule>, Se
 							}
 						}
 						catch (PermissionDeniedException e) {
-							if ( e.getCause() instanceof HttpResponseException
-									&& ((HttpResponseException) e.getCause()).getContent()
-									.contains( "\"accessNotConfigured\"" ) ) {
+							if ( e.getCause() instanceof HttpResponseException httpEx
+									&& httpEx.getContent() != null
+									&& httpEx.getContent().contains( "\"accessNotConfigured\"" ) ) {
 								// The Compute Engine API is not enabled for this project.
 								// No firewall rules exist, so skip it and warn the user.
 								LOG.log( Level.WARNING,

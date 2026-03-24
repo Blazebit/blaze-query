@@ -11,6 +11,7 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.User;
+import com.google.api.services.directory.model.Users;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,12 +35,21 @@ public class UserDataFetcher implements DataFetcher<GoogleUser>, Serializable {
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleUser> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				List<User> users = directory.users().list().setCustomer( "my_customer" ).execute().getUsers();
-				if ( users != null ) {
-					for ( User user : users ) {
-						list.add( new GoogleUser( user.getId(), user ) );
+				String pageToken = null;
+				do {
+					Users response = directory.users().list()
+							.setCustomer( "my_customer" )
+							.setPageToken( pageToken )
+							.execute();
+					List<User> users = response.getUsers();
+					if ( users != null ) {
+						for ( User user : users ) {
+							list.add( new GoogleUser( user.getId(), user ) );
+						}
 					}
+					pageToken = response.getNextPageToken();
 				}
+				while ( pageToken != null );
 			}
 			return list;
 		}

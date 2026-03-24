@@ -11,6 +11,7 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.Members;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -36,12 +37,20 @@ public class MemberDataFetcher implements DataFetcher<GoogleMember>, Serializabl
 			List<? extends GoogleGroup> groups = context.getSession().getOrFetch( GoogleGroup.class );
 			for ( Directory directory : directoryServices ) {
 				for ( GoogleGroup group : groups ) {
-					List<Member> members = directory.members().list( group.getPayload().getId() ).execute().getMembers();
-					if ( members != null ) {
-						for ( Member member : members ) {
-							list.add( new GoogleMember( member.getId(), member ) );
+					String pageToken = null;
+					do {
+						Members response = directory.members().list( group.getPayload().getId() )
+								.setPageToken( pageToken )
+								.execute();
+						List<Member> members = response.getMembers();
+						if ( members != null ) {
+							for ( Member member : members ) {
+								list.add( new GoogleMember( member.getId(), member ) );
+							}
 						}
+						pageToken = response.getNextPageToken();
 					}
+					while ( pageToken != null );
 				}
 			}
 			return list;
