@@ -34,9 +34,15 @@ public class GitHubGraphQlClient {
 
 	private final HttpClient httpClient;
 	private final String authToken;
+	private final String endpoint;
 
 	public GitHubGraphQlClient(String authToken) {
+		this(authToken, GITHUB_GRAPHQL_ENDPOINT);
+	}
+
+	GitHubGraphQlClient(String authToken, String endpoint) {
 		this.httpClient = HttpClient.newHttpClient();
+		this.endpoint = endpoint;
 		this.authToken = authToken;
 	}
 
@@ -432,7 +438,7 @@ public class GitHubGraphQlClient {
 
 			try {
 				HttpRequest request = HttpRequest.newBuilder()
-						.uri(URI.create(GITHUB_GRAPHQL_ENDPOINT))
+						.uri(URI.create(endpoint))
 						.header("Authorization", "Bearer " + authToken)
 						.header("Content-Type", "application/json")
 						.POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -459,7 +465,11 @@ public class GitHubGraphQlClient {
 
 				JsonNode errors = jsonResponse.path("errors");
 				if (errors.isArray() && !errors.isEmpty()) {
-					throw new RuntimeException("GitHub GraphQL error: " + errors);
+					JsonNode data = jsonResponse.path("data");
+					if (data.isMissingNode() || data.isNull()) {
+						throw new RuntimeException("GitHub GraphQL error: " + errors);
+					}
+					LOG.log( Level.WARNING, "GitHub GraphQL returned partial data with errors: {0}", errors );
 				}
 
 				JsonNode data = jsonResponse.path("data");
