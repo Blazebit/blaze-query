@@ -7,6 +7,7 @@ package com.blazebit.query.connector.github.graphql;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -500,10 +501,7 @@ public class GitHubGraphQlClient {
 				cursor = pageInfo.path("endCursor").asText(null);
 				hasNextPage = pageInfo.path("hasNextPage").asBoolean(false);
 			}
-			catch (RuntimeException e) {
-				throw e;
-			}
-			catch (Exception e) {
+			catch (IOException e) {
 				throw new RuntimeException("Failed to fetch " + rootNode + " from GitHub GraphQL API", e);
 			}
 		}
@@ -512,24 +510,24 @@ public class GitHubGraphQlClient {
 		return allResults;
 	}
 
-	private HttpResponse<String> sendWithRetries(HttpRequest request, String rootNode) throws Exception {
+	private HttpResponse<String> sendWithRetries(HttpRequest request, String rootNode) throws IOException {
 		HttpResponse<String> response = null;
-		for ( int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
-			response = httpClient.send( request, HttpResponse.BodyHandlers.ofString() );
-			if ( !isRetryableStatus( response.statusCode() ) ) {
-				break;
-			}
-			LOG.log( Level.WARNING, "GitHub API returned {0}, retrying (attempt {1}/{2})",
-					new Object[]{ response.statusCode(), attempt, MAX_RETRIES } );
-			if ( attempt < MAX_RETRIES ) {
-				try {
+		try {
+			for ( int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
+				response = httpClient.send( request, HttpResponse.BodyHandlers.ofString() );
+				if ( !isRetryableStatus( response.statusCode() ) ) {
+					break;
+				}
+				LOG.log( Level.WARNING, "GitHub API returned {0}, retrying (attempt {1}/{2})",
+						new Object[]{ response.statusCode(), attempt, MAX_RETRIES } );
+				if ( attempt < MAX_RETRIES ) {
 					Thread.sleep( RETRY_BASE_DELAY_MS * attempt );
 				}
-				catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-					throw new RuntimeException( "Interrupted during retry delay for " + rootNode, ie );
-				}
 			}
+		}
+		catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException( "Interrupted during GitHub API request for " + rootNode, e );
 		}
 		if ( response != null && isRetryableStatus( response.statusCode() ) ) {
 			throw new RuntimeException( "GitHub API returned " + response.statusCode()
