@@ -14,6 +14,7 @@ import com.google.cloud.asset.v1.Asset;
 import com.google.cloud.asset.v1.AssetServiceClient;
 import com.google.cloud.asset.v1.AssetServiceSettings;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class AssetDataFetcher implements DataFetcher<GcpAsset>, Serializable {
 			}
 			return list;
 		}
-		catch (Exception e) {
+		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch asset list", e );
 		}
 	}

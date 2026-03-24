@@ -11,6 +11,7 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.Groups;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,12 +35,21 @@ public class GroupDataFetcher implements DataFetcher<GoogleGroup>, Serializable 
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleGroup> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				List<Group> groups = directory.groups().list().setCustomer( "my_customer" ).execute().getGroups();
-				if ( groups != null ) {
-					for ( Group group : groups ) {
-						list.add( new GoogleGroup( group.getId(), group ) );
+				String pageToken = null;
+				do {
+					Groups response = directory.groups().list()
+							.setCustomer( "my_customer" )
+							.setPageToken( pageToken )
+							.execute();
+					List<Group> groups = response.getGroups();
+					if ( groups != null ) {
+						for ( Group group : groups ) {
+							list.add( new GoogleGroup( group.getId(), group ) );
+						}
 					}
+					pageToken = response.getNextPageToken();
 				}
+				while ( pageToken != null );
 			}
 			return list;
 		}

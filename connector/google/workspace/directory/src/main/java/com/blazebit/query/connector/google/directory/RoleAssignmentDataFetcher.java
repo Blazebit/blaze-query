@@ -11,6 +11,7 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.RoleAssignment;
+import com.google.api.services.directory.model.RoleAssignments;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,12 +35,20 @@ public class RoleAssignmentDataFetcher implements DataFetcher<GoogleRoleAssignme
 			List<Directory> directoryServices = GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getAll( context );
 			List<GoogleRoleAssignment> list = new ArrayList<>();
 			for ( Directory directory : directoryServices ) {
-				List<RoleAssignment> roleAssignments = directory.roleAssignments().list( "my_customer" ).execute().getItems();
-				if ( roleAssignments != null ) {
-					for ( RoleAssignment roleAssignment : roleAssignments ) {
-						list.add( new GoogleRoleAssignment( String.valueOf( roleAssignment.getRoleAssignmentId() ), roleAssignment ) );
+				String pageToken = null;
+				do {
+					RoleAssignments response = directory.roleAssignments().list( "my_customer" )
+							.setPageToken( pageToken )
+							.execute();
+					List<RoleAssignment> roleAssignments = response.getItems();
+					if ( roleAssignments != null ) {
+						for ( RoleAssignment roleAssignment : roleAssignments ) {
+							list.add( new GoogleRoleAssignment( String.valueOf( roleAssignment.getRoleAssignmentId() ), roleAssignment ) );
+						}
 					}
+					pageToken = response.getNextPageToken();
 				}
+				while ( pageToken != null );
 			}
 			return list;
 		}

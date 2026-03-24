@@ -57,8 +57,13 @@ dependencies {
     api project(':blaze-query-connector-google-workspace-directory')
     api project(':blaze-query-connector-google-workspace-drive')
     api project(':blaze-query-connector-google-gcp-compute')
+    api project(':blaze-query-connector-google-gcp-container')
+    api project(':blaze-query-connector-google-gcp-dns')
     api project(':blaze-query-connector-google-gcp-iam')
+    api project(':blaze-query-connector-google-gcp-kms')
+    api project(':blaze-query-connector-google-gcp-sql')
     api project(':blaze-query-connector-google-gcp-storage')
+    api project(':blaze-query-connector-google-workspace-endpoint-verification')
     api project(':blaze-query-connector-datadog')
     api project(':blaze-query-connector-observatory')
     runtimeOnly libs.blaze.persistence.integration.hibernate6

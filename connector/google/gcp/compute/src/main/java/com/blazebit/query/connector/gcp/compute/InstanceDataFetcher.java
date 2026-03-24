@@ -24,12 +24,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Christian Beikov
  * @since 1.0.0
  */
 public class InstanceDataFetcher implements DataFetcher<GcpInstance>, Serializable {
+
+	private static final Logger LOG = Logger.getLogger( InstanceDataFetcher.class.getName() );
 
 	public static final InstanceDataFetcher INSTANCE = new InstanceDataFetcher();
 
@@ -55,10 +59,12 @@ public class InstanceDataFetcher implements DataFetcher<GcpInstance>, Serializab
 							}
 						}
 						catch (PermissionDeniedException e) {
-							if ( e.getCause() instanceof HttpResponseException
-									&& ((HttpResponseException) e.getCause()).getContent()
-									.contains( "\"accessNotConfigured\"" ) ) {
-								// Ignore this exception, since there are no resources
+							if ( e.getCause() instanceof HttpResponseException httpEx
+									&& httpEx.getContent() != null
+									&& httpEx.getContent().contains( "\"accessNotConfigured\"" ) ) {
+								LOG.log( Level.WARNING,
+										"Compute Engine API is not enabled for project ''{0}'', skipping instance fetch.",
+										project.getPayload().getProjectId() );
 								continue;
 							}
 							throw e;

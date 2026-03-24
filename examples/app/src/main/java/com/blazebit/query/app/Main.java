@@ -137,12 +137,18 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscript
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
-import com.blazebit.query.connector.azure.devops.DevopsConnectorConfig;
+import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
 import com.blazebit.query.connector.azure.devops.WorkItem;
-import com.blazebit.query.connector.devops.invoker.ApiClient;
 import com.blazebit.query.connector.devops.model.GitRepository;
 import com.blazebit.query.connector.devops.model.PolicyConfiguration;
+import com.blazebit.query.connector.gcp.compute.GcpFirewallRule;
 import com.blazebit.query.connector.gcp.compute.GcpInstance;
+import com.blazebit.query.connector.gcp.container.GcpGkeCluster;
+import com.blazebit.query.connector.gcp.dns.GcpDnsManagedZone;
+import com.blazebit.query.connector.gcp.kms.GcpKmsCryptoKey;
+import com.blazebit.query.connector.gcp.sql.GcpSqlInstance;
+import com.blazebit.query.connector.google.workspace.endpointverification.GoogleChromeOsDevice;
+import com.blazebit.query.connector.google.workspace.endpointverification.GoogleMobileDevice;
 import com.blazebit.query.connector.github.graphql.GitHubBranchProtectionRule;
 import com.blazebit.query.connector.github.graphql.GitHubGraphQlClient;
 import com.blazebit.query.connector.github.graphql.GitHubOrganization;
@@ -160,6 +166,8 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
+import com.blazebit.query.connector.google.directory.GoogleDirectoryConnectorConfig;
+import com.blazebit.query.connector.google.drive.GoogleDriveConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
 import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
 import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
@@ -189,7 +197,6 @@ import com.blazebit.query.connector.datadog.DatadogSecuritySignal;
 import com.blazebit.query.connector.datadog.DatadogSyntheticsTest;
 import com.blazebit.query.connector.datadog.DatadogUser;
 import com.blazebit.query.connector.observatory.ObservatoryClient;
-import com.blazebit.query.connector.observatory.ObservatoryConnectorConfig;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.Queries;
@@ -307,17 +314,14 @@ public class Main {
 //					Main::createPostgreSqlManagers );
 //			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
 //			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
-	//			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
-//			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
-	//			queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
-//			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
-//			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
+				queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
+			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
+			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
-//			queryContextBuilder.setProperty( DevopsConnectorConfig.ACCOUNT.getPropertyName(), createDevopsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 //			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
 			queryContextBuilder.setProperty( DatadogConnectorConfig.DATADOG_API_CLIENT.getPropertyName(), createDatadogApiClient());
@@ -519,6 +523,8 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GoogleRole.class, "GoogleRole" );
 			queryContextBuilder.registerSchemaObjectAlias( GoogleRoleAssignment.class, "GoogleRoleAssignment" );
 			queryContextBuilder.registerSchemaObjectAlias( GoogleDrive.class, "GoogleDrive" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleMobileDevice.class, "GoogleMobileDevice" );
+			queryContextBuilder.registerSchemaObjectAlias( GoogleChromeOsDevice.class, "GoogleChromeOsDevice" );
 
 			// GCP
 			queryContextBuilder.registerSchemaObjectAlias( GcpOrganization.class, "GcpOrganization" );
@@ -526,10 +532,15 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( GcpProject.class, "GcpProject" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpAsset.class, "GcpAsset" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpInstance.class, "GcpInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpFirewallRule.class, "GcpFirewallRule" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpRole.class, "GcpIamRole" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpServiceAccount.class, "GcpIamServiceAccount" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpIamPolicy.class, "GcpIamPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( GcpBucket.class, "GcpBucket" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpSqlInstance.class, "GcpSqlInstance" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpGkeCluster.class, "GcpGkeCluster" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpKmsCryptoKey.class, "GcpKmsCryptoKey" );
+			queryContextBuilder.registerSchemaObjectAlias( GcpDnsManagedZone.class, "GcpDnsManagedZone" );
 
 			// Jira Datacenter
 			queryContextBuilder.registerSchemaObjectAlias( com.blazebit.query.connector.jira.datacenter.model.ProjectBean.class, "JiraDatacenterProject" );
@@ -583,6 +594,9 @@ public class Main {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
+					testGcp( session );
+					testGoogleWorkspace( session );
+					testGoogleEndpointVerification( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 					testDatadog( session );
@@ -595,7 +609,6 @@ public class Main {
 //					testObservatory(  session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
-//					testAzureDevops( session );
 				}
 			}
 		}
@@ -1385,6 +1398,30 @@ public class Main {
 		print( driveResult );
 	}
 
+	private static void testGoogleEndpointVerification(QuerySession session) {
+		TypedQuery<Object[]> mobileQuery = session.createQuery(
+				"select d.resourceId, d.payload.name, d.payload.email, d.payload.type, d.payload.status from GoogleMobileDevice d" );
+		List<Object[]> mobileResult = mobileQuery.getResultList();
+		System.out.println( "Mobile Device" );
+		print( mobileResult );
+
+		TypedQuery<Object[]> chromeQuery = session.createQuery(
+				"select d.resourceId, d.payload.deviceId, d.payload.serialNumber, d.payload.status, d.payload.osVersion from GoogleChromeOsDevice d" );
+		List<Object[]> chromeResult = chromeQuery.getResultList();
+		System.out.println( "ChromeOS Device" );
+		print( chromeResult );
+
+		TypedQuery<Object[]> chromeAutoRenewQuery = session.createQuery(
+				"""
+						SELECT d.resourceId, d.payload.serialNumber, d.payload.willAutoRenew
+						FROM GoogleChromeOsDevice d
+						WHERE d.payload.willAutoRenew = false
+						""" );
+		List<Object[]> chromeAutoRenewResult = chromeAutoRenewQuery.getResultList();
+		System.out.println( "ChromeOS Device - will not auto renew" );
+		print( chromeAutoRenewResult );
+	}
+
 	private static void testGcp(QuerySession session) {
 		TypedQuery<Object[]> organizationQuery = session.createQuery(
 				"select i.resourceId, i.payload.displayName from GcpOrganization i" );
@@ -1462,6 +1499,95 @@ public class Main {
 		List<Object[]> bucketResult = bucketQuery.getResultList();
 		System.out.println( "Bucket" );
 		print( bucketResult );
+
+		TypedQuery<Object[]> firewallQuery = session.createQuery(
+				"select f.resourceId, f.payload.name, f.payload.direction, f.payload.disabled from GcpFirewallRule f" );
+		List<Object[]> firewallResult = firewallQuery.getResultList();
+		System.out.println( "Firewall Rule" );
+		print( firewallResult );
+
+		TypedQuery<Object[]> firewallSshQuery = session.createQuery(
+				"""
+						SELECT f.resourceId, f.payload.name, f.payload.direction
+						FROM GcpFirewallRule f
+						JOIN UNNEST(f.payload.allowedList) AS a ON true
+						JOIN UNNEST(a.portsList) AS p ON true
+						WHERE f.payload.direction = 'INGRESS'
+						AND (a.iPProtocol = 'tcp' OR a.iPProtocol = 'all')
+						AND (p = '22' OR p = '0-65535')
+						AND EXISTS (
+							SELECT 1 FROM UNNEST(f.payload.sourceRangesList) AS sr WHERE sr = '0.0.0.0/0'
+						)
+						""" );
+		List<Object[]> firewallSshResult = firewallSshQuery.getResultList();
+		System.out.println( "Firewall Rule - unrestricted SSH ingress" );
+		print( firewallSshResult );
+
+		TypedQuery<Object[]> sqlQuery = session.createQuery(
+				"select s.resourceId, s.payload.name, s.payload.databaseVersion, s.payload.state from GcpSqlInstance s" );
+		List<Object[]> sqlResult = sqlQuery.getResultList();
+		System.out.println( "SQL Instance" );
+		print( sqlResult );
+
+		TypedQuery<Object[]> sqlPublicIpQuery = session.createQuery(
+				"""
+						SELECT s.resourceId, s.payload.name,
+						s.payload.settings.ipConfiguration.ipv4Enabled AS publicIpEnabled
+						FROM GcpSqlInstance s
+						WHERE s.payload.settings.ipConfiguration.ipv4Enabled = true
+						""" );
+		List<Object[]> sqlPublicIpResult = sqlPublicIpQuery.getResultList();
+		System.out.println( "SQL Instance - public IP enabled" );
+		print( sqlPublicIpResult );
+
+		TypedQuery<Object[]> gkeQuery = session.createQuery(
+				"select c.resourceId, c.payload.name, c.payload.location, c.payload.status from GcpGkeCluster c" );
+		List<Object[]> gkeResult = gkeQuery.getResultList();
+		System.out.println( "GKE Cluster" );
+		print( gkeResult );
+
+		TypedQuery<Object[]> gkeNetworkPolicyQuery = session.createQuery(
+				"""
+						SELECT c.resourceId, c.payload.name,
+						c.payload.networkPolicy.enabled AS networkPolicyEnabled
+						FROM GcpGkeCluster c
+						""" );
+		List<Object[]> gkeNetworkPolicyResult = gkeNetworkPolicyQuery.getResultList();
+		System.out.println( "GKE Cluster - network policy" );
+		print( gkeNetworkPolicyResult );
+
+		TypedQuery<Object[]> kmsQuery = session.createQuery(
+				"select k.resourceId, k.payload.name, k.payload.purpose from GcpKmsCryptoKey k" );
+		List<Object[]> kmsResult = kmsQuery.getResultList();
+		System.out.println( "KMS CryptoKey" );
+		print( kmsResult );
+
+		TypedQuery<Object[]> kmsRotationQuery = session.createQuery(
+				"""
+						SELECT k.resourceId, k.payload.name,
+						k.payload.rotationPeriod IS NOT NULL AS rotationConfigured
+						FROM GcpKmsCryptoKey k
+						WHERE k.payload.purpose = 'ENCRYPT_DECRYPT'
+						""" );
+		List<Object[]> kmsRotationResult = kmsRotationQuery.getResultList();
+		System.out.println( "KMS CryptoKey - rotation configured" );
+		print( kmsRotationResult );
+
+		TypedQuery<Object[]> dnsQuery = session.createQuery(
+				"select z.resourceId, z.payload.name, z.payload.dnsName from GcpDnsManagedZone z" );
+		List<Object[]> dnsResult = dnsQuery.getResultList();
+		System.out.println( "DNS Managed Zone" );
+		print( dnsResult );
+
+		TypedQuery<Object[]> dnssecQuery = session.createQuery(
+				"""
+						SELECT z.resourceId, z.payload.name,
+						z.payload.dnsSecConfig.state AS dnssecState
+						FROM GcpDnsManagedZone z
+						""" );
+		List<Object[]> dnssecResult = dnssecQuery.getResultList();
+		System.out.println( "DNS Managed Zone - DNSSEC state" );
+		print( dnssecResult );
 	}
 
 	private static void testJiraDatacenter(QuerySession session) {
@@ -1675,23 +1801,6 @@ public class Main {
 				postgreSqlFlexibleServerWithParametersQuery.getResultList();
 		System.out.println("PostgreSqlFlexibleServersWithParameters");
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
-	}
-
-	private static void testAzureDevops(QuerySession session) {
-		List<Object[]> repositoryResult = session.createQuery(
-				"select r.* from DevopsRepository r" ).getResultList();
-		System.out.println( "DevopsRepositories" );
-		print( repositoryResult );
-
-		List<Object[]> policyResult = session.createQuery(
-				"select p.* from DevopsPolicyConfiguration p" ).getResultList();
-		System.out.println( "DevopsPolicyConfigurations" );
-		print( policyResult );
-
-		List<Object[]> workItemResult = session.createQuery(
-				"select w.* from DevopsWorkItem w" ).getResultList();
-		System.out.println( "DevopsWorkItems" );
-		print( workItemResult );
 	}
 
 	private static void testObservatory(QuerySession session) {
@@ -1941,18 +2050,6 @@ public class Main {
 
 	private static ObservatoryClient createObservatoryClient() {
 		return new ObservatoryClient(OBSERVATORY_HOST);
-	}
-
-	private static DevopsConnectorConfig.Account createDevopsAccount() {
-		String auth = "Basic " + Base64.getEncoder().encodeToString(
-				( ":" + DEVOPS_PAT ).getBytes( StandardCharsets.UTF_8 ) );
-		ApiClient apiClient = new ApiClient();
-		apiClient.setBasePath( "https://app.vssps.visualstudio.com" );
-		apiClient.addDefaultHeader( "Authorization", auth );
-		ApiClient witApiClient = new ApiClient();
-		witApiClient.setBasePath( "https://dev.azure.com" );
-		witApiClient.addDefaultHeader( "Authorization", auth );
-		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, DEVOPS_PROJECT );
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {

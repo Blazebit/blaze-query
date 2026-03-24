@@ -14,6 +14,7 @@ import com.google.cloud.resourcemanager.v3.Folder;
 import com.google.cloud.resourcemanager.v3.FoldersClient;
 import com.google.cloud.resourcemanager.v3.FoldersSettings;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class FolderDataFetcher implements DataFetcher<GcpFolder>, Serializable {
 			}
 			return list;
 		}
-		catch (Exception e) {
+		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch folder list", e );
 		}
 	}
