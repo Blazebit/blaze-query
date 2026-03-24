@@ -24,8 +24,8 @@ import java.util.List;
  * Fetches {@link DatadogHost} entries from the Datadog Hosts API (v1).
  * Returns all infrastructure hosts that are actively reporting to Datadog.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogHostDataFetcher implements DataFetcher<DatadogHost>, Serializable {
 
@@ -54,11 +54,8 @@ public class DatadogHostDataFetcher implements DataFetcher<DatadogHost>, Seriali
 					if ( batch != null ) {
 						batch.stream().map( DatadogHost::from ).forEach( result::add );
 						start += batch.size();
-						if ( batch.size() < PAGE_SIZE ) {
-							break;
-						}
 					}
-					else {
+					if ( batch == null || batch.size() < PAGE_SIZE ) {
 						break;
 					}
 				} while ( true );

@@ -14,8 +14,8 @@ import java.util.List;
  * Represents a Datadog Audit Trail event. Records who performed what action in Datadog,
  * useful for compliance evidence and detecting unauthorized configuration changes.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogAuditLog(
 		String id,

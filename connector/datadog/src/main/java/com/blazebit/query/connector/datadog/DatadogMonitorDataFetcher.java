@@ -23,8 +23,8 @@ import java.util.List;
  * Fetches {@link DatadogMonitor} entries from the Datadog Monitors API (v1).
  * Monitors represent the infrastructure health checks and alert conditions.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogMonitorDataFetcher implements DataFetcher<DatadogMonitor>, Serializable {
 

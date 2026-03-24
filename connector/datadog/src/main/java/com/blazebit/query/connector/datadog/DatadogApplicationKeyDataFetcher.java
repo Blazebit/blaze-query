@@ -24,8 +24,8 @@ import java.util.List;
  * Fetches {@link DatadogApplicationKey} entries from the Datadog Key Management API (v2).
  * Used to audit application keys for age, last use, and OAuth scope hygiene.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogApplicationKeyDataFetcher implements DataFetcher<DatadogApplicationKey>, Serializable {
 

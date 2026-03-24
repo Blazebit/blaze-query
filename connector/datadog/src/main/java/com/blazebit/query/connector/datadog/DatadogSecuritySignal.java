@@ -14,8 +14,8 @@ import java.util.List;
  * Represents a Datadog Security Monitoring signal (threat detection event).
  * Signals are generated when detection rules match activity in logs or other data sources.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogSecuritySignal(
 		String id,

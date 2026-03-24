@@ -28,8 +28,8 @@ import java.util.List;
  * Fetches {@link DatadogLog} entries from the Datadog Logs API (v2).
  * The query filter and time range are configurable via {@link DatadogConnectorConfig}.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogLogDataFetcher implements DataFetcher<DatadogLog>, Serializable {
 

@@ -9,13 +9,15 @@ import com.datadog.api.client.v2.model.SecurityMonitoringSignalRuleResponse;
 import com.datadog.api.client.v2.model.SecurityMonitoringStandardRuleResponse;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents a Datadog Security Monitoring detection rule. Used for compliance checks
  * such as verifying that critical detection rules are enabled.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogSecurityMonitoringRule(
 		String id,
@@ -25,6 +27,8 @@ public record DatadogSecurityMonitoringRule(
 		List<String> tags,
 		String type
 ) {
+
+	private static final Logger LOG = Logger.getLogger( DatadogSecurityMonitoringRule.class.getName() );
 
 	/**
 	 * Maps a Datadog SDK {@link SecurityMonitoringRuleResponse} to a {@link DatadogSecurityMonitoringRule} record.
@@ -51,6 +55,8 @@ public record DatadogSecurityMonitoringRule(
 					rule.getType() != null ? rule.getType().getValue() : null
 			);
 		}
+		LOG.log( Level.WARNING, "Unrecognized SecurityMonitoringRuleResponse type: {0}, skipping rule",
+				response.getActualInstance() != null ? response.getActualInstance().getClass().getName() : "null" );
 		return null;
 	}
 }

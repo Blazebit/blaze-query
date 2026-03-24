@@ -13,8 +13,8 @@ import java.util.List;
  * Represents a Datadog Monitor. Monitors are the primary mechanism for tracking
  * infrastructure health and alerting on anomalies.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogMonitor(
 		Long id,

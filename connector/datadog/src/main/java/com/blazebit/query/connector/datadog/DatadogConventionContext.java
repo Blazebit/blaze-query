@@ -9,10 +9,12 @@ import com.blazebit.query.connector.base.ConventionContext;
 import java.lang.reflect.Member;
 
 /**
- * Convention context for Datadog record types. All record component accessors are included.
+ * Convention context for Datadog record types. Returning {@code this} from
+ * {@link #getSubFilter} ensures that all record component accessors are included
+ * recursively, so nested Datadog record fields are also fully queryable.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogConventionContext implements ConventionContext {
 

@@ -24,8 +24,8 @@ import java.util.List;
  * Fetches {@link DatadogUser} entries from the Datadog Users API (v2).
  * Includes MFA status, disabled state, and service account flag for compliance checks.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogUserDataFetcher implements DataFetcher<DatadogUser>, Serializable {
 

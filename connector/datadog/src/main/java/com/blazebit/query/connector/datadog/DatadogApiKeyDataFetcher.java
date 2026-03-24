@@ -24,8 +24,8 @@ import java.util.List;
  * Fetches {@link DatadogApiKey} entries from the Datadog Key Management API (v2).
  * Used to identify stale, unused, or overprivileged API keys.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogApiKeyDataFetcher implements DataFetcher<DatadogApiKey>, Serializable {
 

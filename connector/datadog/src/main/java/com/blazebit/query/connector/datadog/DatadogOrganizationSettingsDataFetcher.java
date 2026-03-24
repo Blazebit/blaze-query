@@ -22,8 +22,8 @@ import java.util.List;
  * Fetches {@link DatadogOrganizationSettings} from the Datadog Organizations API (v1).
  * Returns security settings per organization including SAML configuration and strict mode.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogOrganizationSettingsDataFetcher implements DataFetcher<DatadogOrganizationSettings>, Serializable {
 

@@ -13,8 +13,8 @@ import java.util.List;
  * Represents Datadog organization-level security settings. Used for compliance checks
  * such as SAML enforcement, strict mode (SSO required for all users), and widget sharing.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogOrganizationSettings(
 		String publicId,

@@ -24,8 +24,8 @@ import java.util.List;
  * Fetches {@link DatadogRole} entries from the Datadog Roles API (v2).
  * Used to audit RBAC role definitions and their user counts for least-privilege checks.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogRoleDataFetcher implements DataFetcher<DatadogRole>, Serializable {
 

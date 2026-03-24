@@ -22,8 +22,8 @@ import java.util.List;
  * Fetches {@link DatadogSyntheticsTest} entries from the Datadog Synthetics API (v1).
  * Returns all configured synthetic tests including API tests, browser tests, and mobile tests.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogSyntheticsTestDataFetcher implements DataFetcher<DatadogSyntheticsTest>, Serializable {
 

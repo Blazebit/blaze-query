@@ -13,8 +13,8 @@ import java.util.Set;
 /**
  * Registers all Datadog data fetchers: logs, synthetics tests, monitors, and hosts.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public final class DatadogSchemaProvider implements QuerySchemaProvider {
 

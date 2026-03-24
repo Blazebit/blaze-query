@@ -11,8 +11,8 @@ import com.datadog.api.client.v2.model.UserAttributes;
  * Represents a Datadog user account. Used for compliance checks such as
  * MFA enforcement, disabled accounts, and service account identification.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogUser(
 		String id,

@@ -13,8 +13,8 @@ import java.time.OffsetDateTime;
  * Represents a Datadog monitor downtime (scheduled silence). Active downtimes suppress
  * monitor alerts and represent potential blind spots in alerting coverage.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogMonitorDowntime(
 		String id,

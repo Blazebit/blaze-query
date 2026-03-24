@@ -24,8 +24,8 @@ import java.util.List;
  * Returns the full RBAC permission catalog. Can be joined with role assignments
  * to determine which roles hold which permissions.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogPermissionDataFetcher implements DataFetcher<DatadogPermission>, Serializable {
 

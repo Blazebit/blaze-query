@@ -11,8 +11,8 @@ import com.datadog.api.client.v2.model.PermissionAttributes;
  * Represents a Datadog RBAC permission. The full permission catalog can be joined with
  * role assignments to answer which roles hold which permissions.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogPermission(
 		String id,

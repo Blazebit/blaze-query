@@ -25,8 +25,8 @@ import java.util.List;
  * Returns all scheduled downtimes. Active downtimes suppress monitor alerts and
  * should be reviewed for unexpectedly long or broad scopes.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogMonitorDowntimeDataFetcher implements DataFetcher<DatadogMonitorDowntime>, Serializable {
 

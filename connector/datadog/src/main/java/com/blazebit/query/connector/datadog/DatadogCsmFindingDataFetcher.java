@@ -24,14 +24,14 @@ import java.util.List;
  * Fetches {@link DatadogCsmFinding} entries from the Datadog Cloud Security Management API (v2).
  * Findings represent misconfigurations and vulnerabilities detected across cloud resources.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogCsmFindingDataFetcher implements DataFetcher<DatadogCsmFinding>, Serializable {
 
 	public static final DatadogCsmFindingDataFetcher INSTANCE = new DatadogCsmFindingDataFetcher();
 
-	private static final long PAGE_LIMIT = 1000L;
+	private static final long PAGE_SIZE = 1000L;
 
 	private DatadogCsmFindingDataFetcher() {
 	}
@@ -46,7 +46,7 @@ public class DatadogCsmFindingDataFetcher implements DataFetcher<DatadogCsmFindi
 				String cursor = null;
 				do {
 					ListFindingsOptionalParameters params = new ListFindingsOptionalParameters()
-							.pageLimit( PAGE_LIMIT );
+							.pageLimit( PAGE_SIZE );
 					if ( cursor != null ) {
 						params.pageCursor( cursor );
 					}
@@ -60,7 +60,7 @@ public class DatadogCsmFindingDataFetcher implements DataFetcher<DatadogCsmFindi
 							&& response.getMeta().getPage() != null
 							&& response.getMeta().getPage().getCursor() != null
 							&& !response.getMeta().getPage().getCursor().isEmpty()
-							&& batch != null && batch.size() == PAGE_LIMIT ) {
+							&& batch != null && batch.size() == PAGE_SIZE ) {
 						cursor = response.getMeta().getPage().getCursor();
 					}
 				} while ( cursor != null );
@@ -68,7 +68,7 @@ public class DatadogCsmFindingDataFetcher implements DataFetcher<DatadogCsmFindi
 			return result;
 		}
 		catch (ApiException e) {
-			if ( e.getCode() == 403 || ( e.getMessage() != null && e.getMessage().contains( "forbidden" ) ) ) {
+			if ( DatadogConnectorConfig.isForbidden( e ) ) {
 				return List.of();
 			}
 			throw new DataFetcherException( "Could not fetch Datadog CSM findings", e );

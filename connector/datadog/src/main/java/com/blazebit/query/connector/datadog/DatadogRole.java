@@ -13,8 +13,8 @@ import java.time.OffsetDateTime;
  * Represents a Datadog RBAC role. Used for compliance checks such as
  * identifying roles with elevated permissions and their user counts.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogRole(
 		String id,

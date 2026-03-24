@@ -13,8 +13,8 @@ import java.util.List;
  * Represents a Datadog Application Key. Application keys complement API keys and are
  * scoped to the creating user. Used for compliance checks on key age, last use, and scope.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogApplicationKey(
 		String id,

@@ -6,12 +6,15 @@ package com.blazebit.query.connector.datadog;
 
 import com.blazebit.query.spi.DataFetcherConfig;
 import com.datadog.api.client.ApiClient;
+import com.datadog.api.client.ApiException;
+
+import java.time.Duration;
 
 /**
  * The configuration properties for the Datadog connector.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public final class DatadogConnectorConfig {
 
@@ -35,6 +38,27 @@ public final class DatadogConnectorConfig {
 	 */
 	public static final DataFetcherConfig<String> LOGS_FROM =
 			DataFetcherConfig.forPropertyName( "datadogLogsFrom" );
+
+	/**
+	 * Optional. When set, the security signals fetcher will only return signals created within
+	 * this duration before the current time. Defaults to {@code Duration.ofHours(24)}.
+	 */
+	public static final DataFetcherConfig<Duration> SECURITY_SIGNALS_MAX_AGE =
+			DataFetcherConfig.forPropertyName( "datadogSecuritySignalsMaxAge" );
+
+	/**
+	 * Optional. When set, the audit logs fetcher will only return events created within
+	 * this duration before the current time. Defaults to {@code Duration.ofHours(24)}.
+	 */
+	public static final DataFetcherConfig<Duration> AUDIT_LOGS_MAX_AGE =
+			DataFetcherConfig.forPropertyName( "datadogAuditLogsMaxAge" );
+
+	/**
+	 * Returns {@code true} when the given {@link ApiException} represents a 403 Forbidden response.
+	 */
+	static boolean isForbidden(ApiException e) {
+		return e.getCode() == 403 || ( e.getMessage() != null && e.getMessage().contains( "forbidden" ) );
+	}
 
 	private DatadogConnectorConfig() {
 	}

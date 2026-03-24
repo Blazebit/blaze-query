@@ -13,8 +13,8 @@ import java.time.OffsetDateTime;
  * Represents a Datadog API key. Used for compliance checks such as identifying
  * stale keys, keys without a recent last-used date, and keys with remote config access.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogApiKey(
 		String id,

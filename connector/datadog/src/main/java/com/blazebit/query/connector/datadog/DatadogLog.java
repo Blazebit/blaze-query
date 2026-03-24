@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * Represents a single Datadog log entry.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogLog(
 		String id,

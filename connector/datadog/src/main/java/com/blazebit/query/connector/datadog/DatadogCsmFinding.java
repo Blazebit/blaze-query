@@ -13,8 +13,8 @@ import java.util.List;
  * Represents a Datadog Cloud Security Management (CSM) finding.
  * Each finding is a specific misconfiguration or vulnerability detected on a cloud resource.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogCsmFinding(
 		String id,

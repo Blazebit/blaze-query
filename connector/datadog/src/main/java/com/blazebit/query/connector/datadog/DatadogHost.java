@@ -12,8 +12,8 @@ import java.util.List;
  * Represents a Datadog infrastructure Host. Used to track system health and
  * whether hosts are actively reporting.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogHost(
 		Long id,

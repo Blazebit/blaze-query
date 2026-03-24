@@ -12,8 +12,8 @@ import java.util.List;
  * Represents a Datadog Synthetic monitoring test (API, browser, or mobile).
  * Used to track web-page uptime and availability status.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public record DatadogSyntheticsTest(
 		String publicId,

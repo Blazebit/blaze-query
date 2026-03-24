@@ -21,22 +21,23 @@ import com.datadog.api.client.v2.model.SecurityMonitoringSignalsListResponse;
 import com.datadog.api.client.v2.model.SecurityMonitoringSignalsSort;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Fetches {@link DatadogSecuritySignal} entries from the Datadog Security Monitoring API (v2).
- * Returns signals from the last 24 hours by default.
+ * The time window is configurable via {@link DatadogConnectorConfig#SECURITY_SIGNALS_MAX_AGE}, defaulting to 24 hours.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogSecuritySignalDataFetcher implements DataFetcher<DatadogSecuritySignal>, Serializable {
 
 	public static final DatadogSecuritySignalDataFetcher INSTANCE = new DatadogSecuritySignalDataFetcher();
 
-	private static final int PAGE_LIMIT = 1000;
+	private static final int PAGE_SIZE = 1000;
 
 	private DatadogSecuritySignalDataFetcher() {
 	}
@@ -47,13 +48,14 @@ public class DatadogSecuritySignalDataFetcher implements DataFetcher<DatadogSecu
 			List<ApiClient> clients = DatadogConnectorConfig.DATADOG_API_CLIENT.getAll( context );
 			List<DatadogSecuritySignal> result = new ArrayList<>();
 			OffsetDateTime now = OffsetDateTime.now();
-			OffsetDateTime from = now.minusHours( 24 );
+			Duration maxAge = DatadogConnectorConfig.SECURITY_SIGNALS_MAX_AGE.find( context );
+			OffsetDateTime from = now.minus( maxAge != null ? maxAge : Duration.ofHours( 24 ) );
 			for ( ApiClient client : clients ) {
 				SecurityMonitoringApi api = new SecurityMonitoringApi( client );
 				String cursor = null;
 				do {
 					SecurityMonitoringSignalListRequestPage page = new SecurityMonitoringSignalListRequestPage()
-							.limit( PAGE_LIMIT );
+							.limit( PAGE_SIZE );
 					if ( cursor != null ) {
 						page.cursor( cursor );
 					}
@@ -75,7 +77,7 @@ public class DatadogSecuritySignalDataFetcher implements DataFetcher<DatadogSecu
 							&& response.getMeta().getPage() != null
 							&& response.getMeta().getPage().getAfter() != null
 							&& !response.getMeta().getPage().getAfter().isEmpty()
-							&& batch != null && batch.size() == PAGE_LIMIT ) {
+							&& batch != null && batch.size() == PAGE_SIZE ) {
 						cursor = response.getMeta().getPage().getAfter();
 					}
 				} while ( cursor != null );
@@ -83,7 +85,7 @@ public class DatadogSecuritySignalDataFetcher implements DataFetcher<DatadogSecu
 			return result;
 		}
 		catch (ApiException e) {
-			if ( e.getCode() == 403 || ( e.getMessage() != null && e.getMessage().contains( "forbidden" ) ) ) {
+			if ( DatadogConnectorConfig.isForbidden( e ) ) {
 				return List.of();
 			}
 			throw new DataFetcherException( "Could not fetch Datadog security signals", e );

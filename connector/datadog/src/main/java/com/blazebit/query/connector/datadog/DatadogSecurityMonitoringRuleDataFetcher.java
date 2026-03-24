@@ -25,8 +25,8 @@ import java.util.Objects;
  * Fetches {@link DatadogSecurityMonitoringRule} entries from the Datadog Security Monitoring API (v2).
  * Detection rules cover log detection, CSPM, workload security, and infrastructure configuration.
  *
- * @author Blazebit
- * @since 1.0.0
+ * @author Martijn Sprengers
+ * @since 2.4.2
  */
 public class DatadogSecurityMonitoringRuleDataFetcher implements DataFetcher<DatadogSecurityMonitoringRule>, Serializable {
 
