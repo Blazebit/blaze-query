@@ -14,7 +14,7 @@ import java.util.Set;
  * The schema provider for the GCP Compute connector.
  *
  * @author Christian Beikov
- * @since 1.0.0
+ * @since 2.3.0
  */
 public final class GcpComputeSchemaProvider implements QuerySchemaProvider {
 	/**
@@ -25,6 +25,6 @@ public final class GcpComputeSchemaProvider implements QuerySchemaProvider {
 
 	@Override
 	public Set<? extends DataFetcher<?>> resolveSchemaObjects(ConfigurationProvider configurationProvider) {
-		return Set.of( InstanceDataFetcher.INSTANCE );
+		return Set.of( InstanceDataFetcher.INSTANCE, FirewallRuleDataFetcher.INSTANCE );
 	}
 }

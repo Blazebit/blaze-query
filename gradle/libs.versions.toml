@@ -19,6 +19,7 @@ microsoft-graph-core = "3.1.14"
 
 google-workspace = "2.0.0"
 google-oauth = "1.19.0"
+google-api-services-sqladmin = "v1-rev20251201-2.0.0"
 google-workspace-directory = "directory_v1-rev20220919-2.0.0"
 google-workspace-drive = "v3-rev20220815-2.0.0"
 gcp = "26.50.0"
@@ -34,6 +35,7 @@ jakarta-annotation-api = "2.1.1"
 jakarta-persistence-api = "3.0.0"
 
 junit-jupiter = "5.11.3"
+junit-platform = "1.11.3"
 assertj = "3.26.3"
 h2 = "2.2.224"
 hibernate = "7.2.6.Final"
@@ -79,6 +81,7 @@ microsoft-graph-core = { module = "com.microsoft.graph:microsoft-graph-core", ve
 
 google-workspace-api = { module = "com.google.api-client:google-api-client", version.ref = "google-workspace" }
 google-oauth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-oauth" }
+google-api-services-sqladmin = { module = "com.google.apis:google-api-services-sqladmin", version.ref = "google-api-services-sqladmin" }
 google-workspace-directory = { module = "com.google.apis:google-api-services-admin-directory", version.ref = "google-workspace-directory" }
 google-workspace-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "google-workspace-drive" }
 
@@ -89,6 +92,10 @@ gcp-iam-admin = { module = "com.google.cloud:google-iam-admin" }
 gcp-resourcemanager = { module = "com.google.cloud:google-cloud-resourcemanager" }
 gcp-asset = { module = "com.google.cloud:google-cloud-asset" }
 gcp-storage = { module = "com.google.cloud:google-cloud-storage" }
+gcp-sql-admin = { module = "com.google.cloud:google-cloud-sql-admin" }
+gcp-container = { module = "com.google.cloud:google-cloud-container" }
+gcp-kms = { module = "com.google.cloud:google-cloud-kms" }
+gcp-dns = { module = "com.google.cloud:google-cloud-dns" }
 
 org-openapitools-jackson-databind-nullable = { module = "org.openapitools:jackson-databind-nullable", version.ref = "org-openapitools-jackson-databind-nullable" }
 
@@ -110,7 +117,7 @@ jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api",
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence-api" }
 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }

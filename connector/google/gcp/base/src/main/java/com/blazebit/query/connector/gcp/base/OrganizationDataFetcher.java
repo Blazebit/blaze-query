@@ -14,6 +14,7 @@ import com.google.cloud.resourcemanager.v3.Organization;
 import com.google.cloud.resourcemanager.v3.OrganizationsClient;
 import com.google.cloud.resourcemanager.v3.OrganizationsSettings;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class OrganizationDataFetcher implements DataFetcher<GcpOrganization>, Se
 			}
 			return list;
 		}
-		catch (Exception e) {
+		catch (IOException e) {
 			throw new DataFetcherException( "Could not fetch organization list", e );
 		}
 	}
