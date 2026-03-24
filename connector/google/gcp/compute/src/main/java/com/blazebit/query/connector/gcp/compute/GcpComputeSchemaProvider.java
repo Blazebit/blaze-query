@@ -14,7 +14,7 @@ import java.util.Set;
  * The schema provider for the GCP Compute connector.
  *
  * @author Christian Beikov
- * @since 1.0.0
+ * @since 2.3.0
  */
 public final class GcpComputeSchemaProvider implements QuerySchemaProvider {
 	/**
