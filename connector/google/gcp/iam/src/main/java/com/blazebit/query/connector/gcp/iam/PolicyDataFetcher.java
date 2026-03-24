@@ -18,7 +18,6 @@ import com.google.cloud.asset.v1.AssetServiceClient;
 import com.google.cloud.asset.v1.AssetServiceSettings;
 import com.google.cloud.asset.v1.IamPolicySearchResult;
 import com.google.cloud.asset.v1.SearchAllIamPoliciesRequest;
-import com.google.rpc.ErrorInfo;
 
 import java.io.IOException;
 import java.io.Serializable;
