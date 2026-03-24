@@ -138,6 +138,9 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
 import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
+import com.blazebit.query.connector.azure.devops.WorkItem;
+import com.blazebit.query.connector.devops.model.GitRepository;
+import com.blazebit.query.connector.devops.model.PolicyConfiguration;
 import com.blazebit.query.connector.gcp.compute.GcpFirewallRule;
 import com.blazebit.query.connector.gcp.compute.GcpInstance;
 import com.blazebit.query.connector.gcp.container.GcpGkeCluster;
@@ -178,7 +181,6 @@ import com.blazebit.query.connector.kandji.KandjiJavaTimeModule;
 import com.blazebit.query.connector.kandji.model.GetDeviceDetails200Response;
 import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.observatory.ObservatoryClient;
-import com.blazebit.query.connector.observatory.ObservatoryConnectorConfig;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.DataFetchContext;
 import com.blazebit.query.spi.Queries;
@@ -301,9 +303,8 @@ public class Main {
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
-//			queryContextBuilder.setProperty( DevopsConnectorConfig.ACCOUNT.getPropertyName(), createDevopsAccount());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
-			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
+//			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -573,7 +574,6 @@ public class Main {
 					testObservatory(  session );
 //					testAzureGraph( session );
 //					testAzureResourceManager( session );
-//					testAzureDevops( session );
 				}
 			}
 		}
@@ -1478,11 +1478,11 @@ public class Main {
 						JOIN UNNEST(f.payload.allowedList) AS a ON true
 						JOIN UNNEST(a.portsList) AS p ON true
 						WHERE f.payload.direction = 'INGRESS'
-						  AND (a.iPProtocol = 'tcp' OR a.iPProtocol = 'all')
-						  AND (p = '22' OR p = '0-65535')
-						  AND EXISTS (
-						    SELECT 1 FROM UNNEST(f.payload.sourceRangesList) AS sr WHERE sr = '0.0.0.0/0'
-						  )
+						AND (a.iPProtocol = 'tcp' OR a.iPProtocol = 'all')
+						AND (p = '22' OR p = '0-65535')
+						AND EXISTS (
+							SELECT 1 FROM UNNEST(f.payload.sourceRangesList) AS sr WHERE sr = '0.0.0.0/0'
+						)
 						""" );
 		List<Object[]> firewallSshResult = firewallSshQuery.getResultList();
 		System.out.println( "Firewall Rule - unrestricted SSH ingress" );
@@ -1497,7 +1497,7 @@ public class Main {
 		TypedQuery<Object[]> sqlPublicIpQuery = session.createQuery(
 				"""
 						SELECT s.resourceId, s.payload.name,
-						  s.payload.settings.ipConfiguration.ipv4Enabled AS publicIpEnabled
+						s.payload.settings.ipConfiguration.ipv4Enabled AS publicIpEnabled
 						FROM GcpSqlInstance s
 						WHERE s.payload.settings.ipConfiguration.ipv4Enabled = true
 						""" );
@@ -1514,7 +1514,7 @@ public class Main {
 		TypedQuery<Object[]> gkeNetworkPolicyQuery = session.createQuery(
 				"""
 						SELECT c.resourceId, c.payload.name,
-						  c.payload.networkPolicy.enabled AS networkPolicyEnabled
+						c.payload.networkPolicy.enabled AS networkPolicyEnabled
 						FROM GcpGkeCluster c
 						""" );
 		List<Object[]> gkeNetworkPolicyResult = gkeNetworkPolicyQuery.getResultList();
@@ -1530,7 +1530,7 @@ public class Main {
 		TypedQuery<Object[]> kmsRotationQuery = session.createQuery(
 				"""
 						SELECT k.resourceId, k.payload.name,
-						  k.payload.rotationPeriod IS NOT NULL AS rotationConfigured
+						k.payload.rotationPeriod IS NOT NULL AS rotationConfigured
 						FROM GcpKmsCryptoKey k
 						WHERE k.payload.purpose = 'ENCRYPT_DECRYPT'
 						""" );
@@ -1547,7 +1547,7 @@ public class Main {
 		TypedQuery<Object[]> dnssecQuery = session.createQuery(
 				"""
 						SELECT z.resourceId, z.payload.name,
-						  z.payload.dnsSecConfig.state AS dnssecState
+						z.payload.dnsSecConfig.state AS dnssecState
 						FROM GcpDnsManagedZone z
 						""" );
 		List<Object[]> dnssecResult = dnssecQuery.getResultList();
@@ -1768,23 +1768,6 @@ public class Main {
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
 	}
 
-	private static void testAzureDevops(QuerySession session) {
-		List<Object[]> repositoryResult = session.createQuery(
-				"select r.* from DevopsRepository r" ).getResultList();
-		System.out.println( "DevopsRepositories" );
-		print( repositoryResult );
-
-		List<Object[]> policyResult = session.createQuery(
-				"select p.* from DevopsPolicyConfiguration p" ).getResultList();
-		System.out.println( "DevopsPolicyConfigurations" );
-		print( policyResult );
-
-		List<Object[]> workItemResult = session.createQuery(
-				"select w.* from DevopsWorkItem w" ).getResultList();
-		System.out.println( "DevopsWorkItems" );
-		print( workItemResult );
-	}
-
 	private static void testObservatory(QuerySession session) {
 		TypedQuery<Object[]> observatoryScanQuery = session.createQuery(
 				"select c.* from ObservatoryScan c" );
@@ -1831,18 +1814,6 @@ public class Main {
 
 	private static ObservatoryClient createObservatoryClient() {
 		return new ObservatoryClient(OBSERVATORY_HOST);
-	}
-
-	private static DevopsConnectorConfig.Account createDevopsAccount() {
-		String auth = "Basic " + Base64.getEncoder().encodeToString(
-				( ":" + DEVOPS_PAT ).getBytes( StandardCharsets.UTF_8 ) );
-		ApiClient apiClient = new ApiClient();
-		apiClient.setBasePath( "https://app.vssps.visualstudio.com" );
-		apiClient.addDefaultHeader( "Authorization", auth );
-		ApiClient witApiClient = new ApiClient();
-		witApiClient.setBasePath( "https://dev.azure.com" );
-		witApiClient.addDefaultHeader( "Authorization", auth );
-		return new DevopsConnectorConfig.Account( apiClient, witApiClient, DEVOPS_ORGANIZATION, DEVOPS_PROJECT );
 	}
 
 	private static com.blazebit.query.connector.github.v0314.invoker.ApiClient createGitHubApiClient() {
