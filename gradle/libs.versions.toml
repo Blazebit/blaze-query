@@ -12,6 +12,8 @@ gitlab4j = "6.0.0"
 
 github-api = "1.323"
 
+datadog = "2.51.0"
+
 aws = "2.40.3"
 
 microsoft-graph-beta = "6.13.0"
@@ -55,6 +57,8 @@ azure-resourcemanager = { module = "com.azure.resourcemanager:azure-resourcemana
 azure-resourcemanager-postgresqlflexibleserver = { module = "com.azure.resourcemanager:azure-resourcemanager-postgresqlflexibleserver", version.ref = "azure-resourcemanager-postgresqlflexibleserver" }
 
 gitlab4j-api = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab4j" }
+
+datadog-api-client = { module = "com.datadoghq:datadog-api-client", version.ref = "datadog" }
 
 github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 
