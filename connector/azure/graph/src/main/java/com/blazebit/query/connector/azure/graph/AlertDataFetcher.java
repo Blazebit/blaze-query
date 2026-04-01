@@ -39,9 +39,16 @@ public class AlertDataFetcher implements DataFetcher<AzureGraphAlert>, Serializa
 			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<AzureGraphAlert> list = new ArrayList<>();
 			for ( AzureGraphClientAccessor accessor : accessors ) {
-				var alerts = accessor.getGraphServiceClient().security().alertsV2().get().getValue();
-				for (Alert alert : alerts) {
-					list.add( new AzureGraphAlert( accessor.getTenantId(), alert ) );
+				var page = accessor.getGraphServiceClient().security().alertsV2().get();
+				while ( page != null && page.getValue() != null ) {
+					for ( Alert alert : page.getValue() ) {
+						list.add( new AzureGraphAlert( accessor.getTenantId(), alert ) );
+					}
+					String nextLink = page.getOdataNextLink();
+					if ( nextLink == null ) {
+						break;
+					}
+					page = accessor.getGraphServiceClient().security().alertsV2().withUrl( nextLink ).get();
 				}
 			}
 			return list;

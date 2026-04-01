@@ -11,10 +11,17 @@ import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 import com.microsoft.graph.beta.models.security.Incident;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IncidentDataFetcher implements DataFetcher<AzureGraphIncident> {
+/**
+ * A data fetcher for fetching Azure Graph security incidents.
+ *
+ * @author Martijn Sprengers
+ * @since 1.0.8
+ */
+public class IncidentDataFetcher implements DataFetcher<AzureGraphIncident>, Serializable {
 
 	public static final IncidentDataFetcher INSTANCE = new IncidentDataFetcher();
 
@@ -29,17 +36,25 @@ public class IncidentDataFetcher implements DataFetcher<AzureGraphIncident> {
 	@Override
 	public List<AzureGraphIncident> fetch(DataFetchContext context) {
 		try {
-			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll(context);
+			List<AzureGraphClientAccessor> accessors = AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getAll( context );
 			List<AzureGraphIncident> list = new ArrayList<>();
-			for (AzureGraphClientAccessor accessor : accessors) {
-				var incidents = accessor.getGraphServiceClient().security().incidents().get().getValue();
-				for (Incident incident : incidents) {
-					list.add(new AzureGraphIncident(accessor.getTenantId(), incident));
+			for ( AzureGraphClientAccessor accessor : accessors ) {
+				var page = accessor.getGraphServiceClient().security().incidents().get();
+				while ( page != null && page.getValue() != null ) {
+					for ( Incident incident : page.getValue() ) {
+						list.add( new AzureGraphIncident( accessor.getTenantId(), incident ) );
+					}
+					String nextLink = page.getOdataNextLink();
+					if ( nextLink == null ) {
+						break;
+					}
+					page = accessor.getGraphServiceClient().security().incidents().withUrl( nextLink ).get();
 				}
 			}
 			return list;
-		} catch (RuntimeException e) {
-			throw new DataFetcherException("Could not fetch incidents", e);
+		}
+		catch (RuntimeException e) {
+			throw new DataFetcherException( "Could not fetch incidents", e );
 		}
 	}
 }
