@@ -30,16 +30,16 @@ public record LinearProject(
 		OffsetDateTime createdAt,
 		OffsetDateTime updatedAt,
 		String url,
-		LeadRef lead) {
+		LeadRef projectLead) {
 
 	public record LeadRef(String id, String name, String email) {
 	}
 
 	public static LinearProject fromJson(JsonNode n) {
-		LeadRef lead = null;
+		LeadRef projectLead = null;
 		if ( !n.path( "lead" ).isMissingNode() && !n.path( "lead" ).isNull() ) {
 			JsonNode l = n.path( "lead" );
-			lead = new LeadRef( l.path( "id" ).asText( null ), l.path( "name" ).asText( null ),
+			projectLead = new LeadRef( l.path( "id" ).asText( null ), l.path( "name" ).asText( null ),
 					l.path( "email" ).asText( null ) );
 		}
 
@@ -58,7 +58,7 @@ public record LinearProject(
 				parseDateTime( n.path( "createdAt" ) ),
 				parseDateTime( n.path( "updatedAt" ) ),
 				n.path( "url" ).asText( null ),
-				lead );
+				projectLead );
 	}
 
 	private static OffsetDateTime parseDateTime(JsonNode node) {
