@@ -68,9 +68,6 @@ public class DatadogCsmFindingDataFetcher implements DataFetcher<DatadogCsmFindi
 			return result;
 		}
 		catch (ApiException e) {
-			if ( DatadogConnectorConfig.isForbidden( e ) ) {
-				return List.of();
-			}
 			throw new DataFetcherException( "Could not fetch Datadog CSM findings", e );
 		}
 	}

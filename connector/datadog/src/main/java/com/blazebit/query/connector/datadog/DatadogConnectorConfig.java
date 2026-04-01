@@ -6,7 +6,6 @@ package com.blazebit.query.connector.datadog;
 
 import com.blazebit.query.spi.DataFetcherConfig;
 import com.datadog.api.client.ApiClient;
-import com.datadog.api.client.ApiException;
 
 import java.time.Duration;
 
@@ -52,13 +51,6 @@ public final class DatadogConnectorConfig {
 	 */
 	public static final DataFetcherConfig<Duration> AUDIT_LOGS_MAX_AGE =
 			DataFetcherConfig.forPropertyName( "datadogAuditLogsMaxAge" );
-
-	/**
-	 * Returns {@code true} when the given {@link ApiException} represents a 403 Forbidden response.
-	 */
-	static boolean isForbidden(ApiException e) {
-		return e.getCode() == 403 || ( e.getMessage() != null && e.getMessage().contains( "forbidden" ) );
-	}
 
 	private DatadogConnectorConfig() {
 	}

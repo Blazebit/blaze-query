@@ -77,9 +77,6 @@ public class DatadogAuditLogDataFetcher implements DataFetcher<DatadogAuditLog>,
 			return result;
 		}
 		catch (ApiException e) {
-			if ( DatadogConnectorConfig.isForbidden( e ) ) {
-				return List.of();
-			}
 			throw new DataFetcherException( "Could not fetch Datadog audit logs", e );
 		}
 	}
