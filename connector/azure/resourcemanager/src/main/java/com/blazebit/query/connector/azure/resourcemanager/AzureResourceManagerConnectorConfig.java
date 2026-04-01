@@ -5,6 +5,7 @@
 package com.blazebit.query.connector.azure.resourcemanager;
 
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.resourcegraph.ResourceGraphManager;
 import com.blazebit.query.spi.DataFetcherConfig;
 
 /**
@@ -20,6 +21,13 @@ public final class AzureResourceManagerConnectorConfig {
 	 */
 	public static final DataFetcherConfig<AzureResourceManager> AZURE_RESOURCE_MANAGER = DataFetcherConfig.forPropertyName(
 			"azureResourceManager" );
+
+	/**
+	 * Specifies the {@link ResourceGraphManager} and subscription IDs to use for Azure Resource
+	 * Graph queries (e.g. patch assessment results).
+	 */
+	public static final DataFetcherConfig<ResourceGraphClientAccessor> RESOURCE_GRAPH_CLIENT = DataFetcherConfig.forPropertyName(
+			"azureResourceGraphClient" );
 
 	private AzureResourceManagerConnectorConfig() {
 	}
