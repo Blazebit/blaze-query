@@ -87,6 +87,8 @@ include(':blaze-query-connector-datadog')
 
 include(':blaze-query-connector-observatory')
 
+include(':blaze-query-connector-linear')
+
 project(":blaze-query-core").projectDir = file('core')
 project(":blaze-query-core-api").projectDir = file('core/api')
 project(":blaze-query-core-impl").projectDir = file('core/impl')
@@ -155,3 +157,4 @@ project(":blaze-query-connector-google-gcp-container").projectDir = file('connec
 project(":blaze-query-connector-google-gcp-kms").projectDir = file('connector/google/gcp/kms')
 project(":blaze-query-connector-google-gcp-dns").projectDir = file('connector/google/gcp/dns')
 project(":blaze-query-connector-observatory").projectDir = file('connector/observatory')
+project(":blaze-query-connector-linear").projectDir = file('connector/linear')
