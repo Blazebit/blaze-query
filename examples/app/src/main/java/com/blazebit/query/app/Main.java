@@ -193,6 +193,14 @@ import com.blazebit.query.connector.datadog.DatadogSecurityMonitoringRule;
 import com.blazebit.query.connector.datadog.DatadogSecuritySignal;
 import com.blazebit.query.connector.datadog.DatadogSyntheticsTest;
 import com.blazebit.query.connector.datadog.DatadogUser;
+import com.blazebit.query.connector.linear.LinearCycle;
+import com.blazebit.query.connector.linear.LinearGraphQlClient;
+import com.blazebit.query.connector.linear.LinearIssue;
+import com.blazebit.query.connector.linear.LinearIssueLabel;
+import com.blazebit.query.connector.linear.LinearProject;
+import com.blazebit.query.connector.linear.LinearTeam;
+import com.blazebit.query.connector.linear.LinearUser;
+import com.blazebit.query.connector.linear.LinearWorkflowState;
 import com.blazebit.query.connector.observatory.ObservatoryClient;
 import com.blazebit.query.connector.view.EntityViewConnectorConfig;
 import com.blazebit.query.spi.DataFetchContext;
@@ -272,10 +280,6 @@ public class Main {
 	private static final String GOOGLE_WORKSPACE_PRIVATE_KEY = "";
 	private static final String GOOGLE_WORKSPACE_SERVICE_ACCOUNT_USER = "";
 
-	private static final String DEVOPS_PAT = "";
-	private static final String DEVOPS_ORGANIZATION = "";
-	private static final String DEVOPS_PROJECT = "";
-
 	private static final String JIRA_DATACENTER_HOST = "";
 	private static final String JIRA_DATACENTER_TOKEN = "";
 	private static final String JIRA_CLOUD_HOST = "";
@@ -288,6 +292,9 @@ public class Main {
 	private static final String DATADOG_API_KEY = "";
 	private static final String DATADOG_APP_KEY = "";
 	private static final String DATADOG_SITE = "datadoghq.eu";
+
+	private static final String LINEAR_API_KEY = "";
+
 
 	private Main() {
 	}
@@ -322,6 +329,7 @@ public class Main {
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 //			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
 			queryContextBuilder.setProperty( DatadogConnectorConfig.DATADOG_API_CLIENT.getPropertyName(), createDatadogApiClient());
+//			queryContextBuilder.setProperty( LinearConnectorConfig.LINEAR_CLIENT.getPropertyName(), createLinearClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -577,6 +585,15 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( DatadogMonitorDowntime.class, "DatadogMonitorDowntime" );
 			queryContextBuilder.registerSchemaObjectAlias( DatadogPermission.class, "DatadogPermission" );
 
+			// Linear
+			queryContextBuilder.registerSchemaObjectAlias( LinearIssue.class, "LinearIssue" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearUser.class, "LinearUser" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearTeam.class, "LinearTeam" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearWorkflowState.class, "LinearWorkflowState" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearIssueLabel.class, "LinearIssueLabel" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearProject.class, "LinearProject" );
+			queryContextBuilder.registerSchemaObjectAlias( LinearCycle.class, "LinearCycle" );
+
 			// Observatory
 			queryContextBuilder.registerSchemaObject(
 					com.blazebit.query.connector.observatory.ObservatoryScan.class,
@@ -597,6 +614,7 @@ public class Main {
 //					testGcp( session );
 //					testGoogleWorkspace( session );
 					testDatadog( session );
+//					testLinear( session );
 //					testAws( session );
 //					testGitlab( session );
 //					testGitHub( session );
@@ -1806,6 +1824,78 @@ public class Main {
 		List<Object[]> observatoryCheckResult = observatoryScanQuery.getResultList();
 		System.out.println( "ObservatoryScan" );
 		print( observatoryCheckResult );
+	}
+
+	private static void testLinear(QuerySession session) {
+		// Issues: all open security issues ordered by priority
+		TypedQuery<Object[]> issueQuery = session.createQuery(
+				"""
+				SELECT i.identifier, i.title, i.priorityLabel, i.state.name, i.assignee.name, i.createdAt
+				FROM LinearIssue i
+				WHERE i.state.type != 'completed' AND i.state.type != 'cancelled'
+				ORDER BY i.priority ASC, i.createdAt ASC
+				""" );
+		System.out.println( "Linear - Open Issues (by priority)" );
+		print( issueQuery.getResultList() );
+
+		// Issues: urgent issues without an assignee
+		TypedQuery<Object[]> unassignedUrgentQuery = session.createQuery(
+				"""
+				SELECT i.identifier, i.title, i.team.name, i.createdAt
+				FROM LinearIssue i
+				WHERE i.priority = 1 AND i.assignee IS NULL
+				""" );
+		System.out.println( "Linear - Urgent Issues Without Assignee" );
+		print( unassignedUrgentQuery.getResultList() );
+
+		// Users: active admin users
+		TypedQuery<Object[]> adminQuery = session.createQuery(
+				"SELECT u.name, u.email, u.admin, u.guest FROM LinearUser u WHERE u.active = TRUE AND u.admin = TRUE" );
+		System.out.println( "Linear - Active Admin Users" );
+		print( adminQuery.getResultList() );
+
+		// Users: inactive users (potential off-boarding risk)
+		TypedQuery<Object[]> inactiveQuery = session.createQuery(
+				"SELECT u.name, u.email FROM LinearUser u WHERE u.active = FALSE" );
+		System.out.println( "Linear - Inactive Users" );
+		print( inactiveQuery.getResultList() );
+
+		// Teams: private teams
+		TypedQuery<Object[]> teamQuery = session.createQuery(
+				"SELECT t.name, t.key, t.privateTeam FROM LinearTeam t ORDER BY t.name ASC" );
+		System.out.println( "Linear - All Teams" );
+		print( teamQuery.getResultList() );
+
+		// WorkflowStates: all states per team
+		TypedQuery<Object[]> stateQuery = session.createQuery(
+				"SELECT s.team.name, s.name, s.type FROM LinearWorkflowState s ORDER BY s.team.name ASC, s.position ASC" );
+		System.out.println( "Linear - Workflow States" );
+		print( stateQuery.getResultList() );
+
+		// Projects: in-progress projects with their lead
+		TypedQuery<Object[]> projectQuery = session.createQuery(
+				"""
+				SELECT p.name, p.state, p.priorityLabel, p.targetDate, p.projectLead.name
+				FROM LinearProject p
+				WHERE p.state = 'inProgress' OR p.state = 'planned'
+				""" );
+		System.out.println( "Linear - Active Projects" );
+		print( projectQuery.getResultList() );
+
+		// Cycles: active cycles (started, not yet completed)
+		TypedQuery<Object[]> cycleQuery = session.createQuery(
+				"""
+				SELECT c.team.name, c.name, c.number, c.startsAt, c.endsAt
+				FROM LinearCycle c
+				WHERE c.completedAt IS NULL AND c.canceledAt IS NULL
+				ORDER BY c.startsAt DESC
+				""" );
+		System.out.println( "Linear - Active Cycles" );
+		print( cycleQuery.getResultList() );
+	}
+
+	private static LinearGraphQlClient createLinearClient() {
+		return new LinearGraphQlClient( LINEAR_API_KEY );
 	}
 
 	private static void testDatadog(QuerySession session) {
