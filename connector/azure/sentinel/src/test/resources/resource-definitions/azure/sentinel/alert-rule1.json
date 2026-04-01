@@ -1,0 +1,13 @@
+{
+  "id": "/subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.OperationalInsights/workspaces/ws1/providers/Microsoft.SecurityInsights/alertRules/rule1",
+  "name": "rule1",
+  "type": "Microsoft.SecurityInsights/alertRules",
+  "kind": "MicrosoftSecurityIncidentCreation",
+  "etag": "\"abc123\"",
+  "properties": {
+    "displayName": "Create incidents based on Microsoft Cloud App Security alerts",
+    "enabled": true,
+    "productFilter": "Microsoft Cloud App Security",
+    "lastModifiedUtc": "2025-01-01T00:00:00Z"
+  }
+}

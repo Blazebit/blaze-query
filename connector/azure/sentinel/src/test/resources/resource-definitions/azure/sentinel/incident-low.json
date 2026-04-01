@@ -1,0 +1,17 @@
+{
+  "id": "/subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.OperationalInsights/workspaces/ws1/providers/Microsoft.SecurityInsights/incidents/2",
+  "name": "2",
+  "type": "Microsoft.SecurityInsights/incidents",
+  "etag": "\"def456\"",
+  "properties": {
+    "incidentNumber": 2,
+    "title": "Low Severity Incident",
+    "description": "A low severity test incident",
+    "severity": "Low",
+    "status": "Closed",
+    "createdTimeUtc": "2025-01-02T00:00:00Z",
+    "lastModifiedTimeUtc": "2025-01-02T01:00:00Z",
+    "classification": "BenignPositive",
+    "relatedAnalyticRuleIds": []
+  }
+}

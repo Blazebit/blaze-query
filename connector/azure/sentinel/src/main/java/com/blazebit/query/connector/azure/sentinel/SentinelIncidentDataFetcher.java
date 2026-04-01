@@ -30,7 +30,7 @@ public class SentinelIncidentDataFetcher implements DataFetcher<SentinelIncident
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( SentinelIncident.class, SentinelConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( SentinelIncident.class, SentinelConventionContext.INSTANCE );
 	}
 
 	@Override

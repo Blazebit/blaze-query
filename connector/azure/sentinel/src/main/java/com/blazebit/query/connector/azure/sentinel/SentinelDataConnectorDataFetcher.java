@@ -30,7 +30,7 @@ public class SentinelDataConnectorDataFetcher implements DataFetcher<SentinelDat
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( SentinelDataConnector.class, SentinelConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( SentinelDataConnector.class, SentinelConventionContext.INSTANCE );
 	}
 
 	@Override

@@ -1,0 +1,17 @@
+{
+  "id": "/subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.OperationalInsights/workspaces/ws1/providers/Microsoft.SecurityInsights/incidents/1",
+  "name": "1",
+  "type": "Microsoft.SecurityInsights/incidents",
+  "etag": "\"abc123\"",
+  "properties": {
+    "incidentNumber": 1,
+    "title": "High Severity Incident",
+    "description": "A high severity test incident",
+    "severity": "High",
+    "status": "Active",
+    "createdTimeUtc": "2025-01-01T00:00:00Z",
+    "lastModifiedTimeUtc": "2025-01-01T01:00:00Z",
+    "classification": "Unknown",
+    "relatedAnalyticRuleIds": []
+  }
+}

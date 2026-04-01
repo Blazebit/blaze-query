@@ -30,7 +30,7 @@ public class SentinelAlertRuleDataFetcher implements DataFetcher<SentinelAlertRu
 
 	@Override
 	public DataFormat getDataFormat() {
-		return DataFormats.beansConvention( SentinelAlertRule.class, SentinelConventionContext.INSTANCE );
+		return DataFormats.componentMethodConvention( SentinelAlertRule.class, SentinelConventionContext.INSTANCE );
 	}
 
 	@Override
