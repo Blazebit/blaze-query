@@ -34,4 +34,22 @@ public class AlertDataFetcherTest {
 			assertThat(typedQuery.getResultList()).isNotEmpty();
 		}
 	}
+
+	@Test
+	void should_return_all_alerts() {
+		try (var session = CONTEXT.createSession()) {
+			session.put(AzureGraphAlert.class, List.of(
+					AzureTestObjects.alertLow(), AzureTestObjects.alertMedium()));
+			var typedQuery = session.createQuery("select a.* from AzureAlert a", AzureGraphAlert.class);
+			assertThat(typedQuery.getResultList()).hasSize(2);
+		}
+	}
+
+	@Test
+	void alert_data_fetcher_is_serializable() throws java.io.IOException {
+		var bos = new java.io.ByteArrayOutputStream();
+		try (var oos = new java.io.ObjectOutputStream(bos)) {
+			oos.writeObject(AlertDataFetcher.INSTANCE);
+		}
+	}
 }

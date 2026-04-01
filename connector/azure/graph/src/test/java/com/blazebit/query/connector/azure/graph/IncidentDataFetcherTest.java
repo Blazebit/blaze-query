@@ -33,4 +33,22 @@ public class IncidentDataFetcherTest {
 			assertThat(typedQuery.getResultList()).isNotEmpty();
 		}
 	}
+
+	@Test
+	void should_return_all_incidents() {
+		try (var session = CONTEXT.createSession()) {
+			session.put(AzureGraphIncident.class, List.of(
+					AzureTestObjects.incidentInformational(), AzureTestObjects.incidentMedium()));
+			var typedQuery = session.createQuery("select a.* from AzureIncident a", AzureGraphIncident.class);
+			assertThat(typedQuery.getResultList()).hasSize(2);
+		}
+	}
+
+	@Test
+	void incident_data_fetcher_is_serializable() throws java.io.IOException {
+		var bos = new java.io.ByteArrayOutputStream();
+		try (var oos = new java.io.ObjectOutputStream(bos)) {
+			oos.writeObject(IncidentDataFetcher.INSTANCE);
+		}
+	}
 }
