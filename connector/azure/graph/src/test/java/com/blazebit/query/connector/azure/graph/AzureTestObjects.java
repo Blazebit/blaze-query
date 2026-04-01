@@ -6,6 +6,8 @@ package com.blazebit.query.connector.azure.graph;
 
 import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.Organization;
+import com.microsoft.graph.beta.models.SecureScore;
+import com.microsoft.graph.beta.models.SecureScoreControlProfile;
 import com.microsoft.graph.beta.models.User;
 import com.microsoft.graph.beta.models.security.Alert;
 import com.microsoft.graph.beta.models.security.Incident;
@@ -112,5 +114,33 @@ public final class AzureTestObjects {
 				Incident.class,
 				new File("src/test/resources/resource-definitions/azure/security/incident1.json"));
 		return new AzureGraphIncident( "123", incident );
+	}
+
+	public static AzureGraphSecureScore secureScoreHigh() {
+		var score = TestObject.fromJson(
+				SecureScore.class,
+				new File( "src/test/resources/resource-definitions/azure/security/secure-score-high.json" ) );
+		return new AzureGraphSecureScore( "123", score );
+	}
+
+	public static AzureGraphSecureScore secureScoreLow() {
+		var score = TestObject.fromJson(
+				SecureScore.class,
+				new File( "src/test/resources/resource-definitions/azure/security/secure-score-low.json" ) );
+		return new AzureGraphSecureScore( "123", score );
+	}
+
+	public static AzureGraphSecureScoreControlProfile secureScoreControlProfileIdentity() {
+		var profile = TestObject.fromJson(
+				SecureScoreControlProfile.class,
+				new File( "src/test/resources/resource-definitions/azure/security/secure-score-control-profile-identity.json" ) );
+		return new AzureGraphSecureScoreControlProfile( "123", profile );
+	}
+
+	public static AzureGraphSecureScoreControlProfile secureScoreControlProfileApps() {
+		var profile = TestObject.fromJson(
+				SecureScoreControlProfile.class,
+				new File( "src/test/resources/resource-definitions/azure/security/secure-score-control-profile-apps.json" ) );
+		return new AzureGraphSecureScoreControlProfile( "123", profile );
 	}
 }

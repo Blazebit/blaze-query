@@ -1,0 +1,16 @@
+{
+  "id": "BlockLegacyAuthentication",
+  "title": "Block legacy authentication",
+  "azureTenantId": "19ed3d8f-b009-433e-bd88-8924a8665c48",
+  "actionType": "Config",
+  "controlCategory": "Apps",
+  "tier": "Advanced",
+  "service": "AAD",
+  "maxScore": 8.0,
+  "rank": 2,
+  "userImpact": "Low",
+  "implementationCost": "Low",
+  "complianceInformation": [],
+  "threats": ["CredentialTheft"],
+  "controlStateUpdates": []
+}

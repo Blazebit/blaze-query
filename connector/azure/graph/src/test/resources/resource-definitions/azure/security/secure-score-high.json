@@ -1,0 +1,12 @@
+{
+  "id": "2025-01-01T00:00:00Z_tenant1",
+  "azureTenantId": "19ed3d8f-b009-433e-bd88-8924a8665c48",
+  "createdDateTime": "2025-01-01T00:00:00Z",
+  "currentScore": 85.0,
+  "maxScore": 100.0,
+  "activeUserCount": 50,
+  "licensedUserCount": 60,
+  "enabledServices": [],
+  "averageComparativeScores": [],
+  "controlScores": []
+}
