@@ -182,6 +182,100 @@ public class LinearGraphQlClient {
 		return executePaginatedQuery( query, new HashMap<>(), "workflowStates", LinearWorkflowState::fromJson );
 	}
 
+	public List<LinearIssueLabel> fetchIssueLabels() {
+		String query = """
+				query($first: Int, $after: String) {
+					issueLabels(first: $first, after: $after) {
+						pageInfo {
+							hasNextPage
+							endCursor
+						}
+						nodes {
+							id
+							name
+							color
+							createdAt
+							updatedAt
+							team {
+								id
+								name
+								key
+							}
+							parent {
+								id
+								name
+							}
+						}
+					}
+				}
+				""";
+		return executePaginatedQuery( query, new HashMap<>(), "issueLabels", LinearIssueLabel::fromJson );
+	}
+
+	public List<LinearProject> fetchProjects() {
+		String query = """
+				query($first: Int, $after: String) {
+					projects(first: $first, after: $after) {
+						pageInfo {
+							hasNextPage
+							endCursor
+						}
+						nodes {
+							id
+							name
+							description
+							state
+							priority
+							priorityLabel
+							startDate
+							targetDate
+							completedAt
+							canceledAt
+							createdAt
+							updatedAt
+							url
+							lead {
+								id
+								name
+								email
+							}
+						}
+					}
+				}
+				""";
+		return executePaginatedQuery( query, new HashMap<>(), "projects", LinearProject::fromJson );
+	}
+
+	public List<LinearCycle> fetchCycles() {
+		String query = """
+				query($first: Int, $after: String) {
+					cycles(first: $first, after: $after) {
+						pageInfo {
+							hasNextPage
+							endCursor
+						}
+						nodes {
+							id
+							name
+							number
+							startsAt
+							endsAt
+							completedAt
+							canceledAt
+							createdAt
+							updatedAt
+							team {
+								id
+								name
+								key
+							}
+						}
+					}
+				}
+				""";
+		return executePaginatedQuery( query, new HashMap<>(), "cycles", LinearCycle::fromJson );
+	}
+
 	<T> List<T> executePaginatedQuery(
 			String query,
 			Map<String, Object> variables,

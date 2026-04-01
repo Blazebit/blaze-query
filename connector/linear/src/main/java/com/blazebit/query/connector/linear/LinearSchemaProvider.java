@@ -27,7 +27,10 @@ public final class LinearSchemaProvider implements QuerySchemaProvider {
 				LinearIssueDataFetcher.INSTANCE,
 				LinearUserDataFetcher.INSTANCE,
 				LinearTeamDataFetcher.INSTANCE,
-				LinearWorkflowStateDataFetcher.INSTANCE
+				LinearWorkflowStateDataFetcher.INSTANCE,
+				LinearIssueLabelDataFetcher.INSTANCE,
+				LinearProjectDataFetcher.INSTANCE,
+				LinearCycleDataFetcher.INSTANCE
 		);
 	}
 }
