@@ -31,7 +31,7 @@ public class PostgreSqlFlexibleServerBackupDataFetcher implements DataFetcher<Az
 	@Override
 	public List<AzureResourcePostgreSqlFlexibleServerBackup> fetch(DataFetchContext context) {
 		try {
-			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers = AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getAll(
+			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers = AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.findAll(
 					context );
 			List<AzureResourcePostgreSqlFlexibleServerBackup> list = new ArrayList<>();
 			for ( AzureResourceManagerPostgreSqlManager resourceManager : postgreSqlResourceManagers ) {

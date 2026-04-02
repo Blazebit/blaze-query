@@ -14,6 +14,7 @@ import com.blazebit.query.spi.DataFormat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,10 @@ public class PostgreSqlFlexibleServerWithParametersDataFetcher implements DataFe
 	public List<AzureResourcePostgreSqlFlexibleServerWithParameters> fetch(DataFetchContext context) {
 		try {
 			List<AzureResourceManagerPostgreSqlManager> postgreSqlResourceManagers =
-					AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getAll(context);
+					AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.findAll(context);
+			if ( postgreSqlResourceManagers.isEmpty() ) {
+				return Collections.emptyList();
+			}
 
 			List<String> parametersToFetch = AzureResourceManagerPostgreSqlManagerConnectorConfig.PARAMETERS_TO_FETCH.getAll(context);
 

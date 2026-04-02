@@ -10,11 +10,11 @@ import com.blazebit.query.spi.DataFetcher;
 import com.blazebit.query.spi.DataFetcherException;
 import com.blazebit.query.spi.DataFormat;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,8 +53,8 @@ public class ServicePlanDataFetcher implements DataFetcher<ServicePlan>, Seriali
 	}
 
 	private List<ServicePlan> read() {
-		try (var reader = Files.newBufferedReader(
-				Path.of( getClass().getResource( SERVICE_PLAN_CSV ).toURI() ) )) {
+		try (var reader = new BufferedReader( new InputStreamReader(
+				getClass().getResourceAsStream( SERVICE_PLAN_CSV ), StandardCharsets.UTF_8 ) )) {
 			return reader.lines()
 					.skip( 1 ) // Skip header row
 					.map( line -> line
@@ -64,7 +64,7 @@ public class ServicePlanDataFetcher implements DataFetcher<ServicePlan>, Seriali
 							UUID.fromString( line[2] ), line[1], line[0] ) )
 					.collect( Collectors.toList() );
 		}
-		catch (IOException | URISyntaxException e) {
+		catch (IOException e) {
 			throw new RuntimeException( e );
 		}
 	}
