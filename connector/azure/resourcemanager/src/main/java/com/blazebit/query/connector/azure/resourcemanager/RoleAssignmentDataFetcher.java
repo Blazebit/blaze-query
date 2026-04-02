@@ -48,17 +48,14 @@ public class RoleAssignmentDataFetcher implements DataFetcher<AzureResourceRoleA
 				String subscriptionId = resourceManager.subscriptionId();
 				String subscriptionScope = "/subscriptions/" + subscriptionId;
 				for ( RoleAssignment roleAssignment : resourceManager.accessManagement().roleAssignments().listByScope( subscriptionScope ) ) {
-					var inner = roleAssignment.innerModel();
+					String id = roleAssignment.id();
+					String resourceGroupName = parseResourceGroupName( id );
 					list.add( new AzureResourceRoleAssignment(
 							tenantId,
-							roleAssignment.id(),
 							subscriptionId,
-							roleAssignment.scope(),
-							roleAssignment.principalId(),
-							inner.principalType() != null ? inner.principalType().toString() : null,
-							roleAssignment.roleDefinitionId(),
-							roleAssignment.description(),
-							inner.createdBy() ) );
+							resourceGroupName,
+							roleAssignment.name(),
+							roleAssignment.innerModel() ) );
 				}
 			}
 			return list;
@@ -66,5 +63,17 @@ public class RoleAssignmentDataFetcher implements DataFetcher<AzureResourceRoleA
 		catch (RuntimeException e) {
 			throw new DataFetcherException( "Could not fetch role assignment list", e );
 		}
+	}
+
+	private static String parseResourceGroupName(String resourceId) {
+		if ( resourceId == null ) {
+			return null;
+		}
+		String[] parts = resourceId.split( "/" );
+		// /subscriptions/{sub}/resourceGroups/{rg}/providers/...
+		if ( parts.length >= 5 && "resourceGroups".equalsIgnoreCase( parts[3] ) ) {
+			return parts[4];
+		}
+		return null;
 	}
 }

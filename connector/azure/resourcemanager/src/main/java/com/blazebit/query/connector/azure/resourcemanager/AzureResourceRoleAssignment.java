@@ -4,20 +4,27 @@
  */
 package com.blazebit.query.connector.azure.resourcemanager;
 
+import com.azure.resourcemanager.authorization.fluent.models.RoleAssignmentInner;
+
 /**
- * Represents an Azure role assignment from the ARM Authorization API.
+ * Wraps an Azure {@link RoleAssignmentInner} enriched with tenant and subscription context.
  *
  * @author Martijn Sprengers
  * @since 1.0.8
  */
-public record AzureResourceRoleAssignment(
-		String tenantId,
-		String roleAssignmentId,
-		String subscriptionId,
-		String assignmentScope,
-		String principalId,
-		String principalType,
-		String roleDefinitionId,
-		String description,
-		String createdBy) {
+public class AzureResourceRoleAssignment extends AzureResourceWrapper<RoleAssignmentInner> {
+
+	public AzureResourceRoleAssignment(
+			String tenantId,
+			String subscriptionId,
+			String resourceGroupName,
+			String roleAssignmentName,
+			RoleAssignmentInner payload) {
+		super( tenantId, subscriptionId, resourceGroupName, roleAssignmentName, payload );
+	}
+
+	@Override
+	public RoleAssignmentInner getPayload() {
+		return super.getPayload();
+	}
 }

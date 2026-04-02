@@ -124,9 +124,15 @@ import com.blazebit.query.connector.azure.graph.AzureGraphConditionalAccessPolic
 import com.blazebit.query.connector.azure.graph.AzureGraphIncident;
 import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
+import com.blazebit.query.connector.azure.graph.AzureGraphRiskyUser;
+import com.blazebit.query.connector.azure.graph.AzureGraphSecureScore;
+import com.blazebit.query.connector.azure.graph.AzureGraphSecureScoreControlProfile;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceBlobServiceProperties;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePatchAssessmentResult;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceRoleAssignment;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSecurityAssessment;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
@@ -351,6 +357,12 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphSecureScore.class, "AzureSecureScore" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphSecureScoreControlProfile.class, "AzureSecureScoreControlProfile" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphRiskyUser.class, "AzureRiskyUser" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePatchAssessmentResult.class, "AzurePatchAssessmentResult" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceSecurityAssessment.class, "AzureSecurityAssessment" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceRoleAssignment.class, "AzureRoleAssignment" );
 
 			// Access Analyzer
 			queryContextBuilder.registerSchemaObjectAlias( AwsAccessAnalyzerAnalyzer.class, "AwsAnalyzer" );
@@ -1735,6 +1747,13 @@ public class Main {
 		System.out.println( "Incidents" );
 		print( incidentResult );
 
+		TypedQuery<Object[]> riskyUserQuery = session.createQuery(
+				"select u.payload.userPrincipalName, u.payload.userDisplayName, u.payload.riskLastUpdatedDateTime"
+				+ " from AzureRiskyUser u" );
+		List<Object[]> riskyUserResult = riskyUserQuery.getResultList();
+		System.out.println( "Risky users" );
+		print( riskyUserResult );
+
 //		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
 //				"select s.* from AzureAvailableServicePlan s" );
 //		List<Object[]> subscribedSkuResult = servicePlanQuery.getResultList();
@@ -1798,6 +1817,30 @@ public class Main {
 				postgreSqlFlexibleServerWithParametersQuery.getResultList();
 		System.out.println("PostgreSqlFlexibleServersWithParameters");
 		print(postgreSqlFlexibleServerWithParametersQueryResult);
+
+		TypedQuery<Object[]> patchAssessmentQuery = session.createQuery(
+				"select r.vmName, r.criticalAndSecurityPatchCount, r.statusCode"
+				+ " from AzurePatchAssessmentResult r"
+				+ " where r.criticalAndSecurityPatchCount > 0" );
+		List<Object[]> patchAssessmentResult = patchAssessmentQuery.getResultList();
+		System.out.println( "VMs with open critical/security patches" );
+		print( patchAssessmentResult );
+
+		TypedQuery<Object[]> securityAssessmentQuery = session.createQuery(
+				"select a.displayName, a.severity, a.resourceId"
+				+ " from AzureSecurityAssessment a"
+				+ " where a.statusCode = 'Unhealthy'"
+				+ " order by a.severity" );
+		List<Object[]> securityAssessmentResult = securityAssessmentQuery.getResultList();
+		System.out.println( "Unhealthy security assessments" );
+		print( securityAssessmentResult );
+
+		TypedQuery<Object[]> roleAssignmentQuery = session.createQuery(
+				"select r.payload.principalId, r.payload.principalType, r.payload.roleDefinitionId, r.subscriptionId"
+				+ " from AzureRoleAssignment r" );
+		List<Object[]> roleAssignmentResult = roleAssignmentQuery.getResultList();
+		System.out.println( "Role assignments" );
+		print( roleAssignmentResult );
 	}
 
 	private static void testObservatory(QuerySession session) {
