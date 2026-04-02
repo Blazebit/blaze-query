@@ -126,6 +126,8 @@ import com.blazebit.query.connector.azure.graph.AzureGraphManagedDevice;
 import com.blazebit.query.connector.azure.graph.AzureGraphOrganization;
 import com.blazebit.query.connector.azure.graph.AzureGraphRiskyUser;
 import com.blazebit.query.connector.azure.graph.AzureGraphSecureScore;
+import com.blazebit.query.connector.azure.graph.AzureGraphUserLastSignInActivity;
+import com.blazebit.query.connector.azure.graph.ServicePlan;
 import com.blazebit.query.connector.azure.graph.AzureGraphSecureScoreControlProfile;
 import com.blazebit.query.connector.azure.graph.AzureGraphServicePlanInfo;
 import com.blazebit.query.connector.azure.graph.AzureGraphUser;
@@ -136,14 +138,22 @@ import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSecurityA
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagedCluster;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServer;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManager;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerPostgreSqlManagerConnectorConfig;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerBackup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourcePostgreSqlFlexibleServerWithParameters;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceStorageAccount;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceDisk;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerResourceGroup;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceNetworkSecurityGroup;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceSubscription;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceTenant;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVault;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualMachine;
 import com.blazebit.query.connector.azure.resourcemanager.AzureResourceVirtualNetwork;
-import com.blazebit.query.connector.gcp.base.GcpConnectorConfig;
+import com.blazebit.query.connector.azure.graph.AzureGraphConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.AzureResourceManagerConnectorConfig;
+import com.blazebit.query.connector.azure.resourcemanager.ResourceGraphClientAccessor;
+import com.azure.resourcemanager.resourcegraph.ResourceGraphManager;
 import com.blazebit.query.connector.gcp.compute.GcpFirewallRule;
 import com.blazebit.query.connector.gcp.compute.GcpInstance;
 import com.blazebit.query.connector.gcp.container.GcpGkeCluster;
@@ -169,8 +179,6 @@ import com.blazebit.query.connector.gitlab.GitlabUser;
 import com.blazebit.query.connector.gitlab.GroupMember;
 import com.blazebit.query.connector.gitlab.ProjectMember;
 import com.blazebit.query.connector.gitlab.ProjectProtectedBranch;
-import com.blazebit.query.connector.google.directory.GoogleDirectoryConnectorConfig;
-import com.blazebit.query.connector.google.drive.GoogleDriveConnectorConfig;
 import com.blazebit.query.connector.jira.cloud.IssueBeanWrapper;
 import com.blazebit.query.connector.jira.cloud.ProjectWrapper;
 import com.blazebit.query.connector.jira.cloud.model.ServerInformation;
@@ -186,7 +194,6 @@ import com.blazebit.query.connector.kandji.model.ListDevices200ResponseInner;
 import com.blazebit.query.connector.datadog.DatadogApiKey;
 import com.blazebit.query.connector.datadog.DatadogApplicationKey;
 import com.blazebit.query.connector.datadog.DatadogAuditLog;
-import com.blazebit.query.connector.datadog.DatadogConnectorConfig;
 import com.blazebit.query.connector.datadog.DatadogCsmFinding;
 import com.blazebit.query.connector.datadog.DatadogHost;
 import com.blazebit.query.connector.datadog.DatadogLog;
@@ -312,22 +319,24 @@ public class Main {
 			EntityViewManager evm = defaultConfiguration.createEntityViewManager( cbf );
 
 			QueryContextBuilder queryContextBuilder = Queries.createQueryContextBuilder();
-//			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), createResourceManager());
-//			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
-//					Main::createPostgreSqlManagers );
-//			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
-//			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
+			AzureResourceManager resourceManager = createResourceManager();
+			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.AZURE_RESOURCE_MANAGER.getPropertyName(), resourceManager);
+			queryContextBuilder.setPropertyProvider( AzureResourceManagerPostgreSqlManagerConnectorConfig.POSTGRESQL_MANAGER.getPropertyName(),
+					Main::createPostgreSqlManagers );
+			queryContextBuilder.setProperty( "serverParameters", List.of("ssl_min_protocol_version", "authentication_timeout"));
+			queryContextBuilder.setProperty( AzureResourceManagerConnectorConfig.RESOURCE_GRAPH_CLIENT.getPropertyName(), createResourceGraphClient( resourceManager ));
+			queryContextBuilder.setProperty( AzureGraphConnectorConfig.GRAPH_SERVICE_CLIENT.getPropertyName(), createGraphServiceClient());
 //			queryContextBuilder.setProperty( AwsConnectorConfig.ACCOUNT.getPropertyName(), createAwsAccount() );
-				queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
-			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
-			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
+//				queryContextBuilder.setProperty( GoogleDirectoryConnectorConfig.GOOGLE_DIRECTORY_SERVICE.getPropertyName(), createGoogleDirectory() );
+//			queryContextBuilder.setProperty( GoogleDriveConnectorConfig.GOOGLE_DRIVE_SERVICE.getPropertyName(), createGoogleDrive() );
+//			queryContextBuilder.setProperty( GcpConnectorConfig.GCP_CREDENTIALS_PROVIDER.getPropertyName(), createGcpCredentialsProvider() );
 //			queryContextBuilder.setProperty( JiraDatacenterConnectorConfig.API_CLIENT.getPropertyName(), createJiraDatacenterApiClient());
 //			queryContextBuilder.setProperty( JiraCloudConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudApiClient());
 //			queryContextBuilder.setProperty( "jqlQuery", "statusCategory != Done");
 //			queryContextBuilder.setProperty( JiraCloudAdminConnectorConfig.API_CLIENT.getPropertyName(), createJiraCloudAdminOrganizationApiClient());
 			queryContextBuilder.setProperty( EntityViewConnectorConfig.ENTITY_VIEW_MANAGER.getPropertyName(), evm );
 //			queryContextBuilder.setProperty( ObservatoryConnectorConfig.OBSERVATORY_CLIENT.getPropertyName(), createObservatoryClient());
-			queryContextBuilder.setProperty( DatadogConnectorConfig.DATADOG_API_CLIENT.getPropertyName(), createDatadogApiClient());
+//			queryContextBuilder.setProperty( DatadogConnectorConfig.DATADOG_API_CLIENT.getPropertyName(), createDatadogApiClient());
 //			queryContextBuilder.setProperty( GitlabConnectorConfig.GITLAB_API.getPropertyName(), createGitlabApi());
 //			queryContextBuilder.setProperty( GitlabGraphQlConnectorConfig.GITLAB_GRAPHQL_CLIENT.getPropertyName(), createGitlabGraphQLClient());
 //            queryContextBuilder.setProperty(KandjiConnectorConfig.API_CLIENT.getPropertyName(), createKandjiApiClient());
@@ -343,17 +352,24 @@ public class Main {
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagedCluster.class, "AzureManagedCluster" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVirtualNetwork.class, "AzureVirtualNetwork" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourceVault.class, "AzureVault" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceDisk.class, "AzureDisk" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceNetworkSecurityGroup.class, "AzureNetworkSecurityGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceManagerResourceGroup.class, "AzureResourceGroup" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceSubscription.class, "AzureSubscription" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureResourceTenant.class, "AzureTenant" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServer.class,"AzurePostgreSqlFlexibleServer" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerBackup.class,"AzurePostgreSqlFlexibleServerBackup" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureResourcePostgreSqlFlexibleServerWithParameters.class,"AzurePostgreSqlFlexibleServerWithParameters" );
 
 			// Azure Graph
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUser.class, "AzureUser" );
+			queryContextBuilder.registerSchemaObjectAlias( AzureGraphUserLastSignInActivity.class, "AzureUserLastSignInActivity" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphConditionalAccessPolicy.class,
 					"AzureConditionalAccessPolicy" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphApplication.class, "AzureApplication" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphManagedDevice.class, "AzureManagedDevice" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphOrganization.class, "AzureOrganization" );
+			queryContextBuilder.registerSchemaObjectAlias( ServicePlan.class, "AzureServicePlan" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphServicePlanInfo.class, "AzureAvailableServicePlan" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphAlert.class, "AzureAlert" );
 			queryContextBuilder.registerSchemaObjectAlias( AzureGraphIncident.class, "AzureIncident" );
@@ -603,12 +619,12 @@ public class Main {
 //					testJiraDatacenter( session );
 //					testJiraCloud( session );
 //					testJiraCloudAdmin( session );
-					testGcp( session );
-					testGoogleWorkspace( session );
-					testGoogleEndpointVerification( session );
 //					testGcp( session );
 //					testGoogleWorkspace( session );
-					testDatadog( session );
+//					testGoogleEndpointVerification( session );
+//					testGcp( session );
+//					testGoogleWorkspace( session );
+//					testDatadog( session );
 //					testAws( session );
 //					testGitlab( session );
 //					testGitHub( session );
@@ -616,8 +632,8 @@ public class Main {
 //					testKandji( session );
 //					testEntityView( session );
 //					testObservatory(  session );
-//					testAzureGraph( session );
-//					testAzureResourceManager( session );
+					testAzureGraph( session );
+					testAzureResourceManager( session );
 				}
 			}
 		}
@@ -1713,23 +1729,23 @@ public class Main {
 		System.out.println( "User" );
 		print( userResult );
 
-//		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
-//				"select c.* from AzureConditionalAccessPolicy c" );
-//		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
-//		System.out.println( "Conditional access policies" );
-//		print( conditionalAccessPolicyResult );
-//
-//		TypedQuery<Object[]> applicationQuery = session.createQuery(
-//				"select a.* from AzureApplication a" );
-//		List<Object[]> applicationResult = applicationQuery.getResultList();
-//		System.out.println( "Applications" );
-//		print( applicationResult );
+		TypedQuery<Object[]> conditionalAccessPolicyQuery = session.createQuery(
+				"select c.* from AzureConditionalAccessPolicy c" );
+		List<Object[]> conditionalAccessPolicyResult = conditionalAccessPolicyQuery.getResultList();
+		System.out.println( "Conditional access policies" );
+		print( conditionalAccessPolicyResult );
 
-//		TypedQuery<Object[]> managedDevices = session.createQuery(
-//				"select a.* from AzureManagedDevice a" );
-//		List<Object[]> managedDevicesResult = managedDevices.getResultList();
-//		System.out.println( "Managed Devices" );
-//		print( managedDevicesResult );
+		TypedQuery<Object[]> applicationQuery = session.createQuery(
+				"select a.* from AzureApplication a" );
+		List<Object[]> applicationResult = applicationQuery.getResultList();
+		System.out.println( "Applications" );
+		print( applicationResult );
+
+		TypedQuery<Object[]> managedDevices = session.createQuery(
+				"select a.* from AzureManagedDevice a" );
+		List<Object[]> managedDevicesResult = managedDevices.getResultList();
+		System.out.println( "Managed Devices" );
+		print( managedDevicesResult );
 
 		TypedQuery<Object[]> organizationQuery = session.createQuery(
 				"select o.* from AzureOrganization o" );
@@ -1754,11 +1770,35 @@ public class Main {
 		System.out.println( "Risky users" );
 		print( riskyUserResult );
 
-//		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
-//				"select s.* from AzureAvailableServicePlan s" );
-//		List<Object[]> subscribedSkuResult = servicePlanQuery.getResultList();
-//		System.out.println( "Service plan" );
-//		print( subscribedSkuResult );
+		TypedQuery<Object[]> servicePlanQuery = session.createQuery(
+				"select s.* from AzureAvailableServicePlan s" );
+		List<Object[]> subscribedSkuResult = servicePlanQuery.getResultList();
+		System.out.println( "Service plan" );
+		print( subscribedSkuResult );
+
+		TypedQuery<Object[]> servicePlanDetailQuery = session.createQuery(
+				"select s.* from AzureServicePlan s" );
+		List<Object[]> servicePlanDetailResult = servicePlanDetailQuery.getResultList();
+		System.out.println( "Service plan details" );
+		print( servicePlanDetailResult );
+
+		TypedQuery<Object[]> userLastSignInQuery = session.createQuery(
+				"select u.tenantId, u.payload.signInActivity from AzureUserLastSignInActivity u" );
+		List<Object[]> userLastSignInResult = userLastSignInQuery.getResultList();
+		System.out.println( "User last sign-in activity" );
+		print( userLastSignInResult );
+
+		TypedQuery<Object[]> secureScoreQuery = session.createQuery(
+				"select s.* from AzureSecureScore s" );
+		List<Object[]> secureScoreResult = secureScoreQuery.getResultList();
+		System.out.println( "Secure scores" );
+		print( secureScoreResult );
+
+		TypedQuery<Object[]> secureScoreControlProfileQuery = session.createQuery(
+				"select s.* from AzureSecureScoreControlProfile s" );
+		List<Object[]> secureScoreControlProfileResult = secureScoreControlProfileQuery.getResultList();
+		System.out.println( "Secure score control profiles" );
+		print( secureScoreControlProfileResult );
 	}
 
 	private static void testAzureResourceManager(QuerySession session) {
@@ -1841,6 +1881,36 @@ public class Main {
 		List<Object[]> roleAssignmentResult = roleAssignmentQuery.getResultList();
 		System.out.println( "Role assignments" );
 		print( roleAssignmentResult );
+
+		TypedQuery<Object[]> diskQuery = session.createQuery(
+				"select d.* from AzureDisk d" );
+		List<Object[]> diskResult = diskQuery.getResultList();
+		System.out.println( "Disks" );
+		print( diskResult );
+
+		TypedQuery<Object[]> nsgQuery = session.createQuery(
+				"select n.* from AzureNetworkSecurityGroup n" );
+		List<Object[]> nsgResult = nsgQuery.getResultList();
+		System.out.println( "Network security groups" );
+		print( nsgResult );
+
+		TypedQuery<Object[]> resourceGroupQuery = session.createQuery(
+				"select rg.* from AzureResourceGroup rg" );
+		List<Object[]> resourceGroupResult = resourceGroupQuery.getResultList();
+		System.out.println( "Resource groups" );
+		print( resourceGroupResult );
+
+		TypedQuery<Object[]> subscriptionQuery = session.createQuery(
+				"select s.* from AzureSubscription s" );
+		List<Object[]> subscriptionResult = subscriptionQuery.getResultList();
+		System.out.println( "Subscriptions" );
+		print( subscriptionResult );
+
+		TypedQuery<Object[]> tenantQuery = session.createQuery(
+				"select t.* from AzureTenant t" );
+		List<Object[]> tenantResult = tenantQuery.getResultList();
+		System.out.println( "Tenants" );
+		print( tenantResult );
 	}
 
 	private static void testObservatory(QuerySession session) {
@@ -2218,6 +2288,17 @@ public class Main {
 				.tenantId( AZURE_TENANT_ID )
 				.build();
 		return AzureResourceManager.authenticate( credentials, profile ).withDefaultSubscription();
+	}
+
+	private static ResourceGraphClientAccessor createResourceGraphClient(AzureResourceManager resourceManager) {
+		AzureProfile profile = new AzureProfile( AZURE_TENANT_ID, null, AzureEnvironment.AZURE );
+		ClientSecretCredential credentials = new ClientSecretCredentialBuilder()
+				.clientId( AZURE_CLIENT_ID )
+				.clientSecret( AZURE_CLIENT_SECRET )
+				.tenantId( AZURE_TENANT_ID )
+				.build();
+		ResourceGraphManager manager = ResourceGraphManager.authenticate( credentials, profile );
+		return ResourceGraphClientAccessor.create( AZURE_TENANT_ID, List.of( resourceManager.subscriptionId() ), manager );
 	}
 
 	private static AzureGraphClientAccessor createGraphServiceClient() {
