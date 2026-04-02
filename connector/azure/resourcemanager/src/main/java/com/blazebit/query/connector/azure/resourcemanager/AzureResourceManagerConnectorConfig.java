@@ -23,8 +23,14 @@ public final class AzureResourceManagerConnectorConfig {
 			"azureResourceManager" );
 
 	/**
-	 * Specifies the {@link ResourceGraphManager} and subscription IDs to use for Azure Resource
-	 * Graph queries (e.g. patch assessment results).
+	 * Specifies the {@link ResourceGraphClientAccessor} instances to use for Azure Resource Graph
+	 * queries (patch assessment results, security assessments).
+	 *
+	 * <p>In multi-tenant setups, one {@link ResourceGraphClientAccessor} must be configured per
+	 * tenant, each carrying the tenant ID, all subscription IDs for that tenant, and an
+	 * authenticated {@link ResourceGraphManager}. This config is independent of
+	 * {@link #AZURE_RESOURCE_MANAGER} because {@link AzureResourceManager} does not expose the
+	 * credentials needed to construct a {@link ResourceGraphManager}.
 	 */
 	public static final DataFetcherConfig<ResourceGraphClientAccessor> RESOURCE_GRAPH_CLIENT = DataFetcherConfig.forPropertyName(
 			"azureResourceGraphClient" );
