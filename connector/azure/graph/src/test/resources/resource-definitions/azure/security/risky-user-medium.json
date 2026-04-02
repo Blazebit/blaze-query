@@ -1,0 +1,8 @@
+{
+  "id": "user-002",
+  "userPrincipalName": "jane.smith@contoso.com",
+  "userDisplayName": "Jane Smith",
+  "isDeleted": false,
+  "isProcessing": false,
+  "riskLastUpdatedDateTime": "2024-11-02T08:30:00Z"
+}

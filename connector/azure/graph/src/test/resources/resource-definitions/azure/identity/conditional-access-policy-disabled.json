@@ -1,0 +1,7 @@
+{
+  "id": "policy-002",
+  "displayName": "Block legacy authentication",
+  "state": "disabled",
+  "createdDateTime": "2024-03-01T00:00:00Z",
+  "modifiedDateTime": "2024-06-15T00:00:00Z"
+}

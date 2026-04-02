@@ -31,7 +31,8 @@ public final class AzureGraphSchemaProvider implements QuerySchemaProvider {
 				AlertDataFetcher.INSTANCE,
 				IncidentDataFetcher.INSTANCE,
 				SecureScoreDataFetcher.INSTANCE,
-				SecureScoreControlProfileDataFetcher.INSTANCE
+				SecureScoreControlProfileDataFetcher.INSTANCE,
+				RiskyUserDataFetcher.INSTANCE
 		);
 	}
 }

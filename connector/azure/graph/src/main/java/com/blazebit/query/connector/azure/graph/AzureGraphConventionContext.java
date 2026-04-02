@@ -8,6 +8,7 @@ import java.lang.reflect.Member;
 
 import com.blazebit.query.connector.base.ConventionContext;
 import com.microsoft.graph.beta.models.AccessReviewInstanceDecisionItem;
+import com.microsoft.graph.beta.models.RiskyUser;
 import com.microsoft.graph.beta.models.ActivityHistoryItem;
 import com.microsoft.graph.beta.models.BaseItem;
 import com.microsoft.graph.beta.models.ChatMessage;
@@ -181,6 +182,9 @@ public class AzureGraphConventionContext implements ConventionContext {
 			case "getFromTerm":
 			case "getToTerm":
 				return member.getDeclaringClass() != Relation.class ? this : NestedTermConventionContext.INSTANCE;
+			case "getHistory":
+				return member.getDeclaringClass() != RiskyUser.class ? this
+						: NestedRiskyUserHistoryItemConventionContext.INSTANCE;
 			case "getCreatedByUser":
 			case "getLastModifiedByUser":
 				return member.getDeclaringClass() != BaseItem.class ? this : NestedUserConventionContext.INSTANCE;
@@ -789,6 +793,25 @@ public class AzureGraphConventionContext implements ConventionContext {
 				case "getBackingStore":
 					return null;
 				// Filter out cycles in the model
+				case "getId":
+					return this;
+				default:
+					return null;
+			}
+		}
+	}
+
+	private static final class NestedRiskyUserHistoryItemConventionContext implements ConventionContext {
+
+		private static final NestedRiskyUserHistoryItemConventionContext INSTANCE = new NestedRiskyUserHistoryItemConventionContext();
+
+		@Override
+		public ConventionContext getSubFilter(Class<?> concreteClass, Member member) {
+			switch ( member.getName() ) {
+				case "getFieldDeserializers":
+				case "getBackingStore":
+					return null;
+				// Filter out cycles in the model (RiskyUserHistoryItem extends RiskyUser)
 				case "getId":
 					return this;
 				default:

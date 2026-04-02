@@ -4,8 +4,10 @@
  */
 package com.blazebit.query.connector.azure.graph;
 
+import com.microsoft.graph.beta.models.ConditionalAccessPolicy;
 import com.microsoft.graph.beta.models.ManagedDevice;
 import com.microsoft.graph.beta.models.Organization;
+import com.microsoft.graph.beta.models.RiskyUser;
 import com.microsoft.graph.beta.models.SecureScore;
 import com.microsoft.graph.beta.models.SecureScoreControlProfile;
 import com.microsoft.graph.beta.models.User;
@@ -142,5 +144,33 @@ public final class AzureTestObjects {
 				SecureScoreControlProfile.class,
 				new File( "src/test/resources/resource-definitions/azure/security/secure-score-control-profile-apps.json" ) );
 		return new AzureGraphSecureScoreControlProfile( "123", profile );
+	}
+
+	public static AzureGraphConditionalAccessPolicy conditionalAccessPolicyEnabled() {
+		var policy = TestObject.fromJson(
+				ConditionalAccessPolicy.class,
+				new File( "src/test/resources/resource-definitions/azure/identity/conditional-access-policy-enabled.json" ) );
+		return new AzureGraphConditionalAccessPolicy( "tenant1", policy );
+	}
+
+	public static AzureGraphConditionalAccessPolicy conditionalAccessPolicyDisabled() {
+		var policy = TestObject.fromJson(
+				ConditionalAccessPolicy.class,
+				new File( "src/test/resources/resource-definitions/azure/identity/conditional-access-policy-disabled.json" ) );
+		return new AzureGraphConditionalAccessPolicy( "tenant1", policy );
+	}
+
+	public static AzureGraphRiskyUser riskyUserHigh() {
+		var user = TestObject.fromJson(
+				RiskyUser.class,
+				new File( "src/test/resources/resource-definitions/azure/security/risky-user-high.json" ) );
+		return new AzureGraphRiskyUser( "tenant1", user );
+	}
+
+	public static AzureGraphRiskyUser riskyUserMedium() {
+		var user = TestObject.fromJson(
+				RiskyUser.class,
+				new File( "src/test/resources/resource-definitions/azure/security/risky-user-medium.json" ) );
+		return new AzureGraphRiskyUser( "tenant1", user );
 	}
 }

@@ -1,0 +1,7 @@
+{
+  "id": "policy-001",
+  "displayName": "Require MFA for all users",
+  "state": "enabled",
+  "createdDateTime": "2024-01-01T00:00:00Z",
+  "modifiedDateTime": "2024-06-01T00:00:00Z"
+}
