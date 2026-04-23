@@ -85,9 +85,6 @@ public class DatadogSecuritySignalDataFetcher implements DataFetcher<DatadogSecu
 			return result;
 		}
 		catch (ApiException e) {
-			if ( DatadogConnectorConfig.isForbidden( e ) ) {
-				return List.of();
-			}
 			throw new DataFetcherException( "Could not fetch Datadog security signals", e );
 		}
 	}
